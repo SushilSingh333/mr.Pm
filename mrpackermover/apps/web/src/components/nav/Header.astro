@@ -79,6 +79,7 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
     </button>
   </div>
 
+  <div class="md-scroll">
   <nav class="md-primary" aria-label="Primary">
     {
       PRIMARY_NAV.map((l) => (
@@ -104,6 +105,7 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
       ))
     }
   </nav>
+  </div>
 
   <div class="md-foot">
     <a class="md-call" href={`tel:${PHONE_TEL}`}>
@@ -403,15 +405,24 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
     padding: 0.85rem 1.05rem 1.1rem;
     background: var(--color-surface);
     box-shadow: -22px 0 55px rgba(9, 35, 65, 0.28);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    overflow: hidden; /* the middle section scrolls, not the whole drawer */
     transform: translateX(100%);
     transition: transform var(--dur-base) var(--ease-out);
   }
   .m-drawer.show {
     transform: translateX(0);
   }
+  /* Scrollable middle: links scroll here; top bar + footer stay pinned. */
+  .md-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-inline: -0.2rem;
+    padding-inline: 0.2rem;
+  }
   .md-top {
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -537,11 +548,14 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
   }
 
   .md-foot {
-    margin-top: auto;
-    padding-top: 1.1rem;
+    flex: none;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-line);
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
+    background: var(--color-surface);
   }
   .md-call {
     display: inline-flex;

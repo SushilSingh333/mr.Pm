@@ -116,11 +116,20 @@ import { iconSvg } from '../../lib/icons.js';
       grid-template-columns: 1fr;
     }
     .cov-arrow {
-      width: auto;
-      height: 48px;
+      width: 100%;
+      height: 42px;
       border-inline: 0;
       border-block: 1px solid var(--color-line);
+    }
+    /* Point the arrow downward for the stacked layout (rotate the icon, not the bordered row). */
+    .cov-arrow svg {
       transform: rotate(90deg);
+    }
+    .cov-part {
+      padding: 1.35rem 1.25rem;
+    }
+    .cov-body strong {
+      font-size: var(--text-lg);
     }
   }
 </style>

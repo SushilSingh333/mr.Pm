@@ -121,4 +121,33 @@ const { areas, cityName } = Astro.props;
     color: var(--color-brand-600);
     font-weight: 700;
   }
+  /* Two areas per row on phones — compact chips (drop the repeated subtitle + arrow). */
+  @media (max-width: 560px) {
+    .areas-grid {
+      gap: 0.55rem;
+    }
+    .areas-grid > li {
+      flex: 1 1 calc(50% - 0.3rem);
+      max-width: none;
+    }
+    .area-card {
+      gap: 0.55rem;
+      padding: 0.6rem 0.7rem;
+    }
+    .area-pin {
+      width: 34px;
+      height: 34px;
+    }
+    .area-pin svg {
+      width: 16px;
+      height: 16px;
+    }
+    .area-text strong {
+      font-size: var(--text-sm);
+    }
+    .area-text small,
+    .area-arrow {
+      display: none;
+    }
+  }
 </style>

@@ -102,4 +102,26 @@ const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?
     color: var(--color-ink-500);
     font-size: var(--text-xs);
   }
+  /* Two cities per row on phones. */
+  @media (max-width: 560px) {
+    .cities-grid {
+      gap: 0.6rem;
+    }
+    .city-card {
+      flex: 1 1 calc(50% - 0.3rem);
+      max-width: none;
+      gap: 0.6rem;
+      padding: 0.6rem 0.65rem;
+    }
+    .city-thumb {
+      width: 44px;
+      height: 44px;
+    }
+    .city-body strong {
+      font-size: var(--text-sm);
+    }
+    .city-body small {
+      font-size: 11px;
+    }
+  }
 </style>

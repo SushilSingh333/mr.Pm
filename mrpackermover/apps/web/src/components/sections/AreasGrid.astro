@@ -59,14 +59,21 @@ const { areas, cityName } = Astro.props;
 <style>
   .areas-grid {
     list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.85rem;
     max-width: 1040px;
     margin-inline: auto;
   }
+  .areas-grid > li {
+    display: flex;
+    flex: 0 1 240px;
+    max-width: 320px;
+  }
   .area-card {
     display: flex;
+    width: 100%;
     align-items: center;
     gap: 0.75rem;
     padding: 0.85rem 1rem;

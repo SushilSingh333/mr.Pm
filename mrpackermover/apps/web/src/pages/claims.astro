@@ -1,0 +1,186 @@
+---
+import { jsonld } from '@mpm/seo';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import FeatureGrid from '../components/page/FeatureGrid.astro';
+import Faq from '../components/sections/Faq.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow, org } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/claims',
+  pageType: 'trust',
+  title: 'Claims & Settlement Data | MrPackerMover',
+  h1: 'The claims page nobody else in this category shows',
+  metaDescription:
+    'How MrPackerMover handles damage claims — the process, what we cover, and the settlement metrics we publish openly instead of hiding behind “100% damage-free”.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+
+const metrics = [
+  { value: '6 days', label: 'Median time to settle a claim', sub: 'From report to payment' },
+  { value: '99.2%', label: 'Moves completed damage-free', sub: 'Last reporting period' },
+  { value: '100%', label: 'Valid claims settled', sub: 'No valid claim refused' },
+];
+
+const steps = [
+  {
+    title: 'Report it within the window',
+    body: 'Tell your coordinator (or use raise-a-complaint) within the claims window on your invoice. Share photos and your inventory reference.',
+  },
+  {
+    title: 'We assess against the record',
+    body: 'We check your report against the sealed inventory and the packing photos taken on the day — the shared record, not a he-said-she-said.',
+  },
+  {
+    title: 'We agree a settlement',
+    body: 'For a covered item we agree repair, replacement or reimbursement, based on your declared value and any transit insurance you opted for.',
+  },
+  {
+    title: 'You’re paid, and it’s logged',
+    body: 'Settlement is paid out and the case is recorded — which is how the numbers above stay honest and keep improving.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'Why publish claims data at all?',
+    answer:
+      '“100% damage-free” is a claim no honest mover can make. Publishing our real settlement time and damage rate is uncomfortable, but it is verifiable — and it holds us to a standard a slogan never could.',
+  },
+  {
+    question: 'What is actually covered?',
+    answer:
+      'Transit damage caused by our handling is our responsibility. Your liability cover is basic by default; opting for transit insurance raises it to your declared value. Pre-existing damage and items you packed yourself without our inspection are treated differently — all spelled out before the move.',
+  },
+  {
+    question: 'How is a settlement amount decided?',
+    answer:
+      'By the declared value of the item and the cover you chose. With transit insurance, it is settled to the insured value; without it, to the basic liability limit. We show you both options on your quote so there are no surprises.',
+  },
+  {
+    question: 'How long do I have to raise a claim?',
+    answer:
+      'The exact window is printed on your invoice. Report as soon as you notice an issue, ideally at handover, and keep the item and its packing until the claim is closed.',
+  },
+];
+
+const extraJsonLd = [jsonld.faqPage(faqs)];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <PageHero
+    dark
+    eyebrow="Claims & settlement"
+    h1={row.h1}
+    intro="Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open."
+    breadcrumbs={row.breadcrumbs}
+    current="Claims"
+  />
+
+  <Band label="What we publish">
+    <div class="section-head">
+      <h2>Our claims numbers, in the open</h2>
+      <p>Updated each reporting period — the flattering figures and the unflattering ones alike.</p>
+    </div>
+    <ul class="metrics" role="list">
+      {
+        metrics.map((m) => (
+          <li class="metric card">
+            <span class="m-value">{m.value}</span>
+            <span class="m-label">{m.label}</span>
+            <span class="m-sub">{m.sub}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="metrics-note">
+      Figures shown are illustrative sample data during build; they are replaced by live,
+      audited numbers from our operations system at the first quarterly report. We publish real
+      data or none — never invented counters.
+    </p>
+  </Band>
+
+  <Band alt label="How claims work">
+    <div class="section-head">
+      <h2>How a claim works</h2>
+      <p>Four steps, defined before your move begins — not improvised after something breaks.</p>
+    </div>
+    <FeatureGrid items={steps} columns={4} numbered />
+  </Band>
+
+  <Band label="Claims FAQ">
+    <Faq faqs={faqs} heading="Claims questions, answered" />
+    {
+      o?.complaintSla && (
+        <p class="sla-note">
+          Our commitment: {o.complaintSla} Prefer to start now?{' '}
+          <a href="/raise-a-complaint">Raise a complaint</a>.
+        </p>
+      )
+    }
+  </Band>
+
+  <CtaBand
+    heading="Protection you can read before you book"
+    text="See exactly how your goods are covered in transit, and choose the level of protection that fits your move."
+    primaryLabel="Transit insurance"
+    primaryHref="/insurance"
+    secondaryLabel="Raise a complaint"
+    secondaryHref="/raise-a-complaint"
+  />
+</BaseLayout>
+
+<style>
+  .metrics {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 940px;
+    margin-inline: auto;
+  }
+  .metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(180deg, var(--color-surface), var(--color-brand-50));
+  }
+  .m-value {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, var(--text-5xl));
+    color: var(--color-brand-700);
+    line-height: 1;
+  }
+  .m-label {
+    font-weight: 600;
+    color: var(--color-ink-900);
+  }
+  .m-sub {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .metrics-note {
+    max-width: 760px;
+    margin: 1.5rem auto 0;
+    text-align: center;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .sla-note {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--color-ink-500);
+  }
+  @media (max-width: 720px) {
+    .metrics {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

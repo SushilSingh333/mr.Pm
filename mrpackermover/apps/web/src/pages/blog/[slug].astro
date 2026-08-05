@@ -1,0 +1,243 @@
+---
+import { jsonld } from '@mpm/seo';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Band from '../../components/ui/Band.astro';
+import Prose from '../../components/page/Prose.astro';
+import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
+import BlogCard from '../../components/blog/BlogCard.astro';
+import CtaBand from '../../components/page/CtaBand.astro';
+import { formatDate } from '../../lib/format.js';
+import { staticRow } from '../../lib/page.js';
+import { POSTS, relatedPosts, type BlogPost } from '../../data/blog.js';
+
+export function getStaticPaths() {
+  return POSTS.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+const { post } = Astro.props;
+
+const row = staticRow({
+  path: `/blog/${post.slug}`,
+  pageType: 'guide',
+  title: post.title.length <= 65 ? post.title : `${post.title.slice(0, 62)}…`,
+  h1: post.title,
+  metaDescription: post.excerpt.length <= 175 ? post.excerpt : `${post.excerpt.slice(0, 172)}…`,
+  breadcrumbs: [
+    { path: '/', anchor: 'Home' },
+    { path: '/blog', anchor: 'Blog' },
+  ],
+});
+
+const related = relatedPosts(post.slug, 3);
+const extraJsonLd = [
+  jsonld.article({
+    headline: post.title,
+    authorName: post.author,
+    datePublished: post.date,
+    dateModified: post.date,
+  }),
+];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <article class="post">
+    <header class="post-head">
+      <span class="ph-orb" aria-hidden="true"></span>
+      <div class="container-page post-head-inner">
+        <Breadcrumbs items={row.breadcrumbs} current={post.category} />
+        <span class="post-cat">{post.category}</span>
+        <h1>{post.title}</h1>
+        <p class="post-lead">{post.excerpt}</p>
+        <div class="post-meta">
+          <span>{post.author}</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>{formatDate(post.date)}</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>{post.readMins} min read</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-page">
+      <figure class="post-cover">
+        <img
+          src={post.cover}
+          alt={post.coverAlt}
+          width="1120"
+          height="560"
+          decoding="async"
+        />
+      </figure>
+    </div>
+
+    <div class="container-page post-body">
+      <Prose><Fragment set:html={post.body} /></Prose>
+      <div class="post-tags">
+        {post.tags.map((t) => <span class="tag">#{t.replace(/\s+/g, '')}</span>)}
+      </div>
+      <a class="back-link" href="/blog">← Back to all articles</a>
+    </div>
+  </article>
+
+  {
+    related.length > 0 && (
+      <Band alt label="Related articles">
+        <div class="section-head">
+          <h2>Keep reading</h2>
+        </div>
+        <div class="related-grid">
+          {related.map((p) => (
+            <BlogCard post={p} />
+          ))}
+        </div>
+      </Band>
+    )
+  }
+
+  <CtaBand
+    heading="Ready to move for real?"
+    text="Turn the reading into a plan. Get a fixed, itemised quote from a mover you can verify before you book."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="Talk to us"
+    secondaryHref="/company/contact"
+  />
+</BaseLayout>
+
+<style>
+  .post-head {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      radial-gradient(85% 120% at 85% -10%, var(--color-navy-500), transparent 60%),
+      linear-gradient(165deg, var(--color-navy-800), var(--color-navy-700));
+    padding-block: clamp(1.25rem, 3vw, 2rem) clamp(1.75rem, 4vw, 2.5rem);
+  }
+  .post-head :global(.breadcrumbs a),
+  .post-head :global(.breadcrumbs [aria-current='page']) {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .post-head :global(.breadcrumbs .sep) {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  .post-head-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+  }
+  .ph-orb {
+    position: absolute;
+    top: -80px;
+    right: -40px;
+    width: 260px;
+    height: 260px;
+    border-radius: var(--radius-pill);
+    background: radial-gradient(circle, color-mix(in oklab, var(--color-brand-300) 50%, transparent), transparent 70%);
+    opacity: 0.4;
+    z-index: 0;
+  }
+  .post-cat {
+    display: inline-block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 0.85rem;
+  }
+  .post-head h1 {
+    font-size: clamp(1.8rem, 4.5vw, var(--text-4xl));
+    max-width: 20ch;
+    color: #fff;
+  }
+  .post-lead {
+    margin-top: 1rem;
+    font-size: clamp(1.05rem, 2vw, var(--text-xl));
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 60ch;
+  }
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .post-cover {
+    max-width: 1080px;
+    margin: clamp(1.25rem, 3vw, 2rem) auto 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    aspect-ratio: 2 / 1;
+    background: var(--color-surface-3);
+  }
+  .post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-body {
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-width: 78ch;
+    width: 100%;
+    margin-top: 2.5rem;
+  }
+  .tag {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+  }
+  .back-link {
+    align-self: flex-start;
+    max-width: 78ch;
+    width: 100%;
+    margin-top: 2rem;
+    font-weight: 600;
+    color: var(--color-brand-700);
+    text-decoration: none;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+  @media (max-width: 860px) {
+    .related-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

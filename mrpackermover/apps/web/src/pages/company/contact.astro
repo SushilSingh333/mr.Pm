@@ -1,0 +1,297 @@
+---
+import { jsonld } from '@mpm/seo';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import Faq from '../../components/sections/Faq.astro';
+import { iconSvg } from '../../lib/icons.js';
+import { staticRow, org } from '../../lib/page.js';
+import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../../lib/site.js';
+
+const row = staticRow({
+  path: '/company/contact',
+  pageType: 'core',
+  title: 'Contact Us – MrPackerMover',
+  h1: 'Talk to a human, fast',
+  metaDescription:
+    'Call, WhatsApp or email MrPackerMover for quotes, live moves and support. Real people, a published response time, and no call-centre runaround.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+
+const phoneRaw = PHONE_DISPLAY;
+const tel = PHONE_TEL;
+const wa = PHONE_TEL.replace(/\D/g, '');
+const email = EMAIL;
+
+const channels = [
+  {
+    icon: 'phone',
+    label: 'Call us',
+    value: phoneRaw,
+    href: `tel:${tel}`,
+    note: 'For quotes, live moves and anything urgent.',
+  },
+  {
+    icon: 'handshake',
+    label: 'WhatsApp',
+    value: phoneRaw,
+    href: `https://wa.me/${wa}`,
+    note: 'Share photos of your items for a faster estimate.',
+  },
+  {
+    icon: 'mail',
+    label: 'Email',
+    value: email,
+    href: `mailto:${email}`,
+    note: 'Documents, invoices and detailed enquiries.',
+  },
+];
+
+const faqs = [
+  {
+    question: 'Do you have an office I can walk into?',
+    answer:
+      'No — and that is deliberate. We do not run walk-in branch offices; our crews come to you. Our registered office is listed for correspondence, and everything else happens by phone, WhatsApp, email or at your doorstep.',
+  },
+  {
+    question: 'How quickly will I get a reply?',
+    answer: `We aim for a first response ${o?.complaintSla ? o.complaintSla.toLowerCase() : 'within 24 hours'}. During a live move, your coordinator is reachable directly on the number they share with you.`,
+  },
+  {
+    question: 'Can I get a quote without a call?',
+    answer:
+      'Yes. Use the fixed-quote form on the site, or WhatsApp us photos of what you are moving and the pickup and drop locations — we will send an itemised written quote.',
+  },
+  {
+    question: 'Something went wrong with my move. Who do I contact?',
+    answer:
+      'Start with your coordinator, then escalate through our raise-a-complaint page if it is not resolved. Every complaint is logged and tracked to closure.',
+  },
+];
+
+const extraJsonLd = [jsonld.faqPage(faqs)];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <PageHero
+    dark
+    eyebrow="Contact"
+    h1={row.h1}
+    intro="No ticket queues, no 12-digit IVR maze. Pick the channel that suits you — a real person on our team will pick it up."
+    breadcrumbs={row.breadcrumbs}
+    current="Contact"
+  />
+
+  <Band label="Ways to reach us">
+    <ul class="channels" role="list">
+      {
+        channels.map((c) => (
+          <li>
+            <a class="channel card" href={c.href} rel="noopener">
+              <span class="ch-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  set:html={iconSvg(c.icon)}
+                />
+              </span>
+              <span class="ch-label">{c.label}</span>
+              <span class="ch-value">{c.value}</span>
+              <span class="ch-note">{c.note}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="contact-meta">
+      <div class="cm-item">
+        <span class="cm-icon" set:html={`<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('clock')}</svg>`} />
+        <div>
+          <strong>Support hours</strong>
+          <span>Mon–Sat, 9:00 am – 8:00 pm IST. Live-move support runs on your move day too.</span>
+        </div>
+      </div>
+      <div class="cm-item">
+        <span class="cm-icon" set:html={`<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('shield-check')}</svg>`} />
+        <div>
+          <strong>Response time</strong>
+          <span
+            >{o?.complaintSla ?? 'First response within 24 hours.'} During a live move, your
+            coordinator is a call away.</span
+          >
+        </div>
+      </div>
+    </div>
+  </Band>
+
+  <Band alt label="Quick help">
+    <div class="section-head">
+      <h2>Looking for something specific?</h2>
+    </div>
+    <div class="quick-links">
+      <a href="/get-quote" class="ql card">
+        <strong>Get a fixed quote</strong>
+        <span>Itemised, written, and yours in minutes.</span>
+      </a>
+      <a href="/track" class="ql card">
+        <strong>Track your move</strong>
+        <span>Check the live status of a booked shipment.</span>
+      </a>
+      <a href="/raise-a-complaint" class="ql card">
+        <strong>Raise a complaint</strong>
+        <span>Log an issue and get it tracked to closure.</span>
+      </a>
+      <a href="/pricing" class="ql card">
+        <strong>See pricing</strong>
+        <span>How our fixed quotes are built up.</span>
+      </a>
+    </div>
+  </Band>
+
+  <Band label="Contact FAQ">
+    <Faq faqs={faqs} heading="Contact questions, answered" />
+  </Band>
+</BaseLayout>
+
+<style>
+  .channels {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 980px;
+    margin-inline: auto;
+  }
+  .channel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.75rem;
+    text-decoration: none;
+    height: 100%;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .channel:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .ch-icon {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(140deg, var(--color-navy-600), var(--color-navy-800));
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(9, 35, 65, 0.28);
+    margin-bottom: 0.4rem;
+  }
+  .ch-label {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .ch-value {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-lg);
+    color: var(--color-ink-900);
+  }
+  .ch-note {
+    margin-top: 0.35rem;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+
+  .contact-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    max-width: 980px;
+    margin: 1.5rem auto 0;
+  }
+  .cm-item {
+    display: flex;
+    gap: 0.85rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+  .cm-icon {
+    color: var(--color-brand-600);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .cm-item div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .cm-item strong {
+    color: var(--color-ink-900);
+  }
+  .cm-item span {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .prelaunch-note {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+
+  .quick-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+  .ql {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.35rem;
+    text-decoration: none;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .ql:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .ql strong {
+    color: var(--color-ink-900);
+  }
+  .ql span {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  @media (max-width: 860px) {
+    .channels,
+    .quick-links {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .channels,
+    .quick-links,
+    .contact-meta {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

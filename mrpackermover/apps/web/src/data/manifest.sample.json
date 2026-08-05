@@ -12,7 +12,9 @@
     "complaintSla": "First response within 24 hours.",
     "phone": "+91-00000-00000",
     "whatsapp": "+91-00000-00000",
-    "sameAs": ["https://www.linkedin.com/company/mrpackermover"]
+    "sameAs": [
+      "https://www.linkedin.com/company/mrpackermover"
+    ]
   },
   "pages": [
     {
@@ -91,11 +93,11 @@
       ],
       "inboundLinks": [
         {
-          "path": "/services/packing-unpacking",
+          "path": "/services/loading-unloading",
           "anchor": "Home Shifting"
         },
         {
-          "path": "/services/storage-warehousing",
+          "path": "/services/packing-unpacking",
           "anchor": "Home Shifting"
         },
         {
@@ -235,7 +237,7 @@
           "anchor": "Office Shifting"
         },
         {
-          "path": "/services/storage-warehousing",
+          "path": "/services/packing-unpacking",
           "anchor": "Office Shifting"
         },
         {
@@ -484,8 +486,8 @@
           "group": "services"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Storage & Warehousing",
+          "path": "/services/international-relocation",
+          "anchor": "International Relocation",
           "group": "services"
         }
       ],
@@ -609,13 +611,13 @@
           "group": "services"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Storage & Warehousing",
+          "path": "/services/international-relocation",
+          "anchor": "International Relocation",
           "group": "services"
         },
         {
-          "path": "/services/international-relocation",
-          "anchor": "International Relocation",
+          "path": "/services/home-shifting",
+          "anchor": "Home Shifting",
           "group": "services"
         }
       ],
@@ -734,11 +736,6 @@
           "group": "cities"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Storage & Warehousing",
-          "group": "services"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "International Relocation",
           "group": "services"
@@ -746,6 +743,11 @@
         {
           "path": "/services/home-shifting",
           "anchor": "Home Shifting",
+          "group": "services"
+        },
+        {
+          "path": "/services/office-shifting",
+          "anchor": "Office Shifting",
           "group": "services"
         }
       ],
@@ -802,104 +804,6 @@
       "data": {
         "serviceName": "Packing & Unpacking",
         "summary": "Professional packing materials and unpacking at destination.",
-        "inclusions": [
-          "Packing & materials",
-          "Loading & unloading",
-          "Transport",
-          "Basic reassembly"
-        ],
-        "exclusions": [
-          "Floor rise above 2 floors without a lift",
-          "Long carry beyond 50 m",
-          "Extra packing for oversized items"
-        ]
-      }
-    },
-    {
-      "pageType": "service-hub",
-      "path": "/services/storage-warehousing",
-      "canonical": "http://localhost:4321/services/storage-warehousing",
-      "slug": "storage-warehousing",
-      "sitemapShard": "sitemaps/core.xml",
-      "cacheTag": "service-hub",
-      "lastmod": "2026-07-29T10:00:00.000Z",
-      "title": "Storage & Warehousing Services in India – MrPackerMover",
-      "h1": "Storage & Warehousing Services",
-      "noindex": false,
-      "breadcrumbs": [
-        {
-          "path": "/",
-          "anchor": "Home"
-        }
-      ],
-      "relatedLinks": [
-        {
-          "path": "/packers-and-movers/delhi",
-          "anchor": "Serving Delhi",
-          "group": "cities"
-        },
-        {
-          "path": "/packers-and-movers/gurgaon",
-          "anchor": "Serving Gurgaon",
-          "group": "cities"
-        },
-        {
-          "path": "/packers-and-movers/noida",
-          "anchor": "Serving Noida",
-          "group": "cities"
-        },
-        {
-          "path": "/packers-and-movers/mumbai",
-          "anchor": "Serving Mumbai",
-          "group": "cities"
-        },
-        {
-          "path": "/packers-and-movers/bengaluru",
-          "anchor": "Serving Bengaluru",
-          "group": "cities"
-        },
-        {
-          "path": "/packers-and-movers/pune",
-          "anchor": "Serving Pune",
-          "group": "cities"
-        },
-        {
-          "path": "/services/international-relocation",
-          "anchor": "International Relocation",
-          "group": "services"
-        },
-        {
-          "path": "/services/home-shifting",
-          "anchor": "Home Shifting",
-          "group": "services"
-        },
-        {
-          "path": "/services/office-shifting",
-          "anchor": "Office Shifting",
-          "group": "services"
-        }
-      ],
-      "inboundLinks": [
-        {
-          "path": "/services/bike-transport",
-          "anchor": "Storage & Warehousing"
-        },
-        {
-          "path": "/services/loading-unloading",
-          "anchor": "Storage & Warehousing"
-        },
-        {
-          "path": "/services/packing-unpacking",
-          "anchor": "Storage & Warehousing"
-        },
-        {
-          "path": "/",
-          "anchor": "Storage & Warehousing"
-        }
-      ],
-      "data": {
-        "serviceName": "Storage & Warehousing",
-        "summary": "Clean, insured short- and long-term storage between move-out and move-in.",
         "inclusions": [
           "Packing & materials",
           "Loading & unloading",
@@ -979,15 +883,15 @@
       ],
       "inboundLinks": [
         {
+          "path": "/services/bike-transport",
+          "anchor": "International Relocation"
+        },
+        {
           "path": "/services/loading-unloading",
           "anchor": "International Relocation"
         },
         {
           "path": "/services/packing-unpacking",
-          "anchor": "International Relocation"
-        },
-        {
-          "path": "/services/storage-warehousing",
           "anchor": "International Relocation"
         },
         {
@@ -1118,10 +1022,6 @@
           "anchor": "Serving Delhi"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Delhi"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Delhi"
         },
@@ -1147,6 +1047,10 @@
         },
         {
           "path": "/packers-and-movers/delhi/mayur-vihar",
+          "anchor": "Delhi"
+        },
+        {
+          "path": "/packers-and-movers/delhi/home-shifting",
           "anchor": "Delhi"
         }
       ],
@@ -2147,7 +2051,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -2296,7 +2203,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -2392,10 +2302,6 @@
           "anchor": "Serving Gurgaon"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Gurgaon"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Gurgaon"
         },
@@ -2421,6 +2327,10 @@
         },
         {
           "path": "/packers-and-movers/gurgaon/home-shifting",
+          "anchor": "Gurgaon"
+        },
+        {
+          "path": "/packers-and-movers/gurgaon/office-shifting",
           "anchor": "Gurgaon"
         }
       ],
@@ -3292,7 +3202,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -3441,7 +3354,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -3532,10 +3448,6 @@
           "anchor": "Serving Noida"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Noida"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Noida"
         },
@@ -3561,6 +3473,10 @@
         },
         {
           "path": "/packers-and-movers/noida/office-shifting",
+          "anchor": "Noida"
+        },
+        {
+          "path": "/",
           "anchor": "Noida"
         }
       ],
@@ -4303,7 +4219,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -4452,7 +4371,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -4563,10 +4485,6 @@
           "anchor": "Serving Mumbai"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Mumbai"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Mumbai"
         },
@@ -4592,6 +4510,10 @@
         },
         {
           "path": "/packers-and-movers/mumbai/malad",
+          "anchor": "Mumbai"
+        },
+        {
+          "path": "/packers-and-movers/mumbai/home-shifting",
           "anchor": "Mumbai"
         }
       ],
@@ -5592,7 +5514,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -5741,7 +5666,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -5847,10 +5775,6 @@
           "anchor": "Serving Bengaluru"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Bengaluru"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Bengaluru"
         },
@@ -5876,6 +5800,10 @@
         },
         {
           "path": "/packers-and-movers/bengaluru/home-shifting",
+          "anchor": "Bengaluru"
+        },
+        {
+          "path": "/packers-and-movers/bengaluru/office-shifting",
           "anchor": "Bengaluru"
         }
       ],
@@ -6747,7 +6675,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -6896,7 +6827,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -6997,10 +6931,6 @@
           "anchor": "Serving Pune"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Serving Pune"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Serving Pune"
         },
@@ -7026,6 +6956,10 @@
         },
         {
           "path": "/packers-and-movers/pune/home-shifting",
+          "anchor": "Pune"
+        },
+        {
+          "path": "/packers-and-movers/pune/office-shifting",
           "anchor": "Pune"
         }
       ],
@@ -7897,7 +7831,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -8046,7 +7983,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -9035,7 +8975,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -9184,7 +9127,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -10164,7 +10110,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -10313,7 +10262,10 @@
           "Transport",
           "Basic reassembly"
         ],
-        "exclusions": ["Floor rise above 2 floors without a lift", "Long carry beyond 50 m"],
+        "exclusions": [
+          "Floor rise above 2 floors without a lift",
+          "Long carry beyond 50 m"
+        ],
         "priceFrom": 8000
       }
     },
@@ -10693,11 +10645,6 @@
           "group": "services"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Storage & Warehousing",
-          "group": "services"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "International Relocation",
           "group": "services"
@@ -10789,10 +10736,6 @@
           "anchor": "Home"
         },
         {
-          "path": "/services/storage-warehousing",
-          "anchor": "Home"
-        },
-        {
           "path": "/services/international-relocation",
           "anchor": "Home"
         },
@@ -10810,6 +10753,10 @@
         },
         {
           "path": "/packers-and-movers/delhi/saket",
+          "anchor": "Home"
+        },
+        {
+          "path": "/packers-and-movers/delhi/pitampura",
           "anchor": "Home"
         }
       ],

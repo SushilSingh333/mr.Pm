@@ -19,7 +19,6 @@ const blurb: Record<string, string> = {
   'bike-transport': 'Foam-wrapped, crated two-wheelers, door to door.',
   'loading-unloading': 'Trained labour when you already have a vehicle.',
   'packing-unpacking': 'Professional materials, unpacked at destination.',
-  'storage-warehousing': 'Clean, insured short & long-term storage.',
   'international-relocation': 'Door-to-door moves, customs handled end to end.',
 };
 ---
@@ -70,14 +69,19 @@ const blurb: Record<string, string> = {
 </div>
 
 <style>
+  /* Centered wrapping row — cards stay a uniform width and an incomplete final
+     row centres instead of stretching or hanging left. */
   .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1.25rem;
     max-width: 1120px;
     margin-inline: auto;
   }
   .service-card {
+    flex: 0 1 250px;
+    max-width: 320px;
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -164,5 +168,11 @@ const blurb: Record<string, string> = {
   }
   .service-card:hover .more-arrow {
     transform: translateX(4px);
+  }
+  @media (max-width: 600px) {
+    .service-card {
+      flex-basis: 100%;
+      max-width: 420px;
+    }
   }
 </style>

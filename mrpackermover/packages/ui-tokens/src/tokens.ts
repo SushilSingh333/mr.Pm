@@ -5,13 +5,13 @@
  */
 
 export const color = {
-  brand600: '#1a3fe0',
-  brand500: '#2f5bff',
+  brand600: '#990010',
+  brand500: '#bd1325',
   accent500: '#12a150',
-  warn500: '#d97706',
-  ink900: '#0d1117',
-  ink700: '#303743',
-  ink500: '#5b6472',
+  warn500: '#c2620a',
+  ink900: '#1c2637',
+  ink700: '#434e60',
+  ink500: '#6b7488',
   surface: '#ffffff',
 } as const;
 

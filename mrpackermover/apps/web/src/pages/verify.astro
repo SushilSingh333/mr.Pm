@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import FeatureGrid from '../components/page/FeatureGrid.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/verify',
+  pageType: 'trust',
+  title: 'Verify Us – Crew, Vehicle & Company | MrPackerMover',
+  h1: 'Verify us before you trust us',
+  metaDescription:
+    'Check the company, the crew and the vehicle before your move — GSTIN and CIN lookups, crew ID matching and a sealed inventory. Trust you can confirm, not assume.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const steps = [
+  {
+    title: 'Before you book — check the company',
+    body: 'Confirm our GSTIN is active and our CIN is registered on the official portals. A real mover has one registered identity, not a dozen look-alike names. Start on <a href="/company/licences">licences &amp; GST</a>.',
+  },
+  {
+    title: 'Before they load — match the crew & vehicle',
+    body: 'On move day, your coordinator shares the crew members’ names and the vehicle number in advance. Match the IDs and the registration plate at your door before anything is loaded.',
+  },
+  {
+    title: 'During the move — a sealed inventory',
+    body: 'Goods are listed on a shared inventory, and fragile items are photographed as they are packed. You and the crew are working from the same record — not a memory dispute later.',
+  },
+  {
+    title: 'After delivery — invoice & claims window',
+    body: 'You get a GST invoice for the full amount and a clear window to report any issue. Damage is rare, but the path to a settlement is defined up front on our <a href="/claims">claims page</a>.',
+  },
+];
+
+const redFlags = [
+  'A quote given over the phone with no survey of your goods.',
+  'A company name that changes between the website, the call and the invoice.',
+  'Pressure for a large cash advance with no written, itemised quote.',
+  'No GSTIN on the quotation, or a GSTIN that does not match the name.',
+  'A crew or vehicle that does not match the details you were sent.',
+];
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Trust, verified"
+    h1={row.h1}
+    intro="Anyone can claim to be reliable. We would rather you confirm it. Here is exactly what to check — about the company, the crew and the vehicle — at every stage of your move."
+    breadcrumbs={row.breadcrumbs}
+    current="Verify us"
+  >
+    <a class="btn btn-primary btn-lg" href="/company/licences">See our registrations</a>
+  </PageHero>
+
+  <Band label="How to verify">
+    <div class="section-head">
+      <h2>Four checks, four stages</h2>
+      <p>Each one takes a minute. Together they close the door on the tricks this industry is known for.</p>
+    </div>
+    <FeatureGrid items={steps} columns={2} numbered />
+  </Band>
+
+  <Band alt label="Red flags">
+    <div class="redflags">
+      <div class="rf-head">
+        <span class="rf-icon" aria-hidden="true">!</span>
+        <div>
+          <h2>Warning signs to walk away from</h2>
+          <p>If you spot these — with us or anyone — treat them as a stop sign.</p>
+        </div>
+      </div>
+      <ul class="rf-list">
+        {redFlags.map((f) => <li>{f}</li>)}
+      </ul>
+      <p class="rf-note">
+        Worried a listing might be impersonating us? Read the <a href="/fraud-check">fraud-check
+        guide</a> and tell us — we investigate every report.
+      </p>
+    </div>
+  </Band>
+
+  <CtaBand
+    heading="Ready when you've checked us out"
+    text="Verified the company and happy to proceed? Get a fixed, written quote and we'll share the crew and vehicle details ahead of your move."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="Report a fake listing"
+    secondaryHref="/fraud-check"
+  />
+</BaseLayout>
+
+<style>
+  .redflags {
+    max-width: 860px;
+    margin-inline: auto;
+  }
+  .rf-head {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  .rf-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--color-warn-500) 16%, white);
+    color: var(--color-warn-500);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+  }
+  .rf-head h2 {
+    font-size: clamp(1.35rem, 3vw, var(--text-2xl));
+  }
+  .rf-head p {
+    margin-top: 0.35rem;
+    color: var(--color-ink-500);
+  }
+  .rf-list {
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.75rem;
+    box-shadow: var(--shadow-card);
+  }
+  .rf-list li {
+    position: relative;
+    padding-left: 1.75rem;
+    color: var(--color-ink-700);
+  }
+  .rf-list li::before {
+    content: '✕';
+    position: absolute;
+    left: 0;
+    color: var(--color-warn-500);
+    font-weight: 800;
+  }
+  .rf-note {
+    margin-top: 1.25rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+  }
+</style>

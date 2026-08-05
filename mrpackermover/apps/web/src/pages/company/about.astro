@@ -1,0 +1,293 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import FeatureGrid from '../../components/page/FeatureGrid.astro';
+import CtaBand from '../../components/page/CtaBand.astro';
+import { staticRow, org } from '../../lib/page.js';
+
+const row = staticRow({
+  path: '/company/about',
+  pageType: 'core',
+  title: 'About Us – MrPackerMover',
+  h1: 'The movers who publish the numbers others hide',
+  metaDescription:
+    'MrPackerMover moves homes and offices across India with fixed written quotes, ID-verified crews and published claims data — no fake reviews, no phantom branches.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+
+const differentiators = [
+  {
+    icon: 'fixed-quote',
+    title: 'A quote you can hold us to',
+    body: 'Every price is written and itemised before a single box is packed. If something could change it, it is on the quote — not sprung on you at delivery.',
+  },
+  {
+    icon: 'verified-crew',
+    title: 'Our own trained crews',
+    body: 'The people who show up are trained, ID-verified and accountable to us — not an anonymous sub-contractor found the night before.',
+  },
+  {
+    icon: 'claims',
+    title: 'Claims data in the open',
+    body: 'Damage is rare, but when it happens we settle — and we publish our median settlement time. It is the number nobody else in this category shows.',
+  },
+  {
+    icon: 'map-pin',
+    title: 'Coverage we can prove',
+    body: 'We list the cities and areas we genuinely serve, backed by completed-job data — never a map studded with offices we do not have.',
+  },
+];
+
+const principles = [
+  {
+    icon: 'scale',
+    title: 'One legal identity',
+    body: 'A single registered company stands behind every move, with its GSTIN and CIN on the page. No shell of look-alike local names.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Honest by design',
+    body: 'No inflated counters, no stock-photo testimonials. Reviews are tied to real job references, and coverage claims map to real routes we have run.',
+  },
+  {
+    icon: 'insurance',
+    title: 'Protection, itemised',
+    body: 'Transit insurance is offered as a clear line item, backed by a named insurer — never buried in fine print or quietly assumed.',
+  },
+];
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="About us"
+    h1={row.h1}
+    intro="Moving is one of the most stressful things a family or business does — and an industry built on vague quotes and fake reviews has earned every bit of that dread. We are building the opposite: a mover you can verify before you trust."
+    breadcrumbs={row.breadcrumbs}
+    current="About us"
+  >
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get a fixed quote</a>
+    <a class="btn cta-ghost-hero btn-lg" href="/verify">See how to verify us</a>
+  </PageHero>
+
+  <Band label="Our story">
+    <div class="about-story">
+      <div class="story-copy">
+        <p class="eyebrow">Why we exist</p>
+        <h2>Built on data you can check, not promises you can't</h2>
+        <p>
+          Search "packers and movers" in any Indian city and you'll meet dozens of
+          near-identical listings — five glowing stars, a dozen "branch offices", and a
+          quote that mysteriously grows on moving day. Most are the same handful of
+          brokers wearing different names.
+        </p>
+        <p>
+          {o?.brandName ?? 'MrPackerMover'} was built to be the mover people can actually
+          verify. Fixed written quotes. Crews with names and IDs. Coverage tied to jobs we
+          have really completed. And an unusual habit for this industry — publishing the
+          numbers that make us look human, like how long a claim takes us to settle.
+        </p>
+      </div>
+      <ul class="story-facts" role="list">
+        <li>
+          <span class="sf-k">Operating for</span>
+          <span class="sf-v">{o?.yearsOperating ?? 6}+ years</span>
+        </li>
+        <li>
+          <span class="sf-k">Insurance partner</span>
+          <span class="sf-v">{o?.insurancePartner ?? 'Named IRDAI-licensed insurer'}</span>
+        </li>
+        <li>
+          <span class="sf-k">Pricing model</span>
+          <span class="sf-v">Fixed &amp; written</span>
+        </li>
+        <li>
+          <span class="sf-k">Complaint response</span>
+          <span class="sf-v">{o?.complaintSla ?? 'Within 24 hours'}</span>
+        </li>
+      </ul>
+    </div>
+  </Band>
+
+  <Band alt label="What makes us different">
+    <div class="section-head">
+      <h2>Four things we do that the listings won't</h2>
+      <p>None of them are flashy. All of them are checkable — which is exactly the point.</p>
+    </div>
+    <FeatureGrid items={differentiators} columns={4} />
+  </Band>
+
+  <Band label="How we are built">
+    <div class="section-head">
+      <h2>The model behind the promise</h2>
+      <p>
+        Our structure is a deliberate rejection of the branch-office theatre that fills this
+        category. It is why the trust signals above can be real.
+      </p>
+    </div>
+    <FeatureGrid items={principles} columns={3} />
+  </Band>
+
+  {
+    o && (
+      <Band alt label="Legal identity">
+        <div class="legal-id card">
+          <div class="li-head">
+            <span class="badge badge-verified">Registered entity</span>
+            <h2>Who you are actually contracting with</h2>
+          </div>
+          <dl class="li-grid">
+            <div>
+              <dt>Legal name</dt>
+              <dd>{o.legalName}</dd>
+            </div>
+            <div>
+              <dt>Brand</dt>
+              <dd>{o.brandName}</dd>
+            </div>
+            <div>
+              <dt>GSTIN</dt>
+              <dd>{o.gstin}</dd>
+            </div>
+            <div>
+              <dt>CIN</dt>
+              <dd>{o.cin}</dd>
+            </div>
+            <div class="li-wide">
+              <dt>Registered office</dt>
+              <dd>{o.registeredOffice}</dd>
+            </div>
+          </dl>
+          <p class="li-note">
+            Prefer to check us yourself? That is encouraged — see{' '}
+            <a href="/company/licences">licences &amp; GST</a> or learn{' '}
+            <a href="/verify">how to verify the crew and vehicle</a> before they load.
+          </p>
+        </div>
+      </Band>
+    )
+  }
+
+  <CtaBand
+    heading="Moving soon? Start with an honest number."
+    text="Tell us what you're shifting and where. You'll get an itemised, fixed quote — and a company you can look up before you say yes."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="Contact the team"
+    secondaryHref="/company/contact"
+  />
+</BaseLayout>
+
+<style>
+  .about-story {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+  .story-copy h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin: 0.4rem 0 1rem;
+  }
+  .story-copy p + p {
+    margin-top: 1rem;
+  }
+  .story-facts {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .story-facts li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .story-facts li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .sf-k {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .sf-v {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink-900);
+    font-size: var(--text-lg);
+  }
+
+  .legal-id {
+    max-width: 1000px;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .li-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .li-head h2 {
+    font-size: clamp(1.35rem, 3vw, var(--text-2xl));
+  }
+  .li-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.1rem 2rem;
+    margin: 0;
+  }
+  .li-grid dt {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+    margin-bottom: 0.2rem;
+  }
+  .li-grid dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--color-ink-900);
+  }
+  .li-wide {
+    grid-column: 1 / -1;
+  }
+  .li-note {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+  }
+
+  /* Ghost button on the dark hero. */
+  :global(.cta-ghost-hero) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  :global(.cta-ghost-hero:hover) {
+    background: rgba(255, 255, 255, 0.18);
+    text-decoration: none;
+  }
+
+  @media (max-width: 800px) {
+    .about-story {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+    .li-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

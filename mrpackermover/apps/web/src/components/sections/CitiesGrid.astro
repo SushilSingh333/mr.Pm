@@ -45,13 +45,16 @@ const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?
 
 <style>
   .cities-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.9rem;
     max-width: 1040px;
     margin-inline: auto;
   }
   .city-card {
+    flex: 0 1 232px;
+    max-width: 300px;
     display: flex;
     align-items: center;
     gap: 0.85rem;

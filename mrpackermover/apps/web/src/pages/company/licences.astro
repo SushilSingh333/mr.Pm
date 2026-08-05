@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import Prose from '../../components/page/Prose.astro';
+import CtaBand from '../../components/page/CtaBand.astro';
+import { staticRow, org } from '../../lib/page.js';
+
+const row = staticRow({
+  path: '/company/licences',
+  pageType: 'core',
+  title: 'Licences & GST – MrPackerMover',
+  h1: 'Licences, GST & the entity behind your move',
+  metaDescription:
+    'The registered company, GSTIN, CIN, insurance partner and compliance details behind MrPackerMover — with how to independently verify every one of them.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Company"
+    h1={row.h1}
+    intro="A legitimate mover should be happy to be checked. Here is exactly who you are contracting with, under what registrations — and how to confirm each detail yourself."
+    breadcrumbs={row.breadcrumbs}
+    current="Licences & GST"
+  />
+
+  {
+    o && (
+      <Band label="Registration details">
+        <div class="reg-card card">
+          <span class="badge badge-verified">Registered &amp; GST-compliant</span>
+          <table class="reg-table">
+            <tbody>
+              <tr>
+                <th scope="row">Legal name</th>
+                <td>{o.legalName}</td>
+              </tr>
+              <tr>
+                <th scope="row">Trading as</th>
+                <td>{o.brandName}</td>
+              </tr>
+              <tr>
+                <th scope="row">GSTIN</th>
+                <td>{o.gstin}</td>
+              </tr>
+              <tr>
+                <th scope="row">CIN</th>
+                <td>{o.cin}</td>
+              </tr>
+              <tr>
+                <th scope="row">Registered office</th>
+                <td>{o.registeredOffice}</td>
+              </tr>
+              <tr>
+                <th scope="row">Insurance partner</th>
+                <td>{o.insurancePartner ?? 'IRDAI-licensed insurer (named on your policy)'}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="reg-note">
+            These are the details that appear on your invoice and contract. If a quote you
+            receive elsewhere shows a different name for the "same" company, treat it as a red
+            flag — and read our <a href="/fraud-check">fraud-check guide</a>.
+          </p>
+        </div>
+      </Band>
+    )
+  }
+
+  <Band alt label="How to verify us">
+    <Prose>
+      <h2>How to verify every claim on this page</h2>
+      <p>
+        You don't have to take our word for any of it. Each registration is independently
+        checkable through official portals:
+      </p>
+      <ul>
+        <li>
+          <strong>GSTIN</strong> — search the number on the Government of India GST portal
+          (<span class="muted">services.gst.gov.in → Search Taxpayer</span>). It should return
+          our legal name and status as <strong>Active</strong>.
+        </li>
+        <li>
+          <strong>CIN</strong> — look up the company on the MCA portal
+          (<span class="muted">mca.gov.in → MCA Services → View Company Master Data</span>) to
+          confirm incorporation and directors.
+        </li>
+        <li>
+          <strong>Insurance</strong> — transit cover is placed with a licensed insurer and the
+          policy names them in full. Ask for the certificate before goods are loaded.
+        </li>
+      </ul>
+
+      <h2>What we are — and what we are not</h2>
+      <p>
+        We are a single registered company that plans, packs and moves with its own trained
+        crews. We are <strong>not</strong> a directory of franchisees trading under a shared
+        name, and we do not operate walk-in "branch offices" in every city. Our serviceability
+        is proven by the jobs we complete, not by pins on a map.
+      </p>
+      <p>
+        This matters for you practically: one entity means one invoice, one point of
+        accountability, and one contract — the same company that quoted you is the company that
+        moves you and settles any claim.
+      </p>
+
+      <h2>Documents you can ask for</h2>
+      <ul>
+        <li>GST invoice with our GSTIN, for every completed move.</li>
+        <li>A written, itemised quotation before work begins.</li>
+        <li>The transit insurance certificate (when you opt for cover).</li>
+        <li>ID confirmation of the crew and vehicle assigned to your move.</li>
+      </ul>
+      <p class="muted">
+        Registration identifiers shown here are being finalised ahead of launch; the live figures
+        will match the official portals exactly.
+      </p>
+    </Prose>
+  </Band>
+
+  <CtaBand
+    heading="Want to check the crew too?"
+    text="Registration is only half of trust. See how to confirm the actual people and vehicle turning up at your door."
+    primaryLabel="How to verify us"
+    primaryHref="/verify"
+    secondaryLabel="Raise a concern"
+    secondaryHref="/raise-a-complaint"
+  />
+</BaseLayout>
+
+<style>
+  .reg-card {
+    max-width: 900px;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .reg-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.25rem;
+  }
+  .reg-table th,
+  .reg-table td {
+    text-align: left;
+    padding: 0.85rem 0.5rem;
+    border-bottom: 1px solid var(--color-line);
+    vertical-align: top;
+  }
+  .reg-table th {
+    width: 38%;
+    color: var(--color-ink-500);
+    font-weight: 500;
+    font-size: var(--text-sm);
+  }
+  .reg-table td {
+    color: var(--color-ink-900);
+    font-weight: 600;
+  }
+  .reg-note {
+    margin-top: 1.25rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+  }
+</style>

@@ -81,7 +81,7 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
         </a>
       ))
     }
-    <button type="button" id="selector-cta" class="btn btn-primary tile-cta">
+    <a id="selector-cta" href="/get-quote" class="btn btn-primary tile-cta">
       Get a fixed quote
       <svg
         aria-hidden="true"
@@ -94,7 +94,7 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
       >
         <path d="M5 12h14M13 6l6 6-6 6"></path>
       </svg>
-    </button>
+    </a>
   </div>
 </div>
 
@@ -191,20 +191,20 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
 </style>
 
 <script>
-  // The chosen city drives the CTA (opens that city's hub). Listens to the shared
+  // The chosen city prefills the quote form the CTA points to. Listens to the shared
   // modal's `mpm:city-select` event.
-  const root = document.querySelector<HTMLElement>('.selector');
   const cityCurrent = document.getElementById('city-current');
-  const cta = document.getElementById('selector-cta');
-  let selected = root?.dataset.defaultCity ?? '';
+  const cta = document.getElementById('selector-cta') as HTMLAnchorElement | null;
+
+  const setQuoteHref = (name?: string | null): void => {
+    if (!cta) return;
+    cta.href = name ? `/get-quote?from=${encodeURIComponent(name)}` : '/get-quote';
+  };
+  setQuoteHref(cityCurrent?.textContent);
 
   document.addEventListener('mpm:city-select', (event) => {
     const detail = (event as CustomEvent<{ slug?: string; name?: string }>).detail;
-    if (detail?.slug) selected = detail.slug;
     if (cityCurrent && detail?.name) cityCurrent.textContent = detail.name;
-  });
-
-  cta?.addEventListener('click', () => {
-    if (selected) window.location.href = `/packers-and-movers/${selected}`;
+    setQuoteHref(detail?.name ?? cityCurrent?.textContent);
   });
 </script>

@@ -1,0 +1,55 @@
+---
+import type { ServiceHubData } from '@mpm/shared';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import ServicesGrid from '../../components/sections/ServicesGrid.astro';
+import CtaBand from '../../components/page/CtaBand.astro';
+import { staticRow } from '../../lib/page.js';
+
+/** Services landing page — lists every service, each card linking to its own hub. */
+const services = rowsOfType('service-hub')
+  .filter((r) => r.path.startsWith('/services/'))
+  .map((r) => ({ slug: r.slug, name: dataOf<ServiceHubData>(r).serviceName }));
+
+const row = staticRow({
+  path: '/services',
+  pageType: 'core',
+  title: 'Our Services – Packers & Movers | MrPackerMover',
+  h1: 'Everything we move, done properly',
+  metaDescription:
+    'Every MrPackerMover service — home & office shifting, car & bike transport, packing, storage, loading and international relocation — each with a fixed written quote.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Services"
+    h1={row.h1}
+    intro="One operation, our own trained crews, and a fixed written quote for every service — from a single-room shift to a full international relocation."
+    breadcrumbs={row.breadcrumbs}
+    current="Services"
+  >
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get a fixed quote</a>
+  </PageHero>
+
+  <Band label="All services">
+    <ServicesGrid
+      services={services}
+      heading="Choose a service"
+      intro="Tap any service to see what's included, indicative pricing, and the cities we cover."
+    />
+  </Band>
+
+  <CtaBand
+    heading="Not sure which service you need?"
+    text="Tell us what you're moving and we'll build the right plan — packing, transport, storage or all of it — with one fixed, itemised price."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="Talk to us"
+    secondaryHref="/company/contact"
+  />
+</BaseLayout>

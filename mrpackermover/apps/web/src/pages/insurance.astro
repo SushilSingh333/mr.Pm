@@ -1,0 +1,170 @@
+---
+import { jsonld } from '@mpm/seo';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import Prose from '../components/page/Prose.astro';
+import Faq from '../components/sections/Faq.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow, org } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/insurance',
+  pageType: 'trust',
+  title: 'Transit Insurance for Your Move | MrPackerMover',
+  h1: 'Transit insurance, shown as a line — not buried',
+  metaDescription:
+    'Optional transit insurance for your move with MrPackerMover: what it covers, how it is priced as a clear line item, the named insurer, and how a claim is paid.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+
+const faqs = [
+  {
+    question: 'Is insurance included or extra?',
+    answer:
+      'Transit insurance is optional and priced as a separate, clearly labelled line on your quote. Without it, moves carry only basic liability cover — so you always know exactly what protection you have and what it costs.',
+  },
+  {
+    question: 'How is the premium calculated?',
+    answer:
+      'From the declared value of your goods — the total you would want covered if the worst happened. You declare it, we show the premium against it, and that becomes your insured amount.',
+  },
+  {
+    question: 'Who is the insurer?',
+    answer: `Cover is placed with a licensed insurer${o?.insurancePartner ? ` (${o.insurancePartner})` : ''}, and the policy names them in full. You can ask for the certificate before your goods are loaded.`,
+  },
+  {
+    question: 'What is not covered?',
+    answer:
+      'Typical exclusions include pre-existing damage, normal wear, and items you packed yourself without our inspection. All exclusions are listed on the policy document — no hidden asterisks.',
+  },
+];
+
+const extraJsonLd = [jsonld.faqPage(faqs)];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <PageHero
+    dark
+    eyebrow="Protection"
+    h1={row.h1}
+    intro="Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, backed by a named insurer, so you decide with your eyes open."
+    breadcrumbs={row.breadcrumbs}
+    current="Transit insurance"
+  >
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get a quote with cover</a>
+  </PageHero>
+
+  <Band label="Coverage">
+    <div class="cover-grid">
+      <div class="cover-col card cover-in">
+        <h3>What transit insurance covers</h3>
+        <ul>
+          <li>Accidental damage to insured items while in our care and transit</li>
+          <li>Loss of insured goods in a covered incident</li>
+          <li>Cover up to your declared value, not a token cap</li>
+          <li>The same protection on local and intercity moves</li>
+        </ul>
+      </div>
+      <div class="cover-col card cover-out">
+        <h3>What it doesn’t cover</h3>
+        <ul>
+          <li>Pre-existing damage noted before the move</li>
+          <li>Normal wear, or the natural settling of contents</li>
+          <li>Items you packed yourself without our inspection</li>
+          <li>Cash, jewellery and documents (carry these yourself)</li>
+        </ul>
+      </div>
+    </div>
+  </Band>
+
+  <Band alt label="How it works">
+    <Prose>
+      <h2>How cover works, start to finish</h2>
+      <ol>
+        <li>
+          <strong>Declare a value.</strong> Tell us what your goods are worth to you. That figure
+          is your insured amount — so declare it honestly, not low to save a little on premium.
+        </li>
+        <li>
+          <strong>See the premium on your quote.</strong> The cost appears as its own line item.
+          You can take it or leave it; the base move price does not change either way.
+        </li>
+        <li>
+          <strong>Get the certificate.</strong> Opt in and we issue a policy certificate that
+          names the insurer and the insured value. Ask for it before loading day.
+        </li>
+        <li>
+          <strong>Claim, if you ever need to.</strong> Report through your coordinator, and we
+          settle a covered claim to the insured value — the full process is on our{' '}
+          <a href="/claims">claims page</a>.
+        </li>
+      </ol>
+      <p class="muted">
+        Insurance partner and policy wordings are being finalised before launch; your certificate
+        will name the licensed insurer and terms in full.
+      </p>
+    </Prose>
+  </Band>
+
+  <Band label="Insurance FAQ">
+    <Faq faqs={faqs} heading="Insurance questions, answered" />
+  </Band>
+
+  <CtaBand
+    heading="Add cover in one line, not one headache"
+    text="Get a fixed quote and see transit insurance priced against your declared value — a clear choice, not a hidden charge."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="See how claims work"
+    secondaryHref="/claims"
+  />
+</BaseLayout>
+
+<style>
+  .cover-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    max-width: 940px;
+    margin-inline: auto;
+  }
+  .cover-col {
+    padding: 1.75rem;
+  }
+  .cover-col h3 {
+    font-size: var(--text-xl);
+    margin-bottom: 1rem;
+  }
+  .cover-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .cover-col li {
+    position: relative;
+    padding-left: 1.6rem;
+    color: var(--color-ink-700);
+  }
+  .cover-in li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent-600);
+    font-weight: 800;
+  }
+  .cover-out li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+    color: var(--color-ink-500);
+    font-weight: 800;
+  }
+  @media (max-width: 720px) {
+    .cover-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

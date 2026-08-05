@@ -1,0 +1,530 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import { iconSvg } from '../lib/icons.js';
+import { staticRow } from '../lib/page.js';
+import { PHONE_DISPLAY, PHONE_TEL } from '../lib/site.js';
+
+const row = staticRow({
+  path: '/get-quote',
+  pageType: 'core',
+  title: 'Get a Fixed Quote | MrPackerMover',
+  h1: 'Get your fixed, written quote',
+  metaDescription:
+    'Tell us about your move and get a fixed, itemised quote from MrPackerMover — no moving-day surprises. A coordinator calls you back within 24 hours.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const services = [
+  'Home Shifting',
+  'Office Shifting',
+  'Car Transport',
+  'Bike Transport',
+  'Loading & Unloading',
+  'Packing & Unpacking',
+  'International Relocation',
+];
+const sizes = ['A few items', '1 BHK', '2 BHK', '3 BHK', '4 BHK / Villa', 'Office', 'Vehicle only'];
+
+const assurances = [
+  { icon: 'search', title: 'Survey-based', body: 'We assess your goods first — a real price, not a phone guess.' },
+  { icon: 'fixed-quote', title: 'Written & fixed', body: 'The number we send is the number you pay. In writing.' },
+  { icon: 'shield-check', title: 'No surprises', body: 'Anything that could change the price is itemised up front.' },
+];
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Free · no obligation"
+    h1={row.h1}
+    intro="Answer a few quick questions and a move coordinator will call you back within 24 hours with an itemised, fixed price."
+    breadcrumbs={row.breadcrumbs}
+    current="Get a quote"
+  />
+
+  <Band label="Quote request">
+    <div class="quote-layout">
+      <!-- Form -->
+      <div class="quote-main card" id="quote-card">
+        <div class="qm-head">
+          <h2>Tell us about your move</h2>
+          <p>Fields marked <span class="req">*</span> are required.</p>
+        </div>
+
+        <p class="form-error" id="form-error" role="alert" hidden>
+          Please fill the required fields highlighted below.
+        </p>
+
+        <form id="quote-form" class="qform" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="q-name">Full name <span class="req">*</span></label>
+              <input id="q-name" name="name" type="text" autocomplete="name" required placeholder="Your name" />
+            </div>
+            <div class="field">
+              <label for="q-phone">Phone number <span class="req">*</span></label>
+              <input id="q-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="10-digit mobile" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="q-from">Moving from <span class="req">*</span></label>
+              <input id="q-from" name="from" type="text" required placeholder="City or area" />
+            </div>
+            <div class="field">
+              <label for="q-to">Moving to <span class="req">*</span></label>
+              <input id="q-to" name="to" type="text" required placeholder="City or area" />
+            </div>
+          </div>
+          <p class="field-hint">
+            Pickup is from the cities we serve — <strong>delivery can be anywhere in India.</strong>
+          </p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="q-service">What are you moving? <span class="req">*</span></label>
+              <select id="q-service" name="service" required>
+                <option value="" disabled selected>Select a service</option>
+                {services.map((s) => <option value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div class="field">
+              <label for="q-size">Approximate size</label>
+              <select id="q-size" name="size">
+                <option value="" disabled selected>Select (optional)</option>
+                {sizes.map((s) => <option value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="q-date">Preferred move date</label>
+              <input id="q-date" name="date" type="date" />
+            </div>
+            <div class="field">
+              <label for="q-email">Email <span class="opt">(optional)</span></label>
+              <input id="q-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="q-notes">Anything else we should know?</label>
+            <textarea id="q-notes" name="notes" rows="3" placeholder="Floors, lift access, fragile or special items, flexible dates…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg qsubmit">
+            Get my fixed quote
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+          <p class="qform-fine">
+            By submitting, you agree to be contacted about your move. We never sell your data —
+            see our <a href="/privacy">privacy policy</a>.
+          </p>
+        </form>
+      </div>
+
+      <!-- Success (revealed on submit) -->
+      <div class="quote-success card" id="quote-success" hidden>
+        <span class="qs-check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6" /></svg>
+        </span>
+        <h2 id="qs-title">Thank you!</h2>
+        <p id="qs-msg" class="qs-msg"></p>
+        <ul class="qs-steps">
+          <li><strong>1.</strong> A coordinator reviews your details.</li>
+          <li><strong>2.</strong> We call you (within 24 hours) to confirm the scope.</li>
+          <li><strong>3.</strong> You receive a fixed, written quote — no surprises.</li>
+        </ul>
+        <div class="qs-actions">
+          <a class="btn btn-primary" href={`tel:${PHONE_TEL}`}>Call us now</a>
+          <a class="btn btn-ghost" href="/">Back to home</a>
+        </div>
+      </div>
+
+      <!-- Assurance aside -->
+      <aside class="quote-aside">
+        <div class="qa-card card">
+          <h3>Why our quote is different</h3>
+          <ul class="qa-list">
+            {
+              assurances.map((a) => (
+                <li>
+                  <span class="qa-icon" set:html={`<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(a.icon)}</svg>`} />
+                  <span>
+                    <strong>{a.title}</strong>
+                    <small>{a.body}</small>
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <a class="qa-call card" href={`tel:${PHONE_TEL}`}>
+          <span class="qa-call-icon" set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('phone')}</svg>`} />
+          <span>
+            <small>Prefer to talk? Call us</small>
+            <strong>{PHONE_DISPLAY}</strong>
+          </span>
+        </a>
+      </aside>
+    </div>
+  </Band>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('quote-form') as HTMLFormElement | null;
+  const card = document.getElementById('quote-card');
+  const success = document.getElementById('quote-success');
+  const banner = document.getElementById('form-error');
+
+  if (form && card && success) {
+    // Prefill from query params (e.g. the home city selector passes ?from=Delhi).
+    const params = new URLSearchParams(location.search);
+    const prefill = (name: string, v: string | null) => {
+      if (!v) return;
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+      if (el) el.value = v;
+    };
+    prefill('from', params.get('from'));
+    prefill('to', params.get('to'));
+    prefill('service', params.get('service'));
+    prefill('phone', params.get('phone'));
+
+    const required = ['name', 'phone', 'from', 'to', 'service'];
+    const phoneOk = (v: string): boolean => /^[+0-9 ()-]{8,}$/.test(v.trim());
+
+    const clearError = (el: HTMLElement) => {
+      el.removeAttribute('aria-invalid');
+      el.closest('.field')?.classList.remove('invalid');
+    };
+    const markError = (el: HTMLElement) => {
+      el.setAttribute('aria-invalid', 'true');
+      el.closest('.field')?.classList.add('invalid');
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let firstBad: HTMLElement | null = null;
+
+      for (const name of required) {
+        const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
+        if (!el) continue;
+        clearError(el);
+        const empty = !el.value.trim();
+        const badPhone = name === 'phone' && !phoneOk(el.value);
+        if (empty || badPhone) {
+          markError(el);
+          firstBad = firstBad ?? el;
+        }
+      }
+
+      if (firstBad) {
+        banner?.removeAttribute('hidden');
+        firstBad.focus();
+        return;
+      }
+      banner?.setAttribute('hidden', '');
+
+      const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+      const phone = (form.elements.namedItem('phone') as HTMLInputElement).value.trim();
+
+      // Fire-and-forget: capture the lead if the backend is live; UX proceeds regardless.
+      try {
+        const data = Object.fromEntries(new FormData(form).entries());
+        void fetch('/quote', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(data),
+        }).catch(() => {});
+      } catch {
+        /* no-op */
+      }
+
+      const title = document.getElementById('qs-title');
+      const msg = document.getElementById('qs-msg');
+      if (title) title.textContent = `Thank you, ${name.split(' ')[0]}!`;
+      if (msg)
+        msg.textContent = `Your request is in. A move coordinator will call you on ${phone} within 24 hours with your fixed, written quote.`;
+
+      card.hidden = true;
+      success.hidden = false;
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+</script>
+
+<style>
+  .quote-layout {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 1.5rem;
+    max-width: 1080px;
+    margin-inline: auto;
+    align-items: start;
+  }
+  .quote-main,
+  .quote-success {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .qm-head {
+    margin-bottom: 1.5rem;
+  }
+  .qm-head h2 {
+    font-size: clamp(1.4rem, 3vw, var(--text-2xl));
+  }
+  .qm-head p {
+    margin-top: 0.35rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+  .req {
+    color: var(--color-brand-600);
+  }
+  .opt {
+    color: var(--color-ink-500);
+    font-weight: 400;
+    font-size: var(--text-sm);
+  }
+
+  .form-error {
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    background: color-mix(in oklab, var(--color-brand-500) 10%, white);
+    border: 1px solid color-mix(in oklab, var(--color-brand-500) 35%, var(--color-line));
+    color: var(--color-brand-800);
+    font-size: var(--text-sm);
+  }
+
+  .qform {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .field label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--color-ink-900);
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    font: inherit;
+    font-size: var(--text-base);
+    color: var(--color-ink-900);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: var(--color-ink-500);
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    outline: none;
+    border-color: var(--color-brand-400);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-400) 30%, transparent);
+  }
+  .field.invalid input,
+  .field.invalid select {
+    border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 18%, transparent);
+  }
+  .qsubmit {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+  }
+  .field-hint {
+    margin-top: -0.35rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-2);
+    font-size: var(--text-sm);
+    color: var(--color-ink-700);
+  }
+  .field-hint strong {
+    color: var(--color-brand-700);
+  }
+  .qform-fine {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+
+  /* Success card */
+  .quote-success {
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .qs-check {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border-radius: var(--radius-pill);
+    background: color-mix(in oklab, var(--color-accent-500) 14%, white);
+    color: var(--color-accent-600);
+    margin-bottom: 0.25rem;
+  }
+  .quote-success h2 {
+    font-size: clamp(1.5rem, 3.5vw, var(--text-3xl));
+  }
+  .qs-msg {
+    color: var(--color-ink-700);
+    max-width: 46ch;
+  }
+  .qs-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+    margin: 0.5rem auto 0.5rem;
+    padding: 1.1rem 1.35rem;
+    background: var(--color-surface-2);
+    border-radius: var(--radius-md);
+    max-width: 42ch;
+    width: 100%;
+  }
+  .qs-steps strong {
+    color: var(--color-brand-600);
+    margin-right: 0.35rem;
+  }
+  .qs-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Aside */
+  .quote-aside {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 84px;
+  }
+  .qa-card {
+    padding: 1.6rem;
+  }
+  .qa-card h3 {
+    font-size: var(--text-xl);
+    margin-bottom: 1.1rem;
+  }
+  .qa-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .qa-list li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .qa-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .qa-list strong {
+    display: block;
+    color: var(--color-ink-900);
+  }
+  .qa-list small {
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+  .qa-call {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    background: linear-gradient(140deg, var(--color-navy-800), var(--color-navy-600));
+    color: #fff;
+    border: 0;
+  }
+  .qa-call:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-pop);
+  }
+  .qa-call-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+  .qa-call small {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--text-sm);
+  }
+  .qa-call strong {
+    font-size: var(--text-lg);
+    font-family: var(--font-display);
+  }
+
+  @media (max-width: 860px) {
+    .quote-layout {
+      grid-template-columns: 1fr;
+    }
+    .quote-main,
+    .quote-success,
+    .quote-aside {
+      grid-column: 1;
+    }
+    .quote-aside {
+      grid-row: auto;
+      position: static;
+    }
+  }
+  @media (max-width: 520px) {
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

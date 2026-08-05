@@ -1,0 +1,164 @@
+---
+import type { ManifestLink } from '@mpm/shared';
+import Breadcrumbs from '../nav/Breadcrumbs.astro';
+
+/**
+ * Interior-page hero — centered, to match the rest of the site (Doc 01: pages read
+ * centered, Porter-style). Light on the cool base, or a deep-navy variant; the
+ * crimson brand appears only as an accent (the eyebrow pill, a soft glow), never as
+ * the whole background. CTAs go in the default slot.
+ */
+interface Props {
+  eyebrow?: string;
+  h1: string;
+  intro?: string;
+  dark?: boolean;
+  breadcrumbs?: ManifestLink[];
+  current?: string;
+}
+const { eyebrow, h1, intro, dark = false, breadcrumbs = [], current } = Astro.props;
+const hasCta = Astro.slots.has('default');
+---
+
+<section class:list={['phero', { dark }]}>
+  <span class="phero-glow" aria-hidden="true"></span>
+  <div class="container-page phero-inner">
+    {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} current={current ?? h1} />}
+    {
+      eyebrow && (
+        <span class="phero-eyebrow">
+          <span class="dot" aria-hidden="true" />
+          {eyebrow}
+        </span>
+      )
+    }
+    <h1 class="phero-title">{h1}</h1>
+    {intro && <p class="phero-lead">{intro}</p>}
+    {hasCta && <div class="phero-cta"><slot /></div>}
+  </div>
+</section>
+
+<style>
+  .phero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    text-align: center;
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(2.75rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--color-line);
+    background:
+      radial-gradient(90% 80% at 50% -20%, var(--color-surface-3), transparent 70%),
+      linear-gradient(180deg, var(--color-surface-2), var(--color-surface) 90%);
+  }
+  .phero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .phero :global(.breadcrumbs ol) {
+    justify-content: center;
+    padding-block: 0 0.5rem;
+  }
+
+  .phero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    border: 1px solid color-mix(in oklab, var(--color-brand-300) 45%, transparent);
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 1.1rem;
+  }
+  .phero-eyebrow .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-600);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 25%, transparent);
+  }
+
+  .phero-title {
+    font-size: clamp(2rem, 5vw, var(--text-5xl));
+    max-width: 22ch;
+    letter-spacing: -0.02em;
+  }
+  .phero-lead {
+    margin-top: 1.1rem;
+    font-size: clamp(1.05rem, 2.2vw, var(--text-xl));
+    color: var(--color-ink-500);
+    max-width: 60ch;
+  }
+  .phero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.9rem;
+  }
+
+  /* A single soft accent glow — the only place crimson touches the backdrop. */
+  .phero-glow {
+    position: absolute;
+    top: -140px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(680px, 90%);
+    height: 300px;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      color-mix(in oklab, var(--color-brand-400) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  /* ── Deep navy variant ──────────────────────────────────────────────────── */
+  .phero.dark {
+    border-bottom: 0;
+    background:
+      radial-gradient(80% 70% at 50% -20%, var(--color-navy-500), transparent 65%),
+      linear-gradient(180deg, var(--color-navy-800), var(--color-navy-700));
+  }
+  .phero.dark .phero-glow {
+    top: -120px;
+    background: radial-gradient(
+      ellipse at center,
+      color-mix(in oklab, var(--color-brand-500) 40%, transparent),
+      transparent 68%
+    );
+    opacity: 0.6;
+  }
+  .phero.dark .phero-title {
+    color: #fff;
+  }
+  .phero.dark .phero-lead {
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .phero.dark .phero-eyebrow {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+  .phero.dark .phero-eyebrow .dot {
+    background: var(--color-brand-400);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-400) 30%, transparent);
+  }
+  .phero.dark :global(.breadcrumbs a),
+  .phero.dark :global(.breadcrumbs [aria-current='page']) {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .phero.dark :global(.breadcrumbs .sep) {
+    color: rgba(255, 255, 255, 0.3);
+  }
+</style>

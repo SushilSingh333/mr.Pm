@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import FeatureGrid from '../components/page/FeatureGrid.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/protection',
+  pageType: 'trust',
+  title: 'Protection & Claims | MrPackerMover',
+  h1: 'Protection & claims, layer by layer',
+  metaDescription:
+    'How MrPackerMover protects your goods — proper packing standards, verified handling, transit insurance and a published claims process. Every layer, explained.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const layers = [
+  {
+    icon: 'packing-unpacking',
+    title: 'Packing done to a standard',
+    body: 'Right-sized cartons, corner protection, and dedicated crating for the fragile things. Most damage is prevented at the packing table, not the tailgate.',
+  },
+  {
+    icon: 'verified-crew',
+    title: 'Verified, accountable handling',
+    body: 'Trained, ID-verified crews who you can check before they load. The people responsible for your goods are named — not anonymous.',
+  },
+  {
+    icon: 'doc',
+    title: 'A sealed, shared inventory',
+    body: 'Everything is listed, and fragile items are photographed as they’re packed. You and the crew work from the same record, so nothing is a dispute later.',
+  },
+  {
+    icon: 'insurance',
+    title: 'Optional transit insurance',
+    body: 'Raise your cover to your declared value with a named insurer — priced as a clear line item you choose, never an assumed charge.',
+  },
+  {
+    icon: 'claims',
+    title: 'A claims process, in writing',
+    body: 'If something does go wrong, the path to a settlement is defined up front — and our settlement times are published, not hidden.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'One entity that stands behind it',
+    body: 'The company that quotes you is the company that moves you and settles any claim. One invoice, one point of accountability.',
+  },
+];
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Protection & claims"
+    h1={row.h1}
+    intro="“Protection” shouldn’t be a slogan on a truck. It’s a stack of concrete things we do — before, during and after your move — that add up to goods arriving intact, and a fair path if they don’t."
+    breadcrumbs={row.breadcrumbs}
+    current="Protection & claims"
+  >
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get a protected quote</a>
+  </PageHero>
+
+  <Band label="The layers">
+    <div class="section-head">
+      <h2>Six layers between your goods and a bad day</h2>
+      <p>No single one is magic. Stacked together, they’re why damage is rare — and handled honestly when it isn’t.</p>
+    </div>
+    <FeatureGrid items={layers} columns={3} />
+  </Band>
+
+  <Band alt label="Choose your cover">
+    <div class="protect-split">
+      <a class="ps-card card" href="/insurance">
+        <span class="ps-eyebrow">Before the move</span>
+        <h3>Transit insurance</h3>
+        <p>
+          Decide how much protection you want, priced against your declared value and backed by a
+          named insurer. See what’s covered, what isn’t, and how the premium is set.
+        </p>
+        <span class="ps-link">Explore transit insurance →</span>
+      </a>
+      <a class="ps-card card" href="/claims">
+        <span class="ps-eyebrow">If something goes wrong</span>
+        <h3>Claims & settlement</h3>
+        <p>
+          A four-step claims process assessed against your sealed inventory — plus the settlement
+          metrics we publish openly instead of hiding behind “100% damage-free”.
+        </p>
+        <span class="ps-link">See the claims process →</span>
+      </a>
+    </div>
+  </Band>
+
+  <CtaBand
+    heading="Move with every layer in place"
+    text="Get a fixed quote that spells out your packing, handling and cover — so protection is something you can read, not just hope for."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="How to verify us"
+    secondaryHref="/verify"
+  />
+</BaseLayout>
+
+<style>
+  .protect-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    max-width: 940px;
+    margin-inline: auto;
+  }
+  .ps-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.85rem;
+    text-decoration: none;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .ps-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .ps-eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-brand-600);
+  }
+  .ps-card h3 {
+    font-size: var(--text-2xl);
+  }
+  .ps-card p {
+    color: var(--color-ink-500);
+    flex: 1;
+  }
+  .ps-link {
+    font-weight: 600;
+    color: var(--color-brand-700);
+  }
+  @media (max-width: 720px) {
+    .protect-split {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

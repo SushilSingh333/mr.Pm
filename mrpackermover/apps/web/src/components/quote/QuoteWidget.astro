@@ -1,31 +1,200 @@
 ---
-import type { RateBand } from '@mpm/shared';
-import Island from './QuoteWidget.tsx';
 import './quote.css';
 
 /**
- * Wrapper that colocates the widget CSS and sets the hydration strategy. The quote
- * flow is above the fold on the home hero, so it hydrates on idle; on templated
- * pages it is passed the local context (city/service/lane + bands) to pre-fill.
+ * Booking bar + instant estimator. The bar design is our existing Porter bar
+ * (Pickup · Drop · Phone · Shifting Date · Check Price) — unchanged. Interactivity
+ * is a plain client script (not a hydrated island), so "Check Price" always works
+ * and can never trigger a page reload. The pricing maths lives in ./pricing.ts.
  */
 interface Props {
   prefillCity?: string;
   prefillService?: string;
   prefillOrigin?: string;
   prefillDestination?: string;
-  bands?: RateBand[];
-  roadKm?: number;
   cityLabel?: string;
+  // Accepted for backward-compat with existing callers; unused by the estimator.
+  bands?: unknown;
+  roadKm?: number;
+  turnstileSiteKey?: string;
   eager?: boolean;
 }
-const { eager = false, ...rest } = Astro.props;
-const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+const { prefillCity, prefillService, prefillOrigin, prefillDestination } = Astro.props;
+const pickupValue = prefillOrigin ?? prefillCity ?? '';
+const dropValue = prefillDestination ?? '';
+const service = prefillService ?? '';
 ---
 
-{
-  eager ? (
-    <Island client:idle {...rest} turnstileSiteKey={turnstileSiteKey} />
-  ) : (
-    <Island client:visible {...rest} turnstileSiteKey={turnstileSiteKey} />
-  )
-}
+<div class="booking-shell" data-service={service}>
+  <div class="booking-bar" role="group" aria-label="Get a fixed quote">
+    <div class="bar-fields">
+      <label class="bar-field">
+        <span class="bar-label">Pickup Location <b>*</b></span>
+        <input id="q-pickup" type="text" value={pickupValue} placeholder="Sending from" autocomplete="off" />
+      </label>
+      <label class="bar-field">
+        <span class="bar-label">Drop Location <b>*</b></span>
+        <input id="q-drop" type="text" value={dropValue} placeholder="Sending to" autocomplete="off" />
+      </label>
+      <label class="bar-field">
+        <span class="bar-label">Phone Number <b>*</b></span>
+        <input id="q-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Enter Contact Details" />
+      </label>
+      <label class="bar-field">
+        <span class="bar-label">Shifting Date <b>*</b></span>
+        <input id="q-date" type="date" />
+      </label>
+    </div>
+    <button type="button" class="btn btn-primary bar-cta" id="q-go">
+      Check Price
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    </button>
+  </div>
+
+  <!-- Estimator (revealed on Check Price) -->
+  <div class="est" id="q-est" hidden>
+    <div class="est-top">
+      <div>
+        <div class="est-amt" id="q-amt">₹0</div>
+        <div class="est-lane" id="q-lane"></div>
+      </div>
+      <a class="btn btn-primary" id="q-cta" href="/get-quote">Get a fixed quote</a>
+    </div>
+
+    <div class="est-body">
+      <div class="est-inputs">
+        <h4>Adjust the details</h4>
+        <div class="est-row">
+          <label class="est-ctrl">
+            <span>Home size</span>
+            <select id="q-size">
+              <option value="rk">1 RK / studio</option>
+              <option value="1">1 BHK</option>
+              <option value="2" selected>2 BHK</option>
+              <option value="3">3 BHK</option>
+              <option value="4">4 BHK / villa</option>
+            </select>
+          </label>
+          <label class="est-ctrl">
+            <span>Packing</span>
+            <select id="q-pack">
+              <option value="basic">Basic — cartons + wrap</option>
+              <option value="standard" selected>Standard — full wrap</option>
+              <option value="premium">Premium — 5-layer + crates</option>
+            </select>
+          </label>
+        </div>
+        <div class="est-row">
+          <label class="est-ctrl">
+            <span>Pickup floor</span>
+            <select id="q-ffloor"><option value="0">Ground</option><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th+</option></select>
+          </label>
+          <label class="est-ctrl">
+            <span>Lift at pickup</span>
+            <select id="q-flift"><option value="1">Yes</option><option value="0">No</option></select>
+          </label>
+        </div>
+        <div class="est-row">
+          <label class="est-ctrl">
+            <span>Drop floor</span>
+            <select id="q-tfloor"><option value="0">Ground</option><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th+</option></select>
+          </label>
+          <label class="est-ctrl">
+            <span>Lift at drop</span>
+            <select id="q-tlift"><option value="1">Yes</option><option value="0">No</option></select>
+          </label>
+        </div>
+        <div class="est-ctrl">
+          <span>Add-ons</span>
+          <div class="est-adds">
+            <label><input type="checkbox" id="q-store" /> Storage, 1 week</label>
+            <label><input type="checkbox" id="q-car" /> Car transport</label>
+            <label><input type="checkbox" id="q-clean" /> Deep cleaning</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="est-break">
+        <h4>How this number is built</h4>
+        <div id="q-break"></div>
+      </div>
+    </div>
+
+    <div class="est-foot">
+      <span>Built from our published rate card · accurate to about ±6% before survey.</span>
+      <span>A free 10-minute video survey turns this into one fixed number.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import {
+    PLACES,
+    resolvePlace,
+    routeDistanceKm,
+    estimate,
+    inr,
+    SIZE_LABELS,
+  } from './pricing';
+  import type { SizeKey, PackKey } from './pricing';
+
+  const byId = <T extends HTMLElement = HTMLElement>(id: string): T =>
+    document.getElementById(id) as T;
+  const root = document.querySelector<HTMLElement>('.booking-shell');
+
+  if (root) {
+    const DROP_DEFAULT = PLACES.find((p) => p.name === 'Sector 62') ?? PLACES[0];
+    const service = root.dataset.service ?? '';
+    const est = byId('q-est');
+
+    function currentInputs() {
+      const pickup = byId<HTMLInputElement>('q-pickup').value;
+      const drop = byId<HTMLInputElement>('q-drop').value;
+      const from = resolvePlace(pickup, PLACES[0]);
+      const to = resolvePlace(drop, DROP_DEFAULT);
+      return {
+        pickup,
+        drop,
+        phone: byId<HTMLInputElement>('q-phone').value,
+        from,
+        to,
+        km: Math.round(routeDistanceKm(from, to)),
+        size: byId<HTMLSelectElement>('q-size').value as SizeKey,
+        fFloor: +byId<HTMLSelectElement>('q-ffloor').value,
+        fLift: +byId<HTMLSelectElement>('q-flift').value === 1,
+        tFloor: +byId<HTMLSelectElement>('q-tfloor').value,
+        tLift: +byId<HTMLSelectElement>('q-tlift').value === 1,
+        pack: byId<HTMLSelectElement>('q-pack').value as PackKey,
+        date: byId<HTMLInputElement>('q-date').value,
+        store: byId<HTMLInputElement>('q-store').checked,
+        car: byId<HTMLInputElement>('q-car').checked,
+        clean: byId<HTMLInputElement>('q-clean').checked,
+      };
+    }
+
+    function render() {
+      const o = currentInputs();
+      const r = estimate(o);
+      byId('q-amt').textContent = `${inr(r.lo)} – ${inr(r.hi)}`;
+      byId('q-lane').textContent =
+        `${SIZE_LABELS[o.size]} · ${o.from.name} → ${o.to.name} · ${o.km} km` +
+        (r.long ? ' · intercity lane' : '');
+      byId('q-break').innerHTML =
+        r.lines
+          .map(([k, v]) => `<div class="est-bl"><span>${k}</span><span>${inr(v)}</span></div>`)
+          .join('') +
+        `<div class="est-bl est-tot"><span>Estimated total</span><span>${inr(r.total)}</span></div>`;
+      const cta = byId<HTMLAnchorElement>('q-cta');
+      cta.href =
+        `/get-quote?from=${encodeURIComponent(o.pickup)}&to=${encodeURIComponent(o.drop)}` +
+        (o.phone ? `&phone=${encodeURIComponent(o.phone)}` : '') +
+        (service ? `&service=${encodeURIComponent(service)}` : '');
+      est.hidden = false;
+    }
+
+    byId('q-go').addEventListener('click', render);
+    ['q-size', 'q-pack', 'q-ffloor', 'q-flift', 'q-tfloor', 'q-tlift', 'q-date', 'q-store', 'q-car', 'q-clean'].forEach(
+      (id) => byId(id).addEventListener('change', () => { if (!est.hidden) render(); }),
+    );
+  }
+</script>

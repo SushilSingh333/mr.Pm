@@ -6,6 +6,7 @@ import HeroShell from '../components/sections/HeroShell.astro';
 import ServiceSelector from '../components/home/ServiceSelector.astro';
 import ServicesGrid from '../components/sections/ServicesGrid.astro';
 import CitiesGrid from '../components/sections/CitiesGrid.astro';
+import CoverageBand from '../components/sections/CoverageBand.astro';
 import ValueProps from '../components/sections/ValueProps.astro';
 import Faq from '../components/sections/Faq.astro';
 import Band from '../components/ui/Band.astro';
@@ -82,11 +83,15 @@ const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubDat
 
   {
     cityLinks.length > 0 && (
-      <Band alt label="Cities">
-        <CitiesGrid
-          cities={cityLinks}
-          intro="Pick your city to see the areas we cover, local rate bands, and real reviews."
-        />
+      <Band alt label="Coverage">
+        <CoverageBand />
+        <div class="home-cities">
+          <CitiesGrid
+            cities={cityLinks}
+            heading="Cities we pick up from"
+            intro="Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India."
+          />
+        </div>
       </Band>
     )
   }
@@ -114,6 +119,9 @@ const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubDat
   .home-tagline .t-line2 {
     font-weight: 800;
     letter-spacing: -0.015em;
+  }
+  .home-cities {
+    margin-top: clamp(2rem, 4vw, 3rem);
   }
   .home-stats {
     display: grid;

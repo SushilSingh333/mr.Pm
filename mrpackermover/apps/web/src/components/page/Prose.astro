@@ -1,0 +1,98 @@
+---
+/**
+ * Readable long-form wrapper for legal / policy / editorial pages. Styles the
+ * slotted HTML (h2/h3/p/ul/li/a/table…) with a comfortable measure. Kept scoped
+ * via `:global` descendants so any page can drop plain markup inside.
+ */
+interface Props {
+  narrow?: boolean;
+}
+const { narrow = false } = Astro.props;
+---
+
+<div class:list={['prose', { narrow }]}><slot /></div>
+
+<style>
+  .prose {
+    max-width: 78ch;
+    margin-inline: auto;
+    color: var(--color-ink-700);
+    font-size: var(--text-lg);
+    line-height: 1.75;
+  }
+  .prose.narrow {
+    max-width: 68ch;
+  }
+  .prose :global(h2) {
+    font-size: clamp(1.35rem, 3vw, var(--text-2xl));
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    scroll-margin-top: 90px;
+  }
+  .prose :global(h3) {
+    font-size: var(--text-xl);
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose :global(h2:first-child),
+  .prose :global(h3:first-child) {
+    margin-top: 0;
+  }
+  .prose :global(p) {
+    margin-bottom: 1.1rem;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin: 0 0 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .prose :global(li) {
+    padding-left: 0.25rem;
+  }
+  .prose :global(a) {
+    color: var(--color-brand-700);
+    font-weight: 500;
+  }
+  .prose :global(strong) {
+    color: var(--color-ink-900);
+  }
+  .prose :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--color-line);
+    margin-block: 2rem;
+  }
+  .prose :global(blockquote) {
+    margin: 1.5rem 0;
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    border-left: 3px solid var(--color-brand-400);
+    color: var(--color-ink-500);
+    font-style: italic;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: var(--text-base);
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .prose :global(th) {
+    color: var(--color-ink-900);
+    font-weight: 600;
+    background: var(--color-surface-2);
+  }
+  .prose :global(.lead) {
+    font-size: var(--text-xl);
+    color: var(--color-ink-900);
+  }
+  .prose :global(.muted) {
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+  }
+</style>

@@ -3,38 +3,47 @@
  * Tailwind v4 CSS-first theme. Every token below is emitted as a CSS custom
  * property AND generates matching utilities (e.g. --color-brand-600 → bg-brand-600).
  *
- * Visual language: a close match to porter.in — a single technical sans
- * (Titillium Web), a vivid cobalt-blue primary (#0A57FF), white cards on a light
- * lavender base (#F0F3FF), soft rounded cards, blue circular icon badges, and a
- * tight 4px button radius. The trust slots (see components/trust/*) carry real data.
+ * Visual language: a Porter-grade layout in a deep-crimson brand — a single
+ * technical sans (Titillium Web), a rich ruby primary (#990010), white cards on a
+ * warm blush base, soft rounded cards, crimson circular icon badges, and a tight
+ * 4px button radius. The trust slots (see components/trust/*) carry real data.
  */
 
 @theme {
-  /* ── Brand palette (Porter cobalt blue #0A57FF) ─────────────────────────── */
-  --color-brand-50: #eaf0ff; /* icon-badge background */
-  --color-brand-100: #d6e1ff;
-  --color-brand-200: #adc2ff;
-  --color-brand-300: #84a3ff;
-  --color-brand-400: #4a7bff;
-  --color-brand-500: #1a62ff;
-  --color-brand-600: #0a57ff; /* primary — buttons, links, icons */
-  --color-brand-700: #0847d6;
-  --color-brand-800: #0838a8;
-  --color-brand-900: #0a2e80;
+  /* ── Brand palette (deep crimson #990010) ───────────────────────────────── */
+  --color-brand-50: #fdecee; /* icon-badge background */
+  --color-brand-100: #fbd2d6;
+  --color-brand-200: #f4a7ad;
+  --color-brand-300: #ea757f;
+  --color-brand-400: #d94452;
+  --color-brand-500: #bd1325;
+  --color-brand-600: #990010; /* primary — buttons, links, icons */
+  --color-brand-700: #7e0311;
+  --color-brand-800: #660410;
+  --color-brand-900: #4d060e;
+
+  /* ── Deep navy (secondary) — dark surfaces, hero/footer/CTA gradients (#092341).
+     Crimson stays the primary/accent; navy carries the heavy dark areas so the
+     brand red is used deliberately, not everywhere. ───────────────────────── */
+  --color-navy-500: #16406f;
+  --color-navy-600: #0d2f56;
+  --color-navy-700: #092341; /* base dark surface */
+  --color-navy-800: #071b31;
+  --color-navy-900: #051121;
 
   --color-accent-500: #12a150; /* verified / success green (used sparingly) */
   --color-accent-600: #0e8443;
-  --color-warn-500: #d97706; /* honest caveats, "extra cost" */
+  --color-warn-500: #c2620a; /* honest caveats, "extra cost" (warm amber) */
 
-  /* Neutrals — Porter near-black headings, cool grey body, blue-grey hairlines */
-  --color-ink-900: #2d2f34; /* headings */
-  --color-ink-700: #454951; /* body */
-  --color-ink-500: #6b6f78; /* muted */
-  --color-line: #e3e8f5; /* hairlines / card borders */
+  /* Neutrals — cool slate headings, cool grey body & hairlines (pairs with navy) */
+  --color-ink-900: #1c2637; /* headings */
+  --color-ink-700: #434e60; /* body */
+  --color-ink-500: #6b7488; /* muted */
+  --color-line: #e3e7ef; /* hairlines / card borders */
   --color-surface: #ffffff; /* cards, header */
-  --color-surface-2: #f0f3ff; /* page base / alt sections (Porter lavender) */
-  --color-surface-3: #eaf0ff; /* icon badges, soft fills */
-  --color-hero: #0b1b3f; /* dark hero backdrop */
+  --color-surface-2: #f2f5fa; /* page base / alt sections (cool light) */
+  --color-surface-3: #e9eef6; /* icon badges, soft fills */
+  --color-hero: #092341; /* dark navy hero backdrop */
 
   /* ── Typography — single family, matching Porter (Titillium Web) ─────────── */
   --font-display: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -58,9 +67,9 @@
   --radius-xl: 26px; /* large feature cards */
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 2px rgba(13, 27, 63, 0.04), 0 10px 30px rgba(13, 27, 63, 0.06);
-  --shadow-bar: 0 16px 40px rgba(13, 27, 63, 0.14); /* the booking bar lift */
-  --shadow-pop: 0 12px 40px rgba(13, 27, 63, 0.12);
+  --shadow-card: 0 1px 2px rgba(9, 35, 65, 0.05), 0 10px 30px rgba(9, 35, 65, 0.08);
+  --shadow-bar: 0 16px 40px rgba(9, 35, 65, 0.16); /* the booking bar lift */
+  --shadow-pop: 0 12px 40px rgba(9, 35, 65, 0.12);
 
   --container-page: 1200px;
 

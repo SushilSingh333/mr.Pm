@@ -32,7 +32,6 @@ export const SERVICES = [
   { slug: 'bike-transport', name: 'Bike Transport' },
   { slug: 'loading-unloading', name: 'Loading & Unloading' },
   { slug: 'packing-unpacking', name: 'Packing & Unpacking' },
-  { slug: 'storage-warehousing', name: 'Storage & Warehousing' },
   { slug: 'international-relocation', name: 'International Relocation' },
 ] as const;
 

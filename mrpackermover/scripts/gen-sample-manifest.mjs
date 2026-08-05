@@ -28,7 +28,6 @@ const SERVICES = [
   { slug: 'bike-transport', name: 'Bike Transport', icon: 'bike' },
   { slug: 'loading-unloading', name: 'Loading & Unloading', icon: 'box' },
   { slug: 'packing-unpacking', name: 'Packing & Unpacking', icon: 'pack' },
-  { slug: 'storage-warehousing', name: 'Storage & Warehousing', icon: 'store' },
   { slug: 'international-relocation', name: 'International Relocation', icon: 'globe' },
 ];
 const SERVICE_SUMMARY = {
@@ -38,7 +37,6 @@ const SERVICE_SUMMARY = {
   'bike-transport': 'Two-wheeler transport, foam-wrapped and crated, on the same fixed-quote basis.',
   'loading-unloading': 'Labour-only loading and unloading when you have your own vehicle.',
   'packing-unpacking': 'Professional packing materials and unpacking at destination.',
-  'storage-warehousing': 'Clean, insured short- and long-term storage between move-out and move-in.',
   'international-relocation': 'Door-to-door international moves with customs documentation handled.',
 };
 

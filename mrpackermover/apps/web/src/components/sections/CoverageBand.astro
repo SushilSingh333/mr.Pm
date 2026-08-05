@@ -1,0 +1,126 @@
+---
+import { iconSvg } from '../../lib/icons.js';
+
+/**
+ * Coverage model, said plainly: we PICK UP only in the cities we list (own crews),
+ * but we DELIVER anywhere in India. Removes the #1 confusion for a moving customer.
+ */
+---
+
+<div class="coverage">
+  <div class="cov-part">
+    <span class="cov-ic">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconSvg('map-pin')} />
+    </span>
+    <div class="cov-body">
+      <span class="cov-k">Pickup</span>
+      <strong>From the cities we serve</strong>
+      <p>Our own trained crews run in every city we list — so your move begins with a verified team you can check before they load.</p>
+    </div>
+  </div>
+
+  <span class="cov-arrow" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  </span>
+
+  <div class="cov-part cov-drop">
+    <span class="cov-ic">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={iconSvg('truck')} />
+    </span>
+    <div class="cov-body">
+      <span class="cov-k">Delivery</span>
+      <strong>Anywhere in India</strong>
+      <p>From there we take your home to <em>any</em> city or town in the country — same crews, same care, same fixed-quote promise.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .coverage {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: stretch;
+    gap: 0;
+    max-width: 1000px;
+    margin-inline: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+  }
+  .cov-part {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+  .cov-drop {
+    background: linear-gradient(150deg, var(--color-surface-2), var(--color-surface));
+  }
+  .cov-ic {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    flex: none;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .cov-drop .cov-ic {
+    background: linear-gradient(140deg, var(--color-navy-600), var(--color-navy-800));
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(9, 35, 65, 0.28);
+  }
+  .cov-k {
+    display: inline-block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-brand-600);
+    margin-bottom: 0.15rem;
+  }
+  .cov-drop .cov-k {
+    color: var(--color-navy-600);
+  }
+  .cov-body strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-ink-900);
+    line-height: 1.2;
+  }
+  .cov-body p {
+    margin-top: 0.4rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+  .cov-body em {
+    font-style: normal;
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+  .cov-arrow {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    color: var(--color-brand-600);
+    background: var(--color-surface);
+    border-inline: 1px solid var(--color-line);
+  }
+
+  @media (max-width: 720px) {
+    .coverage {
+      grid-template-columns: 1fr;
+    }
+    .cov-arrow {
+      width: auto;
+      height: 48px;
+      border-inline: 0;
+      border-block: 1px solid var(--color-line);
+      transform: rotate(90deg);
+    }
+  }
+</style>

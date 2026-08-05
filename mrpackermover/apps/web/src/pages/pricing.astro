@@ -1,0 +1,261 @@
+---
+import { jsonld } from '@mpm/seo';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import FeatureGrid from '../components/page/FeatureGrid.astro';
+import Faq from '../components/sections/Faq.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/pricing',
+  pageType: 'pricing',
+  title: 'Pricing – Fixed Moving Quotes | MrPackerMover',
+  h1: 'Pricing that is fixed before we lift a box',
+  metaDescription:
+    'How MrPackerMover builds a fixed, written moving quote — indicative home-shifting prices, what is always included, and the few things that can change the total.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const steps = [
+  {
+    title: 'A proper survey',
+    body: 'A quick video or in-person survey of what actually moves — not a guess over the phone. This is what makes a fixed price possible.',
+  },
+  {
+    title: 'Volume & distance',
+    body: 'Your goods’ volume and the exact pickup-to-drop distance set the base. Local and intercity are priced differently, and shown separately.',
+  },
+  {
+    title: 'Labour & access',
+    body: 'Crew size, floors, and lift availability. Anything that adds effort — a long carry, no service lift — is priced up front, never on the day.',
+  },
+  {
+    title: 'Packing materials',
+    body: 'Bubble wrap, cartons, crating for the fragile things. Counted into the written quote so the number you approve is the number you pay.',
+  },
+];
+
+const indicative = [
+  { size: '1 BHK', local: '₹4,000 – ₹12,000', inter: '₹12,000 – ₹32,000' },
+  { size: '2 BHK', local: '₹6,000 – ₹18,000', inter: '₹18,000 – ₹45,000' },
+  { size: '3 BHK', local: '₹9,000 – ₹25,000', inter: '₹25,000 – ₹65,000' },
+  { size: '4 BHK / Villa', local: '₹14,000 – ₹38,000', inter: '₹38,000 – ₹95,000' },
+];
+
+const faqs = [
+  {
+    question: 'Is the quote really fixed?',
+    answer:
+      'Yes. Once we have surveyed your goods, the written quote is the price you pay. The only way it changes is if the scope changes — you add items, or ask for a service that was not in the original quote — and we confirm any such change with you first.',
+  },
+  {
+    question: 'Why show a range instead of one price?',
+    answer:
+      'The table is indicative, to help you budget. Your actual quote is a single fixed number, itemised for your specific goods, floors, distance and date — not a range.',
+  },
+  {
+    question: 'Do you take advance payment?',
+    answer:
+      'A token advance confirms the slot; the balance is due on completion. Everything is on a GST invoice, so you have a clean record of what you paid and for what.',
+  },
+  {
+    question: 'Is GST included in the price?',
+    answer:
+      'Applicable GST is shown clearly as a line item and included in your final invoice — never a surprise addition after the move.',
+  },
+];
+
+const extraJsonLd = [jsonld.faqPage(faqs)];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <PageHero
+    dark
+    eyebrow="Pricing"
+    h1={row.h1}
+    intro="The oldest trick in this industry is a low phone quote that balloons on moving day. We do the opposite: survey first, write it down, and hold the price."
+    breadcrumbs={row.breadcrumbs}
+    current="Pricing"
+  >
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get your fixed quote</a>
+  </PageHero>
+
+  <Band label="How pricing works">
+    <div class="section-head">
+      <h2>How a fixed quote is built</h2>
+      <p>Four inputs, all visible to you. No mystery multipliers, no "moving-day charges".</p>
+    </div>
+    <FeatureGrid items={steps} columns={4} numbered />
+  </Band>
+
+  <Band alt label="Indicative prices">
+    <div class="section-head">
+      <h2>Indicative home-shifting prices</h2>
+      <p>A budgeting guide. Your written quote is a single fixed figure for your exact move.</p>
+    </div>
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th scope="col">Home size</th>
+            <th scope="col">Within city</th>
+            <th scope="col">Intercity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            indicative.map((r) => (
+              <tr>
+                <th scope="row">{r.size}</th>
+                <td>{r.local}</td>
+                <td>{r.inter}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">
+      Indicative ranges for full home shifting, including packing, labour and transport.
+      Intercity varies with distance. Insurance is optional and priced separately.
+    </p>
+  </Band>
+
+  <Band label="What's included">
+    <div class="inclusions-grid">
+      <div class="inc-col card inc-in">
+        <h3>Always included</h3>
+        <ul>
+          <li>Professional packing labour &amp; materials</li>
+          <li>Loading, transport &amp; unloading</li>
+          <li>Basic dismantling &amp; reassembly of standard furniture</li>
+          <li>A dedicated move coordinator</li>
+          <li>A GST invoice for the full amount</li>
+        </ul>
+      </div>
+      <div class="inc-col card inc-extra">
+        <h3>Costs extra — always itemised first</h3>
+        <ul>
+          <li>Long carry or stairs where there is no service lift</li>
+          <li>Short-term storage between pickup and delivery</li>
+          <li>Special crating (piano, art, large appliances)</li>
+          <li>Express or fixed-time delivery slots</li>
+          <li>Optional transit insurance</li>
+        </ul>
+      </div>
+    </div>
+    <p class="table-note">
+      Every "extra" is quoted before work starts. If it is not on your written quote, you are not
+      paying for it. See how cover works on <a href="/insurance">transit insurance</a>.
+    </p>
+  </Band>
+
+  <Band alt label="Pricing FAQ">
+    <Faq faqs={faqs} heading="Pricing questions, answered" />
+  </Band>
+
+  <CtaBand
+    heading="Get a number you can plan around"
+    text="Answer a few questions about your move and receive a fixed, itemised quote — no obligation, no moving-day surprises."
+    primaryLabel="Get a fixed quote"
+    primaryHref="/get-quote"
+    secondaryLabel="See what's protected"
+    secondaryHref="/protection"
+  />
+</BaseLayout>
+
+<style>
+  .price-table-wrap {
+    max-width: 820px;
+    margin-inline: auto;
+    overflow-x: auto;
+  }
+  .price-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .price-table th,
+  .price-table td {
+    padding: 0.95rem 1.15rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .price-table thead th {
+    background: var(--color-surface-2);
+    color: var(--color-ink-900);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .price-table tbody th {
+    color: var(--color-ink-900);
+    font-weight: 700;
+  }
+  .price-table td {
+    color: var(--color-ink-700);
+    font-weight: 600;
+  }
+  .price-table tbody tr:last-child th,
+  .price-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .table-note {
+    max-width: 820px;
+    margin: 1.25rem auto 0;
+    text-align: center;
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+
+  .inclusions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    max-width: 940px;
+    margin-inline: auto;
+  }
+  .inc-col {
+    padding: 1.75rem;
+  }
+  .inc-col h3 {
+    font-size: var(--text-xl);
+    margin-bottom: 1rem;
+  }
+  .inc-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .inc-col li {
+    position: relative;
+    padding-left: 1.6rem;
+    color: var(--color-ink-700);
+  }
+  .inc-in li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent-600);
+    font-weight: 800;
+  }
+  .inc-extra li::before {
+    content: '+';
+    position: absolute;
+    left: 0;
+    color: var(--color-warn-500);
+    font-weight: 800;
+  }
+  @media (max-width: 720px) {
+    .inclusions-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

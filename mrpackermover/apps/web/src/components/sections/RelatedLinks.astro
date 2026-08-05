@@ -1,10 +1,12 @@
 ---
 import type { ManifestLink } from '@mpm/shared';
+import { iconSvg } from '../../lib/icons.js';
 
 /**
- * Contextual related links (Doc 01 §8), computed in the manifest. Grouped and
- * capped; anchor text comes from the data, varied by position. This is what keeps
- * every page ≥ 3 inbound links and nothing orphaned.
+ * Contextual related links (Doc 01 §8), computed in the manifest. Rendered as small
+ * cards in a centered, wrapping row so an incomplete final row centres (rather than
+ * hanging left). This powers "Services in this city" (city hub) and "Cities we
+ * serve" (service hub), so both read as tidy card grids.
  */
 interface Props {
   links: ManifestLink[];
@@ -17,6 +19,7 @@ const groups = links.reduce<Record<string, ManifestLink[]>>((acc, link) => {
   (acc[key] ??= []).push(link);
   return acc;
 }, {});
+
 const labels: Record<string, string> = {
   services: 'Services in this city',
   localities: 'Areas we cover',
@@ -27,58 +30,147 @@ const labels: Record<string, string> = {
   reverse: 'The reverse route',
   related: 'Related',
 };
+
+const iconFor = (group: string): string => {
+  switch (group) {
+    case 'services':
+      return 'home-shifting';
+    case 'endpoints':
+    case 'reverse':
+      return 'truck';
+    case 'cities':
+    case 'localities':
+    case 'siblings':
+    case 'nearby':
+      return 'map-pin';
+    default:
+      return 'arrow-right';
+  }
+};
 ---
 
 {
   links.length > 0 && (
-    <nav class="related" aria-label={heading}>
+    <div class="related">
       {Object.entries(groups).map(([group, items]) => (
-        <div class="related-group">
-          <h2 class="related-heading">{labels[group] ?? heading}</h2>
-          <ul>
+        <section class="rl-group" aria-label={labels[group] ?? heading}>
+          <h2 class="rl-heading">{labels[group] ?? heading}</h2>
+          <ul class="rl-cards" role="list">
             {items.slice(0, 12).map((item) => (
               <li>
-                <a href={item.path}>{item.anchor}</a>
+                <a class="rl-card" href={item.path}>
+                  <span class="rl-icon" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      set:html={iconSvg(iconFor(group))}
+                    />
+                  </span>
+                  <span class="rl-label">{item.anchor}</span>
+                  <span class="rl-arrow" aria-hidden="true">
+                    →
+                  </span>
+                </a>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       ))}
-    </nav>
+    </div>
   )
 }
 
 <style>
   .related {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    max-width: 1000px;
-    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
   }
-  .related-group {
+  .rl-group {
     text-align: center;
   }
-  .related-heading {
+  .rl-heading {
     font-family: var(--font-text);
     font-size: var(--text-sm);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     color: var(--color-ink-500);
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
   }
-  .related ul {
+  /* Wrapping, centred row — an incomplete final row centres instead of hanging left. */
+  .rl-cards {
     list-style: none;
     display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.85rem;
+    max-width: 1040px;
+    margin-inline: auto;
   }
-  .related a {
-    color: var(--color-brand-700);
+  .rl-cards > li {
+    display: flex;
+    flex: 0 1 250px;
+    max-width: 300px;
+  }
+  .rl-card {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     text-decoration: none;
-    font-weight: 500;
+    color: var(--color-ink-900);
+    text-align: left;
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
   }
-  .related a:hover {
-    text-decoration: underline;
+  .rl-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-brand-300);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .rl-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .rl-label {
+    flex: 1;
+    font-weight: 600;
+    font-size: var(--text-base);
+    line-height: 1.25;
+  }
+  .rl-arrow {
+    color: var(--color-brand-600);
+    font-weight: 700;
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .rl-card:hover .rl-arrow {
+    transform: translateX(3px);
+  }
+  @media (max-width: 560px) {
+    .rl-cards > li {
+      flex: 1 1 100%;
+      max-width: 340px;
+    }
   }
 </style>

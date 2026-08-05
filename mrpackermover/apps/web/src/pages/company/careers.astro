@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import FeatureGrid from '../../components/page/FeatureGrid.astro';
+import { staticRow, org } from '../../lib/page.js';
+
+const row = staticRow({
+  path: '/company/careers',
+  pageType: 'core',
+  title: 'Careers – MrPackerMover',
+  h1: 'Build the mover India can finally trust',
+  metaDescription:
+    'Join MrPackerMover — crews, coordinators and support roles at a packers & movers company built on fixed quotes, verified people and published claims data.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+
+const values = [
+  {
+    icon: 'shield-check',
+    title: 'Accountability over anonymity',
+    body: 'Every person on a job is trained and ID-verified. We put our names on our work — and we hire people who want theirs there too.',
+  },
+  {
+    icon: 'growth',
+    title: 'Grow with the crew',
+    body: 'Packers become team leads; coordinators become operations owners. We promote from the van, not just the office.',
+  },
+  {
+    icon: 'heart',
+    title: 'Treat goods like our own',
+    body: "A customer's home is their whole life in boxes. Care isn't a slogan here — it is the single thing we screen for hardest.",
+  },
+];
+
+const roles = [
+  {
+    title: 'Packing & moving crew',
+    type: 'Full-time · Field',
+    body: 'Pack, load, transport and set up homes and offices to our standard. Training and equipment provided; experience welcome, attitude essential.',
+  },
+  {
+    title: 'Move coordinator',
+    type: 'Full-time · Operations',
+    body: 'Own a customer’s move end-to-end — survey, fixed quote, scheduling and day-of coordination. The single point of contact who makes the promise real.',
+  },
+  {
+    title: 'Claims & quality specialist',
+    type: 'Full-time · Trust',
+    body: 'Investigate and settle claims fairly and fast, and feed what you learn back into how crews pack. You keep our published numbers honest.',
+  },
+  {
+    title: 'Customer support',
+    type: 'Full-time · Support',
+    body: 'Answer real questions from people mid-move with clarity and calm. First response within our published SLA — no scripts, no runaround.',
+  },
+];
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Careers"
+    h1={row.h1}
+    intro="This industry has a trust problem. We are hiring the people who will fix it — on the van, in the office, and on the phone."
+    breadcrumbs={row.breadcrumbs}
+    current="Careers"
+  >
+    <a class="btn btn-primary btn-lg" href="#roles">See open roles</a>
+  </PageHero>
+
+  <Band label="What we value">
+    <div class="section-head">
+      <h2>What it's like to work here</h2>
+      <p>Three things we genuinely hire and promote for — everything else can be taught.</p>
+    </div>
+    <FeatureGrid items={values} columns={3} />
+  </Band>
+
+  <Band alt label="Open roles">
+    <div id="roles" class="section-head">
+      <h2>Open roles</h2>
+      <p>Don't see your exact title? If you can make a customer's move calmer, we want to hear from you.</p>
+    </div>
+    <ul class="roles" role="list">
+      {
+        roles.map((r) => (
+          <li class="role card">
+            <div class="role-body">
+              <span class="role-type">{r.type}</span>
+              <h3>{r.title}</h3>
+              <p>{r.body}</p>
+            </div>
+            <a
+              class="btn btn-ghost"
+              href={`/company/contact?role=${encodeURIComponent(r.title)}`}
+            >
+              Apply
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="apply-note">
+      To apply, send a short note and your details through our{' '}
+      <a href="/company/contact">contact page</a>
+      {o?.brandName ? ` — the ${o.brandName} team reviews every application.` : '.'}
+    </p>
+  </Band>
+</BaseLayout>
+
+<style>
+  .roles {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+  .role {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.5rem 1.75rem;
+  }
+  .role-type {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-brand-600);
+    margin-bottom: 0.35rem;
+  }
+  .role h3 {
+    font-size: var(--text-xl);
+    margin-bottom: 0.4rem;
+  }
+  .role p {
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+  }
+  .role .btn {
+    flex-shrink: 0;
+  }
+  .apply-note {
+    text-align: center;
+    margin-top: 1.75rem;
+    color: var(--color-ink-500);
+  }
+  @media (max-width: 760px) {
+    .roles {
+      grid-template-columns: 1fr;
+    }
+    .role {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

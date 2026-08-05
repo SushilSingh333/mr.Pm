@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroBanner from '../components/sections/HeroBanner.astro';
+import Breadcrumbs from '../components/nav/Breadcrumbs.astro';
+import Band from '../components/ui/Band.astro';
+import FeatureGrid from '../components/page/FeatureGrid.astro';
+import CtaBand from '../components/page/CtaBand.astro';
+import { staticRow } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/corporate',
+  pageType: 'corporate',
+  title: 'Corporate & Office Relocation | MrPackerMover',
+  h1: 'Office moves that don’t cost you a working day',
+  metaDescription:
+    'Corporate and office relocation across India — planned around your no-entry windows, with IT-asset handling, a single coordinator, GST invoicing and an MSA.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const features = [
+  {
+    icon: 'headset',
+    title: 'One account manager',
+    body: 'A single named contact owns the whole project — survey to sign-off — so nobody on your side has to chase a call centre mid-move.',
+  },
+  {
+    icon: 'clock',
+    title: 'After-hours & weekend moves',
+    body: 'We plan around your no-entry windows and lift bookings, so the office is running again by the next business morning.',
+  },
+  {
+    icon: 'office-shifting',
+    title: 'IT & sensitive assets',
+    body: 'Workstations, servers and network gear packed, labelled and reconnected to a plan — with an asset checklist you can audit against.',
+  },
+  {
+    icon: 'doc',
+    title: 'GST invoicing & MSA',
+    body: 'Clean GST invoices, a master service agreement for repeat moves, and documentation your finance and admin teams actually need.',
+  },
+  {
+    icon: 'map-pin',
+    title: 'Pan-India, one standard',
+    body: 'Relocating between cities or opening a new site? The same crew standard and coordinator model, wherever you are headed.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Confidentiality & insurance',
+    body: 'Vetted crews, optional transit insurance as a clear line item, and discretion with your documents and equipment as standard.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Survey & scope',
+    body: 'We walk the current and new site, map assets and access, and agree the sequence and cut-over window with your team.',
+  },
+  {
+    title: 'Fixed plan & quote',
+    body: 'A written, itemised quote and a move-day runbook — floor by floor, with timings and responsibilities named.',
+  },
+  {
+    title: 'Move & reconnect',
+    body: 'Crews execute to the runbook, IT is reconnected, and each department signs off its own space before we leave.',
+  },
+];
+---
+
+<BaseLayout row={row}>
+  <div class="container-page"><Breadcrumbs items={row.breadcrumbs} current="Corporate" /></div>
+
+  <HeroBanner
+    badge="Corporate relocation"
+    h1={row.h1}
+    intro="Business relocation is a logistics project, not a van and a prayer. We treat it like one — with a coordinator, a runbook, and a fixed price your finance team can approve."
+    image="office"
+    prefillService="Office Shifting"
+  />
+
+  <Band label="What you get">
+    <div class="section-head">
+      <h2>Built for the way businesses actually move</h2>
+      <p>Everything a facilities or admin lead needs to move a team without a lost day of work.</p>
+    </div>
+    <FeatureGrid items={features} columns={3} />
+  </Band>
+
+  <Band alt label="How it works">
+    <div class="section-head">
+      <h2>From survey to sign-off</h2>
+      <p>A predictable three-step project, with a named owner at every stage.</p>
+    </div>
+    <FeatureGrid items={steps} columns={3} numbered />
+  </Band>
+
+  <CtaBand
+    heading="Planning an office move?"
+    text="Send us your locations, headcount and target date. You'll get a written proposal with a fixed price and a move-day runbook."
+    primaryLabel="Request a proposal"
+    primaryHref="/company/contact"
+    secondaryLabel="See office shifting"
+    secondaryHref="/services/office-shifting"
+  />
+</BaseLayout>

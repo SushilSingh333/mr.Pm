@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/page/PageHero.astro';
+import Band from '../components/ui/Band.astro';
+import Prose from '../components/page/Prose.astro';
+import { staticRow, org } from '../lib/page.js';
+
+const row = staticRow({
+  path: '/terms',
+  pageType: 'core',
+  title: 'Terms of Service | MrPackerMover',
+  h1: 'Terms of service',
+  metaDescription:
+    'The terms governing quotes, bookings, payments, liability, claims and cancellations for moving services provided by MrPackerMover across India.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+const o = org();
+const legalName = o?.legalName ?? 'the Company';
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow="Legal"
+    h1={row.h1}
+    intro="The plain-language terms for using our website and moving services. We’ve kept them readable on purpose — you shouldn’t need a lawyer to understand what you’re agreeing to."
+    breadcrumbs={row.breadcrumbs}
+    current="Terms"
+  />
+
+  <Band label="Terms">
+    <Prose>
+      <div class="legal-notice">
+        <strong>Draft for review.</strong> This template will be finalised with legal counsel before
+        launch. The binding terms are those in force on the date you book. <span class="muted"
+          >Effective date: to be set at launch.</span
+        >
+      </div>
+
+      <h2>1. Who these terms are with</h2>
+      <p>
+        These terms are an agreement between you and <strong>{legalName}</strong> ({o?.brandName ??
+        'MrPackerMover'}), a company registered in India{
+          o?.gstin ? `, GSTIN ${o.gstin}` : ''
+        }. By requesting a quote, booking a move, or using this website, you accept these terms.
+      </p>
+
+      <h2>2. Our services</h2>
+      <p>
+        We provide packing, loading, transportation, unloading and related relocation services for
+        homes and businesses in the areas we serve. We do not operate walk-in premises; services are
+        delivered at your location and coordinated remotely.
+      </p>
+
+      <h2>3. Quotes, surveys and pricing</h2>
+      <p>
+        Quotes are prepared after a survey of your goods (in person or by video). A written,
+        itemised quote is fixed for the scope it describes. If the scope changes — added items, or a
+        service not originally quoted — we will confirm any revised charge with you before doing that
+        work. Indicative prices shown on the site are for guidance only and are not a quote.
+      </p>
+
+      <h2>4. Bookings, payments and GST</h2>
+      <p>
+        A booking is confirmed against an accepted written quote and any token advance. The balance is
+        payable on completion unless agreed otherwise. Applicable GST is shown as a line item, and a
+        GST invoice is issued for every move.
+      </p>
+
+      <h2>5. Your responsibilities</h2>
+      <ul>
+        <li>Give accurate details of your goods, locations, floors and access.</li>
+        <li>Ensure lawful ownership of, and the right to move, all items handed to us.</li>
+        <li>Personally carry cash, jewellery, documents and other high-value valuables.</li>
+        <li>Declare hazardous, perishable or restricted items in advance.</li>
+      </ul>
+
+      <h2>6. Items we cannot move</h2>
+      <p>
+        For safety and legal reasons we do not transport certain goods, including hazardous or
+        flammable materials, illegal items, firearms and ammunition, and perishables, among others.
+        The full list is confirmed at survey.
+      </p>
+
+      <h2>7. Care of your goods</h2>
+      <p>
+        We handle your goods with professional care, using a shared inventory and packing records.
+        Despite this, transit carries inherent risk; sections 8 and 9 explain how liability and
+        insurance work.
+      </p>
+
+      <h2>8. Liability and claims</h2>
+      <p>
+        Our liability for loss or damage caused by our handling is limited to the basic liability
+        cover included with your move, unless you opt for transit insurance (section 9), in which case
+        it extends to your declared insured value. We are not liable for pre-existing damage, items
+        you packed yourself without our inspection, or losses outside our reasonable control. Claims
+        must be raised within the window stated on your invoice and are handled as described on our
+        <a href="/claims">claims page</a>.
+      </p>
+
+      <h2>9. Transit insurance</h2>
+      <p>
+        Transit insurance is optional and, when selected, is placed with a licensed insurer to your
+        declared value. Cover, exclusions and the claims route are set out on our
+        <a href="/insurance">insurance page</a> and in the policy certificate.
+      </p>
+
+      <h2>10. Cancellation, rescheduling and refunds</h2>
+      <p>
+        You may cancel or reschedule; any token advance is refundable or adjustable subject to notice
+        given and costs already incurred, as confirmed at booking. We may cancel where a move cannot
+        be performed safely or lawfully, and will refund amounts not yet used.
+      </p>
+
+      <h2>11. Delays and events beyond control</h2>
+      <p>
+        We plan realistic timelines, but delays can arise from weather, traffic, strikes, regulatory
+        checks or other events beyond our reasonable control. We are not liable for such delays but
+        will keep you informed and work to minimise disruption.
+      </p>
+
+      <h2>12. Complaints and grievances</h2>
+      <p>
+        If something goes wrong, please tell us. Our process, response commitment and escalation route
+        are on the <a href="/raise-a-complaint">raise-a-complaint</a> page.
+      </p>
+
+      <h2>13. Use of this website</h2>
+      <p>
+        The content, branding and design of this site are owned by {o?.brandName ?? 'MrPackerMover'}
+        and may not be copied or used to impersonate us. Report any impersonation through our
+        <a href="/fraud-check">fraud-check</a> page.
+      </p>
+
+      <h2>14. Governing law</h2>
+      <p>
+        These terms are governed by the laws of India, and disputes are subject to the jurisdiction of
+        the courts at the seat of our registered office.
+      </p>
+
+      <h2>15. Changes to these terms</h2>
+      <p>
+        We may update these terms from time to time. The version in force when you book governs your
+        move. Material changes will be posted on this page.
+      </p>
+
+      <h2>16. Contact</h2>
+      <p>
+        Questions about these terms? Reach us via the <a href="/company/contact">contact page</a>.
+      </p>
+    </Prose>
+  </Band>
+</BaseLayout>
+
+<style>
+  .legal-notice {
+    margin-bottom: 2rem;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in oklab, var(--color-warn-500) 35%, var(--color-line));
+    background: color-mix(in oklab, var(--color-warn-500) 8%, white);
+    font-size: var(--text-base);
+    color: var(--color-ink-700);
+  }
+  .legal-notice strong {
+    color: var(--color-ink-900);
+  }
+</style>

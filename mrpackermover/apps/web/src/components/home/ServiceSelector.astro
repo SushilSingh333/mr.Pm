@@ -1,0 +1,210 @@
+---
+import { iconSvg } from '../../lib/icons.js';
+import CityModal from './CityModal.astro';
+
+/**
+ * Porter-style home hero card: a City selector (opens the shared "Choose your city"
+ * modal), a row of service tiles, and a primary CTA. Picking a city sets the CTA
+ * target; the CTA opens that city's hub (where the full booking bar lives).
+ */
+interface City {
+  slug: string;
+  name: string;
+}
+interface Service {
+  slug: string;
+  name: string;
+}
+interface Props {
+  cities: City[];
+  services: Service[];
+}
+const { cities, services } = Astro.props;
+const tiles = services.slice(0, 4);
+const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
+---
+
+<div class="selector card" data-default-city={defaultCity.slug}>
+  <button
+    type="button"
+    class="selector-city"
+    data-open-city-modal
+    aria-haspopup="dialog"
+    aria-controls="city-modal"
+  >
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path d="M12 21s7-6.4 7-11a7 7 0 10-14 0c0 4.6 7 11 7 11z"></path>
+      <circle cx="12" cy="10" r="2.5"></circle>
+    </svg>
+    <span class="selector-city-text">City</span>
+    <strong id="city-current">{defaultCity.name}</strong>
+    <svg
+      class="chev"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </button>
+
+  <div class="selector-tiles">
+    {
+      tiles.map((s) => (
+        <a class="tile" href={`/services/${s.slug}`}>
+          <span class="tile-icon">
+            <svg
+              viewBox="0 0 24 24"
+              width="26"
+              height="26"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={iconSvg(s.slug)}
+            />
+          </span>
+          <span class="tile-label">{s.name}</span>
+        </a>
+      ))
+    }
+    <button type="button" id="selector-cta" class="btn btn-primary tile-cta">
+      Get a fixed quote
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M5 12h14M13 6l6 6-6 6"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<CityModal cities={cities} />
+
+<style>
+  .selector {
+    width: 100%;
+    max-width: 760px;
+    padding: 1.1rem 1.4rem 1.4rem;
+    box-shadow: var(--shadow-bar);
+  }
+  .selector-city {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--color-ink-700);
+    font: inherit;
+    font-weight: 600;
+    padding: 0 0 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    margin-bottom: 1rem;
+  }
+  .selector-city svg {
+    color: var(--color-brand-600);
+  }
+  .selector-city-text {
+    color: var(--color-ink-500);
+  }
+  .selector-city strong {
+    color: var(--color-ink-900);
+  }
+  .selector-city .chev {
+    margin-inline-start: auto;
+    color: var(--color-ink-500);
+  }
+  .selector-tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.9rem 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-ink-700);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+  .tile:hover {
+    border-color: var(--color-brand-400);
+    background: var(--color-surface-3);
+    text-decoration: none;
+  }
+  .tile-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .tile-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .tile-cta {
+    align-self: stretch;
+    padding-inline: 1.4rem;
+  }
+  @media (max-width: 720px) {
+    .selector-tiles {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .tile-cta {
+      grid-column: 1 / -1;
+    }
+  }
+</style>
+
+<script>
+  // The chosen city drives the CTA (opens that city's hub). Listens to the shared
+  // modal's `mpm:city-select` event.
+  const root = document.querySelector<HTMLElement>('.selector');
+  const cityCurrent = document.getElementById('city-current');
+  const cta = document.getElementById('selector-cta');
+  let selected = root?.dataset.defaultCity ?? '';
+
+  document.addEventListener('mpm:city-select', (event) => {
+    const detail = (event as CustomEvent<{ slug?: string; name?: string }>).detail;
+    if (detail?.slug) selected = detail.slug;
+    if (cityCurrent && detail?.name) cityCurrent.textContent = detail.name;
+  });
+
+  cta?.addEventListener('click', () => {
+    if (selected) window.location.href = `/packers-and-movers/${selected}`;
+  });
+</script>

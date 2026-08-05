@@ -1,0 +1,272 @@
+---
+import { iconSvg } from '../../lib/icons.js';
+
+/**
+ * Trust pillars, as a modern bento layout: one wide lead card, one tall dark
+ * accent card (our claims-data differentiator), and two supporting cards. Where
+ * Porter shows "100% Damage-Free", we say what we can stand behind and back it
+ * with the published claims number.
+ */
+interface Props {
+  heading?: string;
+  intro?: string;
+}
+const { heading = 'House Shifting you can actually verify', intro } = Astro.props;
+---
+
+<div class="section-head">
+  <h2>{heading}</h2>
+  {intro && <p>{intro}</p>}
+</div>
+
+<div class="why-bento">
+  <article class="wb-card wb-lead">
+    <span class="wb-glow" aria-hidden="true"></span>
+    <span class="wb-icon">
+      <svg
+        viewBox="0 0 24 24"
+        width="26"
+        height="26"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={iconSvg('fixed-quote')}
+      />
+    </span>
+    <h3>Fixed quote, no surprises</h3>
+    <p>
+      The written quote is the price you pay. Anything that could change it — floor rise, long
+      carry, extra packing — is itemised up front, never sprung on you on delivery day.
+    </p>
+    <span class="wb-chip">
+      <svg
+        viewBox="0 0 24 24"
+        width="14"
+        height="14"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg
+      >
+      Written &amp; fixed
+    </span>
+  </article>
+
+  <article class="wb-card wb-dark">
+    <span class="wb-icon dark">
+      <svg
+        viewBox="0 0 24 24"
+        width="26"
+        height="26"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={iconSvg('claims')}
+      />
+    </span>
+    <h3>Claims settled — and published</h3>
+    <p>
+      Damage is rare, but when it happens we settle. And we publish our median settlement time on
+      the claims page — an unflattering-but-honest number nobody else in this category shows.
+    </p>
+    <a class="wb-link" href="/claims">
+      See our claims data
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+      >
+    </a>
+  </article>
+
+  <article class="wb-card">
+    <span class="wb-icon">
+      <svg
+        viewBox="0 0 24 24"
+        width="26"
+        height="26"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={iconSvg('verified-crew')}
+      />
+    </span>
+    <h3>Verified crews &amp; vehicles</h3>
+    <p>
+      Every crew and vehicle is ID-verified. Check who's coming, and in what vehicle, before they
+      load.
+    </p>
+  </article>
+
+  <article class="wb-card">
+    <span class="wb-icon">
+      <svg
+        viewBox="0 0 24 24"
+        width="26"
+        height="26"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        set:html={iconSvg('insurance')}
+      />
+    </span>
+    <h3>Transit insurance</h3>
+    <p>
+      Optional transit cover, shown as a clear line item on your quote — never buried in the fine
+      print.
+    </p>
+  </article>
+</div>
+
+<style>
+  .why-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+  .wb-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .wb-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-pop);
+  }
+  .wb-lead {
+    grid-column: span 2;
+    background: linear-gradient(135deg, var(--color-brand-50), var(--color-surface) 62%);
+    border-color: color-mix(in oklab, var(--color-brand-500) 18%, white);
+  }
+  .wb-dark {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    justify-content: flex-start;
+    background: linear-gradient(165deg, #0b1220, #13244d);
+    border-color: transparent;
+    color: #fff;
+  }
+  .wb-glow {
+    position: absolute;
+    top: -60px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-pill);
+    background: radial-gradient(circle, var(--color-brand-200), transparent 70%);
+    opacity: 0.5;
+    z-index: -1;
+  }
+  .wb-icon {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(140deg, var(--color-brand-500), var(--color-brand-700));
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(10, 87, 255, 0.28);
+    margin-bottom: 0.4rem;
+  }
+  .wb-icon.dark {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--color-brand-300);
+    box-shadow: none;
+  }
+  .wb-card h3 {
+    font-size: var(--text-xl);
+  }
+  .wb-lead h3 {
+    font-size: var(--text-2xl);
+  }
+  .wb-card p {
+    color: var(--color-ink-500);
+    font-size: var(--text-base);
+    flex: 1;
+  }
+  .wb-dark h3 {
+    color: #fff;
+  }
+  .wb-dark p {
+    color: rgba(255, 255, 255, 0.78);
+  }
+  .wb-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    align-self: flex-start;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-accent-600);
+    background: color-mix(in oklab, var(--color-accent-500) 13%, white);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-pill);
+  }
+  .wb-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+    font-weight: 600;
+    color: var(--color-brand-300);
+    text-decoration: none;
+  }
+  .wb-link:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+  .wb-link svg {
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .wb-link:hover svg {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 860px) {
+    .why-bento {
+      grid-template-columns: 1fr 1fr;
+    }
+    .wb-lead {
+      grid-column: span 2;
+    }
+    .wb-dark {
+      grid-column: span 2;
+      grid-row: auto;
+    }
+  }
+  @media (max-width: 560px) {
+    .why-bento {
+      grid-template-columns: 1fr;
+    }
+    .wb-lead,
+    .wb-dark {
+      grid-column: span 1;
+    }
+  }
+</style>

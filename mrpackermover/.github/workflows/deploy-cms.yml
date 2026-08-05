@@ -1,0 +1,42 @@
+name: Deploy CMS
+
+# Payload admin + REST/Local API. Primary target: Cloudflare Workers via
+# @opennextjs/cloudflare (all-Cloudflare topology). Documented fallback: a Node
+# host (Railway/Render/Fly) using the same DATABASE_URL — see docs/runbook.md.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/cms/**'
+      - 'packages/**'
+
+jobs:
+  migrate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: pnpm --filter @mpm/cms migrate
+
+      - name: Build CMS
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: pnpm --filter @mpm/cms build
+
+      # Deployment step is environment-specific; see docs/runbook.md for the
+      # Workers (OpenNext + Hyperdrive) and Node-host fallback recipes.

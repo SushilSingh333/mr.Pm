@@ -1,0 +1,135 @@
+---
+import type { RouteData } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GeoHero from '../../components/sections/GeoHero.astro';
+import Band from '../../components/ui/Band.astro';
+import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
+import RateTable from '../../components/pricing/RateTable.astro';
+import LocalNotes from '../../components/sections/LocalNotes.astro';
+import RelatedLinks from '../../components/sections/RelatedLinks.astro';
+import { SITE_ORIGIN } from '../../lib/site.js';
+
+/** Route (lane) pages — the commercial prize (Doc 01 §4). One per operated lane. */
+export function getStaticPaths() {
+  return rowsOfType('route').map((row) => ({ params: { lane: row.slug }, props: { row } }));
+}
+
+const { row } = Astro.props;
+const data = dataOf<RouteData>(row);
+
+const extraJsonLd = [
+  jsonld.service({
+    siteOrigin: SITE_ORIGIN,
+    name: `${data.originName} to ${data.destName} Packers and Movers`,
+    areaServed: `${data.originName}–${data.destName}`,
+    offer: data.priceFrom ? { priceFrom: data.priceFrom } : undefined,
+  }),
+];
+
+const facts = [
+  data.roadKm != null
+    ? { k: 'Road distance', v: `${data.roadKm.toLocaleString('en-IN')} km` }
+    : null,
+  data.transitDays != null ? { k: 'Transit time', v: `${data.transitDays} days` } : null,
+  data.frequency ? { k: 'Frequency', v: data.frequency } : null,
+].filter((f): f is { k: string; v: string } => Boolean(f));
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <div class="container-page">
+    <Breadcrumbs items={row.breadcrumbs} current={`${data.originName} → ${data.destName}`} />
+  </div>
+
+  <GeoHero
+    h1={row.h1}
+    intro={`Door-to-door on the ${data.originName}–${data.destName} lane with a fixed quote, real transit windows, and the overnight option most movers don't offer.`}
+    image="route"
+    prefillOrigin={data.originName}
+    prefillDestination={data.destName}
+    bands={data.rateBands}
+    roadKm={data.roadKm}
+  />
+
+  {
+    facts.length > 0 && (
+      <Band label="Route facts">
+        <dl class="route-facts">
+          {facts.map((f) => (
+            <div>
+              <dt>{f.k}</dt>
+              <dd>{f.v}</dd>
+            </div>
+          ))}
+        </dl>
+      </Band>
+    )
+  }
+
+  {
+    data.rateBands.length > 0 && (
+      <Band alt label="Pricing">
+        <RateTable bands={data.rateBands} heading="Price band by load size" />
+      </Band>
+    )
+  }
+
+  {
+    data.overnight.length > 0 && (
+      <Band label="Overnight shifting">
+        <LocalNotes paragraphs={data.overnight} heading="The overnight block — no leave taken" />
+      </Band>
+    )
+  }
+
+  {
+    data.borderNotes && (
+      <Band alt label="Border notes">
+        <h2 class="notes-h">Toll, permit & border notes</h2>
+        <p class="notes-p">{data.borderNotes}</p>
+      </Band>
+    )
+  }
+
+  {
+    row.relatedLinks.length > 0 && (
+      <Band label="Explore">
+        <RelatedLinks links={row.relatedLinks} />
+      </Band>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .route-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+  .route-facts div {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+  }
+  .route-facts dt {
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .route-facts dd {
+    margin: 0.25rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-ink-900);
+  }
+  .notes-h {
+    font-size: var(--text-2xl);
+    margin-bottom: 0.75rem;
+  }
+  .notes-p {
+    max-width: 72ch;
+    color: var(--color-ink-700);
+  }
+</style>

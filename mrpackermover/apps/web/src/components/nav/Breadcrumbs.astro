@@ -1,0 +1,55 @@
+---
+import type { ManifestLink } from '@mpm/shared';
+
+/** Visible breadcrumbs on every non-home page (Doc 02 §7). Markup is emitted separately as JSON-LD. */
+interface Props {
+  items: ManifestLink[];
+  current: string;
+}
+const { items, current } = Astro.props;
+---
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    {
+      items.map((item) => (
+        <li>
+          <a href={item.path}>{item.anchor}</a>
+          <span aria-hidden="true" class="sep">
+            /
+          </span>
+        </li>
+      ))
+    }
+    <li aria-current="page">{current}</li>
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    list-style: none;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+    padding-block: 1rem;
+  }
+  .breadcrumbs a {
+    color: var(--color-ink-500);
+    text-decoration: none;
+  }
+  .breadcrumbs a:hover {
+    color: var(--color-brand-700);
+    text-decoration: underline;
+  }
+  .breadcrumbs .sep {
+    margin-inline-start: 0.4rem;
+    color: var(--color-line);
+  }
+  .breadcrumbs [aria-current='page'] {
+    color: var(--color-ink-700);
+    font-weight: 600;
+  }
+</style>

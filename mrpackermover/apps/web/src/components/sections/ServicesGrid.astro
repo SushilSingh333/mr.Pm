@@ -1,0 +1,168 @@
+---
+import { iconSvg } from '../../lib/icons.js';
+
+/** "Our services" — a premium grid of service cards (our services only). */
+interface ServiceItem {
+  slug: string;
+  name: string;
+}
+interface Props {
+  services: ServiceItem[];
+  heading?: string;
+  intro?: string;
+}
+const { services, heading = 'What we move', intro } = Astro.props;
+const blurb: Record<string, string> = {
+  'home-shifting': 'Full house shifts, packed, moved and reassembled with care.',
+  'office-shifting': 'Offices and IT assets relocated with minimal downtime.',
+  'car-transport': 'Enclosed & open carriers, fully insured, live status.',
+  'bike-transport': 'Foam-wrapped, crated two-wheelers, door to door.',
+  'loading-unloading': 'Trained labour when you already have a vehicle.',
+  'packing-unpacking': 'Professional materials, unpacked at destination.',
+  'storage-warehousing': 'Clean, insured short & long-term storage.',
+  'international-relocation': 'Door-to-door moves, customs handled end to end.',
+};
+---
+
+<div class="section-head">
+  <h2>{heading}</h2>
+  {intro && <p>{intro}</p>}
+</div>
+
+<div class="services-grid">
+  {
+    services.map((s) => (
+      <a class="service-card" href={`/services/${s.slug}`}>
+        <span class="card-glow" aria-hidden="true" />
+        <span class="service-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="28"
+            height="28"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg(s.slug)}
+          />
+        </span>
+        <span class="service-name">{s.name}</span>
+        <span class="service-blurb">{blurb[s.slug]}</span>
+        <span class="service-more">
+          Learn more
+          <svg
+            class="more-arrow"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+    gap: 1.25rem;
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+  .service-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.6rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    text-decoration: none;
+    color: var(--color-ink-900);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  .service-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-brand-300);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  /* Soft decorative glow in the corner, intensifies on hover. */
+  .card-glow {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 130px;
+    height: 130px;
+    border-radius: var(--radius-pill);
+    background: radial-gradient(circle, var(--color-brand-100), transparent 70%);
+    opacity: 0.7;
+    z-index: -1;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      opacity var(--dur-base) var(--ease-out);
+  }
+  .service-card:hover .card-glow {
+    transform: scale(1.35);
+    opacity: 1;
+  }
+  .service-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(140deg, var(--color-brand-50), var(--color-brand-100));
+    color: var(--color-brand-600);
+    margin-bottom: 0.35rem;
+    transition:
+      background var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+  }
+  .service-card:hover .service-icon {
+    background: linear-gradient(140deg, var(--color-brand-500), var(--color-brand-700));
+    color: #fff;
+    transform: scale(1.05) rotate(-3deg);
+  }
+  .service-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-lg);
+  }
+  .service-blurb {
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+    flex: 1;
+  }
+  .service-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--color-brand-600);
+  }
+  .more-arrow {
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .service-card:hover .more-arrow {
+    transform: translateX(4px);
+  }
+</style>

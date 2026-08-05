@@ -1,0 +1,64 @@
+---
+import type { ManifestRow } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
+import { manifest } from '../../data/manifest.js';
+import { themeColor } from '@mpm/ui-tokens/tokens';
+import JsonLd from './JsonLd.astro';
+
+/**
+ * Head SEO for every page. Canonical comes from the manifest row (never from
+ * Astro.url — Doc 02 §4). robots defaults to index,follow and is emitted only when
+ * noindex. BreadcrumbList + Organization/WebSite (home) are injected here.
+ */
+interface Props {
+  row: ManifestRow;
+  /** Extra JSON-LD specific to the page type (Service, Offer, Review, FAQPage...). */
+  extraJsonLd?: Array<Record<string, unknown> | null>;
+}
+const { row, extraJsonLd = [] } = Astro.props;
+const m = manifest();
+const org = m.org;
+
+const blocks: Array<Record<string, unknown> | null> = [];
+
+if (row.pageType === 'home' && org) {
+  blocks.push(
+    jsonld.organization({
+      siteOrigin: m.siteOrigin,
+      legalName: org.legalName,
+      brandName: org.brandName,
+      gstin: org.gstin,
+      cin: org.cin,
+      registeredOffice: org.registeredOffice,
+      sameAs: org.sameAs,
+    }),
+  );
+  blocks.push(jsonld.website(m.siteOrigin, org.brandName));
+}
+
+if (row.breadcrumbs.length > 0) {
+  blocks.push(
+    jsonld.breadcrumbs([
+      ...row.breadcrumbs.map((b) => ({
+        name: b.anchor,
+        url: `${m.siteOrigin}${b.path === '/' ? '' : b.path}`,
+      })),
+      { name: row.h1, url: row.canonical },
+    ]),
+  );
+}
+blocks.push(...extraJsonLd);
+---
+
+<title>{row.title}</title>
+{row.metaDescription && <meta name="description" content={row.metaDescription} />}
+<link rel="canonical" href={row.canonical} />
+{row.noindex && <meta name="robots" content="noindex, follow" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={row.title} />
+{row.metaDescription && <meta property="og:description" content={row.metaDescription} />}
+<meta property="og:url" content={row.canonical} />
+<meta name="theme-color" content={themeColor} />
+
+<JsonLd blocks={blocks} />

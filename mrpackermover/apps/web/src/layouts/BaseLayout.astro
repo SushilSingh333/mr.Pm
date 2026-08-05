@@ -1,0 +1,39 @@
+---
+import type { ManifestRow } from '@mpm/shared';
+import Seo from '../components/seo/Seo.astro';
+import Header from '../components/nav/Header.astro';
+import Footer from '../components/nav/Footer.astro';
+import '../styles/global.css';
+
+/**
+ * Base HTML shell for every page. Zero JS by default (Doc 02 §10) — only the
+ * header toggle and any hydrated island ship script. Fonts are self-hosted woff2
+ * (ADR-0002); until the licence-clean pair is pinned, the token fallbacks (system
+ * serif/grotesk) render, so there is never an invisible-text or blocking request.
+ */
+interface Props {
+  row: ManifestRow;
+  extraJsonLd?: Array<Record<string, unknown> | null>;
+}
+const { row, extraJsonLd } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Self-hosted fonts get preloaded here once pinned (ADR-0002):
+         <link rel="preload" href="/fonts/fraunces-subset.woff2" as="font" type="font/woff2" crossorigin /> -->
+    <Seo row={row} extraJsonLd={extraJsonLd} />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

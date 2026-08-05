@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.next
+.astro
+.turbo
+pnpm-lock.yaml
+apps/cms/src/payload-types.ts
+packages/shared/src/payload-types.ts
+**/manifest.json
+coverage

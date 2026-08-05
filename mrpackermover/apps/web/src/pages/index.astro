@@ -1,0 +1,141 @@
+---
+import type { HomeData, CityHubData, ServiceHubData, FaqItem } from '@mpm/shared';
+import { rowsOfType, rowByPath, dataOf } from '../data/manifest.js';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroShell from '../components/sections/HeroShell.astro';
+import ServiceSelector from '../components/home/ServiceSelector.astro';
+import ServicesGrid from '../components/sections/ServicesGrid.astro';
+import CitiesGrid from '../components/sections/CitiesGrid.astro';
+import ValueProps from '../components/sections/ValueProps.astro';
+import Faq from '../components/sections/Faq.astro';
+import Band from '../components/ui/Band.astro';
+
+const row = rowByPath('/')!;
+const data = dataOf<HomeData>(row);
+const faqs = (row.data.faqs as FaqItem[] | undefined) ?? [];
+
+const serviceRows = rowsOfType('service-hub').filter((r) => r.path.startsWith('/services/'));
+const services = serviceRows.map((r) => ({
+  slug: r.slug,
+  name: dataOf<ServiceHubData>(r).serviceName,
+}));
+
+const cityRows = rowsOfType('city-hub');
+const cities = cityRows.map((r) => ({ slug: r.slug, name: dataOf<CityHubData>(r).cityName }));
+const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubData>(r).cityName }));
+---
+
+<BaseLayout row={row}>
+  <HeroShell align="left" h1={row.h1} image="home">
+    <h1 slot="heading" class="home-tagline">
+      <span class="t-line1">Shifting Aapki,</span>
+      <span class="t-line2">Zimmedari Hamari.</span>
+    </h1>
+    <ServiceSelector cities={cities} services={services} />
+  </HeroShell>
+
+  <Band label="Services">
+    <ServicesGrid
+      services={services}
+      heading="What we move"
+      intro="One operation, verified crews, and a written fixed quote for every service."
+    />
+  </Band>
+
+  <Band alt label="Why us">
+    <ValueProps
+      heading="House Shifting you can actually verify"
+      intro="Everything below is backed by real job data — no vanity counters, no stock photos."
+    />
+  </Band>
+
+  {
+    (data.totalJobs12m > 0 || data.medianSettlementDays != null) && (
+      <Band label="By the numbers">
+        <div class="section-head">
+          <h2>By the numbers</h2>
+          <p>Unflattering when it needs to be — that's the point.</p>
+        </div>
+        <dl class="home-stats">
+          {data.totalJobs12m > 0 && (
+            <div class="card stat">
+              <dt>{data.totalJobs12m.toLocaleString('en-IN')}</dt>
+              <dd>moves completed in the last 12 months</dd>
+            </div>
+          )}
+          {data.onTimePct != null && (
+            <div class="card stat">
+              <dt>{data.onTimePct}%</dt>
+              <dd>arrived on time</dd>
+            </div>
+          )}
+          {data.medianSettlementDays != null && (
+            <div class="card stat">
+              <dt>{data.medianSettlementDays} days</dt>
+              <dd>median claim settlement — published, not hidden</dd>
+            </div>
+          )}
+        </dl>
+      </Band>
+    )
+  }
+
+  {
+    cityLinks.length > 0 && (
+      <Band alt label="Cities">
+        <CitiesGrid
+          cities={cityLinks}
+          intro="Pick your city to see the areas we cover, local rate bands, and real reviews."
+        />
+      </Band>
+    )
+  }
+
+  {
+    faqs.length > 0 && (
+      <Band label="FAQ">
+        <Faq faqs={faqs} heading="Questions people ask" />
+      </Band>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .home-tagline {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  .home-tagline .t-line1 {
+    font-weight: 500;
+    font-size: 0.64em;
+    opacity: 0.94;
+  }
+  .home-tagline .t-line2 {
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .home-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin: 0;
+    max-width: 900px;
+    margin-inline: auto;
+  }
+  .stat {
+    padding: 1.75rem;
+    text-align: center;
+  }
+  .stat dt {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    color: var(--color-brand-600);
+    line-height: 1;
+  }
+  .stat dd {
+    margin: 0.6rem 0 0;
+    color: var(--color-ink-500);
+  }
+</style>

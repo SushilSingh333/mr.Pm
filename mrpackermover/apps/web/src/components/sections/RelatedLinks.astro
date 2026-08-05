@@ -1,0 +1,84 @@
+---
+import type { ManifestLink } from '@mpm/shared';
+
+/**
+ * Contextual related links (Doc 01 §8), computed in the manifest. Grouped and
+ * capped; anchor text comes from the data, varied by position. This is what keeps
+ * every page ≥ 3 inbound links and nothing orphaned.
+ */
+interface Props {
+  links: ManifestLink[];
+  heading?: string;
+}
+const { links, heading = 'Related' } = Astro.props;
+
+const groups = links.reduce<Record<string, ManifestLink[]>>((acc, link) => {
+  const key = link.group ?? 'related';
+  (acc[key] ??= []).push(link);
+  return acc;
+}, {});
+const labels: Record<string, string> = {
+  services: 'Services in this city',
+  localities: 'Areas we cover',
+  siblings: 'Nearby areas',
+  nearby: 'Same service, nearby cities',
+  cities: 'Cities we serve',
+  endpoints: 'Both ends of this route',
+  reverse: 'The reverse route',
+  related: 'Related',
+};
+---
+
+{
+  links.length > 0 && (
+    <nav class="related" aria-label={heading}>
+      {Object.entries(groups).map(([group, items]) => (
+        <div class="related-group">
+          <h2 class="related-heading">{labels[group] ?? heading}</h2>
+          <ul>
+            {items.slice(0, 12).map((item) => (
+              <li>
+                <a href={item.path}>{item.anchor}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  )
+}
+
+<style>
+  .related {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin-inline: auto;
+  }
+  .related-group {
+    text-align: center;
+  }
+  .related-heading {
+    font-family: var(--font-text);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-500);
+    margin-bottom: 0.75rem;
+  }
+  .related ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  .related a {
+    color: var(--color-brand-700);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .related a:hover {
+    text-decoration: underline;
+  }
+</style>

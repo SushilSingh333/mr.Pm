@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+.astro/
+.turbo/
+*.tsbuildinfo
+
+# Generated artefacts
+manifest.json
+apps/web/src/data/manifest.json
+apps/web/public/sitemap*.xml
+apps/web/public/robots.txt
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Coverage
+coverage/

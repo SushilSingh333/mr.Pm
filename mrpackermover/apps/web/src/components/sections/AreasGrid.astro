@@ -1,0 +1,117 @@
+---
+/**
+ * "Areas we cover in {city}" — the Porter "Serviceable Areas" pattern, as a grid of
+ * small locality cards. Each links to that locality's page (local rate bands,
+ * society/lift notes, reviews). Doc 01 §8: city hub → localities.
+ */
+interface Area {
+  path: string;
+  name: string;
+}
+interface Props {
+  areas: Area[];
+  cityName: string;
+}
+const { areas, cityName } = Astro.props;
+---
+
+{
+  areas.length > 0 && (
+    <div class="areas">
+      <div class="section-head">
+        <h2>Areas we cover in {cityName}</h2>
+        <p>
+          Each area has its own page with local rate bands, society and lift notes, and reviews.
+        </p>
+      </div>
+      <ul class="areas-grid">
+        {areas.map((a) => (
+          <li>
+            <a class="area-card" href={a.path}>
+              <span class="area-pin" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 21s7-6.4 7-11a7 7 0 10-14 0c0 4.6 7 11 7 11z" />
+                  <circle cx="12" cy="10" r="2.5" />
+                </svg>
+              </span>
+              <span class="area-text">
+                <strong>{a.name}</strong>
+                <small>Packers &amp; Movers</small>
+              </span>
+              <span class="area-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+<style>
+  .areas-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.85rem;
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+  .area-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    text-decoration: none;
+    color: var(--color-ink-900);
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .area-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-brand-300);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .area-pin {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .area-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .area-text strong {
+    font-weight: 600;
+  }
+  .area-text small {
+    color: var(--color-ink-500);
+    font-size: var(--text-xs);
+  }
+  .area-arrow {
+    margin-inline-start: auto;
+    color: var(--color-brand-600);
+    font-weight: 700;
+  }
+</style>

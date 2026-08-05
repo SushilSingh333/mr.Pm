@@ -1,0 +1,102 @@
+---
+import type { ManifestLink } from '@mpm/shared';
+
+/**
+ * "Cities we serve" — a centered grid of small city cards, each linking to that
+ * city's hub (where its areas/localities are listed). A city landmark thumbnail is
+ * used when available. This is a page section, NOT a sitewide footer city-dump
+ * (Doc 01 §8), so link equity still flows through hierarchy.
+ */
+interface Props {
+  cities: ManifestLink[];
+  heading?: string;
+  intro?: string;
+}
+const { cities, heading = 'Cities we serve', intro } = Astro.props;
+const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?? '';
+---
+
+<div class="section-head">
+  <h2>{heading}</h2>
+  {intro && <p>{intro}</p>}
+</div>
+
+<div class="cities-grid">
+  {
+    cities.map((c) => (
+      <a class="city-card" href={c.path}>
+        <span class="city-thumb">
+          <img
+            src={`/images/hero/cities/${slugOf(c.path)}.jpg`}
+            alt=""
+            loading="lazy"
+            width="72"
+            height="72"
+          />
+        </span>
+        <span class="city-body">
+          <strong>{c.anchor}</strong>
+          <small>View areas &amp; prices</small>
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .cities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.9rem;
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+  .city-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    text-decoration: none;
+    color: var(--color-ink-900);
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .city-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-brand-300);
+    box-shadow: var(--shadow-pop);
+    text-decoration: none;
+  }
+  .city-thumb {
+    width: 54px;
+    height: 54px;
+    flex: none;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--color-surface-3);
+  }
+  .city-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .city-body {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .city-body strong {
+    font-weight: 600;
+  }
+  .city-body small {
+    color: var(--color-ink-500);
+    font-size: var(--text-xs);
+  }
+</style>

@@ -1,0 +1,31 @@
+---
+import type { RateBand } from '@mpm/shared';
+import Island from './QuoteWidget.tsx';
+import './quote.css';
+
+/**
+ * Wrapper that colocates the widget CSS and sets the hydration strategy. The quote
+ * flow is above the fold on the home hero, so it hydrates on idle; on templated
+ * pages it is passed the local context (city/service/lane + bands) to pre-fill.
+ */
+interface Props {
+  prefillCity?: string;
+  prefillService?: string;
+  prefillOrigin?: string;
+  prefillDestination?: string;
+  bands?: RateBand[];
+  roadKm?: number;
+  cityLabel?: string;
+  eager?: boolean;
+}
+const { eager = false, ...rest } = Astro.props;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+{
+  eager ? (
+    <Island client:idle {...rest} turnstileSiteKey={turnstileSiteKey} />
+  ) : (
+    <Island client:visible {...rest} turnstileSiteKey={turnstileSiteKey} />
+  )
+}

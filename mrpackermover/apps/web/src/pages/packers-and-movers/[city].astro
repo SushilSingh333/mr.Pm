@@ -1,0 +1,110 @@
+---
+import type { CityHubData } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GeoHero from '../../components/sections/GeoHero.astro';
+import Band from '../../components/ui/Band.astro';
+import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
+import StatStrip from '../../components/trust/StatStrip.astro';
+import RateTable from '../../components/pricing/RateTable.astro';
+import AreasGrid from '../../components/sections/AreasGrid.astro';
+import LocalNotes from '../../components/sections/LocalNotes.astro';
+import ReviewList from '../../components/trust/ReviewList.astro';
+import RelatedLinks from '../../components/sections/RelatedLinks.astro';
+import Faq from '../../components/sections/Faq.astro';
+import { SITE_ORIGIN } from '../../lib/site.js';
+
+/** City hub. Every path comes from a manifest row — no arbitrary input (ADR-0003). */
+export function getStaticPaths() {
+  return rowsOfType('city-hub').map((row) => ({
+    params: { city: row.slug },
+    props: { row },
+  }));
+}
+
+const { row } = Astro.props;
+const data = dataOf<CityHubData>(row);
+const areas = data.areas ?? [];
+// Localities are shown in the Areas grid, so keep RelatedLinks to services + routes.
+const otherLinks = row.relatedLinks.filter((l) => l.group !== 'localities');
+
+const extraJsonLd = [
+  jsonld.service({
+    siteOrigin: SITE_ORIGIN,
+    name: `Packers and Movers in ${data.cityName}`,
+    areaServed: data.cityName,
+    offer: data.priceFrom ? { priceFrom: data.priceFrom } : undefined,
+  }),
+  jsonld.faqPage(data.faqs),
+];
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <div class="container-page"><Breadcrumbs items={row.breadcrumbs} current={data.cityName} /></div>
+
+  <GeoHero
+    h1={row.h1}
+    intro={`Fixed written quotes, verified crews, and ${data.stats.jobs12m.toLocaleString('en-IN')} moves completed across ${data.cityName} in the last 12 months.`}
+    image={`cities/${row.slug}`}
+    cityLabel={data.cityName}
+    prefillCity={data.cityName}
+    bands={data.rateBands}
+  />
+
+  <Band label="Serviceability">
+    <div class="section-head"><h2>Our track record in {data.cityName}</h2></div>
+    <StatStrip stats={data.stats} scope={`in ${data.cityName}`} />
+  </Band>
+
+  {
+    data.rateBands.length > 0 && (
+      <Band alt label="Pricing">
+        <RateTable bands={data.rateBands} heading={`${data.cityName} rate card`} />
+      </Band>
+    )
+  }
+
+  {
+    areas.length > 0 && (
+      <Band label="Areas">
+        <AreasGrid areas={areas} cityName={data.cityName} />
+      </Band>
+    )
+  }
+
+  {
+    data.editorial.length > 0 && (
+      <Band alt label="Local notes">
+        <LocalNotes
+          paragraphs={data.editorial}
+          heading={`Moving in ${data.cityName}: what our crews plan for`}
+        />
+      </Band>
+    )
+  }
+
+  {
+    data.reviews.length > 0 && (
+      <Band label="Reviews">
+        <ReviewList reviews={data.reviews} heading={`Reviews from ${data.cityName}`} />
+      </Band>
+    )
+  }
+
+  {
+    otherLinks.length > 0 && (
+      <Band alt label="Explore">
+        <RelatedLinks links={otherLinks} />
+      </Band>
+    )
+  }
+
+  {
+    data.faqs.length > 0 && (
+      <Band label="FAQ">
+        <Faq faqs={data.faqs} heading={`Packers and movers in ${data.cityName}: FAQs`} />
+      </Band>
+    )
+  }
+</BaseLayout>

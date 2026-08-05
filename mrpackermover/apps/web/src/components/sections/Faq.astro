@@ -1,0 +1,89 @@
+---
+import type { FaqItem } from '@mpm/shared';
+
+/**
+ * Scoped, genuinely on-page FAQs (Doc 02 §9 step 9). Answer-first (assistants
+ * extract the first authoritative sentence). Native <details> with an exclusive-
+ * accordion enhancement: opening one closes the others in the same block.
+ * FAQPage JSON-LD is emitted by the page only when this block is actually shown.
+ */
+interface Props {
+  faqs: FaqItem[];
+  heading?: string;
+}
+const { faqs, heading = 'Questions people ask' } = Astro.props;
+---
+
+{
+  faqs.length > 0 && (
+    <section class="faqs" aria-label="FAQ">
+      {heading && <h2>{heading}</h2>}
+      <div class="faq-list">
+        {faqs.map((f) => (
+          <details class="faq">
+            <summary>{f.question}</summary>
+            <p>{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<script>
+  // Exclusive accordion: opening one FAQ closes the others in its group. Grouped by
+  // `.faq-list`, so multiple FAQ blocks on a page behave independently.
+  for (const list of document.querySelectorAll<HTMLElement>('.faq-list')) {
+    const items = Array.from(list.querySelectorAll<HTMLDetailsElement>('details.faq'));
+    for (const item of items) {
+      item.addEventListener('toggle', () => {
+        if (item.open) {
+          for (const other of items) if (other !== item) other.open = false;
+        }
+      });
+    }
+  }
+</script>
+
+<style>
+  .faqs h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin-bottom: 1.25rem;
+    text-align: center;
+  }
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-inline: auto;
+    max-width: 76ch;
+  }
+  .faq {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+  .faq summary {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--color-ink-900);
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .faq summary::after {
+    content: '+';
+    color: var(--color-brand-600);
+    font-weight: 700;
+  }
+  .faq[open] summary::after {
+    content: '–';
+  }
+  .faq p {
+    padding: 0 1.25rem 1.15rem;
+    color: var(--color-ink-700);
+    margin: 0;
+  }
+</style>

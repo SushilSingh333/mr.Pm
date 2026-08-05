@@ -1,0 +1,80 @@
+/*
+ * MrPackerMover design tokens — single source of truth.
+ * Tailwind v4 CSS-first theme. Every token below is emitted as a CSS custom
+ * property AND generates matching utilities (e.g. --color-brand-600 → bg-brand-600).
+ *
+ * Visual language: a close match to porter.in — a single technical sans
+ * (Titillium Web), a vivid cobalt-blue primary (#0A57FF), white cards on a light
+ * lavender base (#F0F3FF), soft rounded cards, blue circular icon badges, and a
+ * tight 4px button radius. The trust slots (see components/trust/*) carry real data.
+ */
+
+@theme {
+  /* ── Brand palette (Porter cobalt blue #0A57FF) ─────────────────────────── */
+  --color-brand-50: #eaf0ff; /* icon-badge background */
+  --color-brand-100: #d6e1ff;
+  --color-brand-200: #adc2ff;
+  --color-brand-300: #84a3ff;
+  --color-brand-400: #4a7bff;
+  --color-brand-500: #1a62ff;
+  --color-brand-600: #0a57ff; /* primary — buttons, links, icons */
+  --color-brand-700: #0847d6;
+  --color-brand-800: #0838a8;
+  --color-brand-900: #0a2e80;
+
+  --color-accent-500: #12a150; /* verified / success green (used sparingly) */
+  --color-accent-600: #0e8443;
+  --color-warn-500: #d97706; /* honest caveats, "extra cost" */
+
+  /* Neutrals — Porter near-black headings, cool grey body, blue-grey hairlines */
+  --color-ink-900: #2d2f34; /* headings */
+  --color-ink-700: #454951; /* body */
+  --color-ink-500: #6b6f78; /* muted */
+  --color-line: #e3e8f5; /* hairlines / card borders */
+  --color-surface: #ffffff; /* cards, header */
+  --color-surface-2: #f0f3ff; /* page base / alt sections (Porter lavender) */
+  --color-surface-3: #eaf0ff; /* icon badges, soft fills */
+  --color-hero: #0b1b3f; /* dark hero backdrop */
+
+  /* ── Typography — single family, matching Porter (Titillium Web) ─────────── */
+  --font-display: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-text: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.625rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3.25rem;
+
+  /* ── Radius, shadow, layout ─────────────────────────────────────────────── */
+  --radius-btn: 8px; /* softly rounded buttons */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px; /* cards */
+  --radius-xl: 26px; /* large feature cards */
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 2px rgba(13, 27, 63, 0.04), 0 10px 30px rgba(13, 27, 63, 0.06);
+  --shadow-bar: 0 16px 40px rgba(13, 27, 63, 0.14); /* the booking bar lift */
+  --shadow-pop: 0 12px 40px rgba(13, 27, 63, 0.12);
+
+  --container-page: 1200px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

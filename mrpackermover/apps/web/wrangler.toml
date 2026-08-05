@@ -1,0 +1,22 @@
+# Cloudflare Pages config for the static site + its Functions (quote/track/search).
+#
+# The site itself is static HTML. The `functions/` directory is deployed as Pages
+# Functions (Workers) that reach Postgres through Hyperdrive — so the database stays
+# portable even at the edge (repoint the Hyperdrive origin, nothing in code changes).
+
+name = "mrpackermover"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-12-01"
+
+# Required so `pg` (node-postgres) works inside the Functions runtime.
+compatibility_flags = ["nodejs_compat"]
+
+# Hyperdrive fronts the portable DATABASE_URL. Create it with:
+#   wrangler hyperdrive create mpm-db --connection-string="$DATABASE_URL"
+# then paste the returned id here (and set CF_HYPERDRIVE_ID in CI).
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "REPLACE_WITH_HYPERDRIVE_ID"
+
+# TURNSTILE_SECRET_KEY is a secret, set out-of-band (never commit it):
+#   wrangler pages secret put TURNSTILE_SECRET_KEY --project-name=mrpackermover

@@ -1,0 +1,52 @@
+---
+/**
+ * Genuine 404 (Doc 02 §3). Cloudflare Pages serves this as 404.html with a real
+ * 404 status for any path not in the manifest — never a templated 200. CI verifies
+ * the status with `curl -I`.
+ */
+import '../styles/global.css';
+import Header from '../components/nav/Header.astro';
+import Footer from '../components/nav/Footer.astro';
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Page not found · MrPackerMover</title>
+  </head>
+  <body>
+    <Header />
+    <main id="main" class="notfound">
+      <div class="container-page">
+        <p class="eyebrow">404</p>
+        <h1>That page isn't here</h1>
+        <p>The link may be old, or the page was never published. Try one of these:</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="/#quote">Get a fixed quote</a>
+          <a class="btn btn-ghost" href="/pricing">See pricing</a>
+          <a class="btn btn-ghost" href="/services/home-shifting">Home shifting</a>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .notfound {
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+  .notfound h1 {
+    font-size: var(--text-4xl);
+    margin: 0.5rem 0 0.75rem;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

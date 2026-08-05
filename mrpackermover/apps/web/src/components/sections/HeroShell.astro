@@ -1,0 +1,121 @@
+---
+/**
+ * The shared Porter hero shell: a dark full-bleed banner with a heading and a card
+ * slot that overlaps its bottom edge. `align` controls layout — geo pages are
+ * centered (Porter's city pages), the homepage is left-aligned (Porter's home).
+ * A `heading` named slot lets a page supply custom heading markup (e.g. a two-line
+ * styled tagline); otherwise the plain <h1> is used.
+ */
+interface Props {
+  h1: string;
+  intro?: string;
+  badge?: string;
+  image?: string;
+  align?: 'center' | 'left';
+}
+const { h1, intro, badge, image = 'moving', align = 'center' } = Astro.props;
+const heroStyle = `--hero-image: url('/images/hero/${image}.jpg')`;
+const hasHeadingSlot = Astro.slots.has('heading');
+---
+
+<section class:list={['hero', `align-${align}`]} style={heroStyle}>
+  <div class="container-page hero-inner">
+    {badge && <span class="hero-badge">{badge}</span>}
+    {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
+    {intro && <p class="hero-intro">{intro}</p>}
+  </div>
+</section>
+
+<div class:list={['hero-card', 'container-page', `align-${align}`]}>
+  <slot />
+</div>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    background-color: #0b1b3f;
+    background-image: var(--hero-image);
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    min-height: clamp(330px, 30vw, 440px);
+    padding: clamp(2.25rem, 4.5vw, 3.5rem) 0 clamp(3.5rem, 6vw, 4.75rem);
+  }
+  /* Light top-to-bottom overlay, matching porter.in exactly (0.65 → 0.15). Keeps
+     the photo clearly visible; a text-shadow guarantees heading contrast. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.15));
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .hero.align-center {
+    text-align: center;
+  }
+  .hero.align-center .hero-inner {
+    align-items: center;
+  }
+  /* Home: bottom-align the headline so it sits just above the (centered) card. */
+  .hero.align-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .hero.align-left .hero-inner {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero :global(h1),
+  .hero-intro,
+  .hero-badge {
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-pill);
+    margin-bottom: 0.5rem;
+  }
+  .hero :global(h1) {
+    color: #fff;
+    font-size: clamp(1.9rem, 4.5vw, var(--text-4xl));
+    max-width: 20ch;
+  }
+  .hero.align-left :global(h1) {
+    max-width: 18ch;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    line-height: 1.08;
+  }
+  .hero-intro {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: var(--text-lg);
+    max-width: 56ch;
+  }
+  /* The overlapping card (booking bar / service selector) is always centered. */
+  .hero-card {
+    position: relative;
+    z-index: 5;
+    margin-top: clamp(-3.5rem, -6vw, -2.5rem);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+</style>

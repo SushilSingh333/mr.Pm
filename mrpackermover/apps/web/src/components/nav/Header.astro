@@ -1,0 +1,124 @@
+---
+import Logo from './Logo.astro';
+
+/** Fixed top bar. No mega-menu (Doc 01 §8) — link equity flows through hierarchy. */
+---
+
+<header class="site-header">
+  <div class="container-page header-inner">
+    <Logo />
+
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="/services/home-shifting">Services</a>
+      <a href="/pricing">Pricing</a>
+      <a href="/corporate">Corporate</a>
+      <a href="/verify">Verify us</a>
+    </nav>
+
+    <div class="header-cta">
+      <a href="/track" class="btn btn-ghost track-link">Track move</a>
+      <a href="#quote" class="btn btn-primary">Get a fixed quote</a>
+    </div>
+
+    <button class="nav-toggle" aria-expanded="false" aria-controls="mobile-nav" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile" hidden>
+    <a href="/services/home-shifting">Services</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/corporate">Corporate</a>
+    <a href="/verify">Verify us</a>
+    <a href="/track">Track move</a>
+    <a href="#quote" class="btn btn-primary">Get a fixed quote</a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in oklab, var(--color-surface) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 64px;
+  }
+  .header-inner :global(.logo) {
+    font-size: 1.02rem;
+  }
+  .primary-nav {
+    display: none;
+    gap: 1.5rem;
+    margin-inline-start: auto;
+  }
+  .primary-nav a {
+    color: var(--color-ink-700);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .primary-nav a:hover {
+    color: var(--color-brand-700);
+  }
+  .header-cta {
+    display: none;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .nav-toggle {
+    margin-inline-start: auto;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: 0;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .nav-toggle span {
+    width: 22px;
+    height: 2px;
+    background: var(--color-ink-900);
+    border-radius: 2px;
+  }
+  .mobile-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .mobile-nav a:not(.btn) {
+    padding: 0.65rem 0.25rem;
+    color: var(--color-ink-700);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-line);
+  }
+  @media (min-width: 900px) {
+    .primary-nav,
+    .header-cta {
+      display: flex;
+    }
+    .nav-toggle,
+    .mobile-nav {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Mobile nav toggle — the only header JS, kept tiny (hydrates as a module).
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+  const menu = document.getElementById('mobile-nav');
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    if (menu) menu.hidden = open;
+  });
+</script>

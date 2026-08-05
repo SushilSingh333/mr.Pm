@@ -1,0 +1,19 @@
+{
+  "name": "@mpm/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./manifest": "./src/manifest.ts",
+    "./paths": "./src/paths.ts",
+    "./constants": "./src/constants.ts",
+    "./payload-types": "./src/payload-types.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

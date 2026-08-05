@@ -1,0 +1,126 @@
+---
+import type { CityServiceData, LocalityData } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
+import { rowsOfType, dataOf } from '../../../data/manifest.js';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GeoHero from '../../../components/sections/GeoHero.astro';
+import Band from '../../../components/ui/Band.astro';
+import Breadcrumbs from '../../../components/nav/Breadcrumbs.astro';
+import StatStrip from '../../../components/trust/StatStrip.astro';
+import RateTable from '../../../components/pricing/RateTable.astro';
+import Inclusions from '../../../components/sections/Inclusions.astro';
+import LocalNotes from '../../../components/sections/LocalNotes.astro';
+import ReviewList from '../../../components/trust/ReviewList.astro';
+import RelatedLinks from '../../../components/sections/RelatedLinks.astro';
+import Faq from '../../../components/sections/Faq.astro';
+import { SITE_ORIGIN } from '../../../lib/site.js';
+
+/**
+ * Two page families share this depth: city × service and locality. Both come from
+ * manifest rows, so the route table is finite; the template branches on pageType.
+ */
+export function getStaticPaths() {
+  return [...rowsOfType('city-service'), ...rowsOfType('locality')].map((row) => {
+    const [city, slug] = row.slug.split('/');
+    return { params: { city, slug }, props: { row } };
+  });
+}
+
+const { row } = Astro.props;
+const isService = row.pageType === 'city-service';
+const cs = isService ? dataOf<CityServiceData>(row) : null;
+const loc = !isService ? dataOf<LocalityData>(row) : null;
+
+const cityName = cs?.cityName ?? loc?.cityName ?? '';
+const areaServed = isService ? cs!.cityName : loc!.localityName;
+const stats = cs?.stats ?? loc!.stats;
+const bands = cs?.rateBands ?? loc!.rateBands;
+const reviews = cs?.reviews ?? loc!.reviews;
+const faqs = cs?.faqs ?? loc!.faqs;
+const editorial = cs?.editorial ?? loc!.editorial;
+const priceFrom = cs?.priceFrom ?? loc!.priceFrom;
+const current = isService ? `${cs!.serviceName} in ${cityName}` : `${loc!.localityName}`;
+
+const extraJsonLd = [
+  jsonld.service({
+    siteOrigin: SITE_ORIGIN,
+    name: isService
+      ? `${cs!.serviceName} in ${cityName}`
+      : `Packers and Movers in ${areaServed}, ${cityName}`,
+    areaServed,
+    offer: priceFrom ? { priceFrom } : undefined,
+  }),
+  jsonld.faqPage(faqs),
+];
+
+const intro = isService
+  ? `${cs!.serviceName} in ${cityName} with a fixed written quote, verified crews, and reviews tied to real job references.`
+  : `Packers and movers in ${loc!.localityName}, ${cityName}. Fixed quotes, verified crews, and notes specific to your society and block.`;
+
+// Both families are city-scoped, so both use that city's landmark photo.
+const heroImage = `cities/${row.slug.split('/')[0]}`;
+---
+
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <div class="container-page"><Breadcrumbs items={row.breadcrumbs} current={current} /></div>
+
+  <GeoHero
+    h1={row.h1}
+    intro={intro}
+    image={heroImage}
+    cityLabel={cityName}
+    prefillCity={cityName}
+    prefillService={cs?.serviceName}
+    bands={bands}
+  />
+
+  <Band label="Serviceability"><StatStrip stats={stats} scope={`in ${areaServed}`} /></Band>
+
+  {
+    bands.length > 0 && (
+      <Band alt label="Pricing">
+        <RateTable bands={bands} heading={`Indicative pricing in ${areaServed}`} />
+      </Band>
+    )
+  }
+
+  {
+    isService && (
+      <Band label="Scope">
+        <Inclusions inclusions={cs!.inclusions} exclusions={cs!.exclusions} />
+      </Band>
+    )
+  }
+
+  {
+    editorial.length > 0 && (
+      <Band alt={isService} label="Local notes">
+        <LocalNotes paragraphs={editorial} heading={`What our crews plan for in ${areaServed}`} />
+      </Band>
+    )
+  }
+
+  {
+    reviews.length > 0 && (
+      <Band label="Reviews">
+        <ReviewList reviews={reviews} heading={`Reviews from ${areaServed}`} />
+      </Band>
+    )
+  }
+
+  {
+    row.relatedLinks.length > 0 && (
+      <Band alt label="Explore">
+        <RelatedLinks links={row.relatedLinks} />
+      </Band>
+    )
+  }
+
+  {
+    faqs.length > 0 && (
+      <Band label="FAQ">
+        <Faq faqs={faqs} />
+      </Band>
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,187 @@
+---
+import type { RateBand } from '@mpm/shared';
+import { inr } from '../../lib/format.js';
+
+/**
+ * Published rate card (Doc 01 §5 / Doc 02 §9). Nobody in this category publishes
+ * prices. The whole card is one rounded surface: heading, a clean HTML table (not
+ * an image, so assistants can read it), and the honest caveat.
+ */
+interface Props {
+  bands: RateBand[];
+  heading?: string;
+}
+const { bands, heading = 'Indicative pricing' } = Astro.props;
+const priceFrom = bands.length ? Math.min(...bands.map((b) => b.base)) : 0;
+---
+
+{
+  bands.length > 0 && (
+    <section class="pricing" aria-label="Pricing">
+      <h2>{heading}</h2>
+      <div class="rate-card card">
+        <div class="rate-card-head">
+          <span class="rate-badge">Published prices · no hidden charges</span>
+          <p class="rate-from">
+            Starting from <strong>{inr(priceFrom)}</strong>
+          </p>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Move size</th>
+                <th scope="col">Base</th>
+                <th scope="col">Per km</th>
+                <th scope="col">Packing</th>
+                <th scope="col">Insurance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bands.map((b) => (
+                <tr>
+                  <th scope="row">
+                    <span class="size-pill">{b.band}</span>
+                  </th>
+                  <td data-label="Base">
+                    <strong>{inr(b.base)}</strong>
+                  </td>
+                  <td data-label="Per km">{b.perKm != null ? inr(b.perKm) : '—'}</td>
+                  <td data-label="Packing">{b.packing != null ? inr(b.packing) : '—'}</td>
+                  <td data-label="Insurance">
+                    {b.insurancePct != null ? `${b.insurancePct}%` : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="caveat">
+          These are indicative bands. Your written quote is fixed once confirmed — the only things
+          that can change it (floor rise, long carry, extra packing) are itemised on the quote up
+          front. No surprises on delivery day.
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .pricing h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .rate-card {
+    max-width: 860px;
+    margin-inline: auto;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+  .rate-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .rate-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-accent-600);
+    background: color-mix(in oklab, var(--color-accent-500) 12%, white);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-pill);
+  }
+  .rate-from {
+    font-size: var(--text-base);
+    color: var(--color-ink-500);
+  }
+  .rate-from strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-brand-600);
+  }
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  thead th {
+    background: var(--color-surface-2);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-ink-500);
+    font-weight: 700;
+  }
+  tbody tr:nth-child(even) {
+    background: color-mix(in oklab, var(--color-surface-2) 55%, white);
+  }
+  tbody td {
+    color: var(--color-ink-700);
+  }
+  tbody td strong {
+    color: var(--color-ink-900);
+  }
+  .size-pill {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 700;
+    color: var(--color-brand-700);
+    background: var(--color-brand-50);
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
+  }
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .caveat {
+    margin-top: 1rem;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  @media (max-width: 560px) {
+    table {
+      min-width: 0;
+    }
+    thead {
+      display: none;
+    }
+    tbody tr {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.25rem 1rem;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--color-line);
+    }
+    tbody th,
+    tbody td {
+      border: 0;
+      padding: 0.15rem 0;
+    }
+    tbody th {
+      grid-column: 1 / -1;
+    }
+    tbody td::before {
+      content: attr(data-label) ': ';
+      color: var(--color-ink-500);
+      font-size: var(--text-xs);
+    }
+  }
+</style>

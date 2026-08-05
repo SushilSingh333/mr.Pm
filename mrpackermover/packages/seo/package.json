@@ -1,0 +1,19 @@
+{
+  "name": "@mpm/seo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./jsonld": "./src/jsonld.ts",
+    "./meta": "./src/meta.ts",
+    "./slug": "./src/slug.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@mpm/shared": "workspace:*",
+    "transliteration": "^2.3.5"
+  }
+}

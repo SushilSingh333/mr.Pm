@@ -1,0 +1,14 @@
+---
+/** Renders one or more JSON-LD blocks. Objects are injected as-is (built in @mpm/seo). */
+interface Props {
+  blocks: Array<Record<string, unknown> | null | undefined>;
+}
+const { blocks } = Astro.props;
+const valid = blocks.filter((b): b is Record<string, unknown> => Boolean(b));
+---
+
+{
+  valid.map((block) => (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(block)} />
+  ))
+}

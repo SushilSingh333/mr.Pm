@@ -1,0 +1,41 @@
+---
+import type { RateBand, CityHubData } from '@mpm/shared';
+import HeroShell from './HeroShell.astro';
+import QuoteWidget from '../quote/QuoteWidget.astro';
+import CityModal from '../home/CityModal.astro';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+
+/**
+ * Geo-page hero: the shared Porter hero shell with the booking bar as its
+ * overlapping card. On city-scoped pages a city chip sits as a tab on top of the
+ * bar and opens the shared "Choose your city" modal (so a visitor can switch city
+ * without leaving the page). Used by city hub, city × service, locality, route, and
+ * service hub — so every page looks identical above the fold.
+ */
+interface Props {
+  h1: string;
+  intro: string;
+  badge?: string;
+  image?: string;
+  /** When set, shows the city chip + the "Choose your city" modal. */
+  cityLabel?: string;
+  prefillCity?: string;
+  prefillService?: string;
+  prefillOrigin?: string;
+  prefillDestination?: string;
+  bands?: RateBand[];
+  roadKm?: number;
+}
+const { h1, intro, badge, image, cityLabel, ...quote } = Astro.props;
+
+// City list for the modal (only needed when the chip is shown).
+const cities = cityLabel
+  ? rowsOfType('city-hub').map((r) => ({ slug: r.slug, name: dataOf<CityHubData>(r).cityName }))
+  : [];
+---
+
+<HeroShell h1={h1} intro={intro} badge={badge} image={image}>
+  <QuoteWidget {...quote} cityLabel={cityLabel} eager />
+</HeroShell>
+
+{cityLabel && <CityModal cities={cities} />}

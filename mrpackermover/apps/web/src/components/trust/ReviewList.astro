@@ -1,0 +1,150 @@
+---
+import type { ReviewSnippet } from '@mpm/shared';
+import { formatDate } from '../../lib/format.js';
+
+/**
+ * Verified reviews tied to a real job reference and a date (Doc 01 §2). Negative
+ * reviews are shown WITH our response — a 4.6 with visible 2-stars and replies
+ * converts better than a suspicious 4.9. No AggregateRating markup on the org.
+ */
+interface Props {
+  reviews: ReviewSnippet[];
+  heading?: string;
+}
+const { reviews, heading = 'What customers said' } = Astro.props;
+const initials = (name: string): string =>
+  name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+---
+
+{
+  reviews.length > 0 && (
+    <section class="reviews" aria-label="Customer reviews">
+      <h2>{heading}</h2>
+      <ul class="review-grid">
+        {reviews.map((r) => (
+          <li class="card review">
+            <div class="review-top">
+              <span class="avatar" aria-hidden="true">
+                {initials(r.author)}
+              </span>
+              <span class="review-who">
+                <strong>{r.author}</strong>
+                <small>{formatDate(r.date)}</small>
+              </span>
+              <span class="stars" aria-label={`${r.rating} out of 5`}>
+                {'★'.repeat(r.rating)}
+                <span class="stars-off">{'★'.repeat(5 - r.rating)}</span>
+              </span>
+            </div>
+            <p class="review-text">“{r.text}”</p>
+            <div class="review-foot">
+              <span class="badge badge-verified">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="13"
+                  height="13"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.9 7.2 17.4l.9-5.4L4.2 8.2l5.4-.8z" />
+                </svg>
+                Verified · {r.jobRef}
+              </span>
+            </div>
+            {r.response && (
+              <p class="review-response">
+                <strong>Our response:</strong> {r.response}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .reviews h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .review-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 1.1rem;
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+  .review {
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .review-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font-weight: 700;
+    font-size: var(--text-sm);
+  }
+  .review-who {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .review-who strong {
+    color: var(--color-ink-900);
+  }
+  .review-who small {
+    color: var(--color-ink-500);
+    font-size: var(--text-xs);
+  }
+  .stars {
+    margin-inline-start: auto;
+    color: #f5a623;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .stars-off {
+    color: var(--color-line);
+  }
+  .review-text {
+    color: var(--color-ink-700);
+    font-size: var(--text-base);
+  }
+  .review-foot {
+    margin-top: auto;
+  }
+  .badge-verified svg {
+    color: var(--color-accent-600);
+  }
+  .review-response {
+    font-size: var(--text-sm);
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    padding: 0.8rem 0.9rem;
+    color: var(--color-ink-700);
+  }
+  .review-response strong {
+    color: var(--color-ink-900);
+  }
+</style>

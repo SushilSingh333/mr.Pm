@@ -1,0 +1,45 @@
+---
+/**
+ * The section that must be unique or the page does not publish (Doc 01 §6, Doc 02
+ * §9 step 6). Renders the location-specific operational notes: societies, lift and
+ * stair access, gate timings, no-entry hours. This is what an operator can write
+ * and a str_replace farm cannot.
+ */
+interface Props {
+  paragraphs: string[];
+  heading: string;
+}
+const { paragraphs, heading } = Astro.props;
+---
+
+{
+  paragraphs.length > 0 && (
+    <section class="local-notes" aria-label={heading}>
+      <h2>{heading}</h2>
+      <div class="prose">
+        {paragraphs.map((p) => (
+          <p>{p}</p>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .local-notes h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin-bottom: 1.25rem;
+    text-align: center;
+  }
+  .prose {
+    max-width: 68ch;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--color-ink-700);
+  }
+  .prose p {
+    font-size: var(--text-lg);
+  }
+</style>

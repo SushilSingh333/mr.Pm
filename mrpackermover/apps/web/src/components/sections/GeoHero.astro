@@ -1,0 +1,26 @@
+---
+import type { RateBand } from '@mpm/shared';
+import HeroBanner from './HeroBanner.astro';
+
+/**
+ * Geo pages share the exact same Porter hero as the homepage (HeroBanner), so every
+ * page looks identical above the fold. This thin wrapper keeps the geo templates'
+ * existing imports unchanged.
+ */
+interface Props {
+  h1: string;
+  intro: string;
+  badge?: string;
+  image?: string;
+  cityLabel?: string;
+  prefillCity?: string;
+  prefillService?: string;
+  prefillOrigin?: string;
+  prefillDestination?: string;
+  bands?: RateBand[];
+  roadKm?: number;
+}
+const props = Astro.props as Props;
+---
+
+<HeroBanner {...props} />

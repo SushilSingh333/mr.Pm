@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+@import '@mpm/ui-tokens/theme.css';
+
+/* Self-hosted Titillium Web (Porter's font) — no Google Fonts network request. */
+@import '@fontsource/titillium-web/300.css';
+@import '@fontsource/titillium-web/400.css';
+@import '@fontsource/titillium-web/600.css';
+@import '@fontsource/titillium-web/700.css';
+
+/*
+ * Base layer — a close match to porter.in: one technical sans, cobalt-blue
+ * primary, white cards on a light lavender base, tight-radius buttons, blue
+ * circular icon badges. Critical CSS stays small.
+ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-text);
+    color: var(--color-ink-700);
+    background: var(--color-surface-2);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink-900);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+
+  a {
+    color: var(--color-brand-600);
+    text-underline-offset: 2px;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-brand-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--color-brand-600);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    z-index: 100;
+    border-radius: 0 0 var(--radius-md) 0;
+  }
+  .skip-link:focus {
+    left: 0;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  /* Button system — Porter tight-radius solid blue + ghost. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 600;
+    border-radius: var(--radius-btn);
+    padding: 0.8rem 1.35rem;
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    line-height: 1.2;
+  }
+  .btn:active {
+    transform: translateY(1px);
+  }
+  .btn-primary {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--color-brand-700);
+    text-decoration: none;
+  }
+  .btn-ghost {
+    background: var(--color-surface);
+    color: var(--color-brand-700);
+    border-color: var(--color-line);
+  }
+  .btn-ghost:hover {
+    background: var(--color-surface-3);
+    text-decoration: none;
+  }
+  .btn-lg {
+    padding: 1rem 1.75rem;
+    font-size: var(--text-base);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .badge-verified {
+    background: color-mix(in oklab, var(--color-accent-500) 14%, white);
+    color: var(--color-accent-600);
+  }
+
+  .section {
+    padding-block: clamp(2.5rem, 5vw, 4.5rem);
+    background: var(--color-surface);
+  }
+  .section-alt {
+    background: var(--color-surface-2);
+  }
+
+  /* Centered section header (Porter pattern: title + supporting subtext). */
+  .section-head {
+    text-align: center;
+    max-width: 60ch;
+    margin: 0 auto clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+  }
+  .section-head p {
+    margin-top: 0.75rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-lg);
+  }
+
+  /* Porter blue circular icon badge. */
+  .icon-badge {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+    margin-inline: auto;
+  }
+
+  .eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-brand-600);
+  }
+}

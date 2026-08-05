@@ -1,0 +1,14 @@
+---
+/** A vertical section band with the page container. `alt` gives the tinted background. */
+interface Props {
+  alt?: boolean;
+  label?: string;
+}
+const { alt = false, label } = Astro.props;
+---
+
+<section class:list={['section', { 'section-alt': alt }]} aria-label={label}>
+  <div class="container-page">
+    <slot />
+  </div>
+</section>

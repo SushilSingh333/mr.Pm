@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# Native packages allowed to run their install scripts (build platform binaries).
+allowBuilds:
+  esbuild: true
+  sharp: true

@@ -1,0 +1,72 @@
+---
+import type { StatBlock } from '@mpm/shared';
+
+/**
+ * Real operational stats where Porter shows vanity counters. Every number here is
+ * substantiated by jobs_stats rows; if a figure is missing we omit its tile rather
+ * than invent one.
+ */
+interface Props {
+  stats: StatBlock;
+  scope: string; // e.g. "in Delhi" / "in Rohini" / "across our network"
+}
+const { stats, scope } = Astro.props;
+
+const tiles = [
+  stats.jobs12m > 0
+    ? {
+        value: stats.jobs12m.toLocaleString('en-IN'),
+        label: `moves completed ${scope} (12 months)`,
+      }
+    : null,
+  stats.onTimePct != null ? { value: `${stats.onTimePct}%`, label: 'arrived on time' } : null,
+  stats.avgSettlementDays != null
+    ? { value: `${stats.avgSettlementDays} days`, label: 'median claim settlement' }
+    : null,
+  stats.damagePct != null
+    ? { value: `${stats.damagePct}%`, label: 'jobs with a damage claim' }
+    : null,
+].filter((t): t is { value: string; label: string } => Boolean(t));
+---
+
+{
+  tiles.length > 0 && (
+    <dl class="stat-strip">
+      {tiles.map((t) => (
+        <div class="stat">
+          <dt class="stat-value">{t.value}</dt>
+          <dd class="stat-label">{t.label}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+<style>
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 0 auto;
+    max-width: 900px;
+    text-align: center;
+  }
+  .stat {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-ink-900);
+    line-height: 1;
+  }
+  .stat-label {
+    margin: 0.5rem 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+</style>

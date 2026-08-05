@@ -1,0 +1,165 @@
+/* Porter-style horizontal booking bar (island can't use Astro scoped styles). */
+
+/* City chip as a tab on top-left of the bar (Porter city-page pattern). */
+.booking-shell {
+  position: relative;
+  width: 100%;
+  padding-top: 40px;
+}
+.booking-city {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-bottom: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 0.55rem 1.15rem;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-ink-700);
+  box-shadow: 0 -6px 18px rgba(9, 18, 40, 0.06);
+  z-index: 2;
+}
+.booking-city svg {
+  color: var(--color-brand-600);
+}
+.booking-city strong {
+  color: var(--color-ink-900);
+}
+.booking-city .chev {
+  color: var(--color-ink-500);
+}
+/* Square the bar's top-left corner so the chip connects like a tab. */
+.booking-shell .booking-bar {
+  border-top-left-radius: 0;
+}
+
+.booking-bar {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-bar);
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+}
+.bar-fields {
+  flex: 1 1 640px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.bar-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 1.1rem;
+  border-left: 1px solid var(--color-line);
+}
+.bar-field:first-child {
+  border-left: 0;
+}
+.bar-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink-900);
+}
+.bar-label b {
+  color: #e5484d;
+  font-weight: 700;
+}
+.bar-field input {
+  font: inherit;
+  border: 0;
+  padding: 0.15rem 0;
+  background: transparent;
+  color: var(--color-ink-900);
+  width: 100%;
+}
+.bar-field input::placeholder {
+  color: var(--color-ink-500);
+}
+.bar-field input:focus {
+  outline: none;
+}
+.bar-cta {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-right: 0.5rem;
+  padding-inline: 1.6rem;
+  height: 52px;
+}
+.bar-turnstile {
+  flex-basis: 100%;
+  padding-inline: 1.1rem;
+}
+.bar-estimate,
+.bar-error {
+  flex-basis: 100%;
+  margin: 0.25rem 0.5rem 0.4rem 1.1rem;
+  font-size: var(--text-sm);
+}
+.bar-estimate {
+  color: var(--color-ink-700);
+}
+.bar-estimate strong {
+  color: var(--color-brand-700);
+}
+.bar-error {
+  color: #b42318;
+}
+.booking-done {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-bar);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+.booking-done strong {
+  color: var(--color-ink-900);
+  font-size: var(--text-lg);
+}
+.booking-done span {
+  color: var(--color-ink-500);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 860px) {
+  .booking-bar {
+    padding: 0.75rem;
+  }
+  .bar-fields {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+  }
+  .bar-field {
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+    padding: 0.6rem 0.5rem;
+  }
+  .bar-field:first-child,
+  .bar-field:nth-child(2) {
+    border-top: 0;
+  }
+  .bar-cta {
+    width: 100%;
+    margin: 0.5rem 0 0;
+  }
+}
+@media (max-width: 520px) {
+  .bar-fields {
+    grid-template-columns: 1fr;
+  }
+  .bar-field:nth-child(2) {
+    border-top: 1px solid var(--color-line);
+  }
+}

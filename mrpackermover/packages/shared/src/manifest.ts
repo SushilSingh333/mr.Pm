@@ -1,0 +1,87 @@
+import { z } from 'zod';
+import { PAGE_TYPES } from './constants.js';
+
+/**
+ * The build manifest — the single source of truth (Doc 02 §1).
+ *
+ * `scripts/build-manifest.ts` runs the publish gate and emits one row per URL.
+ * Astro's getStaticPaths, the sitemap shards, and the internal-link graph all
+ * read from this file, so they cannot drift. Nothing renders a URL that is not
+ * a row here; there is no fallback route.
+ */
+
+export const linkSchema = z.object({
+  path: z.string(),
+  anchor: z.string(),
+  /** Grouping for related-link blocks (e.g. "siblings", "services", "routes", "guides"). */
+  group: z.string().optional(),
+});
+export type ManifestLink = z.infer<typeof linkSchema>;
+
+export const manifestRowSchema = z.object({
+  pageType: z.enum(PAGE_TYPES),
+
+  /** Canonical relative path, lowercase, no trailing slash (built via `paths`). */
+  path: z.string().regex(/^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/, 'invalid canonical path'),
+
+  /** Absolute self-referencing canonical, from the manifest, never from the request. */
+  canonical: z.string().url(),
+
+  slug: z.string(),
+  sitemapShard: z.string(),
+  cacheTag: z.string(),
+
+  /** Real updated_at from Postgres (W3C datetime) — never the build timestamp. */
+  lastmod: z.string().datetime(),
+
+  /** Head. Title ≤ 60 chars; meta 140–160 or omitted (a missing meta beats a duplicate one). */
+  title: z.string().max(70),
+  metaDescription: z.string().max(180).optional(),
+  h1: z.string(),
+
+  /** Default is index,follow. Emit noindex explicitly only where needed. */
+  noindex: z.boolean().default(false),
+
+  /** Precomputed in Postgres (Doc 02 §7). CI asserts length ≥ 3 for published pages. */
+  inboundLinks: z.array(linkSchema).default([]),
+  relatedLinks: z.array(linkSchema).default([]),
+  breadcrumbs: z.array(linkSchema).default([]),
+
+  /**
+   * Page-type-specific render payload (rate cards, jobs_stats, reviews, faqs,
+   * local operational notes, ...). Loosely typed at the manifest boundary; each
+   * template narrows it. Kept as data (not prebuilt HTML) so JSON-LD and visible
+   * markup are built from the same source and cannot disagree.
+   */
+  data: z.record(z.string(), z.unknown()).default({}),
+});
+export type ManifestRow = z.infer<typeof manifestRowSchema>;
+
+/** The single legal identity (ADR-0004), carried once for Organization JSON-LD + footer. */
+export const orgSchema = z.object({
+  brandName: z.string(),
+  legalName: z.string(),
+  gstin: z.string(),
+  cin: z.string(),
+  yearsOperating: z.number(),
+  insurancePartner: z.string().optional(),
+  registeredOffice: z.string(),
+  complaintSla: z.string().optional(),
+  phone: z.string().optional(),
+  whatsapp: z.string().optional(),
+  sameAs: z.array(z.string()).default([]),
+});
+export type Org = z.infer<typeof orgSchema>;
+
+export const manifestSchema = z.object({
+  generatedAt: z.string().datetime(),
+  siteOrigin: z.string().url(),
+  org: orgSchema.optional(),
+  pages: z.array(manifestRowSchema),
+});
+export type Manifest = z.infer<typeof manifestSchema>;
+
+/** Parse + validate a manifest file (used by the build and the CI gates). */
+export function parseManifest(raw: unknown): Manifest {
+  return manifestSchema.parse(raw);
+}

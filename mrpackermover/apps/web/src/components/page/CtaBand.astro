@@ -99,4 +99,19 @@ const {
     background: rgba(255, 255, 255, 0.16);
     text-decoration: none;
   }
+  /* Keep both CTAs in one row on mobile, sharing the width equally. */
+  @media (max-width: 560px) {
+    .cta-actions {
+      flex-wrap: nowrap;
+      width: 100%;
+      gap: 0.6rem;
+    }
+    .cta-actions .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.8rem 0.6rem;
+      font-size: var(--text-sm);
+      line-height: 1.2;
+    }
+  }
 </style>

@@ -37,7 +37,10 @@ const hasHeadingSlot = Astro.slots.has('heading');
     background-color: #092341;
     background-image: var(--hero-image);
     background-size: cover;
-    background-position: center;
+    /* The banner is much wider than the photos (≈2.7:1 vs 1.75:1), so `cover` crops
+       heavily top+bottom. Bias the crop upward so subjects' heads / the top of the scene
+       stay visible; the extra bottom crop is hidden under the overlapping booking card. */
+    background-position: center 25%;
     color: #fff;
     min-height: clamp(330px, 30vw, 440px);
     padding: clamp(2.25rem, 4.5vw, 3.5rem) 0 clamp(3.5rem, 6vw, 4.75rem);

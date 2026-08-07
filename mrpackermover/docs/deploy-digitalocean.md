@@ -1,9 +1,9 @@
-# Deploy on a single DigitalOcean droplet + Cloudflare cache
+# Deploy on DigitalOcean + Cloudflare cache
 
-This is the chosen hosting: **everything on one DigitalOcean droplet** — Postgres, the
-Payload CMS, and the static site — with **Cloudflare caching the pages in front**. First
-visitor to a page pulls it from the droplet once; Cloudflare stores it and serves
-everyone after that; when you publish in the CMS, the changed pages rebuild and
+The chosen hosting: an **app droplet** on DigitalOcean running the Payload CMS and serving
+the static site, a **DigitalOcean Managed Postgres** database, and **Cloudflare caching the
+pages in front**. First visitor to a page pulls it from the droplet once; Cloudflare stores
+it and serves everyone after that; when you publish in the CMS, the changed pages rebuild and
 Cloudflare is told to refresh.
 
 The reasoning and trade-offs are in [`hosting-astro-ssg-vps-cloudflare.md`](./hosting-astro-ssg-vps-cloudflare.md). This doc is the actual steps.
@@ -11,14 +11,25 @@ The reasoning and trade-offs are in [`hosting-astro-ssg-vps-cloudflare.md`](./ho
 ```
 Visitor ──▶ Cloudflare (caches HTML) ──▶ Caddy on the droplet
                                           ├─ /            → static site (apps/web/dist)
-                                          └─ /admin,/api  → Payload/Next (:3000) → Postgres
+                                          └─ /admin,/api  → Payload/Next (:3000)
+                                                                │
+                                                                ▼
+                                                   DO Managed Postgres (+PostGIS)
 ```
+
+This is the **launch topology** (one app droplet). When you want high availability, put a
+**DigitalOcean Load Balancer** in front of 2+ app droplets — see
+[Scaling to a Load Balancer](#scaling-to-a-load-balancer-ha-later). It needs **no code
+changes** (the app is static + a stateless API + a portable `DATABASE_URL`).
 
 ---
 
 ## 0. What you need
 
-- A DigitalOcean droplet — **Ubuntu 24.04, 4 GB / 2 vCPU** ($24/mo) is comfortable (Payload + local Postgres + the build). A 2 GB box works if Postgres is managed and builds run in CI.
+- A **DigitalOcean Managed PostgreSQL** cluster (PostGIS supported) — automated backups,
+  failover and patching you don't want to hand-run. (Or self-host on the droplet — see §2.)
+- A DigitalOcean droplet — **Ubuntu 24.04, 2 GB / 1–2 vCPU** ($12/mo) is enough with Managed
+  Postgres (bump to 4 GB if you also build on the box or self-host the DB).
 - A domain, with its DNS on **Cloudflare** (free plan is enough).
 - SSH access to the droplet.
 
@@ -27,15 +38,35 @@ Visitor ──▶ Cloudflare (caches HTML) ──▶ Caddy on the droplet
 ```bash
 ssh root@YOUR_DROPLET_IP
 adduser mpm && usermod -aG sudo mpm     # a non-root user to run things
-# Node 22 + pnpm
+# Node 22 + pnpm + Caddy (Postgres is managed — see §2)
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt-get install -y nodejs git postgresql postgresql-16-postgis-3 caddy
+apt-get install -y nodejs git caddy postgresql-client-16
 corepack enable                          # provides pnpm
 ```
 
-## 2. Postgres (on the droplet)
+## 2. Database — DigitalOcean Managed Postgres (recommended)
+
+Create a **DigitalOcean Managed PostgreSQL** cluster in the **same region** as the droplet.
+
+1. DigitalOcean → **Databases → Create → PostgreSQL**.
+2. When it's up, add a database `mrpackermover` and enable PostGIS (run from the droplet,
+   using the cluster's connection string):
+   ```bash
+   psql "$DATABASE_URL" -c 'CREATE DATABASE mrpackermover;'   # if not created in the UI
+   psql "$DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
+   ```
+3. In the cluster's **Trusted sources**, add the droplet (and, if using a Load Balancer
+   later, each app droplet) so only they can connect.
+4. Copy the cluster's connection string — it's your `DATABASE_URL`; keep the `?sslmode=require`
+   it ships with, and never commit it.
+
+Managed Postgres runs the nightly backups, point-in-time restore and failover for you.
+
+<details>
+<summary>Alternative: run Postgres on the droplet (cheaper, but you manage it)</summary>
 
 ```bash
+apt-get install -y postgresql postgresql-16-postgis-3
 sudo -u postgres psql <<'SQL'
 CREATE DATABASE mrpackermover;
 CREATE USER mpm WITH PASSWORD 'CHANGE_ME_STRONG';
@@ -46,10 +77,9 @@ GRANT ALL ON SCHEMA public TO mpm;
 SQL
 ```
 
-Your connection string (keep it on the box, never commit it):
-`postgres://mpm:CHANGE_ME_STRONG@localhost:5432/mrpackermover`
-
-> Prefer not to manage the DB yourself? Create a **DigitalOcean Managed Postgres** (PostGIS supported), and use its connection string instead. Everything else is identical.
+Connection string: `postgres://mpm:CHANGE_ME_STRONG@localhost:5432/mrpackermover`.
+If you self-host, **you** own the backups — see the Ops checklist.
+</details>
 
 ## 3. Get the code & configure
 
@@ -62,8 +92,12 @@ pnpm install
 Create `apps/cms/.env`:
 
 ```ini
-DATABASE_URL=postgres://mpm:CHANGE_ME_STRONG@localhost:5432/mrpackermover
+# Managed Postgres connection string (keep the ?sslmode=require):
+DATABASE_URL=postgres://USER:PASS@db-host.ondigitalocean.com:25060/mrpackermover?sslmode=require
 PAYLOAD_SECRET=run `openssl rand -base64 32` and paste here
+# Location autocomplete + geocoding in the admin (optional):
+GOOGLE_MAPS_API_KEY=
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 # Optional until you turn on the spam guard / build automation:
 TURNSTILE_SECRET_KEY=
 BUILD_WEBHOOK_URL=
@@ -73,8 +107,9 @@ CLOUDFLARE_API_TOKEN=
 CLOUDFLARE_ZONE_ID=
 ```
 
-Also set `PUBLIC_SITE_URL=https://yourdomain.com` for the web build (in the environment
-or `apps/web/.env`) so canonicals and sitemaps use the real origin.
+Also set `PUBLIC_SITE_URL=https://yourdomain.com` for the web build (in the environment or
+`apps/web/.env`, alongside `PUBLIC_GOOGLE_MAPS_API_KEY` for the quote estimator) so canonicals
+and sitemaps use the real origin.
 
 ## 4. Database schema + seed
 
@@ -94,8 +129,8 @@ sudo systemctl enable --now mrpackermover-cms
 journalctl -u mrpackermover-cms -f                      # watch it boot; Ctrl-C to stop tailing
 ```
 
-Payload is now on `localhost:3000`. Create your first admin user at `/admin` (through
-Caddy, next step) or via `pnpm --filter @mpm/cms payload create-first-user`.
+Payload is now on `localhost:3000`. Create your first admin user at `/admin` (through Caddy,
+next step) or via `pnpm --filter @mpm/cms payload create-first-user`.
 
 ## 6. Build the site & put Caddy in front
 
@@ -112,17 +147,26 @@ everything else is the static site.
 
 ## 7. Cloudflare in front (the caching)
 
-1. Point the domain's DNS at the droplet (an **A record** to the droplet IP), **proxied** (orange cloud). For the origin lock, prefer a **`cloudflared` Tunnel** so the droplet has no open public ports.
-2. **Cache Rule** (Rules → Caching): _If_ URI path does **not** start with `/api/` **and** does **not** start with `/admin` → **Cache eligibility: Eligible for cache**, **Edge TTL: respect origin** (our Caddy `s-maxage` drives it). This is what makes Cloudflare hold the HTML.
-3. Turn on **Always Online** and keep **Tiered Cache** on.
-4. Create an API token with **Zone → Cache Purge** for this zone; put it + the Zone ID into `apps/cms/.env` (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`).
+1. Point the domain's DNS at the droplet (an **A record** to the droplet IP), **proxied**
+   (orange cloud). For the origin lock, prefer a **`cloudflared` Tunnel** so the droplet has
+   no open public ports.
+2. **Cache Rule** (Rules → Caching): _If_ URI path does **not** start with `/api/` **and**
+   does **not** start with `/admin` → **Cache eligibility: Eligible for cache**, **Edge TTL:
+   respect origin** (our Caddy `s-maxage` drives it). This is what makes Cloudflare hold the HTML.
+3. Turn on **Always Online** and keep **Tiered Cache** on. Enable **Brotli**, **HTTP/3** and
+   **image resizing** here too. Use the **WAF managed ruleset**, but **not** "Bot Fight Mode"
+   (it would block `/api/*` and retrieval AI crawlers).
+4. Create an API token with **Zone → Cache Purge** for this zone; put it + the Zone ID into
+   `apps/cms/.env` (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`).
 
 ## 8. The publish → live cycle
 
 When an editor publishes in the CMS:
 
 1. Payload's `afterChange` hook fires and (debounced 10 min) POSTs to `BUILD_WEBHOOK_URL`.
-2. That triggers **`deploy/deploy.sh`**: rebuild the manifest through the publish gate → rebuild the static site → copy into the web root → **`scripts/purge-cache.mjs`** tells Cloudflare to drop the old copies.
+2. That triggers **`deploy/deploy.sh`**: rebuild the manifest through the publish gate →
+   rebuild the static site → copy into the web root → **`scripts/purge-cache.mjs`** tells
+   Cloudflare to drop the old copies.
 3. The next visitor gets the fresh page, which Cloudflare then caches again.
 
 Simplest wiring: point `BUILD_WEBHOOK_URL` at a tiny listener on the droplet that runs
@@ -135,7 +179,51 @@ Simplest wiring: point `BUILD_WEBHOOK_URL` at a tiny listener on the droplet tha
 
 ---
 
-## Moving the database later (Neon → DO, or DO → managed)
+## Scaling to a Load Balancer (HA) later
+
+The launch setup is one droplet. Because Cloudflare serves ~all page views from cache, one
+droplet handles a lot — but when you want **high availability** (no single point of failure,
+zero-downtime deploys), put a **DigitalOcean Load Balancer** in front of **2+ identical app
+droplets**, all pointing at the same Managed Postgres:
+
+```
+Cloudflare ──▶ DO Load Balancer ──▶ app droplet #1  (Caddy static + Payload) ─┐
+              (health check         app droplet #2  (Caddy static + Payload) ─┼──▶ Managed Postgres
+               GET / )                    …                                   ─┘
+```
+
+**Nothing in the app changes** — it's already static + a stateless API + a portable
+`DATABASE_URL`. What you stand up:
+
+1. **Managed Postgres** (already the default in §2) — the shared DB every droplet uses; add
+   each app droplet to its Trusted sources.
+2. **N identical app droplets** — each runs Caddy (serving its own copy of `apps/web/dist`)
+   plus the Payload service, from the same commit and the same `.env` (secrets stay per-box
+   or in a secrets manager).
+3. **A DO Load Balancer** in front, forwarding 443 → the droplets with a **health check**
+   (e.g. `GET /`, the static homepage). Point Cloudflare's A record at the **Load Balancer**
+   IP instead of a single droplet.
+
+**The one real wrinkle — distributing the static site.** With multiple droplets, a publish
+must rebuild `apps/web/dist` on **every** droplet, not one. Pick one approach:
+
+- **Build in CI, rsync to all droplets** (simplest, recommended): the publish webhook
+  triggers a CI job that builds the manifest + site once and `rsync`s `dist/` to each droplet,
+  then purges Cloudflare. Deterministic, and the droplets spend no CPU building.
+- **Build once, serve from object storage:** build to **DigitalOcean Spaces** (or R2) and
+  serve the static site from there; the droplets then only run Payload.
+- **One "builder" droplet + shared volume:** a DO Volume the builder writes `dist/` to and
+  the app droplets mount read-only. Fewer moving parts than CI, but a shared-storage dependency.
+
+**CMS writer.** Several Payload instances can all serve `/admin` + `/api/*` against the one
+Managed DB (the API is stateless). Keep the **publish → build** trigger pointed at a single
+place (the CI job or the builder droplet) so a publish rebuilds the site **once**, not N times.
+
+Everything else — the Cloudflare config, the publish→live cycle, the cache purge — is unchanged.
+
+---
+
+## Moving the database later (self-hosted → Managed, or region → region)
 
 Standard Postgres, so it's a copy job — no app changes (§12 of the plan / the runbook):
 
@@ -147,7 +235,10 @@ pg_restore --no-owner --no-privileges -d "$NEW_DATABASE_URL" mpm.dump
 
 ## Ops checklist
 
-- **Backups:** if you self-host Postgres, cron a nightly `pg_dump` to DigitalOcean Spaces. (Managed Postgres does this for you.)
-- **Firewall:** allow only 80/443 (or nothing, if using a Tunnel) + your SSH; bind Postgres to `localhost`.
+- **Backups:** Managed Postgres runs nightly backups + point-in-time restore for you. (If you
+  self-host instead, cron a nightly `pg_dump` to DigitalOcean Spaces.)
+- **Firewall:** allow only 80/443 (or nothing, if using a Tunnel) + your SSH. Managed Postgres
+  is reached over its private network / Trusted sources, not a public port.
 - **Updates:** `apt upgrade` regularly; restart the CMS service after deploys of the CMS itself.
-- **Monitoring:** watch `journalctl -u mrpackermover-cms`, the Caddy logs, and Cloudflare's cache-hit ratio (should be >95%).
+- **Monitoring:** watch `journalctl -u mrpackermover-cms`, the Caddy logs, and Cloudflare's
+  cache-hit ratio (should be >95%). With a Load Balancer, watch its health-check status too.

@@ -1,48 +1,85 @@
-import type { ServerProps } from 'payload';
+import type { Payload, ServerProps } from 'payload';
 import Link from 'next/link';
 
 /**
- * Sidebar enhancement rendered at the top of the nav (admin.components.beforeNavLinks):
- * a live "New leads" quick-action badge + a small quick-access list. Server component so
- * the badge count is always current. Colours use Payload theme variables + brand maroon.
+ * Sidebar header (admin.components.beforeNavLinks): a live "Needs attention" panel —
+ * new leads, new job applications and unread contact messages, each a one-tap link to
+ * the filtered collection — plus a compact quick-access list. Server component so the
+ * counts are always current. Payload theme variables + brand maroon.
  */
 const BRAND = '#990010';
 
 const QUICK = [
-  { href: '/admin/collections/leads', label: 'Leads' },
   { href: '/admin/collections/locations', label: 'Locations' },
   { href: '/admin/collections/reviews', label: 'Reviews' },
+  { href: '/admin/collections/pages', label: 'Editorial pages' },
+  { href: '/admin/collections/jobs', label: 'Job openings' },
   { href: '/admin/globals/home-content', label: 'Home page' },
 ];
 
+async function tally(payload: Payload | undefined, collection: string): Promise<number> {
+  if (!payload) return 0;
+  try {
+    const res = await payload.count({
+      collection: collection as never,
+      where: { status: { equals: 'new' } } as never,
+      overrideAccess: true,
+    });
+    return res.totalDocs;
+  } catch {
+    return 0;
+  }
+}
+
 export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element> {
   const payload = props?.payload;
-  let newLeads = 0;
-  if (payload) {
-    try {
-      const res = await payload.count({
-        collection: 'leads' as never,
-        where: { status: { equals: 'new' } } as never,
-        overrideAccess: true,
-      });
-      newLeads = res.totalDocs;
-    } catch {
-      newLeads = 0;
-    }
-  }
+  const [leads, apps, messages] = await Promise.all([
+    tally(payload, 'leads'),
+    tally(payload, 'job-applications'),
+    tally(payload, 'contact-messages'),
+  ]);
+
+  const alerts = [
+    {
+      label: 'New leads',
+      count: leads,
+      href: '/admin/collections/leads?where[status][equals]=new',
+    },
+    {
+      label: 'New applications',
+      count: apps,
+      href: '/admin/collections/job-applications?where[status][equals]=new',
+    },
+    {
+      label: 'Unread messages',
+      count: messages,
+      href: '/admin/collections/contact-messages?where[status][equals]=new',
+    },
+  ];
+  const totalOpen = leads + apps + messages;
 
   return (
     <div className="mpm-nav">
       <style>{CSS}</style>
 
-      <Link href="/admin/collections/leads" className="mpm-nav__leads">
-        <span className="mpm-nav__leads-dot" aria-hidden="true" />
-        <span className="mpm-nav__leads-text">
-          <span className="mpm-nav__leads-title">New leads</span>
-          <span className="mpm-nav__leads-sub">awaiting a first call</span>
-        </span>
-        <span className="mpm-nav__leads-count">{newLeads}</span>
-      </Link>
+      <div className="mpm-nav__panel">
+        <div className="mpm-nav__panel-head">
+          <span className="mpm-nav__panel-title">Needs attention</span>
+          {totalOpen > 0 && <span className="mpm-nav__panel-dot" aria-hidden="true" />}
+        </div>
+        <div className="mpm-nav__alerts">
+          {alerts.map((a) => (
+            <Link
+              key={a.label}
+              href={a.href}
+              className={`mpm-nav__alert${a.count > 0 ? ' is-hot' : ''}`}
+            >
+              <span className="mpm-nav__alert-label">{a.label}</span>
+              <span className="mpm-nav__alert-count">{a.count}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className="mpm-nav__quick">
         <span className="mpm-nav__quick-title">Quick access</span>
@@ -57,15 +94,20 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 }
 
 const CSS = `
-.mpm-nav { padding: 0 .25rem .5rem; margin-bottom: .5rem; border-bottom: 1px solid var(--theme-elevation-100); }
-.mpm-nav__leads { display:flex; align-items:center; gap:.6rem; text-decoration:none; padding:.6rem .7rem; border-radius:9px;
-  background:color-mix(in srgb, ${BRAND} 12%, var(--theme-elevation-50)); border:1px solid color-mix(in srgb, ${BRAND} 28%, transparent); margin-bottom:.8rem; }
-.mpm-nav__leads:hover { background:color-mix(in srgb, ${BRAND} 18%, var(--theme-elevation-50)); }
-.mpm-nav__leads-dot { width:8px; height:8px; border-radius:50%; background:${BRAND}; flex:none; box-shadow:0 0 0 3px color-mix(in srgb, ${BRAND} 22%, transparent); }
-.mpm-nav__leads-text { display:flex; flex-direction:column; line-height:1.15; min-width:0; flex:1; }
-.mpm-nav__leads-title { font-weight:700; font-size:.82rem; color:var(--theme-elevation-1000); }
-.mpm-nav__leads-sub { font-size:.68rem; color:var(--theme-elevation-500); }
-.mpm-nav__leads-count { font-weight:800; font-size:.95rem; color:#fff; background:${BRAND}; min-width:1.5rem; text-align:center; padding:.1rem .4rem; border-radius:99px; }
+.mpm-nav { padding: 0 .25rem .6rem; margin-bottom: .6rem; border-bottom: 1px solid var(--theme-elevation-100); }
+.mpm-nav__panel { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-100); border-radius:10px; padding:.6rem .65rem .5rem; margin-bottom:.8rem; }
+.mpm-nav__panel-head { display:flex; align-items:center; gap:.4rem; margin:0 .1rem .5rem; }
+.mpm-nav__panel-title { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--theme-elevation-500); }
+.mpm-nav__panel-dot { width:7px; height:7px; border-radius:50%; background:${BRAND}; box-shadow:0 0 0 3px color-mix(in srgb, ${BRAND} 22%, transparent); }
+.mpm-nav__alerts { display:flex; flex-direction:column; gap:.25rem; }
+.mpm-nav__alert { display:flex; align-items:center; justify-content:space-between; gap:.5rem; text-decoration:none; padding:.4rem .5rem; border-radius:7px; border:1px solid transparent; }
+.mpm-nav__alert:hover { background:var(--theme-elevation-100); }
+.mpm-nav__alert-label { font-size:.8rem; color:var(--theme-elevation-700); }
+.mpm-nav__alert-count { font-weight:700; font-size:.8rem; color:var(--theme-elevation-500); background:var(--theme-elevation-100); min-width:1.4rem; text-align:center; padding:.05rem .35rem; border-radius:99px; }
+.mpm-nav__alert.is-hot { background:color-mix(in srgb, ${BRAND} 10%, var(--theme-elevation-50)); border-color:color-mix(in srgb, ${BRAND} 26%, transparent); }
+.mpm-nav__alert.is-hot .mpm-nav__alert-label { color:var(--theme-elevation-1000); font-weight:600; }
+.mpm-nav__alert.is-hot .mpm-nav__alert-count { color:#fff; background:${BRAND}; }
+
 .mpm-nav__quick { display:flex; flex-direction:column; gap:.1rem; }
 .mpm-nav__quick-title { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--theme-elevation-450); padding:.1rem .35rem .3rem; }
 .mpm-nav__quick-link { font-size:.82rem; color:var(--theme-elevation-700); text-decoration:none; padding:.32rem .45rem; border-radius:6px; }

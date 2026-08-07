@@ -42,7 +42,13 @@ export default buildConfig({
         Logo: '/components/graphics/BrandLogo#BrandLogo',
         Icon: '/components/graphics/BrandIcon#BrandIcon',
       },
-      beforeDashboard: ['/components/dashboard/AnalyticsDashboard#AnalyticsDashboard'],
+      // Replace the default dashboard entirely (removes the redundant collection-group
+      // cards — the sidebar already lists them) with our analytics + careers + inbox view.
+      views: {
+        dashboard: {
+          Component: '/components/dashboard/Dashboard#Dashboard',
+        },
+      },
       beforeNavLinks: ['/components/nav/SidebarNav#SidebarNav'],
     },
   },

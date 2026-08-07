@@ -28,9 +28,21 @@ const services = [
 const sizes = ['A few items', '1 BHK', '2 BHK', '3 BHK', '4 BHK / Villa', 'Office', 'Vehicle only'];
 
 const assurances = [
-  { icon: 'search', title: 'Survey-based', body: 'We assess your goods first — a real price, not a phone guess.' },
-  { icon: 'fixed-quote', title: 'Written & fixed', body: 'The number we send is the number you pay. In writing.' },
-  { icon: 'shield-check', title: 'No surprises', body: 'Anything that could change the price is itemised up front.' },
+  {
+    icon: 'search',
+    title: 'Survey-based',
+    body: 'We assess your goods first — a real price, not a phone guess.',
+  },
+  {
+    icon: 'fixed-quote',
+    title: 'Written & fixed',
+    body: 'The number we send is the number you pay. In writing.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'No surprises',
+    body: 'Anything that could change the price is itemised up front.',
+  },
 ];
 ---
 
@@ -61,11 +73,26 @@ const assurances = [
           <div class="field-row">
             <div class="field">
               <label for="q-name">Full name <span class="req">*</span></label>
-              <input id="q-name" name="name" type="text" autocomplete="name" required placeholder="Your name" />
+              <input
+                id="q-name"
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                placeholder="Your name"
+              />
             </div>
             <div class="field">
               <label for="q-phone">Phone number <span class="req">*</span></label>
-              <input id="q-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="10-digit mobile" />
+              <input
+                id="q-phone"
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                required
+                placeholder="10-digit mobile"
+              />
             </div>
           </div>
 
@@ -107,22 +134,41 @@ const assurances = [
             </div>
             <div class="field">
               <label for="q-email">Email <span class="opt">(optional)</span></label>
-              <input id="q-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" />
+              <input
+                id="q-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+              />
             </div>
           </div>
 
           <div class="field">
             <label for="q-notes">Anything else we should know?</label>
-            <textarea id="q-notes" name="notes" rows="3" placeholder="Floors, lift access, fragile or special items, flexible dates…"></textarea>
+            <textarea
+              id="q-notes"
+              name="notes"
+              rows="3"
+              placeholder="Floors, lift access, fragile or special items, flexible dates…"
+            ></textarea>
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg qsubmit">
             Get my fixed quote
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+            >
           </button>
           <p class="qform-fine">
-            By submitting, you agree to be contacted about your move. We never sell your data —
-            see our <a href="/privacy">privacy policy</a>.
+            By submitting, you agree to be contacted about your move. We never sell your data — see
+            our <a href="/privacy">privacy policy</a>.
           </p>
         </form>
       </div>
@@ -130,7 +176,16 @@ const assurances = [
       <!-- Success (revealed on submit) -->
       <div class="quote-success card" id="quote-success" hidden>
         <span class="qs-check" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6" /></svg>
+          <svg
+            viewBox="0 0 24 24"
+            width="34"
+            height="34"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg
+          >
         </span>
         <h2 id="qs-title">Thank you!</h2>
         <p id="qs-msg" class="qs-msg"></p>
@@ -153,7 +208,10 @@ const assurances = [
             {
               assurances.map((a) => (
                 <li>
-                  <span class="qa-icon" set:html={`<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(a.icon)}</svg>`} />
+                  <span
+                    class="qa-icon"
+                    set:html={`<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(a.icon)}</svg>`}
+                  />
                   <span>
                     <strong>{a.title}</strong>
                     <small>{a.body}</small>
@@ -164,7 +222,10 @@ const assurances = [
           </ul>
         </div>
         <a class="qa-call card" href={`tel:${PHONE_TEL}`}>
-          <span class="qa-call-icon" set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('phone')}</svg>`} />
+          <span
+            class="qa-call-icon"
+            set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('phone')}</svg>`}
+          />
           <span>
             <small>Prefer to talk? Call us</small>
             <strong>{PHONE_DISPLAY}</strong>
@@ -189,6 +250,7 @@ const assurances = [
       const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
       if (el) el.value = v;
     };
+    prefill('name', params.get('name'));
     prefill('from', params.get('from'));
     prefill('to', params.get('to'));
     prefill('service', params.get('service'));
@@ -206,7 +268,10 @@ const assurances = [
       el.closest('.field')?.classList.add('invalid');
     };
 
-    form.addEventListener('submit', (e) => {
+    const submitBtn = form.querySelector('.qsubmit') as HTMLButtonElement | null;
+    const submitLabel = submitBtn?.innerHTML ?? '';
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       let firstBad: HTMLElement | null = null;
 
@@ -223,6 +288,7 @@ const assurances = [
       }
 
       if (firstBad) {
+        if (banner) banner.textContent = 'Please fill the required fields highlighted below.';
         banner?.removeAttribute('hidden');
         firstBad.focus();
         return;
@@ -232,16 +298,30 @@ const assurances = [
       const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
       const phone = (form.elements.namedItem('phone') as HTMLInputElement).value.trim();
 
-      // Fire-and-forget: capture the lead if the backend is live; UX proceeds regardless.
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+      }
+
+      // Only show the success card once the lead is actually saved in the CMS.
       try {
         const data = Object.fromEntries(new FormData(form).entries());
-        void fetch('/quote', {
+        const res = await fetch('/api/quote', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(data),
-        }).catch(() => {});
+        });
+        if (!res.ok) throw new Error(String(res.status));
       } catch {
-        /* no-op */
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitLabel;
+        }
+        if (banner)
+          banner.textContent =
+            "Sorry — we couldn't send that just now. Please try again, or call us and we'll take your details.";
+        banner?.removeAttribute('hidden');
+        return;
       }
 
       const title = document.getElementById('qs-title');

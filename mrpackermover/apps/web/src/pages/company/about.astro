@@ -4,14 +4,16 @@ import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
-import { staticRow, org } from '../../lib/page.js';
+import { staticRow, org, editorialFor } from '../../lib/page.js';
 
+const ed = editorialFor('about');
 const row = staticRow({
   path: '/company/about',
   pageType: 'core',
   title: 'About Us – MrPackerMover',
-  h1: 'The movers who publish the numbers others hide',
+  h1: ed.title ?? 'The movers who publish the numbers others hide',
   metaDescription:
+    ed.seoDescription ??
     'MrPackerMover moves homes and offices across India with fixed written quotes, ID-verified crews and published claims data — no fake reviews, no phantom branches.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -62,9 +64,10 @@ const principles = [
 <BaseLayout row={row}>
   <PageHero
     dark
-    eyebrow="About us"
+    eyebrow={ed.eyebrow ?? 'About us'}
     h1={row.h1}
-    intro="Moving is one of the most stressful things a family or business does — and an industry built on vague quotes and fake reviews has earned every bit of that dread. We are building the opposite: a mover you can verify before you trust."
+    intro={ed.intro ??
+      'Moving is one of the most stressful things a family or business does — and an industry built on vague quotes and fake reviews has earned every bit of that dread. We are building the opposite: a mover you can verify before you trust.'}
     breadcrumbs={row.breadcrumbs}
     current="About us"
   >
@@ -78,16 +81,15 @@ const principles = [
         <p class="eyebrow">Why we exist</p>
         <h2>Built on data you can check, not promises you can't</h2>
         <p>
-          Search "packers and movers" in any Indian city and you'll meet dozens of
-          near-identical listings — five glowing stars, a dozen "branch offices", and a
-          quote that mysteriously grows on moving day. Most are the same handful of
-          brokers wearing different names.
+          Search "packers and movers" in any Indian city and you'll meet dozens of near-identical
+          listings — five glowing stars, a dozen "branch offices", and a quote that mysteriously
+          grows on moving day. Most are the same handful of brokers wearing different names.
         </p>
         <p>
-          {o?.brandName ?? 'MrPackerMover'} was built to be the mover people can actually
-          verify. Fixed written quotes. Crews with names and IDs. Coverage tied to jobs we
-          have really completed. And an unusual habit for this industry — publishing the
-          numbers that make us look human, like how long a claim takes us to settle.
+          {o?.brandName ?? 'MrPackerMover'} was built to be the mover people can actually verify. Fixed
+          written quotes. Crews with names and IDs. Coverage tied to jobs we have really completed. And
+          an unusual habit for this industry — publishing the numbers that make us look human, like how
+          long a claim takes us to settle.
         </p>
       </div>
       <ul class="story-facts" role="list">

@@ -15,6 +15,28 @@ const row = rowByPath('/')!;
 const data = dataOf<HomeData>(row);
 const faqs = (row.data.faqs as FaqItem[] | undefined) ?? [];
 
+// Editable marketing copy from the CMS (`home-content` global), with built-in
+// fallbacks so the page renders identically if a field is left blank.
+const c = data.content;
+const tagline1 = c?.taglineLine1 || 'Shifting Aapki,';
+const tagline2 = c?.taglineLine2 || 'Zimmedari Hamari.';
+const heroSubtext = c?.heroSubtext;
+const servicesHeading = c?.servicesHeading || 'What we move';
+const servicesIntro =
+  c?.servicesIntro || 'One operation, verified crews, and a written fixed quote for every service.';
+const trustHeading = c?.trustHeading || 'House Shifting you can actually verify';
+const trustIntro =
+  c?.trustIntro ||
+  'Everything below is backed by real job data — no vanity counters, no stock photos.';
+const statsHeading = c?.statsHeading || 'By the numbers';
+const statsIntro = c?.statsIntro || "Unflattering when it needs to be — that's the point.";
+const citiesHeading = c?.citiesHeading || 'Cities we pick up from';
+const citiesIntro =
+  c?.citiesIntro ||
+  'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India.';
+const faqHeading = c?.faqHeading || 'Questions people ask';
+const pillars = c?.pillars ?? [];
+
 const serviceRows = rowsOfType('service-hub').filter((r) => r.path.startsWith('/services/'));
 const services = serviceRows.map((r) => ({
   slug: r.slug,
@@ -27,35 +49,28 @@ const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubDat
 ---
 
 <BaseLayout row={row}>
-  <HeroShell align="left" h1={row.h1} image="home">
+  <HeroShell align="left" h1={row.h1} image="home" intro={heroSubtext}>
     <h1 slot="heading" class="home-tagline">
-      <span class="t-line1">Shifting Aapki,</span>
-      <span class="t-line2">Zimmedari Hamari.</span>
+      <span class="t-line1">{tagline1}</span>
+      <span class="t-line2">{tagline2}</span>
     </h1>
     <ServiceSelector cities={cities} services={services} />
   </HeroShell>
 
   <Band label="Services">
-    <ServicesGrid
-      services={services}
-      heading="What we move"
-      intro="One operation, verified crews, and a written fixed quote for every service."
-    />
+    <ServicesGrid services={services} heading={servicesHeading} intro={servicesIntro} />
   </Band>
 
   <Band alt label="Why us">
-    <ValueProps
-      heading="House Shifting you can actually verify"
-      intro="Everything below is backed by real job data — no vanity counters, no stock photos."
-    />
+    <ValueProps heading={trustHeading} intro={trustIntro} pillars={pillars} />
   </Band>
 
   {
     (data.totalJobs12m > 0 || data.medianSettlementDays != null) && (
       <Band label="By the numbers">
         <div class="section-head">
-          <h2>By the numbers</h2>
-          <p>Unflattering when it needs to be — that's the point.</p>
+          <h2>{statsHeading}</h2>
+          <p>{statsIntro}</p>
         </div>
         <dl class="home-stats">
           {data.totalJobs12m > 0 && (
@@ -86,11 +101,7 @@ const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubDat
       <Band alt label="Coverage">
         <CoverageBand />
         <div class="home-cities">
-          <CitiesGrid
-            cities={cityLinks}
-            heading="Cities we pick up from"
-            intro="Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India."
-          />
+          <CitiesGrid cities={cityLinks} heading={citiesHeading} intro={citiesIntro} />
         </div>
       </Band>
     )
@@ -99,7 +110,7 @@ const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubDat
   {
     faqs.length > 0 && (
       <Band label="FAQ">
-        <Faq faqs={faqs} heading="Questions people ask" />
+        <Faq faqs={faqs} heading={faqHeading} />
       </Band>
     )
   }

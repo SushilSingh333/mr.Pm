@@ -4,14 +4,16 @@ import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('protection');
 const row = staticRow({
   path: '/protection',
   pageType: 'trust',
   title: 'Protection & Claims | MrPackerMover',
-  h1: 'Protection & claims, layer by layer',
+  h1: ed.title ?? 'Protection & claims, layer by layer',
   metaDescription:
+    ed.seoDescription ??
     'How MrPackerMover protects your goods — proper packing standards, verified handling, transit insurance and a published claims process. Every layer, explained.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -53,9 +55,10 @@ const layers = [
 <BaseLayout row={row}>
   <PageHero
     dark
-    eyebrow="Protection & claims"
+    eyebrow={ed.eyebrow ?? 'Protection & claims'}
     h1={row.h1}
-    intro="“Protection” shouldn’t be a slogan on a truck. It’s a stack of concrete things we do — before, during and after your move — that add up to goods arriving intact, and a fair path if they don’t."
+    intro={ed.intro ??
+      '“Protection” shouldn’t be a slogan on a truck. It’s a stack of concrete things we do — before, during and after your move — that add up to goods arriving intact, and a fair path if they don’t.'}
     breadcrumbs={row.breadcrumbs}
     current="Protection & claims"
   >
@@ -65,7 +68,10 @@ const layers = [
   <Band label="The layers">
     <div class="section-head">
       <h2>Six layers between your goods and a bad day</h2>
-      <p>No single one is magic. Stacked together, they’re why damage is rare — and handled honestly when it isn’t.</p>
+      <p>
+        No single one is magic. Stacked together, they’re why damage is rare — and handled honestly
+        when it isn’t.
+      </p>
     </div>
     <FeatureGrid items={layers} columns={3} />
   </Band>

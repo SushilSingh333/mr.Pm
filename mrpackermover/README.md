@@ -12,14 +12,14 @@ serviceability is proven with job data, not with an address.
 
 ## Stack
 
-| Layer            | Choice                                  | Why                                                    |
-| ---------------- | --------------------------------------- | ------------------------------------------------------ |
-| Frontend         | **Astro** (SSG)                         | Static HTML, zero JS by default, edge-cacheable        |
-| CMS              | **Payload** (Next.js)                   | Pages are projections of typed collections             |
-| Database         | **Postgres + PostGIS** (Neon today)     | Portable; geo queries drive internal linking           |
-| DB access → edge | **Cloudflare Hyperdrive**               | Any Postgres over a standard connection string         |
-| Hosting          | **Cloudflare** (Pages + Workers)        | Static on Pages/R2, dynamic endpoints + CMS on Workers |
-| Dynamic API      | Workers (`/quote`, `/track`, `/search`) | POST-only / noindex; the only non-static surfaces      |
+| Layer       | Choice                                              | Why                                             |
+| ----------- | --------------------------------------------------- | ----------------------------------------------- |
+| Frontend    | **Astro** (SSG)                                     | Static HTML, zero JS by default, edge-cacheable |
+| CMS         | **Payload** (Next.js)                               | Pages are projections of typed collections      |
+| Database    | **Postgres + PostGIS**                              | Portable; geo queries drive internal linking    |
+| Hosting     | **1 DigitalOcean droplet** (ADR-0005)               | Caddy serves static + proxies Payload/Next + DB |
+| Edge        | **Cloudflare** (cache-only CDN)                     | Hard-caches HTML; purge on publish              |
+| Dynamic API | Payload (`/api/quote`, `/api/track`, `/api/search`) | POST/noindex; the only non-static surfaces      |
 
 ## Repository layout
 

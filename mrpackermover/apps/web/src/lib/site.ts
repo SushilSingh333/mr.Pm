@@ -13,10 +13,15 @@ export const FOOTER_SERVICES = [
   { label: 'Packing & Unpacking', href: '/services/packing-unpacking' },
 ];
 
+/**
+ * Footer/header links. A `key` marks a link to a CMS-editable editorial page: when
+ * that page is unpublished in the CMS, the link is dropped (see `isPageHidden`).
+ * Links without a `key` are structural (never unpublishable) and always render.
+ */
 export const FOOTER_COMPANY = [
-  { label: 'About us', href: '/company/about' },
+  { label: 'About us', href: '/company/about', key: 'about' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Licences & GST', href: '/company/licences' },
+  { label: 'Licences & GST', href: '/company/licences', key: 'licences' },
   { label: 'Careers', href: '/company/careers' },
   { label: 'Contact', href: '/company/contact' },
 ];
@@ -25,17 +30,17 @@ export const FOOTER_TRUST = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'Track your move', href: '/track' },
   { label: 'Verify crew & vehicle', href: '/verify' },
-  { label: 'Claims & settlement', href: '/claims' },
-  { label: 'Transit insurance', href: '/insurance' },
+  { label: 'Claims & settlement', href: '/claims', key: 'claims' },
+  { label: 'Transit insurance', href: '/insurance', key: 'insurance' },
 ];
 
 /** Legal & safety column (Doc 01 §8 — kept inside the ≤20 footer link budget). */
 export const FOOTER_LEGAL = [
-  { label: 'Protection & claims', href: '/protection' },
-  { label: 'Fraud check', href: '/fraud-check' },
-  { label: 'Raise a complaint', href: '/raise-a-complaint' },
-  { label: 'Terms', href: '/terms' },
-  { label: 'Privacy', href: '/privacy' },
+  { label: 'Protection & claims', href: '/protection', key: 'protection' },
+  { label: 'Fraud check', href: '/fraud-check', key: 'fraud-check' },
+  { label: 'Raise a complaint', href: '/raise-a-complaint', key: 'raise-a-complaint' },
+  { label: 'Terms', href: '/terms', key: 'terms' },
+  { label: 'Privacy', href: '/privacy', key: 'privacy' },
 ];
 
 /** Primary header navigation — kept to three top-level items (user request). */
@@ -47,12 +52,30 @@ export const PRIMARY_NAV = [
 
 /** Secondary items, tucked under the header "More" dropdown to keep the bar clean. */
 export const MORE_NAV = [
-  { label: 'About us', href: '/company/about', icon: 'users', desc: 'Who we are & why' },
+  {
+    label: 'About us',
+    href: '/company/about',
+    icon: 'users',
+    desc: 'Who we are & why',
+    key: 'about',
+  },
   { label: 'Blog', href: '/blog', icon: 'doc', desc: 'Guides & moving tips' },
   { label: 'Verify us', href: '/verify', icon: 'shield-check', desc: 'Check crew & vehicle' },
   { label: 'Track your move', href: '/track', icon: 'truck', desc: 'Live shipment status' },
-  { label: 'Claims & settlement', href: '/claims', icon: 'claims', desc: 'Our published data' },
-  { label: 'Transit insurance', href: '/insurance', icon: 'insurance', desc: 'Cover, explained' },
+  {
+    label: 'Claims & settlement',
+    href: '/claims',
+    icon: 'claims',
+    desc: 'Our published data',
+    key: 'claims',
+  },
+  {
+    label: 'Transit insurance',
+    href: '/insurance',
+    icon: 'insurance',
+    desc: 'Cover, explained',
+    key: 'insurance',
+  },
   { label: 'Contact', href: '/company/contact', icon: 'headset', desc: 'Talk to a human' },
 ];
 

@@ -11,6 +11,8 @@
     "migrate": "payload migrate",
     "migrate:create": "payload migrate:create",
     "build-manifest": "tsx src/scripts/build-manifest.ts",
+    "set-city-services": "tsx src/scripts/set-city-services.ts",
+    "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
     "seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
@@ -22,6 +24,7 @@
     "@payloadcms/db-postgres": "^3.37.0",
     "@payloadcms/next": "^3.37.0",
     "@payloadcms/richtext-lexical": "^3.37.0",
+    "@payloadcms/ui": "^3.37.0",
     "graphql": "^16.9.0",
     "next": "^15.1.6",
     "payload": "^3.37.0",

@@ -1,0 +1,30 @@
+.mpm-place-input {
+  width: 100%;
+  padding: 8px 12px;
+  font: inherit;
+  color: var(--theme-elevation-800, #1a1a1a);
+  background: var(--theme-input-bg, var(--theme-elevation-0, #fff));
+  border: 1px solid var(--theme-elevation-150, #cdcdcd);
+  border-radius: 4px;
+  line-height: 1.5;
+}
+.mpm-place-input:focus {
+  outline: none;
+  border-color: var(--theme-success-500, #148a52);
+  box-shadow: 0 0 0 2px var(--theme-elevation-100, rgba(0, 0, 0, 0.06));
+}
+.mpm-place-hint {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--theme-elevation-400, #7a7a7a);
+}
+.mpm-place-error {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--theme-error-500, #c0362c);
+}
+
+/* Google's suggestion dropdown must sit above the admin form + drawers. */
+.pac-container {
+  z-index: 99999 !important;
+}

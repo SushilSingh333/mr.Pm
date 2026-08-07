@@ -1,16 +1,16 @@
 /**
- * Which hero backdrop illustration each page uses. Illustrations live in
- * public/images/hero/*.svg. These are on-brand placeholders — real crew/truck
- * photos (Doc 01 §2) drop into the same paths later with no code change.
+ * Which hero backdrop each service page uses. Images live in
+ * public/images/hero/{name}.jpg. Each service points at its own artwork (matched by
+ * name); services without dedicated artwork fall back to the generic `moving` image.
  */
 export const HERO_FOR_SERVICE: Record<string, string> = {
   'home-shifting': 'home-shifting',
-  'office-shifting': 'office',
-  'car-transport': 'car',
-  'bike-transport': 'bike',
-  'international-relocation': 'globe',
-  'loading-unloading': 'moving',
-  'packing-unpacking': 'moving',
+  'office-shifting': 'office-shifting',
+  'car-transport': 'car-transport',
+  'bike-transport': 'bike-transport',
+  'international-relocation': 'international-relocation',
+  'loading-unloading': 'loading-unloading',
+  'packing-unpacking': 'packing-unpacking',
 };
 
 export const heroForService = (slug: string): string => HERO_FOR_SERVICE[slug] ?? 'moving';

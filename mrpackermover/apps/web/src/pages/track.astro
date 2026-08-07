@@ -65,8 +65,8 @@ const row = staticRow({
     </div>
 
     <p class="track-foot">
-      Can’t find your reference, or need a human? <a href="/company/contact">Contact us</a> and
-      we’ll pull up your move.
+      Can’t find your reference, or need a human? <a href="/company/contact">Contact us</a> and we’ll
+      pull up your move.
     </p>
   </Band>
 </BaseLayout>
@@ -89,7 +89,7 @@ const row = staticRow({
     const lookup = async (ref: string): Promise<void> => {
       render('info', 'Checking…', 'Looking up your move.');
       try {
-        const res = await fetch(`/track/result?ref=${encodeURIComponent(ref)}`, {
+        const res = await fetch(`/api/track?ref=${encodeURIComponent(ref)}`, {
           headers: { Accept: 'application/json' },
         });
         const type = res.headers.get('content-type') ?? '';
@@ -113,7 +113,11 @@ const row = staticRow({
       e.preventDefault();
       const ref = input.value.trim();
       if (!ref) {
-        render('warn', 'Enter a reference', 'Please type the job reference from your confirmation.');
+        render(
+          'warn',
+          'Enter a reference',
+          'Please type the job reference from your confirmation.',
+        );
         return;
       }
       void lookup(ref);

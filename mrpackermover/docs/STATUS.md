@@ -5,16 +5,16 @@ proven, what needs your credentials to light up, and the exact next commands.
 
 ## Verified locally (no database needed)
 
-| Check                     | Command                            | Result                        |
-| ------------------------- | ---------------------------------- | ----------------------------- |
-| Install                   | `pnpm install`                     | ✓ 1209 pkgs                   |
-| Typecheck — shared/seo/db | `pnpm exec tsc -b packages/*`      | ✓ 0 errors                    |
-| Typecheck — web (Astro)   | `pnpm --filter @mpm/web typecheck` | ✓ 0 errors                    |
-| Typecheck — cms (Payload) | `pnpm --filter @mpm/cms typecheck` | ✓ 0 errors                    |
-| Lint                      | `pnpm lint`                        | ✓ 0 errors                    |
-| Format                    | `pnpm format:check`                | ✓ clean                       |
-| Static build              | `pnpm --filter @mpm/web build`     | ✓ 8 pages + sitemaps + robots |
-| CI quality gates          | `pnpm check`                       | ✓ all 7 green                 |
+| Check                     | Command                            | Result                          |
+| ------------------------- | ---------------------------------- | ------------------------------- |
+| Install                   | `pnpm install`                     | ✓ 1209 pkgs                     |
+| Typecheck — shared/seo/db | `pnpm exec tsc -b packages/*`      | ✓ 0 errors                      |
+| Typecheck — web (Astro)   | `pnpm --filter @mpm/web typecheck` | ✓ 0 errors                      |
+| Typecheck — cms (Payload) | `pnpm --filter @mpm/cms typecheck` | ✓ 0 errors                      |
+| Lint                      | `pnpm lint`                        | ✓ 0 errors                      |
+| Format                    | `pnpm format:check`                | ✓ clean                         |
+| Static build              | `pnpm --filter @mpm/web build`     | ✓ 101 pages + sitemaps + robots |
+| CI quality gates          | `pnpm check`                       | ✓ all 7 green                   |
 
 The build renders the five core templates from the committed **sample manifest**
 (`apps/web/src/data/manifest.sample.json`) so the design and the pipeline are visible
@@ -28,22 +28,26 @@ Fill `.env` (copy from `.env.example`) with `DATABASE_URL` (Neon) + `PAYLOAD_SEC
 then:
 
 ```bash
-pnpm --filter @mpm/cms migrate:create initial_schema   # generate base tables
-pnpm --filter @mpm/cms migrate                          # apply schema + PostGIS + leads
-pnpm seed                                               # Phase-0 seed data
+pnpm --filter @mpm/cms migrate:create initial_schema   # generate base tables (incl. leads)
+pnpm --filter @mpm/cms migrate                          # apply schema + PostGIS
+pnpm seed                                               # Phase-0 seed data (incl. home content)
 pnpm --filter @mpm/cms dev                              # admin at :3000
 pnpm build-manifest                                     # publish gate → manifest.json
 pnpm --filter @mpm/web build                            # static site from real data
 pnpm check                                              # gates against the real manifest
 ```
 
-## Deploy (Cloudflare)
+**Running the site from the CMS** (add a location, where leads land, edit the home
+page, what's code vs CMS): see [`docs/cms-guide.md`](./cms-guide.md).
 
-- Static site → Cloudflare Pages (`apps/web/dist`), Functions read Postgres via
-  Hyperdrive. See `apps/web/wrangler.toml`.
-- Payload admin → Cloudflare Workers (OpenNext) with the documented Node-host
-  fallback. See `apps/cms/DEPLOY.md`.
-- Secrets/vars for CI are listed in `.github/workflows/deploy-*.yml`.
+## Deploy (single DigitalOcean droplet + Cloudflare cache — ADR-0005)
+
+- One droplet: **Caddy** serves the static site and proxies `/admin` + `/api/*` to
+  **Payload/Next** (native Node, systemd); **Postgres + PostGIS** on the box (or DO
+  Managed Postgres). Cloudflare caches the HTML in front.
+- Dynamic endpoints are Payload endpoints (`/api/quote`, `/api/search`, `/api/track`);
+  publish → `deploy/deploy.sh` rebuilds + purges Cloudflare (`scripts/purge-cache.mjs`).
+- Step-by-step: **[`docs/deploy-digitalocean.md`](./deploy-digitalocean.md)**; deploy kit in `deploy/`.
 
 ## Open items to confirm (non-blocking, flagged in the plan)
 
@@ -54,9 +58,19 @@ pnpm check                                              # gates against the real
 3. **Font pairing**: display serif + text grotesk (ADR-0002) — two licence-clean
    options to pick at build time; fallbacks render until then.
 
+## CMS coverage
+
+- **Data pages** (home + the five geo templates) render from the CMS via the manifest.
+- **Leads**: the quote form writes to the `Leads` collection — submissions appear in
+  the admin with a New → Contacted → Quoted → Won/Lost pipeline.
+- **Home copy** is editable via the `Home page content` global (hero, section
+  headings/intros, and the trust pillars that drive the "why us" bento).
+- **Designed pages** (`/pricing`, `/claims`, `/verify`, `/insurance`, `/corporate`,
+  `/company/*`, `/track`, `/get-quote`, `/terms`, `/privacy`) are hand-built templates
+  in code, by design — see [`docs/cms-guide.md`](./cms-guide.md#what-lives-in-code-and-why).
+
 ## Not yet built (Phase 1 content, per the plan's phasing)
 
-The five core geo templates + home are live. The trust-cluster and corporate pages
-(`/pricing`, `/claims`, `/verify`, `/insurance`, `/corporate/*`, `/company/*`,
-`/track` UI) are Phase-1 pages — their nav links exist and will resolve as those
-templates are added. This is the content-fill phase that follows the foundation.
+The foundation is complete. What remains is **content fill** — adding the real cities,
+localities, routes, rate cards, reviews and guides through the CMS, in the batches the
+plan phases out (never shipping a batch while the previous one is < 60% indexed).

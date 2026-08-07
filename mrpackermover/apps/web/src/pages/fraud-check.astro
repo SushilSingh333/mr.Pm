@@ -6,14 +6,16 @@ import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('fraud-check');
 const row = staticRow({
   path: '/fraud-check',
   pageType: 'trust',
   title: 'Fraud Check – Avoid Moving Scams | MrPackerMover',
-  h1: 'Don’t get scammed by a fake mover',
+  h1: ed.title ?? 'Don’t get scammed by a fake mover',
   metaDescription:
+    ed.seoDescription ??
     'How to spot packers-and-movers fraud in India — advance-fee scams, bait quotes, fake listings and hostage-goods tricks — and how to verify a mover before you pay.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -84,9 +86,10 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
   <PageHero
     dark
-    eyebrow="Stay safe"
+    eyebrow={ed.eyebrow ?? 'Stay safe'}
     h1={row.h1}
-    intro="Moving fraud is common, and it preys on people at their most stressed. Here are the scams to know, the checks that stop them, and what to do if you’re targeted — whether or not it involves us."
+    intro={ed.intro ??
+      'Moving fraud is common, and it preys on people at their most stressed. Here are the scams to know, the checks that stop them, and what to do if you’re targeted — whether or not it involves us.'}
     breadcrumbs={row.breadcrumbs}
     current="Fraud check"
   />
@@ -110,14 +113,19 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
   <Band label="Report">
     <div class="report-box card">
       <h2>Report fraud</h2>
-      <p>
-        If you’ve been targeted by moving fraud in India, act quickly:
-      </p>
+      <p>If you’ve been targeted by moving fraud in India, act quickly:</p>
       <ul class="report-list">
-        <li><strong>Financial fraud helpline:</strong> call <strong>1930</strong> as soon as possible.</li>
-        <li><strong>Cyber Crime portal:</strong> file at <span class="muted">cybercrime.gov.in</span>.</li>
+        <li>
+          <strong>Financial fraud helpline:</strong> call <strong>1930</strong> as soon as possible.
+        </li>
+        <li>
+          <strong>Cyber Crime portal:</strong> file at <span class="muted">cybercrime.gov.in</span>.
+        </li>
         <li><strong>Local police:</strong> lodge a written complaint with all evidence.</li>
-        <li><strong>Impersonating us?</strong> <a href="/company/contact">Tell our team</a> with a screenshot — we investigate every report.</li>
+        <li>
+          <strong>Impersonating us?</strong>
+          <a href="/company/contact">Tell our team</a> with a screenshot — we investigate every report.
+        </li>
       </ul>
     </div>
   </Band>

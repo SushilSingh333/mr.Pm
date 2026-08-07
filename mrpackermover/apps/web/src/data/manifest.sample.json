@@ -16,6 +16,41 @@
       "https://www.linkedin.com/company/mrpackermover"
     ]
   },
+  "jobs": [
+    {
+      "title": "Packing & moving crew",
+      "slug": "packing-moving-crew",
+      "team": "Field",
+      "employmentType": "full-time",
+      "location": "NCR",
+      "summary": "Pack, load, transport and set up homes and offices to our standard. Training and equipment provided; attitude essential."
+    },
+    {
+      "title": "Move coordinator",
+      "slug": "move-coordinator",
+      "team": "Operations",
+      "employmentType": "full-time",
+      "location": "NCR",
+      "summary": "Own a customer's move end-to-end — survey, fixed quote, scheduling and day-of coordination. The single point of contact."
+    },
+    {
+      "title": "Claims & quality specialist",
+      "slug": "claims-quality-specialist",
+      "team": "Trust",
+      "employmentType": "full-time",
+      "location": "Delhi",
+      "summary": "Investigate and settle claims fairly and fast, and feed what you learn back into how crews pack."
+    },
+    {
+      "title": "Customer support",
+      "slug": "customer-support",
+      "team": "Support",
+      "employmentType": "full-time",
+      "location": "Remote",
+      "summary": "Answer real questions from people mid-move with clarity and calm — first response within our published SLA."
+    }
+  ],
+  "editorial": {},
   "pages": [
     {
       "pageType": "service-hub",
@@ -10781,7 +10816,50 @@
             "question": "What happens if something is damaged?",
             "answer": "Damage is rare, but when it happens we settle. We publish our median settlement time on the claims page."
           }
-        ]
+        ],
+        "content": {
+          "taglineLine1": "Shifting Aapki,",
+          "taglineLine2": "Zimmedari Hamari.",
+          "servicesHeading": "What we move",
+          "servicesIntro": "One operation, verified crews, and a written fixed quote for every service.",
+          "trustHeading": "House Shifting you can actually verify",
+          "trustIntro": "Everything below is backed by real job data — no vanity counters, no stock photos.",
+          "statsHeading": "By the numbers",
+          "statsIntro": "Unflattering when it needs to be — that's the point.",
+          "citiesHeading": "Cities we pick up from",
+          "citiesIntro": "Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India.",
+          "faqHeading": "Questions people ask",
+          "pillars": [
+            {
+              "icon": "fixed-quote",
+              "variant": "lead",
+              "title": "Fixed quote, no surprises",
+              "body": "The written quote is the price you pay. Anything that could change it — floor rise, long carry, extra packing — is itemised up front, never sprung on you on delivery day."
+            },
+            {
+              "icon": "claims",
+              "variant": "dark",
+              "title": "Claims settled — and published",
+              "body": "Damage is rare, but when it happens we settle. And we publish our median settlement time on the claims page — an unflattering-but-honest number nobody else in this category shows.",
+              "link": {
+                "href": "/claims",
+                "label": "See our claims data"
+              }
+            },
+            {
+              "icon": "verified-crew",
+              "variant": "default",
+              "title": "Verified crews & vehicles",
+              "body": "Every crew and vehicle is ID-verified. Check who's coming, and in what vehicle, before they load."
+            },
+            {
+              "icon": "insurance",
+              "variant": "default",
+              "title": "Transit insurance",
+              "body": "Optional transit cover, shown as a clear line item on your quote — never buried in the fine print."
+            }
+          ]
+        }
       }
     }
   ]

@@ -1,4 +1,4 @@
-import type { ManifestRow, ManifestLink, PageType, Org } from '@mpm/shared';
+import type { ManifestRow, ManifestLink, PageType, Org, EditorialContent } from '@mpm/shared';
 import { manifest } from '../data/manifest.js';
 
 /**
@@ -10,6 +10,29 @@ import { manifest } from '../data/manifest.js';
  * the request), a title, and breadcrumbs. Everything else defaults sanely.
  */
 const ORIGIN = manifest().siteOrigin.replace(/\/$/, '');
+
+/**
+ * The hand-built editorial routes, mapped to their CMS page key. When an editor
+ * unpublishes one of these in the CMS, `staticRow` de-indexes the route and the
+ * footer/header drop its link — so "unpublish" actually removes the page from the
+ * site, not just its CMS copy. Keys that were never created stay visible.
+ */
+const EDITORIAL_PATH_KEYS: Record<string, string> = {
+  '/company/about': 'about',
+  '/company/licences': 'licences',
+  '/terms': 'terms',
+  '/privacy': 'privacy',
+  '/claims': 'claims',
+  '/insurance': 'insurance',
+  '/protection': 'protection',
+  '/fraud-check': 'fraud-check',
+  '/raise-a-complaint': 'raise-a-complaint',
+};
+
+/** True when the CMS has explicitly unpublished the editorial page with this key. */
+export function isPageHidden(key: string): boolean {
+  return (manifest().hiddenPages ?? []).includes(key);
+}
 
 export interface StaticRowInput {
   path: string;
@@ -24,6 +47,8 @@ export interface StaticRowInput {
 
 export function staticRow(input: StaticRowInput): ManifestRow {
   const { path } = input;
+  const pageKey = EDITORIAL_PATH_KEYS[path];
+  const hidden = pageKey ? isPageHidden(pageKey) : false;
   return {
     pageType: input.pageType ?? 'core',
     path,
@@ -35,7 +60,8 @@ export function staticRow(input: StaticRowInput): ManifestRow {
     title: input.title,
     metaDescription: input.metaDescription,
     h1: input.h1,
-    noindex: input.noindex ?? false,
+    // An unpublished editorial page de-indexes itself (nav links are dropped too).
+    noindex: input.noindex ?? hidden,
     inboundLinks: [],
     relatedLinks: [],
     breadcrumbs: input.breadcrumbs ?? [{ path: '/', anchor: 'Home' }],
@@ -46,4 +72,13 @@ export function staticRow(input: StaticRowInput): ManifestRow {
 /** The single legal identity (ADR-0004). Used across company/legal pages. */
 export function org(): Org | undefined {
   return manifest().org;
+}
+
+/**
+ * CMS-editable copy for a hand-built editorial page (Pages collection), by key.
+ * Returns an empty object when nothing is set, so every field reads as a safe
+ * fallback: `editorialFor('terms').intro ?? 'built-in copy'`.
+ */
+export function editorialFor(key: string): EditorialContent {
+  return manifest().editorial?.[key] ?? {};
 }

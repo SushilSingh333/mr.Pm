@@ -4,15 +4,17 @@ import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import { iconSvg } from '../lib/icons.js';
-import { staticRow, org } from '../lib/page.js';
+import { staticRow, org, editorialFor } from '../lib/page.js';
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../lib/site.js';
 
+const ed = editorialFor('raise-a-complaint');
 const row = staticRow({
   path: '/raise-a-complaint',
   pageType: 'core',
   title: 'Raise a Complaint | MrPackerMover',
-  h1: 'Raise a complaint — and get it tracked to closure',
+  h1: ed.title ?? 'Raise a complaint — and get it tracked to closure',
   metaDescription:
+    ed.seoDescription ??
     'How to raise a complaint with MrPackerMover: the channels, what to include, our response commitment, and how to escalate to our grievance officer if it isn’t resolved.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -45,9 +47,10 @@ const steps = [
 <BaseLayout row={row}>
   <PageHero
     dark
-    eyebrow="We’re listening"
+    eyebrow={ed.eyebrow ?? 'We’re listening'}
     h1={row.h1}
-    intro="Something went wrong, or just didn’t meet the bar we set? Tell us properly. Every complaint gets a reference, a real investigation, and a defined path to closure."
+    intro={ed.intro ??
+      'Something went wrong, or just didn’t meet the bar we set? Tell us properly. Every complaint gets a reference, a real investigation, and a defined path to closure.'}
     breadcrumbs={row.breadcrumbs}
     current="Raise a complaint"
   />
@@ -55,17 +58,26 @@ const steps = [
   <Band label="How to raise it">
     <div class="raise-grid">
       <a class="raise-card card" href={`tel:${tel}`}>
-        <span class="rc-icon" set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('phone')}</svg>`} />
+        <span
+          class="rc-icon"
+          set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('phone')}</svg>`}
+        />
         <strong>Call us</strong>
         <span>{phoneRaw}</span>
       </a>
       <a class="raise-card card" href={`mailto:${email}?subject=Complaint`}>
-        <span class="rc-icon" set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('mail')}</svg>`} />
+        <span
+          class="rc-icon"
+          set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('mail')}</svg>`}
+        />
         <strong>Email grievances</strong>
         <span>{email}</span>
       </a>
       <a class="raise-card card" href="/company/contact">
-        <span class="rc-icon" set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('headset')}</svg>`} />
+        <span
+          class="rc-icon"
+          set:html={`<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('headset')}</svg>`}
+        />
         <strong>Contact form</strong>
         <span>All the ways to reach us</span>
       </a>
@@ -91,8 +103,8 @@ const steps = [
         <li>What outcome you’re looking for</li>
       </ul>
       <p class="include-note">
-        If it concerns damage or loss, keep the item and its packaging until the case is closed —
-        it helps the assessment. See how settlements work on our <a href="/claims">claims page</a>.
+        If it concerns damage or loss, keep the item and its packaging until the case is closed — it
+        helps the assessment. See how settlements work on our <a href="/claims">claims page</a>.
       </p>
     </div>
   </Band>
@@ -107,18 +119,21 @@ const steps = [
 
   <Band alt label="Escalation">
     <div class="escalate card">
-      <span class="esc-icon" set:html={`<svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('scale')}</svg>`} />
+      <span
+        class="esc-icon"
+        set:html={`<svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('scale')}</svg>`}
+      />
       <div>
         <h2>Not resolved? Escalate to our grievance officer</h2>
         <p>
           If your complaint isn’t resolved to your satisfaction, ask for it to be escalated to our
           grievance officer, who reviews it independently of the team involved. Email{' '}
-          <a href={`mailto:${email}?subject=Escalation`}>{email}</a> with your complaint reference
-          and “Escalation” in the subject.
+          <a href={`mailto:${email}?subject=Escalation`}>{email}</a> with your complaint reference and
+          “Escalation” in the subject.
         </p>
         <p class="esc-note">
-          Grievance officer contact details are being finalised before launch and will be named
-          here in full.
+          Grievance officer contact details are being finalised before launch and will be named here
+          in full.
         </p>
       </div>
     </div>

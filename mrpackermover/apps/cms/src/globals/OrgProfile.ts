@@ -10,7 +10,7 @@ import { isAuthenticated } from '../access/index.js';
 export const OrgProfile: GlobalConfig = {
   slug: 'org-profile',
   label: 'Organisation profile',
-  admin: { group: 'System' },
+  admin: { group: 'Settings' },
   access: { read: () => true, update: isAuthenticated },
   fields: [
     { name: 'brandName', type: 'text', required: true, defaultValue: 'MrPackerMover' },

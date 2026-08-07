@@ -6,14 +6,16 @@ import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
 import Faq from '../components/sections/Faq.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow, org } from '../lib/page.js';
+import { staticRow, org, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('insurance');
 const row = staticRow({
   path: '/insurance',
   pageType: 'trust',
   title: 'Transit Insurance for Your Move | MrPackerMover',
-  h1: 'Transit insurance, shown as a line — not buried',
+  h1: ed.title ?? 'Transit insurance, shown as a line — not buried',
   metaDescription:
+    ed.seoDescription ??
     'Optional transit insurance for your move with MrPackerMover: what it covers, how it is priced as a clear line item, the named insurer, and how a claim is paid.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -47,9 +49,10 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
   <PageHero
     dark
-    eyebrow="Protection"
+    eyebrow={ed.eyebrow ?? 'Protection'}
     h1={row.h1}
-    intro="Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, backed by a named insurer, so you decide with your eyes open."
+    intro={ed.intro ??
+      'Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, backed by a named insurer, so you decide with your eyes open.'}
     breadcrumbs={row.breadcrumbs}
     current="Transit insurance"
   >
@@ -84,20 +87,20 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
       <h2>How cover works, start to finish</h2>
       <ol>
         <li>
-          <strong>Declare a value.</strong> Tell us what your goods are worth to you. That figure
-          is your insured amount — so declare it honestly, not low to save a little on premium.
+          <strong>Declare a value.</strong> Tell us what your goods are worth to you. That figure is your
+          insured amount — so declare it honestly, not low to save a little on premium.
         </li>
         <li>
-          <strong>See the premium on your quote.</strong> The cost appears as its own line item.
-          You can take it or leave it; the base move price does not change either way.
+          <strong>See the premium on your quote.</strong> The cost appears as its own line item. You can
+          take it or leave it; the base move price does not change either way.
         </li>
         <li>
-          <strong>Get the certificate.</strong> Opt in and we issue a policy certificate that
-          names the insurer and the insured value. Ask for it before loading day.
+          <strong>Get the certificate.</strong> Opt in and we issue a policy certificate that names the
+          insurer and the insured value. Ask for it before loading day.
         </li>
         <li>
-          <strong>Claim, if you ever need to.</strong> Report through your coordinator, and we
-          settle a covered claim to the insured value — the full process is on our{' '}
+          <strong>Claim, if you ever need to.</strong> Report through your coordinator, and we settle
+          a covered claim to the insured value — the full process is on our{' '}
           <a href="/claims">claims page</a>.
         </li>
       </ol>

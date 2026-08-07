@@ -9,7 +9,11 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
  */
 export const Reviews: CollectionConfig = {
   slug: 'reviews',
-  admin: { useAsTitle: 'jobRef', group: 'Trust', defaultColumns: ['jobRef', 'rating', 'date'] },
+  admin: {
+    useAsTitle: 'jobRef',
+    group: 'Trust & data',
+    defaultColumns: ['jobRef', 'rating', 'date'],
+  },
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,

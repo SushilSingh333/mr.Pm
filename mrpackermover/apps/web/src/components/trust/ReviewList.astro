@@ -6,12 +6,20 @@ import { formatDate } from '../../lib/format.js';
  * Verified reviews tied to a real job reference and a date (Doc 01 §2). Negative
  * reviews are shown WITH our response — a 4.6 with visible 2-stars and replies
  * converts better than a suspicious 4.9. No AggregateRating markup on the org.
+ *
+ * A continuously-looping marquee driven by a GPU CSS transform (buttery-smooth, no
+ * JS per frame). The section stays exactly one card tall no matter how many reviews
+ * exist, so adding reviews in the CMS never stretches the page. Motion pauses on hover
+ * and on click/tap so visitors can read; it never auto-moves under prefers-reduced-
+ * motion. The loop is seamless because the cards are cloned client-side, so the static
+ * HTML still contains each review once (crawlable).
  */
 interface Props {
   reviews: ReviewSnippet[];
   heading?: string;
 }
 const { reviews, heading = 'What customers said' } = Astro.props;
+
 const initials = (name: string): string =>
   name
     .split(/\s+/)
@@ -19,74 +27,185 @@ const initials = (name: string): string =>
     .slice(0, 2)
     .join('')
     .toUpperCase();
+
+const count = reviews.length;
+const avg = count ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / count) * 10) / 10 : 0;
+const fullStars = Math.floor(avg);
+const halfStar = avg - fullStars >= 0.5;
+
+// Marquee only when there are enough to justify it; ≤4 just sit centred.
+const marquee = count > 4;
+// Seconds for one full set to pass — ~7.5s per card keeps a calm, readable ~48px/s.
+const marqueeSeconds = Math.max(24, Math.round(count * 7.5));
 ---
 
 {
-  reviews.length > 0 && (
-    <section class="reviews" aria-label="Customer reviews">
-      <h2>{heading}</h2>
-      <ul class="review-grid">
-        {reviews.map((r) => (
-          <li class="card review">
-            <div class="review-top">
-              <span class="avatar" aria-hidden="true">
-                {initials(r.author)}
-              </span>
-              <span class="review-who">
-                <strong>{r.author}</strong>
-                <small>{formatDate(r.date)}</small>
-              </span>
-              <span class="stars" aria-label={`${r.rating} out of 5`}>
-                {'★'.repeat(r.rating)}
-                <span class="stars-off">{'★'.repeat(5 - r.rating)}</span>
-              </span>
-            </div>
-            <p class="review-text">“{r.text}”</p>
-            <div class="review-foot">
-              <span class="badge badge-verified">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="13"
-                  height="13"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.9 7.2 17.4l.9-5.4L4.2 8.2l5.4-.8z" />
-                </svg>
-                Verified · {r.jobRef}
-              </span>
-            </div>
-            {r.response && (
-              <p class="review-response">
-                <strong>Our response:</strong> {r.response}
-              </p>
-            )}
-          </li>
-        ))}
-      </ul>
+  count > 0 && (
+    <section class:list={['reviews', { static: !marquee }]} aria-label="Customer reviews">
+      <div class="reviews-head">
+        <h2>{heading}</h2>
+        <p class="reviews-summary">
+          <span class="summary-stars" aria-hidden="true">
+            {'★'.repeat(fullStars)}
+            {halfStar && <span class="half">★</span>}
+            <span class="stars-off">{'★'.repeat(5 - fullStars - (halfStar ? 1 : 0))}</span>
+          </span>
+          <strong>{avg.toFixed(1)}</strong>
+          <span class="summary-count">
+            from {count} verified review{count === 1 ? '' : 's'}
+          </span>
+        </p>
+      </div>
+
+      <div class="review-viewport">
+        <ul class="review-track" style={`--marquee-s:${marqueeSeconds}s`}>
+          {reviews.map((r) => (
+            <li class="card review">
+              <div class="review-top">
+                <span class="avatar" aria-hidden="true">
+                  {initials(r.author)}
+                </span>
+                <span class="review-who">
+                  <strong>{r.author}</strong>
+                  <small>{formatDate(r.date)}</small>
+                </span>
+                <span class="stars" aria-label={`${r.rating} out of 5`}>
+                  {'★'.repeat(r.rating)}
+                  <span class="stars-off">{'★'.repeat(5 - r.rating)}</span>
+                </span>
+              </div>
+              <p class="review-text">“{r.text}”</p>
+              {r.response && (
+                <p class="review-response">
+                  <strong>Our response:</strong> {r.response}
+                </p>
+              )}
+              <div class="review-foot">
+                <span class="badge badge-verified">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="13"
+                    height="13"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.9 7.2 17.4l.9-5.4L4.2 8.2l5.4-.8z" />
+                  </svg>
+                  Verified · {r.jobRef}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )
 }
 
+<script>
+  // Clone the cards once so the CSS transform loop (0 → -50%) is seamless, and let a
+  // click/tap pause it (mainly for touch, where there's no hover). The animation and
+  // hover-pause are pure CSS — this only handles the clone + the tap-to-pause toggle.
+  document.querySelectorAll<HTMLElement>('.reviews').forEach((section) => {
+    if (section.classList.contains('static')) return;
+    const track = section.querySelector<HTMLElement>('.review-track');
+    if (!track) return;
+
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      Array.from(track.children).forEach((li) => {
+        const clone = li.cloneNode(true) as HTMLElement;
+        clone.setAttribute('aria-hidden', 'true');
+        clone.classList.add('clone');
+        track.appendChild(clone);
+      });
+    }
+
+    const viewport = section.querySelector<HTMLElement>('.review-viewport');
+    viewport?.addEventListener('click', () => section.classList.toggle('is-stopped'));
+  });
+</script>
+
 <style>
-  .reviews h2 {
-    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-  .review-grid {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-    gap: 1.1rem;
-    max-width: 1040px;
+  .reviews {
+    max-width: 1120px;
     margin-inline: auto;
   }
+  .reviews-head {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .reviews-head h2 {
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+    margin-bottom: 0.5rem;
+  }
+  .reviews-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .summary-stars {
+    color: #f5a623;
+    letter-spacing: 1px;
+  }
+  .summary-stars .half {
+    display: inline-block;
+    width: 0.62em;
+    overflow: hidden;
+    vertical-align: top;
+  }
+  .reviews-summary strong {
+    color: var(--color-ink-900);
+    font-size: var(--text-base);
+  }
+  .stars-off {
+    color: var(--color-line);
+  }
+
+  /* Viewport clips the drifting track; the mask fades cards softly at both edges. */
+  .review-viewport {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+
+  .review-track {
+    list-style: none;
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    padding: 0.5rem 0.25rem 1rem;
+    animation: review-marquee var(--marquee-s, 60s) linear infinite;
+    will-change: transform;
+  }
+  @keyframes review-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  /* Pause to read: on hover, and while the visitor has tapped to stop. */
+  .reviews:hover .review-track,
+  .reviews.is-stopped .review-track {
+    animation-play-state: paused;
+  }
+
   .review {
-    padding: 1.4rem;
+    flex: 0 0 clamp(280px, 82vw, 360px);
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
+    cursor: pointer;
+    transition: box-shadow var(--dur-base) var(--ease-out);
+  }
+  .review:hover {
+    box-shadow: var(--shadow-pop);
   }
   .review-top {
     display: flex;
@@ -96,12 +215,12 @@ const initials = (name: string): string =>
   .avatar {
     display: grid;
     place-items: center;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     flex: none;
     border-radius: var(--radius-pill);
-    background: var(--color-brand-50);
-    color: var(--color-brand-700);
+    background: linear-gradient(140deg, var(--color-brand-500), var(--color-brand-700));
+    color: #fff;
     font-weight: 700;
     font-size: var(--text-sm);
   }
@@ -109,9 +228,13 @@ const initials = (name: string): string =>
     display: flex;
     flex-direction: column;
     line-height: 1.2;
+    min-width: 0;
   }
   .review-who strong {
     color: var(--color-ink-900);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .review-who small {
     color: var(--color-ink-500);
@@ -122,19 +245,17 @@ const initials = (name: string): string =>
     color: #f5a623;
     letter-spacing: 1px;
     white-space: nowrap;
-  }
-  .stars-off {
-    color: var(--color-line);
+    font-size: var(--text-sm);
   }
   .review-text {
     color: var(--color-ink-700);
     font-size: var(--text-base);
-  }
-  .review-foot {
-    margin-top: auto;
-  }
-  .badge-verified svg {
-    color: var(--color-accent-600);
+    /* Keep cards tidy; long reviews clamp visually but stay fully in the DOM. */
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .review-response {
     font-size: var(--text-sm);
@@ -143,8 +264,55 @@ const initials = (name: string): string =>
     border-radius: var(--radius-md);
     padding: 0.8rem 0.9rem;
     color: var(--color-ink-700);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .review-response strong {
     color: var(--color-ink-900);
+  }
+  .review-foot {
+    margin-top: auto;
+  }
+  .badge-verified svg {
+    color: var(--color-accent-600);
+  }
+
+  /* Few reviews: no marquee — a centred, static row. */
+  .reviews.static .review-viewport {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .reviews.static .review-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none;
+  }
+  .reviews.static .review {
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* No auto-motion: let the row scroll manually instead. */
+    .review-viewport {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .review-viewport::-webkit-scrollbar {
+      display: none;
+    }
+    .review-track {
+      animation: none;
+      will-change: auto;
+    }
+    .review {
+      cursor: default;
+    }
   }
 </style>

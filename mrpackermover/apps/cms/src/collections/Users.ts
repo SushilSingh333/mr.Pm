@@ -5,7 +5,7 @@ import { isAdmin } from '../access/index.js';
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: true,
-  admin: { useAsTitle: 'email', group: 'System' },
+  admin: { useAsTitle: 'email', group: 'Settings' },
   access: {
     create: isAdmin,
     read: ({ req }) => Boolean(req.user),

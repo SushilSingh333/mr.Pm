@@ -29,10 +29,9 @@ export function getEnv(source: Record<string, string | undefined> = process.env)
 }
 
 /**
- * The single database connection string. On Cloudflare Workers this resolves to
- * the Hyperdrive connection string (which fronts the same Postgres); everywhere
- * else it is DATABASE_URL directly. Either way the driver code is identical, and
- * migrating providers is only ever a change to this value.
+ * The single database connection string (DATABASE_URL). This is the one portability
+ * boundary — migrating providers (Neon → DigitalOcean → managed) is only ever a
+ * change to this value; no driver or feature code changes.
  */
 export function getDatabaseUrl(source?: Record<string, string | undefined>): string {
   return getEnv(source).DATABASE_URL;

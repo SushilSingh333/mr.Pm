@@ -11,7 +11,14 @@ const { post } = Astro.props;
 <article class="blog-card" data-category={post.category}>
   <a class="bc-link" href={`/blog/${post.slug}`}>
     <div class="bc-media">
-      <img src={post.cover} alt={post.coverAlt} loading="lazy" decoding="async" width="640" height="360" />
+      <img
+        src={post.cover}
+        alt={post.coverAlt}
+        loading="lazy"
+        decoding="async"
+        width="640"
+        height="360"
+      />
       <span class="bc-cat">{post.category}</span>
     </div>
     <div class="bc-body">

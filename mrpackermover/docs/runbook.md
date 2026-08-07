@@ -2,20 +2,27 @@
 
 ## Build & deploy topology
 
-- **Static site** (`apps/web`) → Cloudflare Pages/R2. Rebuilt from the manifest.
-- **CMS + dynamic endpoints** (`apps/cms`, `apps/web/functions`) → Cloudflare Workers,
-  reaching Postgres through **Hyperdrive**.
-- **Database** → Neon Postgres (+ PostGIS) today; portable (see below).
+Chosen: **a single DigitalOcean droplet** behind **Cloudflare** (cache-only). See the
+step-by-step in [`deploy-digitalocean.md`](./deploy-digitalocean.md).
+
+- **Everything on one droplet:** Caddy serves the static site (`apps/web/dist`) and
+  reverse-proxies `/admin` + `/api/*` to the **Payload/Next** app on `:3000`.
+- **Dynamic endpoints** (`/api/quote`, `/api/search`, `/api/track`) are Payload endpoints
+  (`apps/cms/src/endpoints`) hitting Postgres via the local API — no Workers, no Hyperdrive.
+- **Database** → Postgres + PostGIS on the droplet (or DO Managed Postgres); portable (below).
+- **Cloudflare** hard-caches the HTML in front; the droplet barely serves public traffic.
 
 ## The build pipeline
 
 1. Editor saves in Payload → `afterChange` hook enqueues a change with its page family.
 2. A 10-minute debounce collapses a burst of edits into one build (an ops team editing 40
    rate cards causes **one** build, not forty).
-3. CI runs `pnpm build-manifest` → the publish gate produces `manifest.json`.
+3. The publish hook triggers `deploy/deploy.sh` → `pnpm build-manifest` → the publish gate
+   produces `manifest.json`.
 4. `pnpm --filter @mpm/web build` reads the manifest from memory (one DB pass) → static HTML.
-5. Sitemap shards are generated from the same manifest.
-6. Only the changed shard's cache tag is purged at the edge.
+5. Sitemap shards are generated from the same manifest; `dist/` is rsynced to the web root.
+6. `scripts/purge-cache.mjs` purges Cloudflare (by-URL, or everything on Free/Pro — by-tag
+   purge is Enterprise-only) so the next visitor gets the fresh pages.
 
 Budgets: full cold build < 12 min, shard rebuild < 2 min. Watch build duration as a
 first-class metric — when it creeps past 20 min, engineers stop rebuilding and data goes stale.
@@ -33,7 +40,7 @@ pg_dump "$OLD_DATABASE_URL" --no-owner --no-privileges -Fc -f mpm.dump
 psql "$NEW_DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS postgis;'
 pg_restore --no-owner --no-privileges -d "$NEW_DATABASE_URL" mpm.dump
 
-# 3. Repoint the app. Local: edit .env. Cloudflare: update the Hyperdrive origin.
+# 3. Repoint the app: edit DATABASE_URL in apps/cms/.env, restart the CMS service.
 #    Then re-run migrations to confirm parity.
 pnpm --filter @mpm/cms migrate
 
@@ -45,12 +52,13 @@ Requirements for any target: standard Postgres ≥ 15 with the **PostGIS** exten
 provider-proprietary features in application code (no Neon HTTP-driver calls, no branching
 logic, no Supabase RLS assumptions).
 
-## Fallback: Payload admin on a Node host
+## Payload admin runtime
 
-If running the Payload admin on Cloudflare Workers (`@opennextjs/cloudflare`) proves unstable,
-deploy `apps/cms` to a small Node host (Railway/Render/Fly) instead. It uses the **same**
-`DATABASE_URL` directly (no Hyperdrive needed server-side). The static site, the Astro
-frontend, and the database are unchanged — only where the admin process runs differs.
+Primary: the Payload admin runs on its **native Node runtime** on the droplet (systemd,
+`next start`) — see [`deploy-digitalocean.md`](./deploy-digitalocean.md). It reads the same
+`DATABASE_URL` directly. (The earlier all-Cloudflare plan ran it on Workers via
+`@opennextjs/cloudflare`; that path is retired in favour of native Node, which is simpler and
+better supported — ADR-0005.)
 
 ## Monitoring cadence (Doc 02 §11)
 

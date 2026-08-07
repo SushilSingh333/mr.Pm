@@ -1,4 +1,5 @@
 ---
+import type { TrustPillar } from '@mpm/shared';
 import { iconSvg } from '../../lib/icons.js';
 
 /**
@@ -6,12 +7,17 @@ import { iconSvg } from '../../lib/icons.js';
  * accent card (our claims-data differentiator), and two supporting cards. Where
  * Porter shows "100% Damage-Free", we say what we can stand behind and back it
  * with the published claims number.
+ *
+ * Editors can override the cards from the CMS (`home-content` global): each pillar's
+ * `variant` maps to a bento position — `lead` (wide), `dark` (tall accent), or a
+ * plain supporting card. Left unconfigured, the built-in four cards below render.
  */
 interface Props {
   heading?: string;
   intro?: string;
+  pillars?: TrustPillar[];
 }
-const { heading = 'House Shifting you can actually verify', intro } = Astro.props;
+const { heading = 'House Shifting you can actually verify', intro, pillars = [] } = Astro.props;
 ---
 
 <div class="section-head">
@@ -19,117 +25,170 @@ const { heading = 'House Shifting you can actually verify', intro } = Astro.prop
   {intro && <p>{intro}</p>}
 </div>
 
-<div class="why-bento">
-  <article class="wb-card wb-lead">
-    <span class="wb-glow" aria-hidden="true"></span>
-    <span class="wb-icon">
-      <svg
-        viewBox="0 0 24 24"
-        width="26"
-        height="26"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        set:html={iconSvg('fixed-quote')}
-      />
-    </span>
-    <h3>Fixed quote, no surprises</h3>
-    <p>
-      The written quote is the price you pay. Anything that could change it — floor rise, long
-      carry, extra packing — is itemised up front, never sprung on you on delivery day.
-    </p>
-    <span class="wb-chip">
-      <svg
-        viewBox="0 0 24 24"
-        width="14"
-        height="14"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.4"
-        stroke-linecap="round"
-        stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg
-      >
-      Written &amp; fixed
-    </span>
-  </article>
+{
+  pillars.length > 0 ? (
+    <div class="why-bento">
+      {pillars.map((p) => (
+        <article
+          class:list={[
+            'wb-card',
+            p.variant === 'lead' && 'wb-lead',
+            p.variant === 'dark' && 'wb-dark',
+          ]}
+        >
+          {p.variant === 'lead' && <span class="wb-glow" aria-hidden="true" />}
+          <span class:list={['wb-icon', p.variant === 'dark' && 'dark']}>
+            <svg
+              viewBox="0 0 24 24"
+              width="26"
+              height="26"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={iconSvg(p.icon)}
+            />
+          </span>
+          <h3>{p.title}</h3>
+          <p>{p.body}</p>
+          {p.link && (
+            <a class="wb-link" href={p.link.href}>
+              {p.link.label}
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          )}
+        </article>
+      ))}
+    </div>
+  ) : (
+    <div class="why-bento">
+      <article class="wb-card wb-lead">
+        <span class="wb-glow" aria-hidden="true" />
+        <span class="wb-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="26"
+            height="26"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg('fixed-quote')}
+          />
+        </span>
+        <h3>Fixed quote, no surprises</h3>
+        <p>
+          The written quote is the price you pay. Anything that could change it — floor rise, long
+          carry, extra packing — is itemised up front, never sprung on you on delivery day.
+        </p>
+        <span class="wb-chip">
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 12l5 5L20 6" />
+          </svg>
+          Written &amp; fixed
+        </span>
+      </article>
 
-  <article class="wb-card wb-dark">
-    <span class="wb-icon dark">
-      <svg
-        viewBox="0 0 24 24"
-        width="26"
-        height="26"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        set:html={iconSvg('claims')}
-      />
-    </span>
-    <h3>Claims settled — and published</h3>
-    <p>
-      Damage is rare, but when it happens we settle. And we publish our median settlement time on
-      the claims page — an unflattering-but-honest number nobody else in this category shows.
-    </p>
-    <a class="wb-link" href="/claims">
-      See our claims data
-      <svg
-        viewBox="0 0 24 24"
-        width="16"
-        height="16"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
-      >
-    </a>
-  </article>
+      <article class="wb-card wb-dark">
+        <span class="wb-icon dark">
+          <svg
+            viewBox="0 0 24 24"
+            width="26"
+            height="26"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg('claims')}
+          />
+        </span>
+        <h3>Claims settled — and published</h3>
+        <p>
+          Damage is rare, but when it happens we settle. And we publish our median settlement time
+          on the claims page — an unflattering-but-honest number nobody else in this category shows.
+        </p>
+        <a class="wb-link" href="/claims">
+          See our claims data
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
+      </article>
 
-  <article class="wb-card">
-    <span class="wb-icon">
-      <svg
-        viewBox="0 0 24 24"
-        width="26"
-        height="26"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        set:html={iconSvg('verified-crew')}
-      />
-    </span>
-    <h3>Verified crews &amp; vehicles</h3>
-    <p>
-      Every crew and vehicle is ID-verified. Check who's coming, and in what vehicle, before they
-      load.
-    </p>
-  </article>
+      <article class="wb-card">
+        <span class="wb-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="26"
+            height="26"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg('verified-crew')}
+          />
+        </span>
+        <h3>Verified crews &amp; vehicles</h3>
+        <p>
+          Every crew and vehicle is ID-verified. Check who's coming, and in what vehicle, before
+          they load.
+        </p>
+      </article>
 
-  <article class="wb-card">
-    <span class="wb-icon">
-      <svg
-        viewBox="0 0 24 24"
-        width="26"
-        height="26"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        set:html={iconSvg('insurance')}
-      />
-    </span>
-    <h3>Transit insurance</h3>
-    <p>
-      Optional transit cover, shown as a clear line item on your quote — never buried in the fine
-      print.
-    </p>
-  </article>
-</div>
+      <article class="wb-card">
+        <span class="wb-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="26"
+            height="26"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            set:html={iconSvg('insurance')}
+          />
+        </span>
+        <h3>Transit insurance</h3>
+        <p>
+          Optional transit cover, shown as a clear line item on your quote — never buried in the
+          fine print.
+        </p>
+      </article>
+    </div>
+  )
+}
 
 <style>
   .why-bento {

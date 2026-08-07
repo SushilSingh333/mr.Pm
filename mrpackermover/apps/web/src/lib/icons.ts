@@ -50,14 +50,15 @@ export const ICONS: Record<string, string> = {
   star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.9 6.7 19.5l1.2-6L3.4 9.3l6-.7z"/>',
   lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   alert: '<path d="M12 3l9 16H3z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
-  'map-pin': '<path d="M12 21s7-6.3 7-11a7 7 0 0 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-  rupee: '<path d="M8 5h8"/><path d="M8 9h8"/><path d="M8 13h4a4 4 0 0 0 0-8"/><path d="M8 13l6 6"/>',
+  'map-pin':
+    '<path d="M12 21s7-6.3 7-11a7 7 0 0 0-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  rupee:
+    '<path d="M8 5h8"/><path d="M8 9h8"/><path d="M8 13h4a4 4 0 0 0 0-8"/><path d="M8 13l6 6"/>',
   truck:
     '<rect x="2.5" y="7" width="11.5" height="9" rx="1.2"/><path d="M14 10.5h3.6l3 3V16H14z"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/>',
   heart: '<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/>',
   growth: '<path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/><path d="M17 8h3v3"/>',
-  badge:
-    '<circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 7 21l5-2.5L17 21l-1.5-7.5"/>',
+  badge: '<circle cx="12" cy="9" r="5"/><path d="M8.5 13.5 7 21l5-2.5L17 21l-1.5-7.5"/>',
   scale:
     '<path d="M12 3v18"/><path d="M6 21h12"/><path d="M4 7h16"/><path d="M4 7l-2 5a3 3 0 0 0 5 0z"/><path d="M20 7l-2 5a3 3 0 0 0 5 0z"/>',
   tag: '<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.3"/>',

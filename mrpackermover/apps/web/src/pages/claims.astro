@@ -6,14 +6,16 @@ import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow, org } from '../lib/page.js';
+import { staticRow, org, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('claims');
 const row = staticRow({
   path: '/claims',
   pageType: 'trust',
   title: 'Claims & Settlement Data | MrPackerMover',
-  h1: 'The claims page nobody else in this category shows',
+  h1: ed.title ?? 'The claims page nobody else in this category shows',
   metaDescription:
+    ed.seoDescription ??
     'How MrPackerMover handles damage claims — the process, what we cover, and the settlement metrics we publish openly instead of hiding behind “100% damage-free”.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -73,9 +75,10 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
   <PageHero
     dark
-    eyebrow="Claims & settlement"
+    eyebrow={ed.eyebrow ?? 'Claims & settlement'}
     h1={row.h1}
-    intro="Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open."
+    intro={ed.intro ??
+      'Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.'}
     breadcrumbs={row.breadcrumbs}
     current="Claims"
   />
@@ -97,9 +100,9 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
       }
     </ul>
     <p class="metrics-note">
-      Figures shown are illustrative sample data during build; they are replaced by live,
-      audited numbers from our operations system at the first quarterly report. We publish real
-      data or none — never invented counters.
+      Figures shown are illustrative sample data during build; they are replaced by live, audited
+      numbers from our operations system at the first quarterly report. We publish real data or none
+      — never invented counters.
     </p>
   </Band>
 

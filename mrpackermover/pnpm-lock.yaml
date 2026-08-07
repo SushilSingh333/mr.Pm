@@ -59,6 +59,9 @@ importers:
       '@payloadcms/richtext-lexical':
         specifier: ^3.37.0
         version: 3.87.0(@faceless-ui/modal@3.0.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@faceless-ui/scroll-info@2.0.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@payloadcms/next@3.87.0(@types/react@19.2.18)(graphql@16.14.2)(monaco-editor@0.56.0)(next@15.5.22(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.77.4))(payload@3.87.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(@types/react@19.2.18)(monaco-editor@0.56.0)(next@15.5.22(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.77.4))(payload@3.87.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3)(yjs@13.6.31)
+      '@payloadcms/ui':
+        specifier: ^3.37.0
+        version: 3.87.0(@types/react@19.2.18)(monaco-editor@0.56.0)(next@15.5.22(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.77.4))(payload@3.87.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3)
       graphql:
         specifier: ^16.9.0
         version: 16.14.2
@@ -117,9 +120,6 @@ importers:
       astro:
         specifier: ^5.1.5
         version: 5.18.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.62.4)(sass@1.77.4)(tsx@4.23.5)(typescript@5.9.3)(yaml@2.9.0)
-      pg:
-        specifier: ^8.13.1
-        version: 8.22.0
       preact:
         specifier: ^10.25.4
         version: 10.29.8(preact-render-to-string@6.7.0)
@@ -127,18 +127,12 @@ importers:
       '@astrojs/check':
         specifier: ^0.9.4
         version: 0.9.10(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(typescript@5.9.3)
-      '@cloudflare/workers-types':
-        specifier: ^4.20250101.0
-        version: 4.20260702.1
       '@mpm/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.3.3(vite@6.4.3(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.77.4)(tsx@4.23.5)(yaml@2.9.0))
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.20.3
       eslint:
         specifier: ^9.17.0
         version: 9.39.5(jiti@2.7.0)
@@ -5793,7 +5787,8 @@ snapshots:
     dependencies:
       fontkitten: 1.0.3
 
-  '@cloudflare/workers-types@4.20260702.1': {}
+  '@cloudflare/workers-types@4.20260702.1':
+    optional: true
 
   '@commitlint/cli@19.8.1(@types/node@22.20.1)(typescript@5.9.3)':
     dependencies:

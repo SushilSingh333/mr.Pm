@@ -1,8 +1,11 @@
 name: Deploy CMS
 
-# Payload admin + REST/Local API. Primary target: Cloudflare Workers via
-# @opennextjs/cloudflare (all-Cloudflare topology). Documented fallback: a Node
-# host (Railway/Render/Fly) using the same DATABASE_URL — see docs/runbook.md.
+# Payload admin + REST/Local API + the /api/quote,/search,/track endpoints. Runs on
+# native Node on the DigitalOcean droplet under systemd (ADR-0005). Migrations run on
+# the droplet (the DB is local to it), then the service is rebuilt and restarted.
+#
+# Required repo secrets: DROPLET_HOST, DROPLET_USER, DROPLET_SSH_KEY.
+# The droplet user needs passwordless `systemctl restart mrpackermover-cms` (sudoers).
 
 on:
   workflow_dispatch:
@@ -16,27 +19,17 @@ jobs:
   migrate-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Migrate, build & restart on the droplet
+        uses: appleboy/ssh-action@v1.2.0
         with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-
-      - name: Run database migrations
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-        run: pnpm --filter @mpm/cms migrate
-
-      - name: Build CMS
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-        run: pnpm --filter @mpm/cms build
-
-      # Deployment step is environment-specific; see docs/runbook.md for the
-      # Workers (OpenNext + Hyperdrive) and Node-host fallback recipes.
+          host: ${{ secrets.DROPLET_HOST }}
+          username: ${{ secrets.DROPLET_USER }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd /srv/mrpackermover
+            git pull --ff-only
+            pnpm install --frozen-lockfile
+            pnpm --filter @mpm/cms migrate
+            pnpm --filter @mpm/cms build
+            sudo systemctl restart mrpackermover-cms

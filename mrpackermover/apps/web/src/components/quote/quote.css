@@ -51,9 +51,9 @@
   width: 100%;
 }
 .bar-fields {
-  flex: 1 1 640px;
+  flex: 1 1 720px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 .bar-field {
   display: flex;
@@ -192,6 +192,11 @@
   );
   border-bottom: 1px solid var(--color-line);
 }
+.est-amt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
 .est-amt {
   font-family: var(--font-display);
   font-size: clamp(1.6rem, 4vw, 1.9rem);
@@ -200,6 +205,11 @@
   color: var(--color-ink-900);
   line-height: 1.1;
 }
+.est-gst {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-ink-500);
+}
 .est-lane {
   margin-top: 4px;
   font-size: var(--text-sm);
@@ -207,11 +217,10 @@
 }
 .est-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
 }
 .est-inputs {
   padding: 1.3rem 1.5rem;
-  border-right: 1px solid var(--color-line);
 }
 .est-inputs h4,
 .est-break h4 {

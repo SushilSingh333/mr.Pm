@@ -1,5 +1,5 @@
 ---
-import { manifest, rowsOfType } from '../../data/manifest.js';
+import { rowsOfType } from '../../data/manifest.js';
 import type { CityHubData } from '@mpm/shared';
 import {
   FOOTER_SERVICES,
@@ -11,13 +11,23 @@ import {
   PHONE_TEL,
   EMAIL,
 } from '../../lib/site.js';
+import { isPageHidden } from '../../lib/page.js';
 import Logo from './Logo.astro';
 
 /**
  * Footer, in Porter's structure but adapted to what we actually have: no app
  * download (we have no app), no "Countries" (India only). Cities are the
  * serviceable cities from the manifest.
+ *
+ * Links to editorial pages carry a `key`; when that page is unpublished in the CMS
+ * we drop the link — so "unpublish" removes the page from the footer, not just its copy.
  */
+const shown = <T extends { key?: string }>(links: T[]): T[] =>
+  links.filter((l) => !l.key || !isPageHidden(l.key));
+const company = shown(FOOTER_COMPANY);
+const trust = shown(FOOTER_TRUST);
+const legal = shown(FOOTER_LEGAL);
+
 const cityLinks = rowsOfType('city-hub').map((r) => ({
   path: r.path,
   name: (r.data as unknown as CityHubData).cityName,
@@ -47,11 +57,34 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
 
       <div class="footer-contact">
         <a href={`tel:${PHONE_TEL}`}>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z"/></svg>
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path
+              d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z"
+            ></path></svg
+          >
           {PHONE_DISPLAY}
         </a>
         <a href={`mailto:${EMAIL}`}>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg>
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3.5 7l8.5 6 8.5-6"
+            ></path></svg
+          >
           {EMAIL}
         </a>
       </div>
@@ -78,44 +111,52 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
     <nav class="footer-col" aria-label="Company">
       <h2 class="footer-heading">Company</h2>
       <ul>
-        {FOOTER_COMPANY.map((l) => (
-          <li>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
+        {
+          company.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
     <nav class="footer-col" aria-label="Services">
       <h2 class="footer-heading">Services</h2>
       <ul>
-        {FOOTER_SERVICES.map((l) => (
-          <li>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
+        {
+          FOOTER_SERVICES.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
     <nav class="footer-col" aria-label="Support">
       <h2 class="footer-heading">Support</h2>
       <ul>
-        {FOOTER_TRUST.map((l) => (
-          <li>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
+        {
+          trust.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
     <nav class="footer-col" aria-label="Legal and safety">
       <h2 class="footer-heading">Legal &amp; safety</h2>
       <ul>
-        {FOOTER_LEGAL.map((l) => (
-          <li>
-            <a href={l.href}>{l.label}</a>
-          </li>
-        ))}
+        {
+          legal.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
   </div>

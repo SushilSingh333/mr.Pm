@@ -15,6 +15,8 @@ manifest.json
 apps/web/src/data/manifest.json
 apps/web/public/sitemap*.xml
 apps/web/public/robots.txt
+# Payload regenerates this on dev/build; the committed copy lives in packages/shared.
+apps/cms/src/payload-types.ts
 
 # Env & secrets
 .env

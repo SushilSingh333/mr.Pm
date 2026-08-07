@@ -34,7 +34,13 @@ const hasCta = Astro.slots.has('default');
     }
     <h1 class="phero-title">{h1}</h1>
     {intro && <p class="phero-lead">{intro}</p>}
-    {hasCta && <div class="phero-cta"><slot /></div>}
+    {
+      hasCta && (
+        <div class="phero-cta">
+          <slot />
+        </div>
+      )
+    }
   </div>
 </section>
 

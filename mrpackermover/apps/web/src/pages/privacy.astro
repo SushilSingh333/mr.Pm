@@ -3,14 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
-import { staticRow, org } from '../lib/page.js';
+import { staticRow, org, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('privacy');
 const row = staticRow({
   path: '/privacy',
   pageType: 'core',
   title: 'Privacy Policy | MrPackerMover',
-  h1: 'Privacy policy',
+  h1: ed.title ?? 'Privacy policy',
   metaDescription:
+    ed.seoDescription ??
     'How MrPackerMover collects, uses, shares and protects your personal data — and your rights under India’s Digital Personal Data Protection Act, 2023.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
@@ -21,107 +23,132 @@ const legalName = o?.legalName ?? 'the Company';
 <BaseLayout row={row}>
   <PageHero
     dark
-    eyebrow="Legal"
+    eyebrow={ed.eyebrow ?? 'Legal'}
     h1={row.h1}
-    intro="What we collect, why we collect it, and the control you have over it — written to India’s Digital Personal Data Protection Act, 2023, and in language you can actually follow."
+    intro={ed.intro ??
+      'What we collect, why we collect it, and the control you have over it — written to India’s Digital Personal Data Protection Act, 2023, and in language you can actually follow.'}
     breadcrumbs={row.breadcrumbs}
     current="Privacy"
   />
 
   <Band label="Privacy">
     <Prose>
-      <div class="legal-notice">
-        <strong>Draft for review.</strong> This template will be finalised with legal counsel before
-        launch to reflect our final data practices under the DPDP Act, 2023.
-        <span class="muted">Effective date: to be set at launch.</span>
-      </div>
+      {
+        ed.bodyHtml ? (
+          <Fragment set:html={ed.bodyHtml} />
+        ) : (
+          <Fragment>
+            <div class="legal-notice">
+              <strong>Draft for review.</strong> This template will be finalised with legal counsel
+              before launch to reflect our final data practices under the DPDP Act, 2023.
+              <span class="muted">Effective date: to be set at launch.</span>
+            </div>
 
-      <h2>1. Who we are</h2>
-      <p>
-        This policy explains how <strong>{legalName}</strong> ({o?.brandName ?? 'MrPackerMover'})
-        handles your personal data as the data fiduciary, in relation to this website and our moving
-        services in India.
-      </p>
+            <h2>1. Who we are</h2>
+            <p>
+              This policy explains how <strong>{legalName}</strong> (
+              {o?.brandName ?? 'MrPackerMover'}) handles your personal data as the data fiduciary,
+              in relation to this website and our moving services in India.
+            </p>
 
-      <h2>2. What we collect</h2>
-      <ul>
-        <li><strong>You give us:</strong> name, phone, email, pickup/drop addresses, move details, and any photos or inventory you share for a quote.</li>
-        <li><strong>Automatically:</strong> basic device and usage data (e.g. pages viewed) to keep the site working and improve it.</li>
-        <li><strong>During a move:</strong> operational records such as your inventory, coordinator notes and packing photos.</li>
-      </ul>
+            <h2>2. What we collect</h2>
+            <ul>
+              <li>
+                <strong>You give us:</strong> name, phone, email, pickup/drop addresses, move
+                details, and any photos or inventory you share for a quote.
+              </li>
+              <li>
+                <strong>Automatically:</strong> basic device and usage data (e.g. pages viewed) to
+                keep the site working and improve it.
+              </li>
+              <li>
+                <strong>During a move:</strong> operational records such as your inventory,
+                coordinator notes and packing photos.
+              </li>
+            </ul>
 
-      <h2>3. Why we use it</h2>
-      <ul>
-        <li>To prepare quotes and carry out your move.</li>
-        <li>To coordinate crews, provide status and support, and handle claims or complaints.</li>
-        <li>To issue GST invoices and meet legal and tax obligations.</li>
-        <li>To improve our services and prevent fraud or misuse.</li>
-      </ul>
+            <h2>3. Why we use it</h2>
+            <ul>
+              <li>To prepare quotes and carry out your move.</li>
+              <li>
+                To coordinate crews, provide status and support, and handle claims or complaints.
+              </li>
+              <li>To issue GST invoices and meet legal and tax obligations.</li>
+              <li>To improve our services and prevent fraud or misuse.</li>
+            </ul>
 
-      <h2>4. Consent and legal basis</h2>
-      <p>
-        We process your data on the basis of your consent and for the legitimate uses permitted under
-        the DPDP Act, 2023 — principally to provide a service you have requested. Where we rely on
-        consent, you may withdraw it at any time (see section 7); this will not affect processing
-        already carried out.
-      </p>
+            <h2>4. Consent and legal basis</h2>
+            <p>
+              We process your data on the basis of your consent and for the legitimate uses
+              permitted under the DPDP Act, 2023 — principally to provide a service you have
+              requested. Where we rely on consent, you may withdraw it at any time (see section 7);
+              this will not affect processing already carried out.
+            </p>
 
-      <h2>5. Who we share it with</h2>
-      <p>
-        We share data only as needed to deliver your move: with our crews and coordinators; with a
-        licensed insurer if you opt for transit insurance; and with payment, IT and communications
-        providers who process data on our behalf under contract. We may disclose data where required
-        by law. <strong>We do not sell your personal data.</strong>
-      </p>
+            <h2>5. Who we share it with</h2>
+            <p>
+              We share data only as needed to deliver your move: with our crews and coordinators;
+              with a licensed insurer if you opt for transit insurance; and with payment, IT and
+              communications providers who process data on our behalf under contract. We may
+              disclose data where required by law.{' '}
+              <strong>We do not sell your personal data.</strong>
+            </p>
 
-      <h2>6. How long we keep it</h2>
-      <p>
-        We keep personal data only as long as needed for the purposes above and to meet legal, tax and
-        accounting requirements, after which it is deleted or anonymised.
-      </p>
+            <h2>6. How long we keep it</h2>
+            <p>
+              We keep personal data only as long as needed for the purposes above and to meet legal,
+              tax and accounting requirements, after which it is deleted or anonymised.
+            </p>
 
-      <h2>7. Your rights</h2>
-      <p>Under the DPDP Act, 2023, you have the right to:</p>
-      <ul>
-        <li>Access a summary of the personal data we hold about you.</li>
-        <li>Correct or update inaccurate or incomplete data.</li>
-        <li>Request erasure of your data where it is no longer needed.</li>
-        <li>Withdraw consent, and nominate another person to exercise your rights.</li>
-        <li>Raise a grievance with us (section 10) and, if unresolved, with the Data Protection Board of India.</li>
-      </ul>
+            <h2>7. Your rights</h2>
+            <p>Under the DPDP Act, 2023, you have the right to:</p>
+            <ul>
+              <li>Access a summary of the personal data we hold about you.</li>
+              <li>Correct or update inaccurate or incomplete data.</li>
+              <li>Request erasure of your data where it is no longer needed.</li>
+              <li>Withdraw consent, and nominate another person to exercise your rights.</li>
+              <li>
+                Raise a grievance with us (section 10) and, if unresolved, with the Data Protection
+                Board of India.
+              </li>
+            </ul>
 
-      <h2>8. Cookies and analytics</h2>
-      <p>
-        We use only the cookies needed to run the site and understand aggregate usage. We keep this
-        minimal and do not use intrusive advertising trackers. You can control cookies through your
-        browser settings.
-      </p>
+            <h2>8. Cookies and analytics</h2>
+            <p>
+              We use only the cookies needed to run the site and understand aggregate usage. We keep
+              this minimal and do not use intrusive advertising trackers. You can control cookies
+              through your browser settings.
+            </p>
 
-      <h2>9. How we protect your data</h2>
-      <p>
-        We apply reasonable technical and organisational safeguards to protect your data against loss,
-        misuse and unauthorised access. No system is perfectly secure, but we work to limit what we
-        collect and who can access it.
-      </p>
+            <h2>9. How we protect your data</h2>
+            <p>
+              We apply reasonable technical and organisational safeguards to protect your data
+              against loss, misuse and unauthorised access. No system is perfectly secure, but we
+              work to limit what we collect and who can access it.
+            </p>
 
-      <h2>10. Grievance officer</h2>
-      <p>
-        For privacy questions or to exercise your rights, contact our grievance officer through the
-        <a href="/company/contact">contact page</a>. The named officer and direct contact details are
-        being finalised before launch and will appear here in full.
-      </p>
+            <h2>10. Grievance officer</h2>
+            <p>
+              For privacy questions or to exercise your rights, contact our grievance officer
+              through the
+              <a href="/company/contact">contact page</a>. The named officer and direct contact
+              details are being finalised before launch and will appear here in full.
+            </p>
 
-      <h2>11. Children</h2>
-      <p>
-        Our services are intended for adults. We do not knowingly collect the data of children without
-        verifiable parental consent as required by law.
-      </p>
+            <h2>11. Children</h2>
+            <p>
+              Our services are intended for adults. We do not knowingly collect the data of children
+              without verifiable parental consent as required by law.
+            </p>
 
-      <h2>12. Changes to this policy</h2>
-      <p>
-        We may update this policy as our practices or the law evolve. Material changes will be posted
-        here with a revised effective date.
-      </p>
+            <h2>12. Changes to this policy</h2>
+            <p>
+              We may update this policy as our practices or the law evolve. Material changes will be
+              posted here with a revised effective date.
+            </p>
+          </Fragment>
+        )
+      }
     </Prose>
   </Band>
 </BaseLayout>

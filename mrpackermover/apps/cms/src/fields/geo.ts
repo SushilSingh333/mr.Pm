@@ -15,7 +15,11 @@ export const latLngFields: Field[] = [
         type: 'number',
         min: -90,
         max: 90,
-        admin: { width: '50%', step: 0.000001 },
+        admin: {
+          width: '50%',
+          step: 0.000001,
+          description: 'Optional — auto-filled from the name via Google. Leave blank.',
+        },
       },
       {
         name: 'lng',

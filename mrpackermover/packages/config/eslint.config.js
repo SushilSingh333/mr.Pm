@@ -43,6 +43,20 @@ export default tseslint.config(
     },
   },
   {
+    // jsx-a11y's `label-has-associated-control` checks for JSX's `htmlFor`, but Astro
+    // templates use native HTML `for`/`id` (and wrapping labels). The associations ARE
+    // present and correct — the rule just can't see `for`, so it false-positives on every
+    // labelled input. Disable the mismatched check for .astro; real a11y is unaffected.
+    files: ['**/*.astro'],
+    rules: {
+      'jsx-a11y/label-has-associated-control': 'off',
+      // `role="list"` on a `<ul>` is redundant per ARIA, but it's a deliberate workaround:
+      // `list-style: none` (which these card grids use) makes Safari/VoiceOver drop list
+      // semantics, and `role="list"` restores them. Keep the intentional roles.
+      'jsx-a11y/no-redundant-roles': 'off',
+    },
+  },
+  {
     // ADR-0003 / ADR-0004: ban the two patterns that reintroduce the incumbent's failures.
     files: ['apps/web/src/pages/**/*.astro'],
     rules: {

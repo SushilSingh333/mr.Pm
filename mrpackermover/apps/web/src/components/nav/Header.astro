@@ -2,8 +2,11 @@
 import Logo from './Logo.astro';
 import { iconSvg } from '../../lib/icons.js';
 import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.js';
+import { isPageHidden } from '../../lib/page.js';
 
 /** Fixed top bar: logo left, centered nav, actions right. Secondary links live in "More". */
+// Drop links to editorial pages the CMS has unpublished (About, Claims, Insurance …).
+const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
 ---
 
 <header class="site-header">
@@ -11,7 +14,13 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
     <div class="brand"><Logo /></div>
 
     <nav class="primary-nav" aria-label="Primary">
-      {PRIMARY_NAV.map((l) => <a class="nav-link" href={l.href}>{l.label}</a>)}
+      {
+        PRIMARY_NAV.map((l) => (
+          <a class="nav-link" href={l.href}>
+            {l.label}
+          </a>
+        ))
+      }
 
       <div class="nav-more">
         <button
@@ -22,16 +31,28 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
           aria-controls="more-menu"
         >
           More
-          <svg class="chev" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          <svg
+            class="chev"
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg
+          >
         </button>
 
         <div class="more-menu" id="more-menu" role="menu">
           <span class="more-caret" aria-hidden="true"></span>
           <div class="more-grid">
             {
-              MORE_NAV.map((l) => (
+              moreNav.map((l) => (
                 <a class="more-item" role="menuitem" href={l.href}>
-                  <span class="mi-icon" set:html={`<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(l.icon)}</svg>`} />
+                  <span
+                    class="mi-icon"
+                    set:html={`<svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(l.icon)}</svg>`}
+                  />
                   <span class="mi-text">
                     <strong>{l.label}</strong>
                     <small>{l.desc}</small>
@@ -46,9 +67,25 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
 
     <div class="header-right">
       <div class="header-cta">
-        <a class="header-phone" href={`tel:${PHONE_TEL}`} aria-label={`Call us on ${PHONE_DISPLAY}`}>
+        <a
+          class="header-phone"
+          href={`tel:${PHONE_TEL}`}
+          aria-label={`Call us on ${PHONE_DISPLAY}`}
+        >
           <span class="hp-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z" /></svg>
+            <svg
+              viewBox="0 0 24 24"
+              width="17"
+              height="17"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path
+                d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z"
+              ></path></svg
+            >
           </span>
           <span class="hp-text">
             <small>Call for a quote</small>
@@ -57,11 +94,25 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
         </a>
         <a href="/get-quote" class="btn btn-primary quote-btn">
           Get a fixed quote
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          <svg
+            viewBox="0 0 24 24"
+            width="17"
+            height="17"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+          >
         </a>
       </div>
 
-      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mobile-drawer" aria-label="Open menu">
+      <button
+        class="nav-toggle"
+        id="navToggle"
+        aria-expanded="false"
+        aria-controls="mobile-drawer"
+        aria-label="Open menu"
+      >
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -75,46 +126,87 @@ import { PRIMARY_NAV, MORE_NAV, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.
   <div class="md-top">
     <Logo />
     <button class="md-close" id="mClose" type="button" aria-label="Close menu">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg
+      >
     </button>
   </div>
 
   <div class="md-scroll">
-  <nav class="md-primary" aria-label="Primary">
-    {
-      PRIMARY_NAV.map((l) => (
-        <a class="md-link" href={l.href}>
-          <span>{l.label}</span>
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
-        </a>
-      ))
-    }
-  </nav>
+    <nav class="md-primary" aria-label="Primary">
+      {
+        PRIMARY_NAV.map((l) => (
+          <a class="md-link" href={l.href}>
+            <span>{l.label}</span>
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+        ))
+      }
+    </nav>
 
-  <span class="md-label">Explore</span>
-  <nav class="md-more" aria-label="More">
-    {
-      MORE_NAV.map((l) => (
-        <a class="md-item" href={l.href}>
-          <span class="md-ic" set:html={`<svg viewBox='0 0 24 24' width='19' height='19' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(l.icon)}</svg>`} />
-          <span class="md-tx">
-            <strong>{l.label}</strong>
-            <small>{l.desc}</small>
-          </span>
-        </a>
-      ))
-    }
-  </nav>
+    <span class="md-label">Explore</span>
+    <nav class="md-more" aria-label="More">
+      {
+        moreNav.map((l) => (
+          <a class="md-item" href={l.href}>
+            <span
+              class="md-ic"
+              set:html={`<svg viewBox='0 0 24 24' width='19' height='19' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg(l.icon)}</svg>`}
+            />
+            <span class="md-tx">
+              <strong>{l.label}</strong>
+              <small>{l.desc}</small>
+            </span>
+          </a>
+        ))
+      }
+    </nav>
   </div>
 
   <div class="md-foot">
     <a class="md-call" href={`tel:${PHONE_TEL}`}>
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z" /></svg>
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path
+          d="M5 4h3.6l1.4 4-2 1.3a11 11 0 0 0 4.7 4.7L18 16l1.4 1.4V21a1 1 0 0 1-1 1A15 15 0 0 1 3 6a1 1 0 0 1 1-1z"
+        ></path></svg
+      >
       {PHONE_DISPLAY}
     </a>
     <a class="btn btn-primary md-cta" href="/get-quote">
       Get a fixed quote
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+      >
     </a>
   </div>
 </aside>

@@ -1,4 +1,4 @@
-import type { CollectionAfterChangeHook } from 'payload';
+import type { CollectionAfterChangeHook, GlobalAfterChangeHook } from 'payload';
 import { PAGE_TYPE_TO_SHARD } from '@mpm/shared';
 
 /**
@@ -52,3 +52,15 @@ export const triggerBuildOnChange: CollectionAfterChangeHook = ({ doc, collectio
   scheduleBuild(shard);
   return doc;
 };
+
+/**
+ * Global variant of the trigger. Globals have no `pageType`, so the shard is fixed
+ * per global (e.g. the home-content global rebuilds the `core` shard the home page
+ * lives in). Signature differs from the collection hook, hence a separate factory.
+ */
+export const triggerBuildForShard =
+  (shard: string): GlobalAfterChangeHook =>
+  ({ doc }) => {
+    scheduleBuild(shard);
+    return doc;
+  };

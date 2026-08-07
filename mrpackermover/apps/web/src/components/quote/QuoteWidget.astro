@@ -29,16 +29,38 @@ const service = prefillService ?? '';
   <div class="booking-bar" role="group" aria-label="Get a fixed quote">
     <div class="bar-fields">
       <label class="bar-field">
+        <span class="bar-label">Full Name <b>*</b></span>
+        <input id="q-name" type="text" autocomplete="name" placeholder="Your name" />
+      </label>
+      <label class="bar-field">
         <span class="bar-label">Pickup Location <b>*</b></span>
-        <input id="q-pickup" type="text" value={pickupValue} placeholder="Sending from" autocomplete="off" />
+        <input
+          id="q-pickup"
+          type="text"
+          value={pickupValue}
+          placeholder="Sending from"
+          autocomplete="off"
+        />
       </label>
       <label class="bar-field">
         <span class="bar-label">Drop Location <b>*</b></span>
-        <input id="q-drop" type="text" value={dropValue} placeholder="Sending to" autocomplete="off" />
+        <input
+          id="q-drop"
+          type="text"
+          value={dropValue}
+          placeholder="Sending to"
+          autocomplete="off"
+        />
       </label>
       <label class="bar-field">
         <span class="bar-label">Phone Number <b>*</b></span>
-        <input id="q-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Enter Contact Details" />
+        <input
+          id="q-phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          placeholder="Enter Contact Details"
+        />
       </label>
       <label class="bar-field">
         <span class="bar-label">Shifting Date <b>*</b></span>
@@ -47,7 +69,15 @@ const service = prefillService ?? '';
     </div>
     <button type="button" class="btn btn-primary bar-cta" id="q-go">
       Check Price
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+      >
     </button>
   </div>
 
@@ -55,7 +85,10 @@ const service = prefillService ?? '';
   <div class="est" id="q-est" hidden>
     <div class="est-top">
       <div>
-        <div class="est-amt" id="q-amt">₹0</div>
+        <div class="est-amt-row">
+          <span class="est-amt" id="q-amt">₹0</span>
+          <span class="est-gst">+ GST</span>
+        </div>
         <div class="est-lane" id="q-lane"></div>
       </div>
       <a class="btn btn-primary" id="q-cta" href="/get-quote">Get a fixed quote</a>
@@ -66,13 +99,15 @@ const service = prefillService ?? '';
         <h4>Adjust the details</h4>
         <div class="est-row">
           <label class="est-ctrl">
-            <span>Home size</span>
+            <span>Truck size</span>
             <select id="q-size">
-              <option value="rk">1 RK / studio</option>
-              <option value="1">1 BHK</option>
-              <option value="2" selected>2 BHK</option>
-              <option value="3">3 BHK</option>
-              <option value="4">4 BHK / villa</option>
+              <option value="10">10 ft</option>
+              <option value="12">12 ft</option>
+              <option value="14" selected>14 ft</option>
+              <option value="15">15 ft</option>
+              <option value="16">16 ft</option>
+              <option value="17">17 ft</option>
+              <option value="19">19 ft</option>
             </select>
           </label>
           <label class="est-ctrl">
@@ -80,43 +115,44 @@ const service = prefillService ?? '';
             <select id="q-pack">
               <option value="basic">Basic — cartons + wrap</option>
               <option value="standard" selected>Standard — full wrap</option>
-              <option value="premium">Premium — 5-layer + crates</option>
+              <option value="premium">Premium — 3-layer + crates</option>
             </select>
           </label>
         </div>
         <div class="est-row">
           <label class="est-ctrl">
             <span>Pickup floor</span>
-            <select id="q-ffloor"><option value="0">Ground</option><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th+</option></select>
+            <select id="q-ffloor"
+              ><option value="0">Ground</option><option value="1">1st</option><option value="2"
+                >2nd</option
+              ><option value="3">3rd</option><option value="4">4th</option><option value="5"
+                >5th+</option
+              ></select
+            >
           </label>
           <label class="est-ctrl">
             <span>Lift at pickup</span>
-            <select id="q-flift"><option value="1">Yes</option><option value="0">No</option></select>
+            <select id="q-flift"><option value="1">Yes</option><option value="0">No</option></select
+            >
           </label>
         </div>
         <div class="est-row">
           <label class="est-ctrl">
             <span>Drop floor</span>
-            <select id="q-tfloor"><option value="0">Ground</option><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th+</option></select>
+            <select id="q-tfloor"
+              ><option value="0">Ground</option><option value="1">1st</option><option value="2"
+                >2nd</option
+              ><option value="3">3rd</option><option value="4">4th</option><option value="5"
+                >5th+</option
+              ></select
+            >
           </label>
           <label class="est-ctrl">
             <span>Lift at drop</span>
-            <select id="q-tlift"><option value="1">Yes</option><option value="0">No</option></select>
+            <select id="q-tlift"><option value="1">Yes</option><option value="0">No</option></select
+            >
           </label>
         </div>
-        <div class="est-ctrl">
-          <span>Add-ons</span>
-          <div class="est-adds">
-            <label><input type="checkbox" id="q-store" /> Storage, 1 week</label>
-            <label><input type="checkbox" id="q-car" /> Car transport</label>
-            <label><input type="checkbox" id="q-clean" /> Deep cleaning</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="est-break">
-        <h4>How this number is built</h4>
-        <div id="q-break"></div>
       </div>
     </div>
 
@@ -128,15 +164,10 @@ const service = prefillService ?? '';
 </div>
 
 <script>
-  import {
-    PLACES,
-    resolvePlace,
-    routeDistanceKm,
-    estimate,
-    inr,
-    SIZE_LABELS,
-  } from './pricing';
-  import type { SizeKey, PackKey } from './pricing';
+  import { estimate, inr } from './move-pricing';
+  import type { MoveInput } from './move-pricing';
+  import { attachAutocomplete, drivingDistanceKm, geocodeState } from './maps';
+  import { PLACES, resolvePlace, routeDistanceKm } from './pricing';
 
   const byId = <T extends HTMLElement = HTMLElement>(id: string): T =>
     document.getElementById(id) as T;
@@ -147,54 +178,135 @@ const service = prefillService ?? '';
     const service = root.dataset.service ?? '';
     const est = byId('q-est');
 
-    function currentInputs() {
-      const pickup = byId<HTMLInputElement>('q-pickup').value;
-      const drop = byId<HTMLInputElement>('q-drop').value;
-      const from = resolvePlace(pickup, PLACES[0]);
-      const to = resolvePlace(drop, DROP_DEFAULT);
+    // The user now picks the truck size (ft) directly; crew grows on the bigger trucks.
+    const labourForTruck = (ft: number): number => (ft >= 17 ? 6 : ft >= 15 ? 5 : 4);
+
+    // Inter-state detection for the permit/tax surcharge. Google gives the real state;
+    // the NCR fallback maps a resolved place's zone to its state when there's no key.
+    const ZONE_STATE: Record<string, string> = {
+      'South Delhi': 'Delhi',
+      'West Delhi': 'Delhi',
+      'North Delhi': 'Delhi',
+      'East Delhi': 'Delhi',
+      Noida: 'Uttar Pradesh',
+      Ghaziabad: 'Uttar Pradesh',
+      Gurugram: 'Haryana',
+      Faridabad: 'Haryana',
+    };
+    const zoneState = (text: string): string | null =>
+      ZONE_STATE[resolvePlace(text, PLACES[0]).zone] ?? null;
+    let lastInterState = false;
+
+    // Address dropdowns via Google Places (silently no-ops without an API key).
+    void attachAutocomplete(byId<HTMLInputElement>('q-pickup'));
+    void attachAutocomplete(byId<HTMLInputElement>('q-drop'));
+
+    let lastKm = 0; // cached driving distance so tweaking sliders doesn't re-hit the API
+
+    function readInputs() {
       return {
-        pickup,
-        drop,
+        name: byId<HTMLInputElement>('q-name').value,
+        pickup: byId<HTMLInputElement>('q-pickup').value,
+        drop: byId<HTMLInputElement>('q-drop').value,
         phone: byId<HTMLInputElement>('q-phone').value,
-        from,
-        to,
-        km: Math.round(routeDistanceKm(from, to)),
-        size: byId<HTMLSelectElement>('q-size').value as SizeKey,
+        truck: +byId<HTMLSelectElement>('q-size').value,
+        pack: byId<HTMLSelectElement>('q-pack').value as 'basic' | 'standard' | 'premium',
         fFloor: +byId<HTMLSelectElement>('q-ffloor').value,
         fLift: +byId<HTMLSelectElement>('q-flift').value === 1,
         tFloor: +byId<HTMLSelectElement>('q-tfloor').value,
         tLift: +byId<HTMLSelectElement>('q-tlift').value === 1,
-        pack: byId<HTMLSelectElement>('q-pack').value as PackKey,
         date: byId<HTMLInputElement>('q-date').value,
-        store: byId<HTMLInputElement>('q-store').checked,
-        car: byId<HTMLInputElement>('q-car').checked,
-        clean: byId<HTMLInputElement>('q-clean').checked,
       };
     }
 
-    function render() {
-      const o = currentInputs();
-      const r = estimate(o);
-      byId('q-amt').textContent = `${inr(r.lo)} – ${inr(r.hi)}`;
+    function render(km: number): void {
+      const o = readInputs();
+      const input: MoveInput = {
+        distanceKm: Math.round(km),
+        mode: 'auto',
+        truckFt: o.truck,
+        labour: labourForTruck(o.truck),
+        packing: true,
+        pickupFloor: o.fFloor,
+        pickupLift: o.fLift,
+        dropFloor: o.tFloor,
+        dropLift: o.tLift,
+        interState: lastInterState,
+        packingGrade: o.pack,
+      };
+      const r = estimate(input);
+
+      byId('q-amt').textContent = `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`;
       byId('q-lane').textContent =
-        `${SIZE_LABELS[o.size]} · ${o.from.name} → ${o.to.name} · ${o.km} km` +
-        (r.long ? ' · intercity lane' : '');
-      byId('q-break').innerHTML =
-        r.lines
-          .map(([k, v]) => `<div class="est-bl"><span>${k}</span><span>${inr(v)}</span></div>`)
-          .join('') +
-        `<div class="est-bl est-tot"><span>Estimated total</span><span>${inr(r.total)}</span></div>`;
+        `${o.truck} ft · ${Math.round(km)} km · ` +
+        (r.mode === 'intercity' ? 'intercity move' : 'local move');
+
       const cta = byId<HTMLAnchorElement>('q-cta');
       cta.href =
         `/get-quote?from=${encodeURIComponent(o.pickup)}&to=${encodeURIComponent(o.drop)}` +
+        (o.name ? `&name=${encodeURIComponent(o.name)}` : '') +
         (o.phone ? `&phone=${encodeURIComponent(o.phone)}` : '') +
         (service ? `&service=${encodeURIComponent(service)}` : '');
       est.hidden = false;
     }
 
-    byId('q-go').addEventListener('click', render);
-    ['q-size', 'q-pack', 'q-ffloor', 'q-flift', 'q-tfloor', 'q-tlift', 'q-date', 'q-store', 'q-car', 'q-clean'].forEach(
-      (id) => byId(id).addEventListener('change', () => { if (!est.hidden) render(); }),
+    // Driving distance: Google Distance Matrix first, else the built-in haversine estimate.
+    async function fetchDistanceKm(): Promise<number> {
+      const o = readInputs();
+      const g = await drivingDistanceKm(o.pickup, o.drop);
+      if (g != null && g > 0) return g;
+      const from = resolvePlace(o.pickup, PLACES[0]);
+      const to = resolvePlace(o.drop, DROP_DEFAULT);
+      return Math.round(routeDistanceKm(from, to));
+    }
+
+    // Capture the price check as a lead (source = price-check) once a name + valid phone
+    // are present — so every price check reaches the CMS. Fire-and-forget; never blocks UI.
+    let lastSentPhone = '';
+    function capturePriceCheck(): void {
+      const o = readInputs();
+      const phone = o.phone.trim();
+      const name = o.name.trim();
+      if (name.length < 2 || !/^[+0-9 ()-]{8,}$/.test(phone) || phone === lastSentPhone) return;
+      lastSentPhone = phone;
+      try {
+        void fetch('/api/quote', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            source: 'price-check',
+            name,
+            pickup: o.pickup,
+            drop: o.drop,
+            phone,
+            date: o.date,
+            size: `${o.truck} ft`,
+            service,
+          }),
+        }).catch(() => {});
+      } catch {
+        /* no-op */
+      }
+    }
+
+    byId('q-go').addEventListener('click', async () => {
+      const o = readInputs();
+      const [km, ps, ds] = await Promise.all([
+        fetchDistanceKm(),
+        geocodeState(o.pickup),
+        geocodeState(o.drop),
+      ]);
+      lastKm = km;
+      const pState = ps ?? zoneState(o.pickup);
+      const dState = ds ?? zoneState(o.drop);
+      lastInterState = Boolean(pState && dState && pState !== dState);
+      render(lastKm);
+      capturePriceCheck();
+    });
+    ['q-size', 'q-pack', 'q-ffloor', 'q-flift', 'q-tfloor', 'q-tlift', 'q-date'].forEach((id) =>
+      byId(id).addEventListener('change', () => {
+        if (!est.hidden) render(lastKm);
+      }),
     );
   }
 </script>

@@ -11,7 +11,11 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 export const JobsStats: CollectionConfig = {
   slug: 'jobs-stats',
   labels: { singular: 'Jobs stat', plural: 'Jobs stats' },
-  admin: { useAsTitle: 'label', group: 'Trust', defaultColumns: ['label', 'month', 'count'] },
+  admin: {
+    useAsTitle: 'label',
+    group: 'Trust & data',
+    defaultColumns: ['label', 'month', 'count'],
+  },
   access: {
     read: publishedOrStaff,
     create: isAuthenticated,

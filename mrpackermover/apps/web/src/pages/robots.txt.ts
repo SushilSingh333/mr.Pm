@@ -9,9 +9,8 @@ import { SITE_ORIGIN } from '../lib/site.js';
 export const GET: APIRoute = () => {
   const body = `User-agent: *
 Allow: /
-Disallow: /search
-Disallow: /quote/thank-you
-Disallow: /track/result
+Disallow: /api/
+Disallow: /admin
 Disallow: /*?
 
 # Retrieval assistants welcome; training opt-out only.

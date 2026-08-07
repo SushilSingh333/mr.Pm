@@ -1,0 +1,41 @@
+# Caddyfile — MrPackerMover origin on a single DigitalOcean droplet.
+#
+# Serves the static Astro site (built to /var/www/mrpackermover) and reverse-proxies
+# the Payload admin + API (/admin, /api/*) to the Node app on :3000. Caddy gets a free
+# TLS cert automatically. Cloudflare sits in front and hard-caches the HTML.
+#
+# Set the domain via an env var when starting Caddy, e.g.
+#   SITE_DOMAIN=mrpackermover.com caddy run --config /etc/caddy/Caddyfile
+
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	# Payload admin UI + REST API, including the public JSON endpoints
+	# (/api/quote, /api/search, /api/track). Payload sets its own no-store
+	# headers on these, so we don't add cache headers here.
+	@payload path /admin* /api/*
+	handle @payload {
+		reverse_proxy localhost:3000
+	}
+
+	# Everything else is the static site.
+	handle {
+		root * /var/www/mrpackermover
+
+		# HTML/pages: max-age=0 at the browser but s-maxage lets Cloudflare hold
+		# the copy for a day and serve stale while it revalidates.
+		header Cache-Control "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800"
+		# Hashed, immutable build assets: cache forever.
+		@assets path /_astro/* /assets/* /fonts/* /images/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+
+		# `build.format: 'file'` emits /foo.html — try the exact file, then .html.
+		try_files {path} {path}.html /404.html
+		file_server
+	}
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}

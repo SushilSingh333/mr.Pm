@@ -1,6 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseManifest, type Manifest, type ManifestRow, type PageType } from '@mpm/shared';
+import {
+  parseManifest,
+  type Manifest,
+  type ManifestRow,
+  type PageType,
+  type JobPosting,
+} from '@mpm/shared';
 
 /**
  * Load the build manifest (Doc 02 §1) — the ONLY source Astro reads. If the
@@ -34,6 +40,11 @@ export function rowsOfType(type: PageType): ManifestRow[] {
 
 export function rowByPath(p: string): ManifestRow | undefined {
   return manifest().pages.find((r) => r.path === p);
+}
+
+/** Open careers postings (from the CMS Jobs collection). */
+export function jobs(): JobPosting[] {
+  return manifest().jobs ?? [];
 }
 
 /** Narrow a row's `data` blob to a page-data shape (the CMS guarantees the shape). */

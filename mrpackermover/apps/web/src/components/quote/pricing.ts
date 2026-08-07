@@ -57,16 +57,40 @@ export const PLACES: Place[] = [
   { name: 'Amrapali Sapphire', sub: 'Sector 45, Noida', zone: 'Noida', lat: 28.54, lng: 77.36 },
   { name: 'Pari Chowk', sub: 'Greater Noida', zone: 'Noida', lat: 28.47, lng: 77.51 },
   { name: 'Gaur City', sub: 'Greater Noida West', zone: 'Noida', lat: 28.61, lng: 77.43 },
-  { name: 'Nirala Estate', sub: 'Techzone 4, Greater Noida West', zone: 'Noida', lat: 28.62, lng: 77.44 },
+  {
+    name: 'Nirala Estate',
+    sub: 'Techzone 4, Greater Noida West',
+    zone: 'Noida',
+    lat: 28.62,
+    lng: 77.44,
+  },
   // Gurugram
   { name: 'Sector 29', sub: 'Gurugram', zone: 'Gurugram', lat: 28.4667, lng: 77.0667 },
   { name: 'DLF Phase 3', sub: 'Gurugram', zone: 'Gurugram', lat: 28.493, lng: 77.096 },
   { name: 'Golf Course Road', sub: 'Gurugram', zone: 'Gurugram', lat: 28.44, lng: 77.1 },
   { name: 'Sohna Road', sub: 'Gurugram', zone: 'Gurugram', lat: 28.41, lng: 77.04 },
-  { name: 'DLF The Camellias', sub: 'Sector 42, Gurugram', zone: 'Gurugram', lat: 28.44, lng: 77.098 },
-  { name: 'Ireo Victory Valley', sub: 'Sector 67, Gurugram', zone: 'Gurugram', lat: 28.436, lng: 77.05 },
+  {
+    name: 'DLF The Camellias',
+    sub: 'Sector 42, Gurugram',
+    zone: 'Gurugram',
+    lat: 28.44,
+    lng: 77.098,
+  },
+  {
+    name: 'Ireo Victory Valley',
+    sub: 'Sector 67, Gurugram',
+    zone: 'Gurugram',
+    lat: 28.436,
+    lng: 77.05,
+  },
   { name: 'Sobha City', sub: 'Sector 108, Gurugram', zone: 'Gurugram', lat: 28.42, lng: 76.98 },
-  { name: 'Vatika India Next', sub: 'Sector 82, Gurugram', zone: 'Gurugram', lat: 28.4, lng: 76.97 },
+  {
+    name: 'Vatika India Next',
+    sub: 'Sector 82, Gurugram',
+    zone: 'Gurugram',
+    lat: 28.4,
+    lng: 76.97,
+  },
   { name: 'Manesar', sub: 'Gurugram', zone: 'Gurugram', lat: 28.355, lng: 76.94 },
   // Ghaziabad
   { name: 'Indirapuram', sub: 'Ghaziabad', zone: 'Ghaziabad', lat: 28.6414, lng: 77.3711 },
@@ -76,20 +100,62 @@ export const PLACES: Place[] = [
   { name: 'Crossings Republik', sub: 'Ghaziabad', zone: 'Ghaziabad', lat: 28.635, lng: 77.42 },
   // Faridabad
   { name: 'Sector 15', sub: 'Faridabad', zone: 'Faridabad', lat: 28.4089, lng: 77.3178 },
-  { name: 'Greater Faridabad', sub: 'Neharpar, Faridabad', zone: 'Faridabad', lat: 28.38, lng: 77.33 },
+  {
+    name: 'Greater Faridabad',
+    sub: 'Neharpar, Faridabad',
+    zone: 'Faridabad',
+    lat: 28.38,
+    lng: 77.33,
+  },
   { name: 'Ballabgarh', sub: 'Faridabad', zone: 'Faridabad', lat: 28.34, lng: 77.32 },
   // outstation anchors (intercity lanes)
   { name: 'Jaipur', sub: 'Rajasthan · intercity', zone: 'Outstation', lat: 26.9124, lng: 75.7873 },
   { name: 'Chandigarh', sub: 'Punjab · intercity', zone: 'Outstation', lat: 30.7333, lng: 76.7794 },
-  { name: 'Lucknow', sub: 'Uttar Pradesh · intercity', zone: 'Outstation', lat: 26.8467, lng: 80.9462 },
-  { name: 'Dehradun', sub: 'Uttarakhand · intercity', zone: 'Outstation', lat: 30.3165, lng: 78.0322 },
+  {
+    name: 'Lucknow',
+    sub: 'Uttar Pradesh · intercity',
+    zone: 'Outstation',
+    lat: 26.8467,
+    lng: 80.9462,
+  },
+  {
+    name: 'Dehradun',
+    sub: 'Uttarakhand · intercity',
+    zone: 'Outstation',
+    lat: 30.3165,
+    lng: 78.0322,
+  },
   { name: 'Mumbai', sub: 'Maharashtra · intercity', zone: 'Outstation', lat: 19.076, lng: 72.8777 },
   { name: 'Pune', sub: 'Maharashtra · intercity', zone: 'Outstation', lat: 18.5204, lng: 73.8567 },
-  { name: 'Bengaluru', sub: 'Karnataka · intercity', zone: 'Outstation', lat: 12.9716, lng: 77.5946 },
-  { name: 'Hyderabad', sub: 'Telangana · intercity', zone: 'Outstation', lat: 17.385, lng: 78.4867 },
-  { name: 'Kolkata', sub: 'West Bengal · intercity', zone: 'Outstation', lat: 22.5726, lng: 88.3639 },
+  {
+    name: 'Bengaluru',
+    sub: 'Karnataka · intercity',
+    zone: 'Outstation',
+    lat: 12.9716,
+    lng: 77.5946,
+  },
+  {
+    name: 'Hyderabad',
+    sub: 'Telangana · intercity',
+    zone: 'Outstation',
+    lat: 17.385,
+    lng: 78.4867,
+  },
+  {
+    name: 'Kolkata',
+    sub: 'West Bengal · intercity',
+    zone: 'Outstation',
+    lat: 22.5726,
+    lng: 88.3639,
+  },
   { name: 'Ahmedabad', sub: 'Gujarat · intercity', zone: 'Outstation', lat: 23.0225, lng: 72.5714 },
-  { name: 'Indore', sub: 'Madhya Pradesh · intercity', zone: 'Outstation', lat: 22.7196, lng: 75.8577 },
+  {
+    name: 'Indore',
+    sub: 'Madhya Pradesh · intercity',
+    zone: 'Outstation',
+    lat: 22.7196,
+    lng: 75.8577,
+  },
 ];
 
 export function searchPlaces(q: string): Place[] {
@@ -104,8 +170,7 @@ export function routeDistanceKm(a: Place, b: Place): number {
   const dLat = d(b.lat - a.lat);
   const dLng = d(b.lng - a.lng);
   const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(d(a.lat)) * Math.cos(d(b.lat)) * Math.sin(dLng / 2) ** 2;
+    Math.sin(dLat / 2) ** 2 + Math.cos(d(a.lat)) * Math.cos(d(b.lat)) * Math.sin(dLng / 2) ** 2;
   const straight = 2 * R * Math.asin(Math.sqrt(h));
   return Math.max(4, straight * (straight > 120 ? 1.18 : 1.38));
 }
@@ -179,7 +244,8 @@ export function estimate(o: EstimateInput): EstimateResult {
   const long = o.km > 150;
   const perKm = long ? R.perKmLong[s] : R.perKmLocal[s];
   const transport = Math.round(R.vehicle[s] + perKm * o.km);
-  const floorRate = (f: number, lift: boolean): number => f * (lift ? R.liftFloor[s] : R.perFloor[s]);
+  const floorRate = (f: number, lift: boolean): number =>
+    f * (lift ? R.liftFloor[s] : R.perFloor[s]);
   const floors = Math.round(floorRate(o.fFloor, o.fLift) + floorRate(o.tFloor, o.tLift));
 
   L.push([`Crew & handling · ${CREW_COUNT[s]} members`, crew]);
@@ -238,6 +304,8 @@ export const inr = (n: number): string => '₹' + n.toLocaleString('en-IN');
 export function resolvePlace(text: string, fallback: Place): Place {
   const t = text.trim().toLowerCase();
   if (!t) return fallback;
-  const exact = PLACES.find((p) => (p.name + ', ' + p.sub).toLowerCase() === t || p.name.toLowerCase() === t);
+  const exact = PLACES.find(
+    (p) => (p.name + ', ' + p.sub).toLowerCase() === t || p.name.toLowerCase() === t,
+  );
   return exact ?? searchPlaces(text)[0] ?? fallback;
 }

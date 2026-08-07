@@ -9,7 +9,11 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
  */
 export const RateCards: CollectionConfig = {
   slug: 'rate-cards',
-  admin: { useAsTitle: 'label', group: 'Pricing', defaultColumns: ['label', 'scope', 'validFrom'] },
+  admin: {
+    useAsTitle: 'label',
+    group: 'Catalogue',
+    defaultColumns: ['label', 'scope', 'validFrom'],
+  },
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,

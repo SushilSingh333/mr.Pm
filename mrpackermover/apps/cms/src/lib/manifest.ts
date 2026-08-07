@@ -13,10 +13,13 @@ import {
   type ReviewSnippet,
   type FaqItem,
   type StatBlock,
+  type HomeContent,
+  type TrustPillar,
+  type EditorialContent,
 } from '@mpm/shared';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
-import { countWords, richTextToPlain } from './rich-text.js';
+import { countWords, richTextToPlain, richTextToHtml } from './rich-text.js';
 
 /**
  * Build the manifest — the single source of truth (Doc 02 §1).
@@ -40,6 +43,8 @@ interface LocationDoc {
   type: 'state' | 'city' | 'locality';
   parent?: Id | { id: Id } | null;
   isServiceable?: boolean;
+  /** Editor-selected services this city offers (each becomes a city × service page). */
+  servicesOffered?: Array<Id | { id: Id }> | null;
   editorialNote?: unknown;
   updatedAt: string;
 }
@@ -102,8 +107,55 @@ interface FaqDoc {
   service?: Id | { id: Id };
   priority?: number;
 }
+/** The `home-content` global, as returned by Payload (defaults applied). */
+type HomeContentDoc = Partial<HomeContent> & { pillars?: Array<TrustPillar & { id?: string }> };
+
+/**
+ * Map the editable `home-content` global onto the render payload the home template
+ * reads. Blank fields fall back to the built-in copy so the page always renders.
+ */
+function toHomeContent(doc: HomeContentDoc | null): HomeContent {
+  return {
+    taglineLine1: doc?.taglineLine1 || 'Shifting Aapki,',
+    taglineLine2: doc?.taglineLine2 || 'Zimmedari Hamari.',
+    heroSubtext: doc?.heroSubtext || undefined,
+    servicesHeading: doc?.servicesHeading || 'What we move',
+    servicesIntro:
+      doc?.servicesIntro ||
+      'One operation, verified crews, and a written fixed quote for every service.',
+    trustHeading: doc?.trustHeading || 'House Shifting you can actually verify',
+    trustIntro:
+      doc?.trustIntro ||
+      'Everything below is backed by real job data — no vanity counters, no stock photos.',
+    statsHeading: doc?.statsHeading || 'By the numbers',
+    statsIntro: doc?.statsIntro || "Unflattering when it needs to be — that's the point.",
+    citiesHeading: doc?.citiesHeading || 'Cities we pick up from',
+    citiesIntro:
+      doc?.citiesIntro ||
+      'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India.',
+    faqHeading: doc?.faqHeading || 'Questions people ask',
+    pillars: (doc?.pillars ?? [])
+      .filter((p) => p.title && p.body)
+      .map((p) => ({
+        icon: p.icon,
+        title: p.title,
+        body: p.body,
+        variant: p.variant,
+        link: p.link?.href ? { href: p.link.href, label: p.link.label || 'Learn more' } : undefined,
+      })),
+  };
+}
 
 async function loadAll<T>(payload: Payload, collection: string): Promise<T[]> {
+  // Only draft-enabled collections have a queryable `_status`; filtering it on a
+  // non-versioned collection (jobs-stats, rate-cards…) throws a 400. Detect drafts
+  // from the collection config and only then restrict to published rows.
+  const hasDrafts = Boolean(
+    (payload.collections as Record<string, { config?: { versions?: { drafts?: unknown } } }>)[
+      collection
+    ]?.config?.versions?.drafts,
+  );
+  const where = hasDrafts ? ({ _status: { equals: 'published' } } as never) : undefined;
   const out: T[] = [];
   let page = 1;
   for (;;) {
@@ -112,7 +164,7 @@ async function loadAll<T>(payload: Payload, collection: string): Promise<T[]> {
       depth: 0,
       limit: 500,
       page,
-      where: { _status: { equals: 'published' } } as never,
+      where,
       overrideAccess: true,
     });
     out.push(...(res.docs as T[]));
@@ -141,6 +193,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const publicServices = services.filter((s) => !s.isCorporate);
 
   const rows: ManifestRow[] = [];
+  const publishedCityIds = new Set<string>();
 
   // ── City hubs + their city × service pages ─────────────────────────────────
   for (const city of cities) {
@@ -160,6 +213,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       rateBandCount: idx.cityRateBands(cid).length,
     };
     if (!evaluateCandidate(cityCandidate).passed) continue;
+    publishedCityIds.add(cid);
 
     const cityPath = paths.cityHub(city.slug);
     const localityLinks = localities
@@ -169,7 +223,33 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         anchor: l.name,
         group: 'localities',
       }));
-    const serviceLinks = publicServices.map<ManifestLink>((s) => ({
+    // A city × service page publishes only with real service-in-city proof (the gate).
+    // Build the hub's service links from the SAME gate the pages use, so the hub never
+    // links to a service page that doesn't exist (it would 301 back to the hub).
+    const cityServiceCandidate = (svcId: string): GateCandidate => ({
+      pageType: 'city-service',
+      hasRateCard: idx.hasCityRateCard(cid) || idx.hasServiceRateCard(svcId),
+      jobCount12m: idx.statsFor(cid, svcId).jobs12m,
+      reviewsCount: idx.reviewsFor(cid, svcId).length,
+      baseDistanceMeters: 0,
+      localContentWords: 200,
+      scopedFaqCount: idx.faqsForCityService(cid, svcId).length,
+      hasLocationPhotos: false,
+      namedLocalFacts: 2,
+      hasNamedCoordinator: true,
+      rateBandCount: idx.cityRateBands(cid).length || idx.serviceRateBands(svcId).length,
+    });
+    // Which services this city offers is editor-controlled (the `servicesOffered` picker
+    // on the city). When set, exactly those services get pages. When left empty, fall back
+    // to the automatic data gate so a city configured with nothing still behaves sanely.
+    const offeredIds = new Set(
+      (city.servicesOffered ?? []).map((s) => refId(s)).filter((x): x is string => x != null),
+    );
+    const servicesForCity = offeredIds.size
+      ? publicServices.filter((s) => offeredIds.has(sid(s.id)))
+      : publicServices.filter((s) => evaluateCandidate(cityServiceCandidate(sid(s.id))).passed);
+
+    const serviceLinks = servicesForCity.map<ManifestLink>((s) => ({
       path: paths.cityService(city.slug, s.slug),
       anchor: `${s.name} in ${city.name}`,
       group: 'services',
@@ -183,6 +263,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         relatedLinks: [...serviceLinks, ...localityLinks].slice(0, 60),
         data: {
           cityName: city.name,
+          // Sub-locations we serve — rendered as the "Areas we cover" grid, each linking
+          // to that locality's own detail page.
+          areas: localityLinks.map((l) => ({ path: l.path, name: l.anchor })),
           editorial: idx.editorialParagraphs(city.editorialNote),
           rateBands: idx.cityRateBands(cid),
           stats,
@@ -193,28 +276,22 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       }),
     );
 
-    for (const service of publicServices) {
+    for (const service of servicesForCity) {
       const svcId = sid(service.id);
-      const csReviews = idx.reviewsFor(cid, svcId);
-      const csStats = idx.statsFor(cid, svcId);
-      const cs: GateCandidate = {
-        pageType: 'city-service',
-        hasRateCard: idx.hasCityRateCard(cid) || idx.hasServiceRateCard(svcId),
-        jobCount12m: csStats.jobs12m,
-        reviewsCount: csReviews.length,
-        baseDistanceMeters: 0,
-        localContentWords: 200,
-        scopedFaqCount: idx.faqsForCityService(cid, svcId).length,
-        hasLocationPhotos: false,
-        namedLocalFacts: 2,
-        hasNamedCoordinator: true,
-        rateBandCount: idx.cityRateBands(cid).length || idx.serviceRateBands(svcId).length,
-      };
-      if (!evaluateCandidate(cs).passed) continue;
+      // Fall back to city-level proof when a service has no service-scoped data of its
+      // own, so an editor-selected service still renders a substantive page.
+      const svcReviews = idx.reviewsFor(cid, svcId);
+      const csReviews = svcReviews.length ? svcReviews : idx.reviewsFor(cid);
+      const svcStats = idx.statsFor(cid, svcId);
+      const csStats = svcStats.jobs12m ? svcStats : idx.statsFor(cid);
+      const svcFaqs = idx.faqsForCityService(cid, svcId);
+      const csFaqs = svcFaqs.length ? svcFaqs : idx.faqsForCity(cid);
 
-      const bands = idx.cityRateBands(cid).length
-        ? idx.cityRateBands(cid)
-        : idx.serviceRateBands(svcId);
+      // Prefer a service-specific rate card (set per service in the CMS) so each service
+      // can price differently; fall back to the city's rate card when there isn't one.
+      const bands = idx.serviceRateBands(svcId).length
+        ? idx.serviceRateBands(svcId)
+        : idx.cityRateBands(cid);
       const priceFrom = idx.priceFrom(bands);
       rows.push(
         makeRow(
@@ -237,15 +314,20 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
               { path: '/', anchor: 'Home' },
               { path: cityPath, anchor: city.name },
             ],
-            relatedLinks: nearbyCityServiceLinks(cities, city, service.slug),
+            // Also link the localities we cover in this city — a natural in-page link
+            // that gives each locality page a third contextual inbound link (Doc 02 §7).
+            relatedLinks: [
+              ...nearbyCityServiceLinks(cities, city, service.slug),
+              ...localityLinks.slice(0, 6),
+            ],
             data: {
               cityName: city.name,
               serviceName: service.name,
               editorial: idx.editorialParagraphs(city.editorialNote).slice(0, 2),
               rateBands: bands,
               stats: csStats,
-              reviews: csReviews.slice(0, 3),
-              faqs: idx.faqsForCityService(cid, svcId),
+              reviews: csReviews.slice(0, 9),
+              faqs: csFaqs,
               inclusions: (service.inclusions ?? []).map((i) => i.item),
               exclusions: (service.exclusions ?? []).map((i) => i.item),
               priceFrom,
@@ -260,6 +342,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   for (const loc of localities) {
     const parent = idx.location(refId(loc.parent));
     if (!parent) continue;
+    // Don't publish a locality whose city hub didn't clear the gate — it would
+    // orphan the locality (its breadcrumb/back-link points at a missing city hub).
+    if (!publishedCityIds.has(sid(parent.id))) continue;
     const lid = sid(loc.id);
     const words = countWords(loc.editorialNote);
     const candidate: GateCandidate = {
@@ -378,20 +463,34 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   }
 
   // ── Service hubs ─────────────────────────────────────────────────────────
+  const pub = publicServices;
   for (const service of services) {
     const path = service.isCorporate
       ? paths.corporate(service.slug)
       : paths.serviceHub(service.slug);
+    // Cross-link to sibling service hubs (cyclic) so every hub has ≥ 3 contextual
+    // inbound links — the same no-orphans guarantee the geo pages get (Doc 02 §7).
+    const si = pub.findIndex((s) => sid(s.id) === sid(service.id));
+    const siblings: ManifestLink[] =
+      si >= 0
+        ? [1, 2, 3]
+            .map((k) => pub[(si + k) % pub.length])
+            .filter((s): s is ServiceDoc => Boolean(s) && sid(s!.id) !== sid(service.id))
+            .map((s) => ({ path: paths.serviceHub(s.slug), anchor: s.name, group: 'services' }))
+        : [];
     rows.push(
       makeRow('service-hub', path, service.slug, service.updatedAt, siteOrigin, {
         title: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
         h1: `${service.name} Services`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
-        relatedLinks: cities.map<ManifestLink>((c) => ({
-          path: paths.cityService(c.slug, service.slug),
-          anchor: `${service.name} in ${c.name}`,
-          group: 'cities',
-        })),
+        relatedLinks: [
+          ...cities.map<ManifestLink>((c) => ({
+            path: paths.cityService(c.slug, service.slug),
+            anchor: `${service.name} in ${c.name}`,
+            group: 'cities',
+          })),
+          ...siblings,
+        ],
         data: {
           serviceName: service.name,
           summary: service.summary,
@@ -407,6 +506,13 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const settlements = jobsStats
     .map((s) => s.avgSettlementDays)
     .filter((n): n is number => n != null);
+  const homeContentDoc = (await payload
+    .findGlobal({ slug: 'home-content', overrideAccess: true })
+    .catch(() => null)) as HomeContentDoc | null;
+  const homeContent = toHomeContent(homeContentDoc);
+  const homeFaqs: FaqItem[] = faqs
+    .filter((f) => f.scope === 'global')
+    .map((f) => ({ question: f.question, answer: richTextToPlain(f.answer) }));
   rows.push(
     makeRow('home', '/', 'home', new Date(0).toISOString(), siteOrigin, {
       title: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
@@ -427,11 +533,78 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         totalJobs12m: totalJobs,
         medianSettlementDays: median(settlements),
         onTimePct: idx.overallOnTime(),
+        faqs: homeFaqs,
+        content: homeContent,
       },
     }),
   );
 
   computeInboundLinks(rows);
+
+  // ── Careers postings (open roles) → /company/careers ───────────────────────
+  interface JobDoc {
+    title: string;
+    slug: string;
+    team?: string;
+    employmentType?: string;
+    location?: string;
+    summary?: string;
+    isOpen?: boolean;
+    order?: number;
+  }
+  const jobs = (await loadAll<JobDoc>(payload, 'jobs'))
+    .filter((j) => j.isOpen !== false)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((j) => ({
+      title: j.title,
+      slug: j.slug,
+      team: j.team,
+      employmentType: j.employmentType,
+      location: j.location,
+      summary: j.summary ?? '',
+    }));
+
+  // ── Editable copy for the hand-built editorial pages, looked up by key ─────
+  interface PageDoc {
+    key?: string;
+    title?: string;
+    eyebrow?: string;
+    intro?: string;
+    body?: unknown;
+    seoDescription?: string;
+  }
+  const editorial: Record<string, EditorialContent> = {};
+  for (const p of await loadAll<PageDoc>(payload, 'pages')) {
+    if (!p.key) continue;
+    editorial[p.key] = {
+      title: p.title || undefined,
+      eyebrow: p.eyebrow || undefined,
+      intro: p.intro || undefined,
+      bodyHtml: richTextToHtml(p.body) || undefined,
+      seoDescription: p.seoDescription || undefined,
+    };
+  }
+
+  // Editorial pages that exist in the CMS but are currently *unpublished*. Their nav
+  // links (footer + header) are hidden and the route is de-indexed. Keys that were
+  // never created are absent from this list, so they keep their built-in fallback
+  // copy and stay visible — this means "unpublished in the CMS", not "not in the CMS".
+  let hiddenPages: string[] = [];
+  try {
+    const all = await payload.find({
+      collection: 'pages',
+      depth: 0,
+      limit: 1000,
+      pagination: false,
+      overrideAccess: true,
+      draft: true, // return the latest version of every page so we can read _status
+    });
+    hiddenPages = all.docs
+      .filter((p) => p.key && p._status !== 'published')
+      .map((p) => p.key as string);
+  } catch {
+    hiddenPages = [];
+  }
 
   const org = await payload
     .findGlobal({ slug: 'org-profile', overrideAccess: true })
@@ -439,6 +612,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   return {
     generatedAt: new Date().toISOString(),
     siteOrigin: siteOrigin.replace(/\/$/, ''),
+    jobs,
+    editorial,
+    hiddenPages,
     org: org
       ? {
           brandName: org.brandName,
@@ -478,14 +654,23 @@ function nearbyCityServiceLinks(
   city: LocationDoc,
   serviceSlug: string,
 ): ManifestLink[] {
-  return cities
-    .filter((c) => sid(c.id) !== sid(city.id))
-    .slice(0, 6)
-    .map((c) => ({
-      path: paths.cityService(c.slug, serviceSlug),
-      anchor: `${serviceSlug.replace(/-/g, ' ')} in ${c.name}`,
-      group: 'nearby',
-    }));
+  // Cyclic pick of the next N cities so links spread evenly and no city (not even
+  // the last in the list) is orphaned — a plain `.slice` would starve the tail.
+  const n = cities.length;
+  const i = cities.findIndex((c) => sid(c.id) === sid(city.id));
+  if (i < 0 || n < 2) return [];
+  const out: ManifestLink[] = [];
+  for (let k = 1; k <= 6 && k < n; k += 1) {
+    const c = cities[(i + k) % n];
+    if (c) {
+      out.push({
+        path: paths.cityService(c.slug, serviceSlug),
+        anchor: `${serviceSlug.replace(/-/g, ' ')} in ${c.name}`,
+        group: 'nearby',
+      });
+    }
+  }
+  return out;
 }
 
 /**

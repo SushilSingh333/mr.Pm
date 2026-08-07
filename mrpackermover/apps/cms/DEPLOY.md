@@ -1,40 +1,32 @@
 # Deploying the Payload CMS
 
-The public site is static Astro on Cloudflare Pages. This app is **only** the admin
-panel + REST/Local API + the manifest generator. It needs a Node-capable runtime
-that can reach Postgres.
+This app is the admin panel + REST/Local API + the manifest generator + the public JSON
+endpoints (`/api/quote`, `/api/search`, `/api/track`). It runs on Node and reaches Postgres
+via `DATABASE_URL`.
 
-## Primary: Cloudflare Workers (all-Cloudflare topology)
+## Primary: native Node on the DigitalOcean droplet (ADR-0005)
 
-Payload 3 runs inside Next.js, and Next runs on Workers via
-[`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare). Postgres is reached
-through **Hyperdrive**.
-
-```bash
-pnpm add -D @opennextjs/cloudflare        # in apps/cms
-# wrangler.toml: compatibility_flags = ["nodejs_compat"], [[hyperdrive]] binding
-npx opennextjs-cloudflare build
-npx wrangler deploy
-```
-
-Notes / caveats (why we keep a fallback):
-
-- Payload on Workers is newer territory; validate the admin bundle, file uploads
-  (route media to R2), and cold-start behaviour before relying on it.
-- Use the Hyperdrive connection string for the DB pool at the edge; keep
-  `DATABASE_URL` as the single portable value (see `docs/runbook.md`).
-
-## Fallback: a Node host (zero rework)
-
-If Workers integration is not ready, deploy this same app to Railway / Render /
-Fly. It uses the **same** `DATABASE_URL` directly (no Hyperdrive needed
-server-side). The static site, the Astro frontend, and the database are unchanged —
-only where the admin process runs differs.
+The chosen topology runs this app with `next start` on the droplet (systemd), behind Caddy,
+with Cloudflare caching the static site in front. Full steps:
+[`docs/deploy-digitalocean.md`](../../docs/deploy-digitalocean.md).
 
 ```bash
-# Railway example
-railway up            # build: pnpm --filter @mpm/cms build ; start: pnpm --filter @mpm/cms start
+pnpm --filter @mpm/cms build     # next build
+pnpm --filter @mpm/cms start     # next start -p 3000  (managed by systemd in prod)
 ```
 
-Either way, migrations run in CI (`deploy-cms.yml`) before the app starts:
-`pnpm --filter @mpm/cms migrate`.
+Migrations run before the app starts:
+
+```bash
+pnpm --filter @mpm/cms migrate:create initial_schema
+pnpm --filter @mpm/cms migrate
+```
+
+Any other Node host (Railway / Render / Fly) works identically — same `DATABASE_URL`, same
+commands — since nothing here is DigitalOcean-specific.
+
+## Retired: Cloudflare Workers (all-Cloudflare)
+
+An earlier plan ran Next/Payload on Workers via `@opennextjs/cloudflare` with Hyperdrive.
+That path is retired (ADR-0005) in favour of native Node — simpler, better supported, and it
+lets the dynamic endpoints use the local DB API instead of a Workers-only connection shim.

@@ -63,13 +63,7 @@ const extraJsonLd = [
 
     <div class="container-page">
       <figure class="post-cover">
-        <img
-          src={post.cover}
-          alt={post.coverAlt}
-          width="1120"
-          height="560"
-          decoding="async"
-        />
+        <img src={post.cover} alt={post.coverAlt} width="1120" height="560" decoding="async" />
       </figure>
     </div>
 
@@ -136,7 +130,11 @@ const extraJsonLd = [
     width: 260px;
     height: 260px;
     border-radius: var(--radius-pill);
-    background: radial-gradient(circle, color-mix(in oklab, var(--color-brand-300) 50%, transparent), transparent 70%);
+    background: radial-gradient(
+      circle,
+      color-mix(in oklab, var(--color-brand-300) 50%, transparent),
+      transparent 70%
+    );
     opacity: 0.4;
     z-index: 0;
   }

@@ -4,6 +4,7 @@ import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
 import { staticRow, org } from '../../lib/page.js';
+import { jobs } from '../../data/manifest.js';
 
 const row = staticRow({
   path: '/company/careers',
@@ -34,28 +35,15 @@ const values = [
   },
 ];
 
-const roles = [
-  {
-    title: 'Packing & moving crew',
-    type: 'Full-time · Field',
-    body: 'Pack, load, transport and set up homes and offices to our standard. Training and equipment provided; experience welcome, attitude essential.',
-  },
-  {
-    title: 'Move coordinator',
-    type: 'Full-time · Operations',
-    body: 'Own a customer’s move end-to-end — survey, fixed quote, scheduling and day-of coordination. The single point of contact who makes the promise real.',
-  },
-  {
-    title: 'Claims & quality specialist',
-    type: 'Full-time · Trust',
-    body: 'Investigate and settle claims fairly and fast, and feed what you learn back into how crews pack. You keep our published numbers honest.',
-  },
-  {
-    title: 'Customer support',
-    type: 'Full-time · Support',
-    body: 'Answer real questions from people mid-move with clarity and calm. First response within our published SLA — no scripts, no runaround.',
-  },
-];
+// Open roles come from the CMS (Jobs collection) via the manifest.
+const cap = (s = '') => s.charAt(0).toUpperCase() + s.slice(1);
+const roles = jobs().map((j) => ({
+  title: j.title,
+  type: [cap(j.employmentType?.replace('-', ' ') ?? ''), j.team, j.location]
+    .filter(Boolean)
+    .join(' · '),
+  body: j.summary,
+}));
 ---
 
 <BaseLayout row={row}>
@@ -81,34 +69,200 @@ const roles = [
   <Band alt label="Open roles">
     <div id="roles" class="section-head">
       <h2>Open roles</h2>
-      <p>Don't see your exact title? If you can make a customer's move calmer, we want to hear from you.</p>
+      <p>
+        Don't see your exact title? If you can make a customer's move calmer, we want to hear from
+        you.
+      </p>
     </div>
-    <ul class="roles" role="list">
-      {
-        roles.map((r) => (
-          <li class="role card">
-            <div class="role-body">
-              <span class="role-type">{r.type}</span>
-              <h3>{r.title}</h3>
-              <p>{r.body}</p>
+    {
+      roles.length > 0 ? (
+        <ul class="roles" role="list">
+          {roles.map((r) => (
+            <li class="role card">
+              <div class="role-body">
+                <span class="role-type">{r.type}</span>
+                <h3>{r.title}</h3>
+                <p>{r.body}</p>
+              </div>
+              <button class="btn btn-ghost apply-btn" type="button" data-role={r.title}>
+                Apply
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="apply-note">
+          No specific roles are open right now — but if you can make a customer's move calmer, use
+          the form below and we'll keep you in mind.
+        </p>
+      )
+    }
+  </Band>
+
+  <Band label="Apply">
+    <div id="apply" class="apply-wrap">
+      <div class="apply-card card" id="apply-card">
+        <div class="apply-head">
+          <h2>Apply to join</h2>
+          <p>
+            Tell us a little about you
+            {o?.brandName ? ` — the ${o.brandName} team reads every application` : ''}. Fields
+            marked
+            <span class="req">*</span> are required.
+          </p>
+        </div>
+        <p class="form-error" id="apply-error" role="alert" hidden>
+          Please add your name and a valid email.
+        </p>
+        <form id="apply-form" class="aform" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="a-name">Full name <span class="req">*</span></label>
+              <input
+                id="a-name"
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                placeholder="Your name"
+              />
             </div>
-            <a
-              class="btn btn-ghost"
-              href={`/company/contact?role=${encodeURIComponent(r.title)}`}
-            >
-              Apply
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-    <p class="apply-note">
-      To apply, send a short note and your details through our{' '}
-      <a href="/company/contact">contact page</a>
-      {o?.brandName ? ` — the ${o.brandName} team reviews every application.` : '.'}
-    </p>
+            <div class="field">
+              <label for="a-email">Email <span class="req">*</span></label>
+              <input
+                id="a-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="a-phone">Phone</label>
+              <input
+                id="a-phone"
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="10-digit mobile"
+              />
+            </div>
+            <div class="field">
+              <label for="a-position">Role you're applying for</label>
+              <input id="a-position" name="position" type="text" placeholder="Which role?" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="a-resume">Resume / portfolio link</label>
+            <input
+              id="a-resume"
+              name="resumeUrl"
+              type="url"
+              placeholder="Link to your CV (Drive, LinkedIn…)"
+            />
+          </div>
+          <div class="field">
+            <label for="a-message">Why you?</label>
+            <textarea
+              id="a-message"
+              name="message"
+              rows="4"
+              placeholder="A few lines about your experience and why this role."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg">Submit application</button>
+        </form>
+      </div>
+
+      <div class="apply-success card" id="apply-success" hidden>
+        <span class="qs-check" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="32"
+            height="32"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 12l5 5L20 6"></path>
+          </svg>
+        </span>
+        <h2 id="as-title">Thank you!</h2>
+        <p id="as-msg">
+          Your application is in. We review every one and will reach out if there's a fit.
+        </p>
+        <a class="btn btn-ghost" href="/">Back to home</a>
+      </div>
+    </div>
   </Band>
 </BaseLayout>
+
+<script>
+  const form = document.getElementById('apply-form') as HTMLFormElement | null;
+  const card = document.getElementById('apply-card');
+  const success = document.getElementById('apply-success');
+  const banner = document.getElementById('apply-error');
+  const posInput = document.getElementById('a-position') as HTMLInputElement | null;
+
+  // "Apply" on a role: jump to the form and prefill the role name.
+  document.querySelectorAll<HTMLButtonElement>('.apply-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (posInput) posInput.value = btn.dataset.role ?? '';
+      document.getElementById('apply')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      (document.getElementById('a-name') as HTMLInputElement | null)?.focus();
+    });
+  });
+
+  if (form && card && success) {
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    const label = submitBtn?.textContent ?? 'Submit application';
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+      const email = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+      if (name.length < 2 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        if (banner) banner.textContent = 'Please add your name and a valid email.';
+        banner?.removeAttribute('hidden');
+        return;
+      }
+      banner?.setAttribute('hidden', '');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting…';
+      }
+      // Only reveal success once the application is actually saved in the CMS.
+      try {
+        const data = Object.fromEntries(new FormData(form).entries());
+        const res = await fetch('/api/apply', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+      } catch {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = label;
+        }
+        if (banner)
+          banner.textContent =
+            "Sorry — we couldn't submit that just now. Please try again in a moment.";
+        banner?.removeAttribute('hidden');
+        return;
+      }
+      const t = document.getElementById('as-title');
+      if (t) t.textContent = `Thank you, ${name.split(' ')[0]}!`;
+      card.hidden = true;
+      success.hidden = false;
+      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+</script>
 
 <style>
   .roles {
@@ -156,6 +310,102 @@ const roles = [
     .role {
       flex-direction: column;
       align-items: flex-start;
+    }
+  }
+
+  /* Application form */
+  .apply-wrap {
+    max-width: 720px;
+    margin-inline: auto;
+  }
+  .apply-card {
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+  .apply-head h2 {
+    font-size: var(--text-2xl);
+  }
+  .apply-head p {
+    color: var(--color-ink-500);
+    margin-top: 0.35rem;
+  }
+  .req {
+    color: var(--color-brand-600);
+  }
+  .form-error {
+    color: var(--color-brand-700);
+    background: color-mix(in oklab, var(--color-brand-500) 10%, white);
+    border: 1px solid color-mix(in oklab, var(--color-brand-500) 30%, white);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.9rem;
+    margin: 1rem 0;
+    font-size: var(--text-sm);
+  }
+  .aform {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .field label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--color-ink-900);
+  }
+  .field input,
+  .field textarea {
+    padding: 0.75rem 1rem;
+    font-size: var(--text-base);
+    font-family: var(--font-text);
+    color: var(--color-ink-900);
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-btn);
+    width: 100%;
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: 3px solid var(--color-brand-400);
+    outline-offset: 1px;
+  }
+  .aform > .btn {
+    align-self: flex-start;
+    margin-top: 0.25rem;
+  }
+  .apply-success {
+    max-width: 720px;
+    margin-inline: auto;
+    text-align: center;
+    padding: clamp(2rem, 5vw, 3rem);
+  }
+  .qs-check {
+    display: inline-grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--color-accent-500) 15%, white);
+    color: var(--color-accent-600);
+    margin-bottom: 1rem;
+  }
+  .apply-success h2 {
+    font-size: var(--text-2xl);
+  }
+  .apply-success p {
+    color: var(--color-ink-500);
+    margin: 0.5rem 0 1.5rem;
+  }
+  @media (max-width: 560px) {
+    .field-row {
+      grid-template-columns: 1fr;
     }
   }
 </style>

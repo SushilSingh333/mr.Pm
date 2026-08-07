@@ -92,8 +92,36 @@ export interface ServiceHubData {
   exclusions: string[];
 }
 
+/** A trust pillar in the "why us" bento (editable from the CMS). */
+export interface TrustPillar {
+  icon: string;
+  title: string;
+  body: string;
+  link?: { href: string; label: string };
+  variant?: 'lead' | 'dark' | 'default';
+}
+
+/** Editable marketing copy for the home page (CMS: HomeContent global). */
+export interface HomeContent {
+  taglineLine1: string;
+  taglineLine2: string;
+  heroSubtext?: string;
+  servicesHeading: string;
+  servicesIntro?: string;
+  trustHeading: string;
+  trustIntro?: string;
+  pillars?: TrustPillar[];
+  statsHeading: string;
+  statsIntro?: string;
+  citiesHeading: string;
+  citiesIntro?: string;
+  faqHeading: string;
+}
+
 export interface HomeData {
   totalJobs12m: number;
   onTimePct?: number;
   medianSettlementDays?: number;
+  faqs?: FaqItem[];
+  content?: HomeContent;
 }

@@ -73,10 +73,40 @@ export const orgSchema = z.object({
 });
 export type Org = z.infer<typeof orgSchema>;
 
+/** A careers posting (open role), rendered on /company/careers. */
+export const jobSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  team: z.string().optional(),
+  employmentType: z.string().optional(),
+  location: z.string().optional(),
+  summary: z.string(),
+});
+export type JobPosting = z.infer<typeof jobSchema>;
+
+/** CMS-editable copy for a hand-built editorial page, keyed by page key. */
+export const editorialSchema = z.object({
+  title: z.string().optional(),
+  eyebrow: z.string().optional(),
+  intro: z.string().optional(),
+  bodyHtml: z.string().optional(),
+  seoDescription: z.string().optional(),
+});
+export type EditorialContent = z.infer<typeof editorialSchema>;
+
 export const manifestSchema = z.object({
   generatedAt: z.string().datetime(),
   siteOrigin: z.string().url(),
   org: orgSchema.optional(),
+  jobs: z.array(jobSchema).default([]),
+  /** Editable copy for the hand-built editorial pages, keyed by page key. */
+  editorial: z.record(z.string(), editorialSchema).default({}),
+  /**
+   * Editorial page keys the CMS has explicitly unpublished. The footer and header
+   * drop their links, and the route de-indexes itself. Keys absent here fall back to
+   * built-in copy and stay visible — so this is "unpublished", not merely "unset".
+   */
+  hiddenPages: z.array(z.string()).default([]),
   pages: z.array(manifestRowSchema),
 });
 export type Manifest = z.infer<typeof manifestSchema>;

@@ -1,0 +1,29 @@
+# systemd unit — the auto-deploy listener. Runs deploy/deploy.sh whenever the CMS
+# publishes (via the build webhook), so editors never touch the terminal.
+#
+# Install:  sudo cp deploy/mrpackermover-deploy.service /etc/systemd/system/
+#           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-deploy
+# Logs:     journalctl -u mrpackermover-deploy -f
+#
+# Adjust User, WorkingDirectory and the PATH to match your droplet.
+
+[Unit]
+Description=MrPackerMover auto-deploy listener (rebuilds the site on CMS publish)
+After=network.target
+
+[Service]
+Type=simple
+User=mpm
+WorkingDirectory=/srv/mrpackermover
+# Loads BUILD_TRIGGER_TOKEN (shared with the CMS) + CLOUDFLARE_*/DATABASE_URL for deploy.sh.
+EnvironmentFile=/srv/mrpackermover/apps/cms/.env
+Environment=NODE_ENV=production
+Environment=DEPLOY_PATH=/var/www/mrpackermover
+# node + pnpm + rsync must be on PATH; corepack puts pnpm at /usr/bin/pnpm.
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart=/usr/bin/node /srv/mrpackermover/deploy/deploy-listener.mjs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

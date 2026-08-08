@@ -159,18 +159,44 @@ everything else is the static site.
 4. Create an API token with **Zone → Cache Purge** for this zone; put it + the Zone ID into
    `apps/cms/.env` (`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`).
 
-## 8. The publish → live cycle
+## 8. The publish → live cycle (auto-deploy)
 
-When an editor publishes in the CMS:
+Wire this **once** and CMS publishes go live on their own — editors never touch a terminal.
 
-1. Payload's `afterChange` hook fires and (debounced 10 min) POSTs to `BUILD_WEBHOOK_URL`.
-2. That triggers **`deploy/deploy.sh`**: rebuild the manifest through the publish gate →
-   rebuild the static site → copy into the web root → **`scripts/purge-cache.mjs`** tells
-   Cloudflare to drop the old copies.
+**a. Set the shared secret + webhook** in `apps/cms/.env`:
+
+```ini
+BUILD_TRIGGER_TOKEN=run `openssl rand -base64 32` and paste here
+BUILD_WEBHOOK_URL=http://127.0.0.1:4545/deploy
+```
+
+**b. Install the deploy listener** — a tiny localhost-only service that runs `deploy/deploy.sh`
+when the CMS calls it (token-checked; builds never overlap):
+
+```bash
+sudo cp deploy/mrpackermover-deploy.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now mrpackermover-deploy
+journalctl -u mrpackermover-deploy -f          # watch builds; Ctrl-C to stop tailing
+```
+
+**c. Restart the CMS** so it picks up the new env:
+
+```bash
+sudo systemctl restart mrpackermover-cms
+```
+
+Now the flow, with no manual steps:
+
+1. An editor publishes/unpublishes → Payload's `afterChange` hook fires, **debounced ~10 min**
+   (forty edits ⇒ one build), and POSTs to the listener with the shared token.
+2. The listener runs **`deploy/deploy.sh`**: rebuild the manifest (publish gate) → build the
+   static site → rsync into the web root → **purge Cloudflare** (`scripts/purge-cache.mjs`).
+   Triggers that arrive during a build coalesce into exactly one follow-up build.
 3. The next visitor gets the fresh page, which Cloudflare then caches again.
 
-Simplest wiring: point `BUILD_WEBHOOK_URL` at a tiny listener on the droplet that runs
-`deploy/deploy.sh`. To run it by hand any time: `bash deploy/deploy.sh`.
+**Publish immediately** (skip the ~10-min debounce), or if you haven't wired the listener yet:
+just run `bash deploy/deploy.sh`. Check the listener is alive with `curl localhost:4545/health`.
 
 > **Cache purge & your Cloudflare plan:** by-tag and by-prefix purge are Enterprise-only.
 > On Free/Pro, `purge-cache.mjs` purges **everything** by default (fine for a site that

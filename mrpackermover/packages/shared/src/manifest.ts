@@ -15,6 +15,8 @@ export const linkSchema = z.object({
   anchor: z.string(),
   /** Grouping for related-link blocks (e.g. "siblings", "services", "routes", "guides"). */
   group: z.string().optional(),
+  /** Optional Cloudinary image URL (e.g. a city card thumbnail); absent ⇒ static fallback. */
+  image: z.string().optional(),
 });
 export type ManifestLink = z.infer<typeof linkSchema>;
 

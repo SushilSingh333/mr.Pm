@@ -17,6 +17,8 @@ interface Props {
   intro: string;
   badge?: string;
   image?: string;
+  /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence over `image`. */
+  imageUrl?: string;
   /** When set, shows the city chip + the "Choose your city" modal. */
   cityLabel?: string;
   prefillCity?: string;
@@ -26,15 +28,19 @@ interface Props {
   bands?: RateBand[];
   roadKm?: number;
 }
-const { h1, intro, badge, image, cityLabel, ...quote } = Astro.props;
+const { h1, intro, badge, image, imageUrl, cityLabel, ...quote } = Astro.props;
 
-// City list for the modal (only needed when the chip is shown).
+// City list for the modal (only needed when the chip is shown) — carries each city's
+// uploaded thumbnail so the picker matches the hero.
 const cities = cityLabel
-  ? rowsOfType('city-hub').map((r) => ({ slug: r.slug, name: dataOf<CityHubData>(r).cityName }))
+  ? rowsOfType('city-hub').map((r) => {
+      const d = dataOf<CityHubData>(r);
+      return { slug: r.slug, name: d.cityName, image: d.heroImage?.url };
+    })
   : [];
 ---
 
-<HeroShell h1={h1} intro={intro} badge={badge} image={image}>
+<HeroShell h1={h1} intro={intro} badge={badge} image={image} imageUrl={imageUrl}>
   <QuoteWidget {...quote} cityLabel={cityLabel} eager />
 </HeroShell>
 

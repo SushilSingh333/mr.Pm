@@ -6,15 +6,23 @@
  * A `heading` named slot lets a page supply custom heading markup (e.g. a two-line
  * styled tagline); otherwise the plain <h1> is used.
  */
+import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
+
 interface Props {
   h1: string;
   intro?: string;
   badge?: string;
+  /** Static-file convention: /images/hero/<image>.jpg (used when `imageUrl` is absent). */
   image?: string;
+  /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence. */
+  imageUrl?: string;
   align?: 'center' | 'left';
 }
-const { h1, intro, badge, image = 'moving', align = 'center' } = Astro.props;
-const heroStyle = `--hero-image: url('/images/hero/${image}.jpg')`;
+const { h1, intro, badge, image = 'moving', imageUrl, align = 'center' } = Astro.props;
+// A CMS-uploaded (Cloudinary) image wins; `cldUrl` injects the delivery transform and
+// is a no-op for any non-Cloudinary URL. Otherwise fall back to the static file.
+const resolvedImage = imageUrl ? cldUrl(imageUrl, CLD_TRANSFORM.hero) : `/images/hero/${image}.jpg`;
+const heroStyle = `--hero-image: url('${resolvedImage}')`;
 const hasHeadingSlot = Astro.slots.has('heading');
 ---
 

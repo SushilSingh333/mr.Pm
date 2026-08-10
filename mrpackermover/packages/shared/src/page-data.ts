@@ -46,6 +46,12 @@ export interface CityHubData {
   priceFrom?: number;
   /** Localities we cover in this city — the "Areas we cover" grid. */
   areas?: Array<{ path: string; name: string }>;
+  /**
+   * Hero/thumbnail image for this city, uploaded via the CMS (stored on Cloudinary).
+   * The `url` is a plain Cloudinary delivery URL; templates inject a transform with
+   * `cldUrl()`. Absent ⇒ the template falls back to the static `/images/hero/...` file.
+   */
+  heroImage?: { url: string; alt?: string };
 }
 
 export interface CityServiceData {

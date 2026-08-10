@@ -45,8 +45,15 @@ interface LocationDoc {
   isServiceable?: boolean;
   /** Editor-selected services this city offers (each becomes a city × service page). */
   servicesOffered?: Array<Id | { id: Id }> | null;
+  /** Uploaded hero/thumbnail image (Media id) — resolved to a Cloudinary URL. */
+  heroImage?: Id | { id: Id } | null;
   editorialNote?: unknown;
   updatedAt: string;
+}
+interface MediaDoc {
+  id: Id;
+  url?: string;
+  alt?: string;
 }
 interface ServiceDoc {
   id: Id;
@@ -177,15 +184,26 @@ async function loadAll<T>(payload: Payload, collection: string): Promise<T[]> {
 const BRAND = 'MrPackerMover';
 
 export async function buildManifest(payload: Payload, siteOrigin: string): Promise<Manifest> {
-  const [locations, services, lanes, rateCards, reviews, jobsStats, faqs] = await Promise.all([
-    loadAll<LocationDoc>(payload, 'locations'),
-    loadAll<ServiceDoc>(payload, 'services'),
-    loadAll<LaneDoc>(payload, 'lanes'),
-    loadAll<RateCardDoc>(payload, 'rate-cards'),
-    loadAll<ReviewDoc>(payload, 'reviews'),
-    loadAll<JobsStatDoc>(payload, 'jobs-stats'),
-    loadAll<FaqDoc>(payload, 'faqs'),
-  ]);
+  const [locations, services, lanes, rateCards, reviews, jobsStats, faqs, media] =
+    await Promise.all([
+      loadAll<LocationDoc>(payload, 'locations'),
+      loadAll<ServiceDoc>(payload, 'services'),
+      loadAll<LaneDoc>(payload, 'lanes'),
+      loadAll<RateCardDoc>(payload, 'rate-cards'),
+      loadAll<ReviewDoc>(payload, 'reviews'),
+      loadAll<JobsStatDoc>(payload, 'jobs-stats'),
+      loadAll<FaqDoc>(payload, 'faqs'),
+      loadAll<MediaDoc>(payload, 'media'),
+    ]);
+
+  // Media id → { url, alt } so a location's uploaded hero resolves to a Cloudinary URL.
+  const mediaById = new Map(media.map((m) => [sid(m.id), m]));
+  const imageFor = (
+    ref: Id | { id: Id } | null | undefined,
+  ): { url: string; alt?: string } | undefined => {
+    const m = mediaById.get(refId(ref) ?? '');
+    return m?.url ? { url: m.url, alt: m.alt || undefined } : undefined;
+  };
 
   const idx = new DataIndex(locations, services, lanes, rateCards, reviews, jobsStats, faqs);
   const cities = locations.filter((l) => l.type === 'city' && l.isServiceable);
@@ -263,6 +281,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         relatedLinks: [...serviceLinks, ...localityLinks].slice(0, 60),
         data: {
           cityName: city.name,
+          // Uploaded hero/thumbnail (Cloudinary). Absent ⇒ the template uses the
+          // static /images/hero/cities/<slug>.jpg fallback.
+          heroImage: imageFor(city.heroImage),
           // Sub-locations we serve — rendered as the "Areas we cover" grid, each linking
           // to that locality's own detail page.
           areas: localityLinks.map((l) => ({ path: l.path, name: l.anchor })),
@@ -362,6 +383,14 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     };
     if (!evaluateCandidate(candidate).passed) continue;
 
+    // Reviews render as the moving marquee (like the city page) once there are >4. A
+    // locality rarely has that many of its own, so top up with the parent city's verified
+    // reviews — the locality's own lead, the city's fill the loop (jobRefs are globally
+    // unique, so no duplicates). Mirrors the city-service reviews fallback above.
+    const locReviews = idx.reviewsFor(lid);
+    const localityReviews =
+      locReviews.length > 4 ? locReviews : [...locReviews, ...idx.reviewsFor(sid(parent.id))];
+
     rows.push(
       makeRow(
         'locality',
@@ -384,7 +413,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             editorial: idx.editorialParagraphs(loc.editorialNote),
             rateBands: idx.cityRateBands(sid(parent.id)),
             stats: idx.statsFor(lid),
-            reviews: idx.reviewsFor(lid).slice(0, 3),
+            reviews: localityReviews.slice(0, 9),
             faqs: idx.faqsForCity(sid(parent.id)).slice(0, 6),
             priceFrom: idx.priceFrom(idx.cityRateBands(sid(parent.id))),
           },

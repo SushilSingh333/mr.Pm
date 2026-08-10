@@ -12,6 +12,8 @@ interface Props {
   intro: string;
   badge?: string;
   image?: string;
+  /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence over `image`. */
+  imageUrl?: string;
   cityLabel?: string;
   prefillCity?: string;
   prefillService?: string;

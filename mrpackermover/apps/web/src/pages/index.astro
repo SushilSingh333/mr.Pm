@@ -44,8 +44,14 @@ const services = serviceRows.map((r) => ({
 }));
 
 const cityRows = rowsOfType('city-hub');
-const cities = cityRows.map((r) => ({ slug: r.slug, name: dataOf<CityHubData>(r).cityName }));
-const cityLinks = cityRows.map((r) => ({ path: r.path, anchor: dataOf<CityHubData>(r).cityName }));
+const cities = cityRows.map((r) => {
+  const d = dataOf<CityHubData>(r);
+  return { slug: r.slug, name: d.cityName, image: d.heroImage?.url };
+});
+const cityLinks = cityRows.map((r) => {
+  const d = dataOf<CityHubData>(r);
+  return { path: r.path, anchor: d.cityName, image: d.heroImage?.url };
+});
 ---
 
 <BaseLayout row={row}>

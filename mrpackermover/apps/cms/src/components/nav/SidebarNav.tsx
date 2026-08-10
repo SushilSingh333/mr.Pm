@@ -5,9 +5,10 @@ import Link from 'next/link';
  * Sidebar header (admin.components.beforeNavLinks): a live "Needs attention" panel —
  * new leads, new job applications and unread contact messages, each a one-tap link to
  * the filtered collection — plus a compact quick-access list. Server component so the
- * counts are always current. Payload theme variables + brand maroon.
+ * counts are always current. Payload theme variables + the violet admin accent
+ * (matches the redesigned dashboard and global admin theme).
  */
-const BRAND = '#990010';
+const V = '#6D5AE6';
 
 const QUICK = [
   { href: '/admin/collections/locations', label: 'Locations' },
@@ -94,22 +95,22 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 }
 
 const CSS = `
-.mpm-nav { padding: 0 .25rem .6rem; margin-bottom: .6rem; border-bottom: 1px solid var(--theme-elevation-100); }
-.mpm-nav__panel { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-100); border-radius:10px; padding:.6rem .65rem .5rem; margin-bottom:.8rem; }
-.mpm-nav__panel-head { display:flex; align-items:center; gap:.4rem; margin:0 .1rem .5rem; }
-.mpm-nav__panel-title { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--theme-elevation-500); }
-.mpm-nav__panel-dot { width:7px; height:7px; border-radius:50%; background:${BRAND}; box-shadow:0 0 0 3px color-mix(in srgb, ${BRAND} 22%, transparent); }
-.mpm-nav__alerts { display:flex; flex-direction:column; gap:.25rem; }
-.mpm-nav__alert { display:flex; align-items:center; justify-content:space-between; gap:.5rem; text-decoration:none; padding:.4rem .5rem; border-radius:7px; border:1px solid transparent; }
+.mpm-nav { padding: 0 .25rem .7rem; margin-bottom: .7rem; border-bottom: 1px solid var(--theme-elevation-100); }
+.mpm-nav__panel { background:color-mix(in srgb, ${V} 6%, var(--theme-elevation-50)); border:1px solid color-mix(in srgb, ${V} 12%, var(--theme-elevation-100)); border-radius:14px; padding:.65rem .7rem .55rem; margin-bottom:.85rem; }
+.mpm-nav__panel-head { display:flex; align-items:center; gap:.4rem; margin:0 .1rem .55rem; }
+.mpm-nav__panel-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--theme-elevation-600); }
+.mpm-nav__panel-dot { width:7px; height:7px; border-radius:50%; background:${V}; box-shadow:0 0 0 3px color-mix(in srgb, ${V} 24%, transparent); }
+.mpm-nav__alerts { display:flex; flex-direction:column; gap:.28rem; }
+.mpm-nav__alert { display:flex; align-items:center; justify-content:space-between; gap:.5rem; text-decoration:none; padding:.42rem .55rem; border-radius:9px; border:1px solid transparent; transition:background .12s,border-color .12s; }
 .mpm-nav__alert:hover { background:var(--theme-elevation-100); }
-.mpm-nav__alert-label { font-size:.8rem; color:var(--theme-elevation-700); }
-.mpm-nav__alert-count { font-weight:700; font-size:.8rem; color:var(--theme-elevation-500); background:var(--theme-elevation-100); min-width:1.4rem; text-align:center; padding:.05rem .35rem; border-radius:99px; }
-.mpm-nav__alert.is-hot { background:color-mix(in srgb, ${BRAND} 10%, var(--theme-elevation-50)); border-color:color-mix(in srgb, ${BRAND} 26%, transparent); }
+.mpm-nav__alert-label { font-size:.9rem; color:var(--theme-elevation-800); }
+.mpm-nav__alert-count { font-weight:700; font-size:.85rem; color:var(--theme-elevation-600); background:var(--theme-elevation-100); min-width:1.5rem; text-align:center; padding:.1rem .4rem; border-radius:99px; }
+.mpm-nav__alert.is-hot { background:color-mix(in srgb, ${V} 11%, var(--theme-elevation-50)); border-color:color-mix(in srgb, ${V} 28%, transparent); }
 .mpm-nav__alert.is-hot .mpm-nav__alert-label { color:var(--theme-elevation-1000); font-weight:600; }
-.mpm-nav__alert.is-hot .mpm-nav__alert-count { color:#fff; background:${BRAND}; }
+.mpm-nav__alert.is-hot .mpm-nav__alert-count { color:#fff; background:linear-gradient(140deg,#8B7CF0,#5A46D6); }
 
 .mpm-nav__quick { display:flex; flex-direction:column; gap:.1rem; }
-.mpm-nav__quick-title { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--theme-elevation-450); padding:.1rem .35rem .3rem; }
-.mpm-nav__quick-link { font-size:.82rem; color:var(--theme-elevation-700); text-decoration:none; padding:.32rem .45rem; border-radius:6px; }
-.mpm-nav__quick-link:hover { background:var(--theme-elevation-100); color:${BRAND}; }
+.mpm-nav__quick-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--theme-elevation-500); padding:.15rem .4rem .35rem; }
+.mpm-nav__quick-link { font-size:.94rem; color:var(--theme-elevation-800); text-decoration:none; padding:.44rem .55rem; border-radius:9px; transition:background .12s,color .12s; }
+.mpm-nav__quick-link:hover { background:color-mix(in srgb, ${V} 10%, transparent); color:${V}; }
 `;

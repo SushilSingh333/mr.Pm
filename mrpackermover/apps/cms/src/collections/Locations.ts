@@ -120,6 +120,17 @@ export const Locations: CollectionConfig = {
       },
     },
     {
+      name: 'heroImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description:
+          'Background photo for this city’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Leave empty to fall back to the built-in /images/hero/cities/<slug>.jpg file.',
+        // Hero image is a city-level asset; localities inherit the city's look.
+        condition: (data) => data?.type === 'city',
+      },
+    },
+    {
       name: 'editorialNote',
       type: 'richText',
       admin: {

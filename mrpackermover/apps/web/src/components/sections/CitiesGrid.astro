@@ -1,5 +1,5 @@
 ---
-import type { ManifestLink } from '@mpm/shared';
+import { cldUrl, CLD_TRANSFORM, type ManifestLink } from '@mpm/shared';
 
 /**
  * "Cities we serve" — a centered grid of small city cards, each linking to that
@@ -14,6 +14,9 @@ interface Props {
 }
 const { cities, heading = 'Cities we serve', intro } = Astro.props;
 const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?? '';
+// Prefer the city's uploaded (Cloudinary) thumbnail; fall back to the static file.
+const thumbFor = (c: ManifestLink): string =>
+  c.image ? cldUrl(c.image, CLD_TRANSFORM.thumb) : `/images/hero/cities/${slugOf(c.path)}.jpg`;
 ---
 
 <div class="section-head">
@@ -26,13 +29,7 @@ const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?
     cities.map((c) => (
       <a class="city-card" href={c.path}>
         <span class="city-thumb">
-          <img
-            src={`/images/hero/cities/${slugOf(c.path)}.jpg`}
-            alt=""
-            loading="lazy"
-            width="72"
-            height="72"
-          />
+          <img src={thumbFor(c)} alt="" loading="lazy" width="72" height="72" />
         </span>
         <span class="city-body">
           <strong>{c.anchor}</strong>

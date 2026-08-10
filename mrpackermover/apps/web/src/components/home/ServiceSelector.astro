@@ -10,6 +10,8 @@ import CityModal from './CityModal.astro';
 interface City {
   slug: string;
   name: string;
+  /** Uploaded (Cloudinary) thumbnail, passed through to the city picker modal. */
+  image?: string;
 }
 interface Service {
   slug: string;

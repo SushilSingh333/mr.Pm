@@ -1,10 +1,16 @@
 import type { CollectionConfig } from 'payload';
+import { cldUrl } from '@mpm/shared';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
 
 /**
  * Uploads: photos of OUR crews, trucks, and warehouses (Doc 01 §2) — never stock
  * photos of smiling movers. Alt text is data-driven and required for accessibility.
- * Images are resized/served by Cloudflare Images; originals are stored here.
+ *
+ * Originals are stored on Cloudinary (see payload.config `cloudStoragePlugin`), which
+ * resizes and format-converts on delivery via URL transforms — so we keep a single
+ * original per image (no Payload-side `imageSizes`). The admin preview is a small
+ * Cloudinary transform of the stored URL. Without Cloudinary creds set, Media falls
+ * back to local-disk storage and `adminThumbnail` returns the plain URL unchanged.
  */
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -16,13 +22,9 @@ export const Media: CollectionConfig = {
     delete: isAuthenticated,
   },
   upload: {
-    imageSizes: [
-      { name: 'thumb', width: 400 },
-      { name: 'card', width: 800 },
-      { name: 'hero', width: 1600 },
-    ],
-    formatOptions: { format: 'webp', options: { quality: 78 } },
     mimeTypes: ['image/*'],
+    adminThumbnail: ({ doc }) =>
+      typeof doc?.url === 'string' ? cldUrl(doc.url, 'f_auto,q_auto,c_fill,w_120,h_120') : null,
   },
   fields: [
     {

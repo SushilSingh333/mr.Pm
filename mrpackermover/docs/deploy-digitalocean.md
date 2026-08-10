@@ -105,6 +105,11 @@ BUILD_TRIGGER_TOKEN=
 # For the cache purge (step 7):
 CLOUDFLARE_API_TOKEN=
 CLOUDFLARE_ZONE_ID=
+# Media storage on Cloudinary (signed uploads). Set all three to store CMS uploads —
+# incl. a city's Hero image — on Cloudinary's CDN; leave blank to use local disk.
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
 
 Also set `PUBLIC_SITE_URL=https://yourdomain.com` for the web build (in the environment or

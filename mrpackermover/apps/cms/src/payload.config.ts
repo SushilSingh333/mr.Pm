@@ -3,7 +3,9 @@ import { fileURLToPath } from 'node:url';
 import { buildConfig } from 'payload';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage';
 import { getDatabaseUrl } from '@mpm/db/env';
+import { cloudinaryStorageAdapter } from './storage/cloudinary.js';
 
 import { Users } from './collections/Users.js';
 import { Media } from './collections/Media.js';
@@ -29,6 +31,14 @@ import { publicEndpoints } from './endpoints/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Cloudinary is used for Media only when all three secrets are present. Without them
+// (local design/CI) Media falls back to Payload's local disk storage — nothing breaks.
+const cloudinaryEnabled = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET,
+);
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -50,6 +60,9 @@ export default buildConfig({
         },
       },
       beforeNavLinks: ['/components/nav/SidebarNav#SidebarNav'],
+      // App-wide violet "Dropify" theme — a provider wraps every admin page (incl. login
+      // and account), injecting the global stylesheet. Presentation only.
+      providers: ['/components/theme/AdminTheme#AdminTheme'],
     },
   },
   editor: lexicalEditor(),
@@ -96,6 +109,30 @@ export default buildConfig({
   // Public JSON endpoints served by the origin (mounted under /api): quote, search,
   // track. On the DigitalOcean origin these replace the old Cloudflare Functions.
   endpoints: publicEndpoints,
+
+  // Media uploads → Cloudinary (signed server-side). Images are served from Cloudinary's
+  // CDN and resized/format-converted on delivery via URL transforms. Enabled only when
+  // the Cloudinary secrets are set; otherwise Media stays on local disk.
+  plugins: cloudinaryEnabled
+    ? [
+        cloudStoragePlugin({
+          collections: {
+            media: {
+              adapter: cloudinaryStorageAdapter({
+                cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+                apiKey: process.env.CLOUDINARY_API_KEY!,
+                apiSecret: process.env.CLOUDINARY_API_SECRET!,
+                folder: process.env.CLOUDINARY_FOLDER || 'mrpackermover',
+              }),
+              disableLocalStorage: true,
+              // Media is public (published crew/city photos), so skip the /api/media proxy
+              // and link straight to Cloudinary's CDN.
+              disablePayloadAccessControl: true,
+            },
+          },
+        }),
+      ]
+    : [],
 
   graphQL: { disable: true },
   sharp: (await import('sharp')).default,

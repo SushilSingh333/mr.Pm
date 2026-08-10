@@ -25,6 +25,7 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../../components/graphics/BrandIcon'
 import { BrandLogo as BrandLogo_6e77d0f41c8c9945031c97d73e95e085 } from '../../../components/graphics/BrandLogo'
 import { SidebarNav as SidebarNav_c69d985326c5da60afb675d56609efeb } from '../../../components/nav/SidebarNav'
+import { AdminTheme as AdminTheme_219a1cb542fda7a3252be3f39ef7ac65 } from '../../../components/theme/AdminTheme'
 import { Dashboard as Dashboard_7924645a622bedd19f62843d924c0df8 } from '../../../components/dashboard/Dashboard'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -57,6 +58,7 @@ export const importMap = {
   "/components/graphics/BrandIcon#BrandIcon": BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f,
   "/components/graphics/BrandLogo#BrandLogo": BrandLogo_6e77d0f41c8c9945031c97d73e95e085,
   "/components/nav/SidebarNav#SidebarNav": SidebarNav_c69d985326c5da60afb675d56609efeb,
+  "/components/theme/AdminTheme#AdminTheme": AdminTheme_219a1cb542fda7a3252be3f39ef7ac65,
   "/components/dashboard/Dashboard#Dashboard": Dashboard_7924645a622bedd19f62843d924c0df8,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

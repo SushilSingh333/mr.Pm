@@ -7,14 +7,20 @@
  * `mpm:city-select` event ({slug, name}) and closes — consumers decide what to do
  * (home updates the selector; a city page navigates to that city).
  */
+import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
+
 interface City {
   slug: string;
   name: string;
+  /** Uploaded (Cloudinary) thumbnail; absent ⇒ static /images/hero/cities/<slug>.jpg. */
+  image?: string;
 }
 interface Props {
   cities: City[];
 }
 const { cities } = Astro.props;
+const thumbFor = (c: City): string =>
+  c.image ? cldUrl(c.image, CLD_TRANSFORM.thumb) : `/images/hero/cities/${c.slug}.jpg`;
 ---
 
 <dialog id="city-modal" class="city-modal" aria-label="Choose your city">
@@ -37,13 +43,7 @@ const { cities } = Astro.props;
         cities.map((c) => (
           <button type="button" class="city-choice" data-slug={c.slug} data-name={c.name}>
             <span class="city-thumb">
-              <img
-                src={`/images/hero/cities/${c.slug}.jpg`}
-                alt=""
-                loading="lazy"
-                width="120"
-                height="120"
-              />
+              <img src={thumbFor(c)} alt="" loading="lazy" width="120" height="120" />
             </span>
             <span class="city-choice-name">{c.name}</span>
           </button>

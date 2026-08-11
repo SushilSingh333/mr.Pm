@@ -65,8 +65,11 @@ export const config = {
   labourIncluded: 4,
   extraLabourRate: 700,
   packingDeductLocal: 1200,
-  floorNoLiftPerFloor: 300,
-  floorLiftFlat: 150,
+  // Per-floor carrying cost at each end. Stairs (no lift) is hard labour; a lift still
+  // costs per floor (more trips, longer carry, lift waiting) but far less. Both scale
+  // with the floor so every change to these fields visibly moves the price.
+  floorNoLiftPerFloor: 350,
+  floorLiftPerFloor: 100,
   heavyLocal: 1000,
   twoWheelerLocal: 1500,
 
@@ -112,8 +115,8 @@ function snapTruck(ft: number, table: Record<number, number>): number {
 
 function floorCharge(floor: number, hasLift: boolean): number {
   const f = Math.max(0, floor);
-  if (hasLift) return f > 0 ? config.floorLiftFlat : 0;
-  return f * config.floorNoLiftPerFloor;
+  if (f === 0) return 0; // ground floor at that end — no carrying either way
+  return f * (hasLift ? config.floorLiftPerFloor : config.floorNoLiftPerFloor);
 }
 
 export function estimate(input: MoveInput): MoveResult {
@@ -159,9 +162,6 @@ export function estimate(input: MoveInput): MoveResult {
 
     if (!i.packing) add('No packing material', -cfg.packingDeductLocal);
 
-    const fc = floorCharge(i.pickupFloor, i.pickupLift) + floorCharge(i.dropFloor, i.dropLift);
-    if (fc > 0) add('Floor carrying (stairs / lift)', fc);
-
     if (i.heavyLoad) add('Heavy / over-full load', cfg.heavyLocal);
     if (i.twoWheelers > 0)
       add(`Two-wheeler ×${i.twoWheelers} (local)`, i.twoWheelers * cfg.twoWheelerLocal);
@@ -186,6 +186,13 @@ export function estimate(input: MoveInput): MoveResult {
         subtotal * cfg.hillSurchargePct,
       );
   }
+
+  // Floor / access carrying at each end. The crew hauls the load up or down the same
+  // number of floors whether the truck then drives 5 km or 500 km, so this applies to
+  // BOTH local and intercity moves (it used to be added on local moves only — the bug
+  // that made these fields do nothing on longer moves).
+  const fc = floorCharge(i.pickupFloor, i.pickupLift) + floorCharge(i.dropFloor, i.dropLift);
+  if (fc > 0) add('Floor carrying (stairs / lift)', fc);
 
   // Packing grade uplift — the base already includes basic packing, so 'standard' and
   // 'premium' add over it (scaled by truck size).

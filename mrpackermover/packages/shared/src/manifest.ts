@@ -86,6 +86,26 @@ export const jobSchema = z.object({
 });
 export type JobPosting = z.infer<typeof jobSchema>;
 
+/** A blog post (from the CMS `posts` collection), rendered on /blog. */
+export const blogPostSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  excerpt: z.string(),
+  category: z.string(),
+  author: z.string(),
+  /** ISO date (W3C) shown on the article and used to sort newest-first. */
+  date: z.string(),
+  readMins: z.number(),
+  /** Cover image URL — a Cloudinary delivery URL or a static /images/... fallback. */
+  cover: z.string(),
+  coverAlt: z.string(),
+  featured: z.boolean().optional(),
+  tags: z.array(z.string()).default([]),
+  /** Rendered HTML body (from the CMS rich-text renderer or authored in-repo). */
+  body: z.string(),
+});
+export type BlogPost = z.infer<typeof blogPostSchema>;
+
 /** CMS-editable copy for a hand-built editorial page, keyed by page key. */
 export const editorialSchema = z.object({
   title: z.string().optional(),
@@ -109,6 +129,8 @@ export const manifestSchema = z.object({
    * built-in copy and stay visible — so this is "unpublished", not merely "unset".
    */
   hiddenPages: z.array(z.string()).default([]),
+  /** Blog posts (from the CMS `posts` collection), newest-first ordering applied by the site. */
+  blog: z.array(blogPostSchema).default([]),
   pages: z.array(manifestRowSchema),
 });
 export type Manifest = z.infer<typeof manifestSchema>;

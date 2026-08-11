@@ -16,6 +16,9 @@ import {
   type HomeContent,
   type TrustPillar,
   type EditorialContent,
+  type BlogPost,
+  cldUrl,
+  CLD_TRANSFORM,
 } from '@mpm/shared';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
@@ -213,7 +216,19 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const rows: ManifestRow[] = [];
   const publishedCityIds = new Set<string>();
 
-  // ── City hubs + their city × service pages ─────────────────────────────────
+  // ── Pre-pass: which cities publish, and which services each one offers ───────
+  // EVERY city×service link on the site (the service hub's "Cities we serve", the
+  // nearby-city links) is built from this plan, so a city that does NOT offer a service
+  // is never linked to a `/packers-and-movers/<city>/<service>` page that was never
+  // created — that mismatch was the 404 an editor hit from the service page.
+  interface CityPlan {
+    city: LocationDoc;
+    cid: string;
+    services: ServiceDoc[];
+  }
+  const cityPlan: CityPlan[] = [];
+  const serviceCities = new Map<string, ManifestLink[]>(); // serviceId → its hub's city links
+  const cityServicePaths = new Set<string>(); // every city×service path that will exist
   for (const city of cities) {
     const cid = sid(city.id);
     const stats = idx.statsFor(cid);
@@ -233,17 +248,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     if (!evaluateCandidate(cityCandidate).passed) continue;
     publishedCityIds.add(cid);
 
-    const cityPath = paths.cityHub(city.slug);
-    const localityLinks = localities
-      .filter((l) => refId(l.parent) === cid)
-      .map<ManifestLink>((l) => ({
-        path: paths.locality(city.slug, l.slug),
-        anchor: l.name,
-        group: 'localities',
-      }));
     // A city × service page publishes only with real service-in-city proof (the gate).
-    // Build the hub's service links from the SAME gate the pages use, so the hub never
-    // links to a service page that doesn't exist (it would 301 back to the hub).
     const cityServiceCandidate = (svcId: string): GateCandidate => ({
       pageType: 'city-service',
       hasRateCard: idx.hasCityRateCard(cid) || idx.hasServiceRateCard(svcId),
@@ -263,9 +268,31 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     const offeredIds = new Set(
       (city.servicesOffered ?? []).map((s) => refId(s)).filter((x): x is string => x != null),
     );
-    const servicesForCity = offeredIds.size
+    const services = offeredIds.size
       ? publicServices.filter((s) => offeredIds.has(sid(s.id)))
       : publicServices.filter((s) => evaluateCandidate(cityServiceCandidate(sid(s.id))).passed);
+
+    cityPlan.push({ city, cid, services });
+    for (const s of services) {
+      const svcPath = paths.cityService(city.slug, s.slug);
+      cityServicePaths.add(svcPath);
+      const list = serviceCities.get(sid(s.id)) ?? [];
+      list.push({ path: svcPath, anchor: `${s.name} in ${city.name}`, group: 'cities' });
+      serviceCities.set(sid(s.id), list);
+    }
+  }
+
+  // ── City hubs + their city × service pages ─────────────────────────────────
+  for (const { city, cid, services: servicesForCity } of cityPlan) {
+    const stats = idx.statsFor(cid);
+    const cityPath = paths.cityHub(city.slug);
+    const localityLinks = localities
+      .filter((l) => refId(l.parent) === cid)
+      .map<ManifestLink>((l) => ({
+        path: paths.locality(city.slug, l.slug),
+        anchor: l.name,
+        group: 'localities',
+      }));
 
     const serviceLinks = servicesForCity.map<ManifestLink>((s) => ({
       path: paths.cityService(city.slug, s.slug),
@@ -338,7 +365,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             // Also link the localities we cover in this city — a natural in-page link
             // that gives each locality page a third contextual inbound link (Doc 02 §7).
             relatedLinks: [
-              ...nearbyCityServiceLinks(cities, city, service.slug),
+              ...nearbyCityServiceLinks(cities, city, service.slug, cityServicePaths),
               ...localityLinks.slice(0, 6),
             ],
             data: {
@@ -512,14 +539,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         title: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
         h1: `${service.name} Services`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
-        relatedLinks: [
-          ...cities.map<ManifestLink>((c) => ({
-            path: paths.cityService(c.slug, service.slug),
-            anchor: `${service.name} in ${c.name}`,
-            group: 'cities',
-          })),
-          ...siblings,
-        ],
+        // Only the cities that actually offer this service (from the pre-pass) — never a
+        // city whose `/packers-and-movers/<city>/<service>` page doesn't exist (→ 404).
+        relatedLinks: [...(serviceCities.get(sid(service.id)) ?? []), ...siblings],
         data: {
           serviceName: service.name,
           summary: service.summary,
@@ -635,6 +657,53 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     hiddenPages = [];
   }
 
+  // ── Blog posts (CMS-managed) → /blog ───────────────────────────────────────
+  interface PostDoc {
+    slug: string;
+    title: string;
+    excerpt?: string;
+    category?: string;
+    author?: string;
+    publishedDate?: string;
+    cover?: { url?: string; alt?: string } | Id | null;
+    tags?: string[];
+    featured?: boolean;
+    body?: unknown;
+    updatedAt: string;
+  }
+  let blog: BlogPost[] = [];
+  try {
+    const res = await payload.find({
+      collection: 'posts' as never,
+      depth: 1, // populate the cover Media so we can read its Cloudinary URL + alt
+      limit: 500,
+      pagination: false,
+      where: { _status: { equals: 'published' } } as never,
+      overrideAccess: true,
+    });
+    blog = (res.docs as PostDoc[]).map((p) => {
+      const cover =
+        p.cover && typeof p.cover === 'object' ? (p.cover as { url?: string; alt?: string }) : null;
+      const words = richTextToPlain(p.body).split(/\s+/).filter(Boolean).length;
+      return {
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt ?? '',
+        category: p.category ?? 'Guides',
+        author: p.author || 'The MrPackerMover Team',
+        date: p.publishedDate ?? p.updatedAt,
+        readMins: Math.max(1, Math.round(words / 200)),
+        cover: cover?.url ? cldUrl(cover.url, CLD_TRANSFORM.blog) : '/images/hero/moving.jpg',
+        coverAlt: cover?.alt ?? p.title,
+        featured: Boolean(p.featured),
+        tags: p.tags ?? [],
+        body: richTextToHtml(p.body) || '',
+      };
+    });
+  } catch {
+    blog = [];
+  }
+
   const org = await payload
     .findGlobal({ slug: 'org-profile', overrideAccess: true })
     .catch(() => null);
@@ -644,6 +713,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     jobs,
     editorial,
     hiddenPages,
+    blog,
     org: org
       ? {
           brandName: org.brandName,
@@ -682,22 +752,26 @@ function nearbyCityServiceLinks(
   cities: LocationDoc[],
   city: LocationDoc,
   serviceSlug: string,
+  servedPaths: Set<string>,
 ): ManifestLink[] {
   // Cyclic pick of the next N cities so links spread evenly and no city (not even
-  // the last in the list) is orphaned — a plain `.slice` would starve the tail.
+  // the last in the list) is orphaned — a plain `.slice` would starve the tail. Only
+  // cities that actually offer this service (their city×service page exists) are linked,
+  // so we never emit a link that 404s.
   const n = cities.length;
   const i = cities.findIndex((c) => sid(c.id) === sid(city.id));
   if (i < 0 || n < 2) return [];
   const out: ManifestLink[] = [];
   for (let k = 1; k <= 6 && k < n; k += 1) {
     const c = cities[(i + k) % n];
-    if (c) {
-      out.push({
-        path: paths.cityService(c.slug, serviceSlug),
-        anchor: `${serviceSlug.replace(/-/g, ' ')} in ${c.name}`,
-        group: 'nearby',
-      });
-    }
+    if (!c) continue;
+    const path = paths.cityService(c.slug, serviceSlug);
+    if (!servedPaths.has(path)) continue;
+    out.push({
+      path,
+      anchor: `${serviceSlug.replace(/-/g, ' ')} in ${c.name}`,
+      group: 'nearby',
+    });
   }
   return out;
 }

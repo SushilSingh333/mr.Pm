@@ -1,34 +1,22 @@
 /**
- * Editorial content for the blog. Authored in-repo (not from the CMS manifest),
- * so it ships with the static site. Bodies are trusted HTML we control.
- *
- * Covers reuse the existing self-hosted hero imagery in /public/images/hero.
+ * Blog data for the static site. Posts now come from the CMS (`posts` collection) via
+ * the build manifest. The in-repo FALLBACK_POSTS below are shown when the manifest has
+ * no blog entries (design/CI with no database) and stay visible alongside CMS posts
+ * unless a CMS post reuses their slug — so the blog is never empty and adding a post in
+ * the CMS is purely additive. Bodies are trusted HTML (the CMS rich-text renderer, or
+ * authored here). Covers reuse the self-hosted hero imagery in /public/images/hero.
  */
+import { manifest } from './manifest.js';
+import type { BlogPost } from '@mpm/shared';
 
-export interface BlogPost {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: BlogCategory;
-  author: string;
-  /** ISO date (W3C). */
-  date: string;
-  readMins: number;
-  cover: string;
-  coverAlt: string;
-  featured?: boolean;
-  tags: string[];
-  /** Trusted HTML rendered inside <Prose>. */
-  body: string;
-}
-
+export type { BlogPost } from '@mpm/shared';
 export type BlogCategory = 'Guides' | 'Pricing' | 'Safety' | 'Packing' | 'Business';
 
 export const CATEGORIES: BlogCategory[] = ['Guides', 'Pricing', 'Safety', 'Packing', 'Business'];
 
 const AUTHOR = 'The MrPackerMover Team';
 
-export const POSTS: BlogPost[] = [
+const FALLBACK_POSTS: BlogPost[] = [
   {
     slug: 'home-shifting-checklist-8-weeks',
     title: 'The 8-week home-shifting checklist that keeps moving day boring',
@@ -228,6 +216,18 @@ export const POSTS: BlogPost[] = [
 <p>A single named coordinator should own the project end to end, against a fixed, itemised quote your finance team can approve in advance. That’s exactly how our <a href="/corporate">corporate relocation</a> works — survey, fixed plan, move, sign-off.</p>
 `,
   },
+];
+
+/**
+ * Posts shown on the site: CMS posts (from the manifest) first, then any in-repo
+ * fallback whose slug a CMS post hasn't overridden. Once you publish posts in the CMS
+ * they take over; the fallbacks keep the blog populated until then.
+ */
+const cmsPosts: BlogPost[] = manifest().blog ?? [];
+const cmsSlugs = new Set(cmsPosts.map((p) => p.slug));
+export const POSTS: BlogPost[] = [
+  ...cmsPosts,
+  ...FALLBACK_POSTS.filter((p) => !cmsSlugs.has(p.slug)),
 ];
 
 export function getPost(slug: string): BlogPost | undefined {

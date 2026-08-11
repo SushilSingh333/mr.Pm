@@ -22,6 +22,11 @@ export function getStaticPaths() {
 const { row } = Astro.props;
 const data = dataOf<ServiceHubData>(row);
 
+// "Cities we serve" shows only the cities that actually offer this service (group
+// 'cities'); sibling-service links live in relatedLinks for the link graph but aren't
+// listed here. A city that didn't check this service is never shown → no 404.
+const cityLinks = row.relatedLinks.filter((l) => l.group === 'cities');
+
 const extraJsonLd = [
   jsonld.service({
     siteOrigin: SITE_ORIGIN,
@@ -53,12 +58,12 @@ const extraJsonLd = [
   </Band>
 
   {
-    row.relatedLinks.length > 0 && (
+    cityLinks.length > 0 && (
       <Band label="Cities">
         <div class="section-head">
           <h2>Cities we serve</h2>
         </div>
-        <RelatedLinks links={row.relatedLinks} heading="Cities we serve" />
+        <RelatedLinks links={cityLinks} heading="Cities we serve" />
       </Band>
     )
   }

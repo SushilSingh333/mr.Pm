@@ -36,4 +36,6 @@ export function cldUrl(url: string, transform: string): string {
 export const CLD_TRANSFORM = {
   hero: 'f_auto,q_auto,w_1920',
   thumb: 'f_auto,q_auto,c_fill,g_auto,w_240,h_240',
+  /** Blog cover — wide enough for the featured/post layouts; CSS object-fit crops per slot. */
+  blog: 'f_auto,q_auto,w_1200',
 } as const;

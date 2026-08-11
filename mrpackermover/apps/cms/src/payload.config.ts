@@ -19,6 +19,7 @@ import { JobsStats } from './collections/JobsStats.js';
 import { Faqs } from './collections/Faqs.js';
 import { ContentBlocks } from './collections/ContentBlocks.js';
 import { Guides } from './collections/Guides.js';
+import { Blog } from './collections/Blog.js';
 import { People } from './collections/People.js';
 import { Pages } from './collections/Pages.js';
 import { Leads } from './collections/Leads.js';
@@ -91,6 +92,7 @@ export default buildConfig({
     Faqs,
     ContentBlocks,
     Guides,
+    Blog,
     People,
     Media,
     // Careers

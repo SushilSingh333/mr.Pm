@@ -202,7 +202,8 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
     jobStatsRaw,
   ] = await Promise.all([
     Promise.all(LEAD_STATUS.map((s) => count('leads', { status: { equals: s.value } }))),
-    findDocs('leads', { limit: 6, sort: '-createdAt', depth: 0 }),
+    // Show only the 5 most recent here; the "open →" link goes to the full leads list.
+    findDocs('leads', { limit: 5, sort: '-createdAt', depth: 0 }),
     Promise.all(APP_STATUS.map((s) => count('job-applications', { status: { equals: s.value } }))),
     findDocs('job-applications', { limit: 5, sort: '-createdAt', depth: 0 }),
     count('jobs', { isOpen: { equals: true } }),

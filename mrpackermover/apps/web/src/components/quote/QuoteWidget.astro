@@ -113,9 +113,8 @@ const service = prefillService ?? '';
           <label class="est-ctrl">
             <span>Packing</span>
             <select id="q-pack">
-              <option value="basic">Basic — cartons + wrap</option>
-              <option value="standard" selected>Standard — full wrap</option>
-              <option value="premium">Premium — 3-layer + crates</option>
+              <option value="basic" selected>Basic — cartons + wrap</option>
+              <option value="standard">Standard — 3-layer + crates</option>
             </select>
           </label>
         </div>
@@ -164,8 +163,8 @@ const service = prefillService ?? '';
 </div>
 
 <script>
-  import { estimate, inr } from './move-pricing';
-  import type { MoveInput } from './move-pricing';
+  import { quote, inr } from './estimator';
+  import type { QuoteInput } from './estimator';
   import { attachAutocomplete, drivingDistanceKm, geocodeState } from './maps';
   import { PLACES, resolvePlace, routeDistanceKm } from './pricing';
 
@@ -197,6 +196,66 @@ const service = prefillService ?? '';
       ZONE_STATE[resolvePlace(text, PLACES[0]).zone] ?? null;
     let lastInterState = false;
 
+    // Hill / mountain destinations get a surcharge on the truck line (see move-pricing.ts).
+    // Auto-detected from the drop location text; extend this list as needed.
+    const HILL_DESTINATIONS = [
+      'almora',
+      'nainital',
+      'ranikhet',
+      'mukteshwar',
+      'kausani',
+      'bhimtal',
+      'mussoorie',
+      'mussorie',
+      'dhanaulti',
+      'chakrata',
+      'joshimath',
+      'auli',
+      'pithoragarh',
+      'bageshwar',
+      'uttarkashi',
+      'shimla',
+      'manali',
+      'kullu',
+      'dharamshala',
+      'dharamsala',
+      'mcleodganj',
+      'dalhousie',
+      'kasauli',
+      'solan',
+      'chail',
+      'kufri',
+      'spiti',
+      'kalpa',
+      'gangtok',
+      'darjeeling',
+      'kalimpong',
+      'shillong',
+      'tawang',
+      'gulmarg',
+      'pahalgam',
+      'sonamarg',
+      'leh',
+      'ladakh',
+      'ooty',
+      'kodaikanal',
+      'munnar',
+      'coonoor',
+      'wayanad',
+      'coorg',
+      'madikeri',
+      'mount abu',
+      'mahabaleshwar',
+      'lonavala',
+      'panchgani',
+      'matheran',
+    ];
+    const isHillDestination = (text: string): boolean => {
+      const t = text.toLowerCase();
+      return HILL_DESTINATIONS.some((w) => t.includes(w));
+    };
+    let lastHill = false;
+
     // Address dropdowns via Google Places (silently no-ops without an API key).
     void attachAutocomplete(byId<HTMLInputElement>('q-pickup'));
     void attachAutocomplete(byId<HTMLInputElement>('q-drop'));
@@ -210,7 +269,7 @@ const service = prefillService ?? '';
         drop: byId<HTMLInputElement>('q-drop').value,
         phone: byId<HTMLInputElement>('q-phone').value,
         truck: +byId<HTMLSelectElement>('q-size').value,
-        pack: byId<HTMLSelectElement>('q-pack').value as 'basic' | 'standard' | 'premium',
+        pack: byId<HTMLSelectElement>('q-pack').value as 'basic' | 'standard',
         fFloor: +byId<HTMLSelectElement>('q-ffloor').value,
         fLift: +byId<HTMLSelectElement>('q-flift').value === 1,
         tFloor: +byId<HTMLSelectElement>('q-tfloor').value,
@@ -221,7 +280,7 @@ const service = prefillService ?? '';
 
     function render(km: number): void {
       const o = readInputs();
-      const input: MoveInput = {
+      const input: QuoteInput = {
         distanceKm: Math.round(km),
         mode: 'auto',
         truckFt: o.truck,
@@ -231,15 +290,28 @@ const service = prefillService ?? '';
         pickupLift: o.fLift,
         dropFloor: o.tFloor,
         dropLift: o.tLift,
+        hillDestination: lastHill,
         interState: lastInterState,
         packingGrade: o.pack,
+        date: o.date,
       };
-      const r = estimate(input);
+      const r = quote(input);
 
       byId('q-amt').textContent = `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`;
-      byId('q-lane').textContent =
-        `${o.truck} ft · ${Math.round(km)} km · ` +
-        (r.mode === 'intercity' ? 'intercity move' : 'local move');
+
+      // Highlighted chips below the price: truck size + distance stand out (brand pills),
+      // move type is a neutral pill. Content is all numbers / fixed strings — safe to inject.
+      // (Hill surcharge is still applied to the price via hillDestination; it's just not
+      // surfaced to the customer.)
+      const modeText = r.mode === 'intercity' ? 'Intercity move' : 'Local move';
+      const truckIcon =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>';
+      const distIcon =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18"/><path d="M6 9l-3 3 3 3"/><path d="M18 9l3 3-3 3"/></svg>';
+      byId('q-lane').innerHTML =
+        `<span class="lane-chip">${truckIcon}${o.truck} ft truck</span>` +
+        `<span class="lane-chip">${distIcon}${Math.round(km)} km</span>` +
+        `<span class="lane-chip lane-chip-mode">${modeText}</span>`;
 
       const cta = byId<HTMLAnchorElement>('q-cta');
       cta.href =
@@ -300,6 +372,7 @@ const service = prefillService ?? '';
       const pState = ps ?? zoneState(o.pickup);
       const dState = ds ?? zoneState(o.drop);
       lastInterState = Boolean(pState && dState && pState !== dState);
+      lastHill = isHillDestination(o.drop);
       render(lastKm);
       capturePriceCheck();
     });

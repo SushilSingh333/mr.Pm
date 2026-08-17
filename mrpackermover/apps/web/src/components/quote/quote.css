@@ -210,10 +210,40 @@
   font-weight: 600;
   color: var(--color-ink-500);
 }
+/* Highlighted "truck size + distance" chips shown right under the price. */
 .est-lane {
-  margin-top: 4px;
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lane-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-50);
+  border: 1px solid color-mix(in oklab, var(--color-brand-400) 45%, transparent);
+  color: var(--color-brand-700);
   font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.lane-chip svg {
+  width: 15px;
+  height: 15px;
+  color: var(--color-brand-600);
+  flex: 0 0 auto;
+}
+.lane-chip-mode {
+  background: var(--color-surface-3);
+  border-color: var(--color-line);
   color: var(--color-ink-700);
+}
+.lane-chip-mode svg {
+  color: var(--color-ink-500);
 }
 .est-body {
   display: grid;
@@ -338,4 +368,72 @@
     border-right: 0;
     border-bottom: 1px solid var(--color-line);
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Google Places Autocomplete dropdown (.pac-*) — restyled to match the booking
+   bar. Google appends this to <body> and injects its OWN stylesheet at runtime
+   (after ours), so every rule is prefixed with `body ` to win specificity
+   cleanly (no !important). Long rows WRAP so suggestion text is never clipped;
+   the rest is polish — a crimson location pin, rounded inset hover, and the
+   typed match highlighted in brand red. The "powered by Google" logo is left
+   intact (required by the Places terms of service).
+   ═══════════════════════════════════════════════════════════════════════════ */
+body .pac-container {
+  margin-top: 8px;
+  min-width: 320px;
+  max-width: calc(100vw - 1.5rem);
+  padding: 6px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--font-text);
+  z-index: 10000;
+}
+body .pac-item {
+  position: relative;
+  /* Left gutter reserved for the absolutely-positioned pin, so wrapped address
+     lines get a hanging indent and stay aligned under the place name (rather
+     than dropping to the far-left edge under the pin). */
+  padding: 0.55rem 0.8rem 0.55rem 2.35rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: normal; /* wrap instead of clipping — the core fix */
+  color: var(--color-ink-500); /* secondary text: state / region */
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+body .pac-item:hover,
+body .pac-item-selected,
+body .pac-item-selected:hover {
+  background: var(--color-brand-50);
+}
+body .pac-item-query {
+  margin-right: 0.35rem; /* gap before the region text when it sits inline */
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-ink-900); /* primary place name */
+}
+body .pac-matched {
+  color: var(--color-brand-600); /* the part matching what you typed */
+  font-weight: 700;
+}
+/* Swap Google's dated sprite pin for a clean crimson location pin (tinted via
+   mask so it always tracks the brand colour). */
+body .pac-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 0.65rem; /* align with the first text line */
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  background-image: none;
+  background-color: var(--color-brand-500);
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>')
+    center / contain no-repeat;
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>')
+    center / contain no-repeat;
 }

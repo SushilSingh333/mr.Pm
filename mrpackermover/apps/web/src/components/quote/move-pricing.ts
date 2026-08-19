@@ -6,17 +6,20 @@
  * comes from the Google Distance Matrix API (see ./maps.ts); everything else is this
  * formula. Every rate lives in `config` — tune to re-price without touching the logic.
  *
- * Model (calibrated from real route quotes):
+ * Model (calibrated from real route quotes, refreshed 2026-08-18):
  *   • Intercity "truck cost" is a straight per-km transport charge that already covers
  *     loading, unloading and basic packing (the way a mover quotes a truck). 14 ft plain
- *     ≈ ₹32/km, so Noida→Lucknow (~500 km) = ₹16,000.
- *   • Hill / mountain destinations add a surcharge on the truck line: Delhi→Almora
- *     (~380 km) → 380 × ₹32 × 1.28 ≈ ₹15,500.
- *   • Everything above is our COST; the customer price is cost × (1 + profitPct) — a flat
- *     25% margin applied to the whole quote.
+ *     ≈ ₹28/km.
+ *   • A terrain multiplier scales the road-effort block (transport + load/unload + food) for
+ *     foothill (+20%) / hill (+55%) / remote (+75%) destinations; plain adds nothing.
+ *   • Everything above is our COST; the customer price is cost × (1 + margin) — a thin margin
+ *     on local moves, the full margin on intercity.
  */
 
 export type TruckFt = 10 | 12 | 14 | 15 | 16 | 17 | 19;
+
+/** Terrain tier of the destination — scales the road-effort block on intercity moves. */
+export type Terrain = 'plain' | 'foothill' | 'hill' | 'remote';
 
 export interface MoveInput {
   /** Driving distance in km (from Google Distance Matrix). */
@@ -32,7 +35,9 @@ export interface MoveInput {
   dropLift?: boolean;
   twoWheelers?: number;
   heavyLoad?: boolean;
-  /** Drop is a hill / mountain town — adds a surcharge on the truck line. */
+  /** Terrain tier of the drop — scales the road-effort block. Overrides `hillDestination`. */
+  terrainTier?: Terrain;
+  /** Legacy: drop is a hill town. If set with no `terrainTier`, treated as 'hill'. */
   hillDestination?: boolean;
   /** Pickup and drop are in different states — adds inter-state permit + entry tax. */
   interState?: boolean;
@@ -71,7 +76,7 @@ export const config = {
     17: 7500,
     19: 7500,
   } as Record<number, number>,
-  sameBuildingRate: 6500,
+  sameBuildingRate: 6100,
   labourIncluded: 4,
   extraLabourRate: 700,
   packingDeductLocal: 1200,
@@ -90,15 +95,18 @@ export const config = {
   twoWheelerLocal: 1500,
 
   // INTERCITY mode (>40 km) — the "truck cost" is a straight per-km transport charge that
-  // already covers loading, unloading and basic packing. Calibrated: 14 ft plain = ₹32/km,
-  // so Noida→Lucknow (~500 km) = ₹16,000. Only 14 ft is pinned to a real quote; the other
-  // sizes just step up a little with truck size — tune them to your rates. A short
-  // intercity hop never falls below `intercityMinCharge`, so 41 km isn't priced at ₹1,300.
-  perKm: { 10: 28, 12: 30, 14: 32, 15: 34, 16: 38, 17: 42, 19: 50 } as Record<number, number>,
+  // already covers loading, unloading and basic packing. Re-calibrated 2026-08-18 against a
+  // dozen real route quotes: 14 ft plain ≈ ₹28/km (Noida→Chennai ~2200 km → ~₹95k;
+  // Ghaziabad→Kanpur ~470 km → ~₹29.5k). Sizes step up with the truck. A short intercity hop
+  // never falls below `intercityMinCharge`, so 41 km isn't priced at ₹1,150. The declining
+  // *effective* per-km on long hauls comes from the fixed load/unload + food + margin being
+  // spread over more km — the per-km line itself stays flat.
+  perKm: { 10: 24, 12: 26, 14: 28, 15: 29, 16: 31, 17: 33, 19: 35 } as Record<number, number>,
   intercityMinCharge: 8000,
-  // Hill / mountain destinations (e.g. Delhi→Almora): mountain driving is slower and harder,
-  // so the truck line carries a surcharge. Calibrated: ~380 km × ₹32 × 1.28 ≈ ₹15,500.
-  hillSurchargePct: 0.28,
+  // Terrain multiplier on the road-effort block (transport + load/unload + food). Hill/mountain
+  // roads are slower, harder and often return empty. Calibrated to real quotes: Almora (deep
+  // Kumaon hill) ≈ +55%, Haldwani (foothill/terai gateway) ≈ +20%, valley towns ≈ plain.
+  terrainMult: { plain: 1, foothill: 1.2, hill: 1.55, remote: 1.75 } as Record<Terrain, number>,
   packingDeductIntercity: 1500,
   heavyIntercity: 2000,
   twoWheelerIntercity: 3000,
@@ -112,10 +120,14 @@ export const config = {
   // 'standard' (3-layer + crates) adds an uplift, scaled by truck size. Tune to your material cost.
   packingUplift: { basic: 0, standard: 4000 } as Record<string, number>,
 
-  // Our margin — added on top of the whole cost. Customer price = cost × (1 + profitPct).
-  profitPct: 0.25,
+  // Our margin — added on top of cost. Customer price = cost × (1 + profit). Local moves are
+  // short and highly competitive, so they carry a thin margin (they're already priced near the
+  // real market number); intercity carries the full margin. Calibrated to real local quotes
+  // (₹7.8k–9.5k for a 14–16 ft load) and intercity quotes.
+  profitLocalPct: 0.07,
+  profitIntercityPct: 0.25,
 
-  rangePct: 0.07,
+  rangePct: 0.11,
   roundTo: 100,
 };
 
@@ -158,7 +170,7 @@ export function estimate(input: MoveInput): MoveResult {
     dropLift: input.dropLift ?? true,
     twoWheelers: Math.max(0, num(input.twoWheelers, 0)),
     heavyLoad: input.heavyLoad ?? false,
-    hillDestination: input.hillDestination ?? false,
+    terrainTier: input.terrainTier ?? (input.hillDestination ? 'hill' : 'plain'),
     interState: input.interState ?? false,
     packingGrade: input.packingGrade ?? 'basic',
   };
@@ -195,18 +207,28 @@ export function estimate(input: MoveInput): MoveResult {
       add(`Two-wheeler ×${i.twoWheelers} (local)`, i.twoWheelers * cfg.twoWheelerLocal);
   } else {
     // Truck cost = distance × per-km (covers truck + load/unload + basic packing), never
-    // below the minimum. Hill / mountain destinations add a surcharge on this line.
+    // below the minimum.
     const rate = cfg.perKm[snapTruck(i.truckFt, cfg.perKm)]!;
-    let transport = Math.max(cfg.intercityMinCharge, i.distanceKm * rate);
-    if (i.hillDestination) transport *= 1 + cfg.hillSurchargePct;
-    const hillNote = i.hillDestination ? ` · hill +${Math.round(cfg.hillSurchargePct * 100)}%` : '';
-    add(`${i.distanceKm} km × ₹${rate}/km (${truck} ft${hillNote})`, transport);
+    const transport = Math.max(cfg.intercityMinCharge, i.distanceKm * rate);
+    add(`${i.distanceKm} km × ₹${rate}/km (${truck} ft)`, transport);
 
     // Loading + unloading (doubled vs local — both ends, far apart) and the crew's food
     // allowance for the days they're on the road (drive days + a day for load/unload).
-    add('Loading + unloading (both ends)', cfg.loadUnloadIntercity);
+    const loadUnload = cfg.loadUnloadIntercity;
+    add('Loading + unloading (both ends)', loadUnload);
     const crewDays = Math.ceil(i.distanceKm / cfg.kmPerCrewDay) + 1;
-    add(`Crew food allowance (${crewDays} days × ₹${cfg.foodPerDay})`, crewDays * cfg.foodPerDay);
+    const food = crewDays * cfg.foodPerDay;
+    add(`Crew food allowance (${crewDays} days × ₹${cfg.foodPerDay})`, food);
+
+    // Terrain surcharge on the road-effort block (transport + load/unload + food): hill and
+    // foothill roads are slower/harder and the truck often returns empty. Plain adds nothing.
+    const tMult = cfg.terrainMult[i.terrainTier] ?? 1;
+    if (tMult > 1) {
+      add(
+        `Terrain — ${i.terrainTier} (+${Math.round((tMult - 1) * 100)}%)`,
+        (tMult - 1) * (transport + loadUnload + food),
+      );
+    }
 
     if (!i.packing) add('No packing material', -cfg.packingDeductIntercity);
     if (i.heavyLoad) add('Heavy / over-full load', cfg.heavyIntercity);
@@ -238,7 +260,8 @@ export function estimate(input: MoveInput): MoveResult {
   // Everything above is our COST. The customer price adds a flat profit margin on top of
   // the whole quote (kept off the itemised breakdown so the margin isn't exposed).
   const cost = items.reduce((s, x) => s + x.amount, 0);
-  const total = roundTo(cost * (1 + cfg.profitPct), cfg.roundTo);
+  const profit = mode === 'local' ? cfg.profitLocalPct : cfg.profitIntercityPct;
+  const total = roundTo(cost * (1 + profit), cfg.roundTo);
 
   return {
     mode,

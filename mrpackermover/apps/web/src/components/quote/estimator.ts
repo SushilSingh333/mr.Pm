@@ -17,8 +17,15 @@ import { estimate as estimateBySize, type SizeKey } from './pricing';
 
 export { inr } from './move-pricing';
 
-/** At or above this driving distance we use the truck engine; below it, the size engine. */
-export const SIZE_ENGINE_MAX_KM = 1200;
+/**
+ * At or above this driving distance we use the truck engine; below it, the size engine.
+ *
+ * Set to 0 on 2026-08-18: the truck engine (move-pricing) is calibrated to real quotes at
+ * ALL distances (median error ~3% vs the size engine's ~50%, which overpriced locals ~2× and
+ * ignored hill/interstate). So every route now goes through the truck engine; the size engine
+ * below is kept only for `PLACES`/`resolvePlace` (used by the widget's fallback distance).
+ */
+export const SIZE_ENGINE_MAX_KM = 0;
 
 /** The bar's inputs plus the size-engine-only fields (date drives surge; add-ons default off). */
 export interface QuoteInput extends MoveInput {

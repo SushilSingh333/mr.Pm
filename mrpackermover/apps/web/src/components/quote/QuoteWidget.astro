@@ -165,7 +165,9 @@ const service = prefillService ?? '';
 <script>
   import { quote, inr } from './estimator';
   import type { QuoteInput } from './estimator';
+  import type { Terrain } from './move-pricing';
   import { attachAutocomplete, drivingDistanceKm, geocodeState } from './maps';
+  import { terrainFor } from './terrain';
   import { PLACES, resolvePlace, routeDistanceKm } from './pricing';
 
   const byId = <T extends HTMLElement = HTMLElement>(id: string): T =>
@@ -196,65 +198,10 @@ const service = prefillService ?? '';
       ZONE_STATE[resolvePlace(text, PLACES[0]).zone] ?? null;
     let lastInterState = false;
 
-    // Hill / mountain destinations get a surcharge on the truck line (see move-pricing.ts).
-    // Auto-detected from the drop location text; extend this list as needed.
-    const HILL_DESTINATIONS = [
-      'almora',
-      'nainital',
-      'ranikhet',
-      'mukteshwar',
-      'kausani',
-      'bhimtal',
-      'mussoorie',
-      'mussorie',
-      'dhanaulti',
-      'chakrata',
-      'joshimath',
-      'auli',
-      'pithoragarh',
-      'bageshwar',
-      'uttarkashi',
-      'shimla',
-      'manali',
-      'kullu',
-      'dharamshala',
-      'dharamsala',
-      'mcleodganj',
-      'dalhousie',
-      'kasauli',
-      'solan',
-      'chail',
-      'kufri',
-      'spiti',
-      'kalpa',
-      'gangtok',
-      'darjeeling',
-      'kalimpong',
-      'shillong',
-      'tawang',
-      'gulmarg',
-      'pahalgam',
-      'sonamarg',
-      'leh',
-      'ladakh',
-      'ooty',
-      'kodaikanal',
-      'munnar',
-      'coonoor',
-      'wayanad',
-      'coorg',
-      'madikeri',
-      'mount abu',
-      'mahabaleshwar',
-      'lonavala',
-      'panchgani',
-      'matheran',
-    ];
-    const isHillDestination = (text: string): boolean => {
-      const t = text.toLowerCase();
-      return HILL_DESTINATIONS.some((w) => t.includes(w));
-    };
-    let lastHill = false;
+    // Terrain tier of the DROP — auto-detected from the drop text (see ./terrain.ts). The
+    // engine scales its road-effort block by tier (foothill +20% / hill +55% / remote +75%;
+    // plain +0%). Unrecognised destinations stay 'plain' (no surcharge).
+    let lastTerrain: Terrain = 'plain';
 
     // Address dropdowns via Google Places (silently no-ops without an API key).
     void attachAutocomplete(byId<HTMLInputElement>('q-pickup'));
@@ -290,7 +237,7 @@ const service = prefillService ?? '';
         pickupLift: o.fLift,
         dropFloor: o.tFloor,
         dropLift: o.tLift,
-        hillDestination: lastHill,
+        terrainTier: lastTerrain,
         interState: lastInterState,
         packingGrade: o.pack,
         date: o.date,
@@ -301,8 +248,8 @@ const service = prefillService ?? '';
 
       // Highlighted chips below the price: truck size + distance stand out (brand pills),
       // move type is a neutral pill. Content is all numbers / fixed strings — safe to inject.
-      // (Hill surcharge is still applied to the price via hillDestination; it's just not
-      // surfaced to the customer.)
+      // (Terrain surcharge is applied to the price via terrainTier; it's just not surfaced
+      // to the customer as a separate chip.)
       const modeText = r.mode === 'intercity' ? 'Intercity move' : 'Local move';
       const truckIcon =
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17h4V5H2v12h3"/><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h2"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>';
@@ -372,7 +319,7 @@ const service = prefillService ?? '';
       const pState = ps ?? zoneState(o.pickup);
       const dState = ds ?? zoneState(o.drop);
       lastInterState = Boolean(pState && dState && pState !== dState);
-      lastHill = isHillDestination(o.drop);
+      lastTerrain = terrainFor(o.drop);
       render(lastKm);
       capturePriceCheck();
     });

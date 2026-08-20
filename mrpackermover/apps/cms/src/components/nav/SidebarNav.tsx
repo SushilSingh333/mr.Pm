@@ -11,6 +11,7 @@ import Link from 'next/link';
 const V = '#6D5AE6';
 
 const QUICK = [
+  { href: '/admin/collections/proposals', label: 'Proposals' },
   { href: '/admin/collections/locations', label: 'Locations' },
   { href: '/admin/collections/reviews', label: 'Reviews' },
   { href: '/admin/collections/pages', label: 'Editorial pages' },
@@ -63,6 +64,11 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
     <div className="mpm-nav">
       <style>{CSS}</style>
 
+      <Link href="/admin/collections/proposals/create" className="mpm-nav__studio">
+        <span className="mpm-nav__studio-title">＋ New proposal</span>
+        <span className="mpm-nav__studio-sub">Create &amp; download a PDF quote</span>
+      </Link>
+
       <div className="mpm-nav__panel">
         <div className="mpm-nav__panel-head">
           <span className="mpm-nav__panel-title">Needs attention</span>
@@ -96,6 +102,10 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 
 const CSS = `
 .mpm-nav { padding: 0 .25rem .7rem; margin-bottom: .7rem; border-bottom: 1px solid var(--theme-elevation-100); }
+.mpm-nav__studio { display:flex; flex-direction:column; gap:.05rem; text-decoration:none; padding:.6rem .75rem; margin-bottom:.85rem; border-radius:12px; background:linear-gradient(140deg,#8B7CF0,#5A46D6); box-shadow:0 6px 16px color-mix(in srgb, ${V} 35%, transparent); transition:transform .12s, box-shadow .12s; }
+.mpm-nav__studio:hover { transform:translateY(-1px); box-shadow:0 10px 22px color-mix(in srgb, ${V} 45%, transparent); }
+.mpm-nav__studio-title { color:#fff; font-weight:700; font-size:.95rem; }
+.mpm-nav__studio-sub { color:rgba(255,255,255,.82); font-size:.76rem; }
 .mpm-nav__panel { background:color-mix(in srgb, ${V} 6%, var(--theme-elevation-50)); border:1px solid color-mix(in srgb, ${V} 12%, var(--theme-elevation-100)); border-radius:14px; padding:.65rem .7rem .55rem; margin-bottom:.85rem; }
 .mpm-nav__panel-head { display:flex; align-items:center; gap:.4rem; margin:0 .1rem .55rem; }
 .mpm-nav__panel-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--theme-elevation-600); }

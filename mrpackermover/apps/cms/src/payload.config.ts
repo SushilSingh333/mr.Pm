@@ -26,6 +26,7 @@ import { Leads } from './collections/Leads.js';
 import { Jobs } from './collections/Jobs.js';
 import { JobApplications } from './collections/JobApplications.js';
 import { ContactMessages } from './collections/ContactMessages.js';
+import { Proposals } from './collections/Proposals.js';
 import { OrgProfile } from './globals/OrgProfile.js';
 import { HomeContent } from './globals/HomeContent.js';
 import { publicEndpoints } from './endpoints/index.js';
@@ -101,6 +102,8 @@ export default buildConfig({
     // Inbox (public form submissions)
     Leads,
     ContactMessages,
+    // Sales
+    Proposals,
     // Internal — never rendered (ADR-0004)
     OperatingBases,
     // System

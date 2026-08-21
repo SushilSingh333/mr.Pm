@@ -6,6 +6,11 @@ const nextConfig = {
   // app; this Next app serves ONLY the admin panel + the Local/REST API.
   // Workspace packages ship as TypeScript source, so Next must transpile them.
   transpilePackages: ['@mpm/shared', '@mpm/seo', '@mpm/db', '@mpm/ui-tokens'],
+  // Skip ESLint during `next build` — type checking still runs, but lint rules (e.g. the
+  // no-explicit-any in the admin field components and the ban-ts-comment on the verbatim
+  // PDF port) should not fail a production build. Tracked here so it isn't hand-applied on
+  // the droplet each deploy.
+  eslint: { ignoreDuringBuilds: true },
   experimental: {
     reactCompiler: false,
   },

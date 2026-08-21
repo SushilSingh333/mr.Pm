@@ -82,7 +82,12 @@ export const MORE_NAV = [
 /** Primary contact — click-to-call in the header + everywhere (user-provided). */
 export const PHONE_DISPLAY = '+91 99104 26834';
 export const PHONE_TEL = '+919910426834';
-export const EMAIL = 'mrmoverpacker25@gmail.com';
+export const EMAIL = 'shiftwith@mrpackermover.com';
+
+/** WhatsApp click-to-chat: same number, digits only (wa.me rejects "+" and spaces). */
+export const WHATSAPP_NUMBER = PHONE_TEL.replace(/\D/g, '');
+export const WHATSAPP_MESSAGE = 'Hi MrPackerMover, I would like a fixed quote for my move.';
+export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
 /** Social profiles (user-provided). */
 export const SOCIALS = [

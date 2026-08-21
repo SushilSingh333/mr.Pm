@@ -306,7 +306,7 @@ export const Proposals: CollectionConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'email', type: 'text', defaultValue: 'mrmoverpacker25@gmail.com', admin: { width: '50%' } },
+                    { name: 'email', type: 'text', defaultValue: 'shiftwith@mrpackermover.com', admin: { width: '50%' } },
                     { name: 'web', type: 'text', label: 'Website', defaultValue: 'mrpackermover.com', admin: { width: '50%' } },
                   ],
                 },

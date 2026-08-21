@@ -3,6 +3,7 @@ import type { ManifestRow } from '@mpm/shared';
 import Seo from '../components/seo/Seo.astro';
 import Header from '../components/nav/Header.astro';
 import Footer from '../components/nav/Footer.astro';
+import WhatsAppFab from '../components/nav/WhatsAppFab.astro';
 import '../styles/global.css';
 
 /**
@@ -35,5 +36,6 @@ const { row, extraJsonLd } = Astro.props;
       <slot />
     </main>
     <Footer />
+    <WhatsAppFab />
   </body>
 </html>

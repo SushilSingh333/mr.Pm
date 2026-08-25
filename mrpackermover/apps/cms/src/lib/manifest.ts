@@ -19,6 +19,7 @@ import {
   type BlogPost,
   cldUrl,
   CLD_TRANSFORM,
+  SERVICES,
 } from '@mpm/shared';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
@@ -198,6 +199,21 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       loadAll<FaqDoc>(payload, 'faqs'),
       loadAll<MediaDoc>(payload, 'media'),
     ]);
+
+  // Services render in the catalogue order from @mpm/shared, never in whatever order
+  // Postgres happens to return rows. `loadAll` issues no `sort` and the collection sets
+  // no `defaultSort`, so the generated manifest was ordering services by row creation
+  // date — which is why "What we move" appeared in a different order in production than
+  // on a local build, where the committed sample manifest supplies a hand-authored order.
+  // Anything not in the catalogue (an editor-added service) sorts after it, by name.
+  // Explicitly Map<string, number>: SERVICES is `as const`, so an inferred Map would key
+  // on the literal slug union and reject a lookup with a plain string from the database.
+  const serviceOrder = new Map<string, number>(SERVICES.map((s, index) => [s.slug, index]));
+  services.sort((a, b) => {
+    const ai = serviceOrder.get(a.slug) ?? Number.MAX_SAFE_INTEGER;
+    const bi = serviceOrder.get(b.slug) ?? Number.MAX_SAFE_INTEGER;
+    return ai - bi || (a.name ?? '').localeCompare(b.name ?? '');
+  });
 
   // Media id → { url, alt } so a location's uploaded hero resolves to a Cloudinary URL.
   const mediaById = new Map(media.map((m) => [sid(m.id), m]));
@@ -567,6 +583,14 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   rows.push(
     makeRow('home', '/', 'home', new Date(0).toISOString(), siteOrigin, {
       title: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
+      // The templated page families deliberately omit a description rather than repeat
+      // boilerplate across thousands of URLs (see @mpm/seo/meta). The home page is the
+      // one unique, hand-written page on the site, so that reasoning does not apply —
+      // and shipping it with no description costs a Lighthouse SEO point and hands
+      // Google a machine-generated snippet for the site's most important result.
+      metaDescription:
+        'Packers and movers across India with fixed, written quotes — verified crews, ' +
+        'published rate cards and real claims data. Get your price before you book.',
       h1: 'Packers and Movers you can actually verify',
       relatedLinks: [
         ...publicServices.map<ManifestLink>((s) => ({

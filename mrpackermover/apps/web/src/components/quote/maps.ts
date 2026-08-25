@@ -32,19 +32,34 @@ export function loadGoogleMaps(): Promise<boolean> {
   return loader;
 }
 
-/** Attach Places Autocomplete to an input (India-biased). Silently no-ops without a key. */
+/**
+ * Attach Places Autocomplete to an input (India-biased). Silently no-ops without a key.
+ *
+ * The Maps JS API + Places library is several hundred KB across several requests, so it
+ * is fetched on FIRST FOCUS of the field rather than at page load. Calling this eagerly
+ * used to pull that third-party payload into the critical path of every page carrying an
+ * address field — the home hero included — which is a large mobile Lighthouse cost for a
+ * feature most visitors never touch. Focus fires before the first keystroke, so the
+ * dropdown is ready by the time there is anything to complete.
+ */
 export async function attachAutocomplete(input: HTMLInputElement | null): Promise<void> {
-  if (!input || !(await loadGoogleMaps())) return;
-  const g = (window as any).google;
-  const ac = new g.maps.places.Autocomplete(input, {
-    fields: ['formatted_address', 'geometry', 'name'],
-    componentRestrictions: { country: 'in' },
-  });
-  ac.addListener('place_changed', () => {
-    const p = ac.getPlace();
-    if (p?.formatted_address) input.value = p.formatted_address;
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-  });
+  if (!input || !KEY) return;
+
+  const bind = async (): Promise<void> => {
+    if (!(await loadGoogleMaps())) return;
+    const g = (window as any).google;
+    const ac = new g.maps.places.Autocomplete(input, {
+      fields: ['formatted_address', 'geometry', 'name'],
+      componentRestrictions: { country: 'in' },
+    });
+    ac.addListener('place_changed', () => {
+      const p = ac.getPlace();
+      if (p?.formatted_address) input.value = p.formatted_address;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  };
+
+  input.addEventListener('focus', () => void bind(), { once: true });
 }
 
 /** The state (e.g. "Delhi", "Haryana") for a typed address. null when unavailable. */

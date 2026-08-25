@@ -626,31 +626,51 @@ const thumbFor = (c: City): string =>
       };
 
       // Suggestions need a key; without one the field still works as free text.
-      if (hasMapsKey) {
-        void loadGoogleMaps().then((ready) => {
+      if (!hasMapsKey && hint) hint.textContent = 'Type your area and press Enter.';
+
+      /**
+       * Load the Maps JS API on demand, once.
+       *
+       * This used to run at module init, which put several hundred KB of third-party
+       * script into the home page's critical path for a picker most visitors never open
+       * — a large mobile Lighthouse cost. Now nothing is fetched until the field is
+       * actually focused, and the promise is cached so concurrent callers share one load.
+       */
+      let loading: Promise<void> | null = null;
+      const ensureService = (): Promise<void> => {
+        if (loading) return loading;
+        loading = loadGoogleMaps().then((ready) => {
           const google = (window as unknown as { google?: GoogleMapsGlobal }).google;
-          if (!ready || !google) return;
-          service = new google.maps.places.AutocompleteService();
+          if (ready && google) service = new google.maps.places.AutocompleteService();
         });
-      } else if (hint) {
-        hint.textContent = 'Type your area and press Enter.';
+        return loading;
+      };
+
+      // Focus fires before the first keystroke, so the API is normally ready by the time
+      // there are 3 characters to search on.
+      if (hasMapsKey) {
+        input.addEventListener('focus', () => void ensureService(), { once: true });
       }
 
       input.addEventListener('input', () => {
         const value = input.value.trim();
         syncClearButton();
         window.clearTimeout(debounce);
-        if (!service || value.length < 3) return closeList();
+        if (!hasMapsKey || value.length < 3) return closeList();
         // Debounced so we bill one request per pause, not per keystroke.
         debounce = window.setTimeout(() => {
-          service?.getPlacePredictions(
-            { input: value, componentRestrictions: { country: 'in' } },
-            (results, status) => {
-              predictions = status === 'OK' && results ? results.slice(0, 6) : [];
-              active = -1;
-              render();
-            },
-          );
+          // Awaited in case the user typed faster than the API loaded.
+          void ensureService().then(() => {
+            if (!service || input.value.trim() !== value) return;
+            service.getPlacePredictions(
+              { input: value, componentRestrictions: { country: 'in' } },
+              (results, status) => {
+                predictions = status === 'OK' && results ? results.slice(0, 6) : [];
+                active = -1;
+                render();
+              },
+            );
+          });
         }, 220);
       });
 

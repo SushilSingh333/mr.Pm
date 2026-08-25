@@ -13,7 +13,12 @@
 	# Payload admin UI + REST API, including the public JSON endpoints
 	# (/api/quote, /api/search, /api/track). Payload sets its own no-store
 	# headers on these, so we don't add cache headers here.
-	@payload path /admin* /api/*
+	#
+	# `/_next/*` MUST be here too: the admin is a Next.js app and loads its JS/CSS
+	# chunks from /_next/static/*. Without this they fall through to the static
+	# site below, which returns 404.html (HTML where JS is expected) and the admin
+	# renders blank.
+	@payload path /admin* /api/* /_next/*
 	handle @payload {
 		reverse_proxy localhost:3000
 	}
@@ -30,7 +35,9 @@
 		header @assets Cache-Control "public, max-age=31536000, immutable"
 
 		# `build.format: 'file'` emits /foo.html — try the exact file, then .html.
-		try_files {path} {path}.html /404.html
+		# `{path}/index.html` is required for directory-style requests: the homepage
+		# `/` has no `.html` sibling (`/.html`), so without it the site root 404s.
+		try_files {path} {path}.html {path}/index.html /404.html
 		file_server
 	}
 

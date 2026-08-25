@@ -1,11 +1,21 @@
 # systemd unit — the auto-deploy listener. Runs deploy/deploy.sh whenever the CMS
 # publishes (via the build webhook), so editors never touch the terminal.
 #
-# Install:  sudo cp deploy/mrpackermover-deploy.service /etc/systemd/system/
+# Install:  sudo bash deploy/install-units.sh        ← preferred; rewrites the paths below
+#                                                      to wherever this clone actually is
 #           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-deploy
 # Logs:     journalctl -u mrpackermover-deploy -f
 #
-# Adjust User, WorkingDirectory and the PATH to match your droplet.
+# PATHS: systemd requires absolute paths. These assume the production layout, where the
+# pnpm project is nested one level inside the repo:
+#
+#   /srv/mrpackermover/repo              ← the git clone (repo root)
+#   /srv/mrpackermover/repo/mrpackermover ← the pnpm workspace (package.json lives here)
+#
+# A plain `cp` only works if your clone matches that exactly; `install-units.sh`
+# derives the real paths from its own location, so prefer it.
+#
+# Adjust User and the PATH to match your droplet.
 
 [Unit]
 Description=MrPackerMover auto-deploy listener (rebuilds the site on CMS publish)
@@ -14,14 +24,14 @@ After=network.target
 [Service]
 Type=simple
 User=mpm
-WorkingDirectory=/srv/mrpackermover
+WorkingDirectory=/srv/mrpackermover/repo/mrpackermover
 # Loads BUILD_TRIGGER_TOKEN (shared with the CMS) + CLOUDFLARE_*/DATABASE_URL for deploy.sh.
-EnvironmentFile=/srv/mrpackermover/apps/cms/.env
+EnvironmentFile=/srv/mrpackermover/repo/mrpackermover/apps/cms/.env
 Environment=NODE_ENV=production
 Environment=DEPLOY_PATH=/var/www/mrpackermover
 # node + pnpm + rsync must be on PATH; corepack puts pnpm at /usr/bin/pnpm.
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ExecStart=/usr/bin/node /srv/mrpackermover/deploy/deploy-listener.mjs
+ExecStart=/usr/bin/node /srv/mrpackermover/repo/mrpackermover/deploy/deploy-listener.mjs
 Restart=always
 RestartSec=5
 

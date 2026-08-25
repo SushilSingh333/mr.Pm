@@ -1,0 +1,61 @@
+name: CI
+
+# Quality gates only — lint, typecheck, format, static build, CI checks.
+#
+# This file lives at the REPO ROOT because GitHub only reads workflows from
+# `.github/workflows/` here; the pnpm project itself is nested one level down in
+# `mrpackermover/`, so every `run` step is executed from there via `defaults`.
+#
+# Deliberately does NOT deploy. The deploy workflows remain under
+# `mrpackermover/.github/workflows/` and are intentionally inert: they SSH to the
+# production droplet and run migrations against the live database, so they must not
+# fire on push. Production is deployed manually. Do not move them here without
+# first reviewing their `on:` triggers.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: mrpackermover
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: mrpackermover/package.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: mrpackermover/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Format check
+        run: pnpm format:check
+
+      # Builds the static site from the committed sample manifest (no DB needed),
+      # so the HTML-dependent gates (404, banned entities) run on real output.
+      - name: Build web (sample manifest)
+        run: pnpm --filter @mpm/web build
+
+      - name: CI quality gates
+        run: pnpm check

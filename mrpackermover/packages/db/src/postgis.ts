@@ -14,6 +14,16 @@ export interface LinkEdge {
   distanceMeters: number;
 }
 
+/**
+ * Published-state predicate.
+ *
+ * Payload's drafts feature stores publication state in the `_status` enum column
+ * ('draft' | 'published'). There has never been an `is_published` column — querying
+ * it made every internal-links refresh throw, which `build-manifest` swallowed as
+ * `internal-links refresh skipped: …`, silently disabling internal linking.
+ */
+const PUBLISHED = (alias: string): string => `${alias}._status = 'published'`;
+
 /** Nearest sibling localities within the same parent city (6 nearest by distance). */
 export async function nearestSiblingLocalities(limit = 6): Promise<LinkEdge[]> {
   return query<LinkEdge>(
@@ -26,12 +36,12 @@ export async function nearestSiblingLocalities(limit = 6): Promise<LinkEdge[]> {
       FROM locations b
       WHERE b.parent_id = a.parent_id
         AND b.id <> a.id
-        AND b.is_published
+        AND ${PUBLISHED('b')}
         AND b.type = 'locality'
       ORDER BY a.geo <-> b.geo
       LIMIT $1
     ) b ON true
-    WHERE a.type = 'locality' AND a.is_published
+    WHERE a.type = 'locality' AND ${PUBLISHED('a')}
     `,
     [limit],
   );
@@ -47,11 +57,11 @@ export async function sameServiceNearbyCities(limit = 6): Promise<LinkEdge[]> {
     JOIN LATERAL (
       SELECT b.id, b.geo
       FROM locations b
-      WHERE b.type = 'city' AND b.id <> a.id AND b.is_published
+      WHERE b.type = 'city' AND b.id <> a.id AND ${PUBLISHED('b')}
       ORDER BY a.geo <-> b.geo
       LIMIT $1
     ) b ON true
-    WHERE a.type = 'city' AND a.is_published
+    WHERE a.type = 'city' AND ${PUBLISHED('a')}
     `,
     [limit],
   );

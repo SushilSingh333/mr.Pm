@@ -21,8 +21,17 @@ function normTruck(s: unknown): string | null {
 
 function leadIdOf(v: unknown): string | number | null {
   if (v == null) return null;
-  if (typeof v === 'object') return (v as any).value ?? (v as any).id ?? null;
+  if (typeof v === 'object') {
+    const o = v as { value?: string | number | null; id?: string | number | null };
+    return o.value ?? o.id ?? null;
+  }
   return v as string | number;
+}
+
+/** A caught value is `unknown`; render it the way `e?.message || e` used to. */
+function errText(e: unknown): string {
+  const message = e instanceof Error ? e.message : '';
+  return message || String(e);
 }
 
 export function LeadAutofill(): React.JSX.Element | null {
@@ -53,8 +62,8 @@ export function LeadAutofill(): React.JSX.Element | null {
         set('move.house', normTruck(lead.moveSize));
         lastLoaded.current = id;
         setNote(`Filled from lead: ${lead.name || id}`);
-      } catch (e: any) {
-        setNote('Could not load lead: ' + (e?.message || e));
+      } catch (e) {
+        setNote('Could not load lead: ' + errText(e));
       } finally {
         setBusy(false);
       }

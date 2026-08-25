@@ -83,10 +83,29 @@ If you self-host, **you** own the backups — see the Ops checklist.
 
 ## 3. Get the code & configure
 
+> **The pnpm project is nested one level inside the repository.** The clone gives you
+> `repo/`, and the workspace with `package.json` lives at `repo/mrpackermover/`. Every
+> `pnpm` command, `deploy/…` path and systemd `WorkingDirectory` refers to that inner
+> directory, **not** the clone root. Getting this wrong is the single most common cause
+> of a failed deploy here.
+
 ```bash
 sudo mkdir -p /srv/mrpackermover && sudo chown mpm:mpm /srv/mrpackermover
-git clone YOUR_REPO /srv/mrpackermover && cd /srv/mrpackermover
+
+# Clone into repo/, then step into the nested workspace.
+git clone YOUR_REPO /srv/mrpackermover/repo
+cd /srv/mrpackermover/repo/mrpackermover     # ← package.json lives here
+
 pnpm install
+```
+
+Resulting layout:
+
+```
+/srv/mrpackermover/repo                  # git clone (repo root — no package.json)
+/srv/mrpackermover/repo/mrpackermover    # pnpm workspace  ← all commands run here
+/srv/mrpackermover/repo/mrpackermover/apps/cms/.env
+/var/www/mrpackermover                   # what Caddy serves (rsync target)
 ```
 
 Create `apps/cms/.env`:
@@ -95,8 +114,16 @@ Create `apps/cms/.env`:
 # Managed Postgres connection string (keep the ?sslmode=require):
 DATABASE_URL=postgres://USER:PASS@db-host.ondigitalocean.com:25060/mrpackermover?sslmode=require
 PAYLOAD_SECRET=run `openssl rand -base64 32` and paste here
-# Location autocomplete + geocoding in the admin (optional):
+# ── Google Maps: THREE different variables, not interchangeable ──
+# Public site (Astro): Places suggestions on the address fields + Distance Matrix.
+#   `deploy.sh` sources this file before the web build, so setting it here is enough —
+#   no separate apps/web/.env is needed on the droplet. Restrict by HTTP referrer to
+#   the real domain; the value is inlined into the public JS at BUILD time, so adding
+#   it later needs a rebuild, not just a restart.
+PUBLIC_GOOGLE_MAPS_API_KEY=
+# CMS server: geocoding, auto-fills a city's lat/lng (optional):
 GOOGLE_MAPS_API_KEY=
+# CMS admin browser: the address field inside /admin (optional):
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 # Optional until you turn on the spam guard / build automation:
 TURNSTILE_SECRET_KEY=
@@ -112,9 +139,27 @@ CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
 ```
 
-Also set `PUBLIC_SITE_URL=https://yourdomain.com` for the web build (in the environment or
-`apps/web/.env`, alongside `PUBLIC_GOOGLE_MAPS_API_KEY` for the quote estimator) so canonicals
-and sitemaps use the real origin.
+**`PUBLIC_SITE_URL` belongs in `apps/cms/.env`, not `apps/web/.env`.** Canonicals, sitemaps,
+robots.txt and JSON-LD are all read from `manifest().siteOrigin`
+([`apps/web/src/lib/page.ts`](../apps/web/src/lib/page.ts)) — never from Astro's `site`
+config. That origin is baked into the manifest by `pnpm build-manifest`, which runs on the
+CMS side; `deploy/deploy.sh` sources `apps/cms/.env` before calling it. Setting the variable
+in `apps/web/.env` has no effect, and the site would ship canonicals pointing at localhost.
+
+**On the droplet, `apps/cms/.env` is the only env file you need — do not create
+`apps/web/.env` there.** `deploy/deploy.sh` runs `set -a` and sources `apps/cms/.env`
+before building, so every variable in it is exported into the environment the Astro build
+runs in, `PUBLIC_*` included. Splitting them across two files is how the browser key ends
+up set in one place and read from the other.
+
+`apps/web/.env` exists for **local development only**, where you run the web app without
+`deploy.sh`.
+
+Every `PUBLIC_*` value is inlined into the public JavaScript at **build** time, so adding
+or changing one requires a rebuild — restarting the service is not enough. And because
+those values ship to the browser by design, an HTTP-referrer restriction on the Maps key
+is the only thing protecting your quota: it must allow the real domain, not just
+localhost, or production's own requests get rejected.
 
 ## 4. Database schema + seed
 
@@ -124,15 +169,37 @@ pnpm --filter @mpm/cms migrate                          # apply schema + PostGIS
 pnpm seed                                               # Phase-0 demo data (incl. home content)
 ```
 
+`migrate:create` automatically runs `scripts/fix-migration.mjs`, which repairs two things
+the Payload generator gets wrong for this project:
+
+- it emits a **value** import for `MigrateUpArgs` / `MigrateDownArgs`, which throws at
+  runtime on Payload 3.87 — they are rewritten to `import type`, with `sql` kept as a
+  separate value import;
+- it regenerates `migrations/index.ts`, whose order can put the committed `0001_postgis`
+  migration **before** the base schema. `0001_postgis` runs `ALTER TABLE locations`, so
+  that ordering fails on a fresh database. The script refuses to continue (exit 1) and
+  tells you to move `0001_postgis` last.
+
 ## 5. Run the CMS as a service
 
 ```bash
-pnpm --filter @mpm/cms build                            # next build
-sudo cp deploy/mrpackermover-cms.service /etc/systemd/system/
+bash deploy/build-cms.sh                # typechecks, then builds; keeps the old build on failure
+sudo bash deploy/install-units.sh       # writes the units with THIS clone's real paths
 sudo systemctl daemon-reload
 sudo systemctl enable --now mrpackermover-cms
-journalctl -u mrpackermover-cms -f                      # watch it boot; Ctrl-C to stop tailing
+journalctl -u mrpackermover-cms -f      # watch it boot; Ctrl-C to stop tailing
 ```
+
+Use `deploy/build-cms.sh` rather than a bare `pnpm --filter @mpm/cms build`. `next build`
+deletes `.next` _before_ it compiles, so a failing build leaves the droplet with no build
+output and systemd crash-loops the admin panel — a bad commit becomes an outage. The
+wrapper typechecks first, moves the working build aside, and restores it if the build
+fails, exiting non-zero so you don't restart onto a broken build.
+
+`install-units.sh` exists because systemd requires absolute paths, and the committed units
+have to hardcode them. It derives the real paths from its own location, so it is correct
+no matter where the repo is cloned. Plain `sudo cp` of the `.service` files only works if
+your layout is exactly `/srv/mrpackermover/repo/mrpackermover`.
 
 Payload is now on `localhost:3000`. Create your first admin user at `/admin` (through Caddy,
 next step) or via `pnpm --filter @mpm/cms payload create-first-user`.
@@ -179,7 +246,7 @@ BUILD_WEBHOOK_URL=http://127.0.0.1:4545/deploy
 when the CMS calls it (token-checked; builds never overlap):
 
 ```bash
-sudo cp deploy/mrpackermover-deploy.service /etc/systemd/system/
+sudo bash deploy/install-units.sh              # installs both units with this clone's paths
 sudo systemctl daemon-reload
 sudo systemctl enable --now mrpackermover-deploy
 journalctl -u mrpackermover-deploy -f          # watch builds; Ctrl-C to stop tailing

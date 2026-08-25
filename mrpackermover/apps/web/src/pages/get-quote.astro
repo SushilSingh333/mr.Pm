@@ -99,15 +99,31 @@ const assurances = [
           <div class="field-row">
             <div class="field">
               <label for="q-from">Moving from <span class="req">*</span></label>
-              <input id="q-from" name="from" type="text" required placeholder="City or area" />
+              <input
+                id="q-from"
+                name="from"
+                type="text"
+                required
+                autocomplete="off"
+                placeholder="Flat / building, area, city"
+              />
             </div>
             <div class="field">
               <label for="q-to">Moving to <span class="req">*</span></label>
-              <input id="q-to" name="to" type="text" required placeholder="City or area" />
+              <input
+                id="q-to"
+                name="to"
+                type="text"
+                required
+                autocomplete="off"
+                placeholder="Flat / building, area, city"
+              />
             </div>
           </div>
           <p class="field-hint">
-            Pickup is from the cities we serve — <strong>delivery can be anywhere in India.</strong>
+            Start typing and pick your <strong>exact address</strong> from the suggestions — the more
+            precise the pickup and drop points, the more accurate your quote. Pickup is from the cities
+            we serve — <strong>delivery can be anywhere in India.</strong>
           </p>
 
           <div class="field-row">
@@ -237,6 +253,8 @@ const assurances = [
 </BaseLayout>
 
 <script>
+  import { attachAutocomplete, hasMapsKey } from '../components/quote/maps';
+
   const form = document.getElementById('quote-form') as HTMLFormElement | null;
   const card = document.getElementById('quote-card');
   const success = document.getElementById('quote-success');
@@ -255,6 +273,21 @@ const assurances = [
     prefill('to', params.get('to'));
     prefill('service', params.get('service'));
     prefill('phone', params.get('phone'));
+
+    // Google Places suggestions on the two address fields, so people give us a real
+    // address rather than just a city name. Silently no-ops without
+    // PUBLIC_GOOGLE_MAPS_API_KEY, leaving both as ordinary text inputs.
+    const fromInput = document.getElementById('q-from') as HTMLInputElement | null;
+    const toInput = document.getElementById('q-to') as HTMLInputElement | null;
+    void attachAutocomplete(fromInput);
+    void attachAutocomplete(toInput);
+
+    // The home hero passes the chosen city as ?from=Delhi. That is a starting point, not
+    // the pickup address — put the caret at the end so the next keystroke refines it.
+    if (hasMapsKey && fromInput?.value.trim() && !params.get('to')) {
+      fromInput.focus();
+      fromInput.setSelectionRange(fromInput.value.length, fromInput.value.length);
+    }
 
     const required = ['name', 'phone', 'from', 'to', 'service'];
     const phoneOk = (v: string): boolean => /^[+0-9 ()-]{8,}$/.test(v.trim());

@@ -38,6 +38,71 @@ const thumbFor = (c: City): string =>
         >
       </button>
     </div>
+    <div class="city-search" id="city-search-block">
+      <div class="city-search-field">
+        <!-- Same icon-circle treatment as the hero's service tiles (.tile-icon). -->
+        <span class="city-search-badge" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 21s7-6.4 7-11a7 7 0 10-14 0c0 4.6 7 11 7 11z"></path>
+            <circle cx="12" cy="10" r="2.5"></circle>
+          </svg>
+        </span>
+        <input
+          id="city-search"
+          type="text"
+          autocomplete="off"
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="city-search-results"
+          aria-autocomplete="list"
+          placeholder="Search your area, locality or landmark"
+        />
+        <button
+          type="button"
+          class="city-search-clear"
+          id="city-search-clear"
+          aria-label="Clear search"
+          hidden
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <!-- Rendered from Google's predictions rather than its own dropdown: this dialog is
+           opened with showModal(), so it sits in the browser's top layer and Google's
+           `.pac-container` would paint underneath it whatever its z-index. Styled to
+           match those `.pac-*` rules so both search surfaces look like one component. -->
+      <div class="city-search-panel" id="city-search-panel" hidden>
+        <ul class="city-search-results" id="city-search-results" role="listbox"></ul>
+        <p class="city-search-credit">powered by Google</p>
+      </div>
+      <p class="city-search-hint" id="city-search-hint">
+        Pick a suggestion, or press Enter to use what you typed.
+      </p>
+    </div>
+
+    <div class="city-sep"><span>or choose a city we serve</span></div>
+
     <div class="city-grid">
       {
         cities.map((c) => (
@@ -106,6 +171,202 @@ const thumbFor = (c: City): string =>
   .city-modal-close:hover {
     background: var(--color-surface-3);
   }
+  /* ── Location search ─────────────────────────────────────────────────────── */
+  .city-search {
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+  .city-search-field {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.6rem 1rem 0.6rem 0.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  /* Clicking in gets a quiet border tint only. The brand is crimson, so the full 3px
+     halo on every click read as an error state rather than focus. Keyboard users still
+     get the strong ring they need to see where they are — `:focus-visible` is exactly
+     that distinction, and it only fires for keyboard/AT focus. */
+  .city-search-field:focus-within {
+    border-color: var(--color-brand-400);
+  }
+  .city-search-field:has(input:focus-visible) {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-400) 26%, transparent);
+  }
+  /* Without :has() support, fall back to showing the ring on any focus — a slightly
+     louder click state is much better than no visible focus indicator at all. */
+  @supports not selector(:has(input)) {
+    .city-search-field:focus-within {
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-400) 26%, transparent);
+    }
+  }
+  .city-search-clear {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: none;
+    color: var(--color-ink-500);
+    cursor: pointer;
+    transition:
+      background var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+  .city-search-clear:hover {
+    background: var(--color-surface-3);
+    color: var(--color-ink-900);
+  }
+  /* The site's signature icon circle — same recipe as .tile-icon in the hero. */
+  .city-search-badge {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+  }
+  .city-search-field input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: var(--text-base);
+    color: var(--color-ink-900);
+  }
+  .city-search-field input:focus-visible {
+    outline: none;
+  }
+  .city-search-field input::placeholder {
+    color: var(--color-ink-500);
+  }
+  /* Matches the Places dropdown on the quote fields (`body .pac-*` in global.css):
+     same card, same brand pin in a left gutter, same brand-tinted hover, and the
+     typed match highlighted — so both search surfaces feel like one component. */
+  /* Same surface recipe as `.card`: line border + the large card radius, so the panel
+     reads as another card on the page rather than a browser-style autocomplete list. */
+  .city-search-panel {
+    margin-top: 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-pop);
+    overflow: hidden;
+  }
+  .city-search-results {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem;
+    max-height: 296px;
+    overflow-y: auto;
+  }
+  /* ─────────────────────────────────────────────────────────────────────────────
+     Everything below the <ul> is created at RUNTIME by the script, so those nodes
+     never carry Astro's `data-astro-cid-*` attribute. A plain scoped rule compiles
+     to `li[data-astro-cid-…]` and would match nothing — which is exactly why the
+     rows first shipped unstyled (stacked pins, a browser-default yellow <mark>).
+     `:global()` is anchored on `.city-search-results`, which IS in the template, so
+     the styling still cannot leak past this list.
+     ───────────────────────────────────────────────────────────────────────────── */
+  .city-search-results :global(li) {
+    display: grid;
+    /* Icon circle in its own column, so wrapped address lines keep a hanging indent and
+       stay aligned under the place name instead of running back to the far-left edge. */
+    grid-template-columns: 44px 1fr;
+    column-gap: 0.85rem;
+    align-items: center;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    line-height: 1.45;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .city-search-results :global(li:hover),
+  .city-search-results :global(li[aria-selected='true']) {
+    background: var(--color-brand-50);
+  }
+  .city-search-results :global(.city-search-pin) {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-3);
+    color: var(--color-brand-600);
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .city-search-results :global(li:hover .city-search-pin),
+  .city-search-results :global(li[aria-selected='true'] .city-search-pin) {
+    background: var(--color-brand-100);
+  }
+  .city-search-results :global(.city-search-text) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    min-width: 0;
+  }
+  .city-search-results :global(b) {
+    display: block;
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--color-ink-900);
+  }
+  /* The portion matching what you typed — same treatment as `.pac-matched`.
+     `background: none` is required: <mark> is yellow by UA default. */
+  .city-search-results :global(mark) {
+    background: none;
+    color: var(--color-brand-600);
+    font-weight: 700;
+  }
+  .city-search-results :global(small) {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  /* Places terms of service require the attribution whenever predictions are shown
+     outside a Google map. Google's own dropdown includes it; ours renders it here. */
+  .city-search-credit {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem 0.5rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.72rem;
+    letter-spacing: 0.01em;
+    color: var(--color-ink-500);
+  }
+  .city-search-hint {
+    margin-top: 0.45rem;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .city-sep {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+  .city-sep::before,
+  .city-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-line);
+  }
+
   .city-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
@@ -152,24 +413,298 @@ const thumbFor = (c: City): string =>
 </style>
 
 <script>
+  import { hasMapsKey, loadGoogleMaps } from '../quote/maps';
+
+  /** Just the slice of the Places API this component uses — avoids `any`. */
+  interface MatchedSubstring {
+    offset: number;
+    length: number;
+  }
+  interface Prediction {
+    description: string;
+    structured_formatting?: {
+      main_text?: string;
+      secondary_text?: string;
+      /** Ranges of `main_text` that match what was typed — highlighted like `.pac-matched`. */
+      main_text_matched_substrings?: MatchedSubstring[];
+    };
+  }
+  interface AutocompleteService {
+    getPlacePredictions(
+      request: {
+        input: string;
+        componentRestrictions?: { country: string };
+      },
+      callback: (predictions: Prediction[] | null, status: string) => void,
+    ): void;
+  }
+  interface GoogleMapsGlobal {
+    maps: { places: { AutocompleteService: new () => AutocompleteService } };
+  }
+
   // Open triggers, close handlers, and selection → `mpm:city-select` event.
   const modal = document.getElementById('city-modal') as HTMLDialogElement | null;
   if (modal) {
     for (const el of document.querySelectorAll<HTMLElement>('[data-open-city-modal]')) {
-      el.addEventListener('click', () => modal.showModal());
+      el.addEventListener('click', () => {
+        // Always open on a clean field — never re-present a stale half-typed query.
+        resetSearch();
+        modal.showModal();
+      });
     }
     document.getElementById('city-modal-close')?.addEventListener('click', () => modal.close());
     modal.addEventListener('click', (event) => {
       if (event.target === modal) modal.close();
     });
+
+    /**
+     * `name` is the full text handed to the quote form; `label` is the short form the
+     * hero chip shows (a picked Google place can be a long address).
+     */
+    /**
+     * Clears the search field and dismisses the suggestions. Assigned once the search
+     * elements exist; declared here so `choose` (defined first) can call it.
+     */
+    let resetSearch: () => void = () => {};
+
+    const choose = (name: string, label: string, slug = ''): void => {
+      document.dispatchEvent(new CustomEvent('mpm:city-select', { detail: { slug, name, label } }));
+      // Leave the picker clean: the field keeps focus (that is what makes a suggestion
+      // clickable at all), so without this the half-typed query and its focus ring
+      // would both still be sitting there the next time the modal opens.
+      resetSearch();
+      modal.close();
+    };
+
     for (const choice of modal.querySelectorAll<HTMLButtonElement>('.city-choice')) {
       choice.addEventListener('click', () => {
-        document.dispatchEvent(
-          new CustomEvent('mpm:city-select', {
-            detail: { slug: choice.dataset.slug, name: choice.dataset.name },
-          }),
-        );
-        modal.close();
+        const name = choice.dataset.name ?? '';
+        choose(name, name, choice.dataset.slug ?? '');
+      });
+    }
+
+    // ── Location search ──────────────────────────────────────────────────────
+    const input = document.getElementById('city-search') as HTMLInputElement | null;
+    const list = document.getElementById('city-search-results') as HTMLUListElement | null;
+    const panel = document.getElementById('city-search-panel');
+    const clear = document.getElementById('city-search-clear') as HTMLButtonElement | null;
+    const hint = document.getElementById('city-search-hint');
+
+    if (input && list) {
+      let predictions: Prediction[] = [];
+      let active = -1;
+      let service: AutocompleteService | null = null;
+      let debounce = 0;
+
+      const closeList = (): void => {
+        if (panel) panel.hidden = true;
+        list.replaceChildren();
+        input.setAttribute('aria-expanded', 'false');
+        predictions = [];
+        active = -1;
+      };
+
+      const syncClearButton = (): void => {
+        if (clear) clear.hidden = input.value.length === 0;
+      };
+
+      resetSearch = (): void => {
+        window.clearTimeout(debounce);
+        input.value = '';
+        syncClearButton();
+        closeList();
+        // Drop focus too, or the field keeps its focus ring after the modal closes.
+        input.blur();
+      };
+
+      if (clear) {
+        // Keep focus in the field so clearing does not fire blur and bounce the caret out.
+        clear.addEventListener('mousedown', (event) => event.preventDefault());
+        clear.addEventListener('click', () => {
+          window.clearTimeout(debounce);
+          input.value = '';
+          syncClearButton();
+          closeList();
+          input.focus();
+        });
+      }
+
+      const paintActive = (): void => {
+        for (const [i, li] of [...list.children].entries()) {
+          li.setAttribute('aria-selected', String(i === active));
+        }
+      };
+
+      /**
+       * A pin inside the site's icon circle — the same treatment as the hero's service
+       * tiles (`.tile-icon`), so a suggestion row looks like the rest of the site rather
+       * than a browser autocomplete entry.
+       */
+      const pinBadge = (): HTMLSpanElement => {
+        const ns = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('width', '20');
+        svg.setAttribute('height', '20');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '1.9');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        const body = document.createElementNS(ns, 'path');
+        body.setAttribute('d', 'M12 21s7-6.4 7-11a7 7 0 10-14 0c0 4.6 7 11 7 11z');
+        const dot = document.createElementNS(ns, 'circle');
+        dot.setAttribute('cx', '12');
+        dot.setAttribute('cy', '10');
+        dot.setAttribute('r', '2.5');
+        svg.append(body, dot);
+
+        const badge = document.createElement('span');
+        badge.className = 'city-search-pin';
+        badge.setAttribute('aria-hidden', 'true');
+        badge.appendChild(svg);
+        return badge;
+      };
+
+      /**
+       * Highlight the ranges Google says matched what was typed, the way `.pac-matched`
+       * does. Built with text nodes rather than innerHTML so a place name can never
+       * inject markup.
+       */
+      const highlighted = (text: string, ranges: MatchedSubstring[] = []): DocumentFragment => {
+        const frag = document.createDocumentFragment();
+        let cursor = 0;
+        for (const range of [...ranges].sort((a, b) => a.offset - b.offset)) {
+          const start = Math.max(cursor, range.offset);
+          const end = Math.min(text.length, range.offset + range.length);
+          if (end <= start) continue;
+          if (start > cursor) frag.appendChild(document.createTextNode(text.slice(cursor, start)));
+          const mark = document.createElement('mark');
+          mark.textContent = text.slice(start, end);
+          frag.appendChild(mark);
+          cursor = end;
+        }
+        if (cursor < text.length) frag.appendChild(document.createTextNode(text.slice(cursor)));
+        return frag;
+      };
+
+      const render = (): void => {
+        list.replaceChildren();
+        if (predictions.length === 0) return closeList();
+        for (const [i, p] of predictions.entries()) {
+          const li = document.createElement('li');
+          li.setAttribute('role', 'option');
+          li.setAttribute('aria-selected', 'false');
+          li.appendChild(pinBadge());
+
+          const text = document.createElement('span');
+          text.className = 'city-search-text';
+          const mainText = p.structured_formatting?.main_text ?? p.description;
+          const main = document.createElement('b');
+          main.appendChild(
+            highlighted(mainText, p.structured_formatting?.main_text_matched_substrings),
+          );
+          text.appendChild(main);
+          const sub = p.structured_formatting?.secondary_text;
+          if (sub) {
+            const small = document.createElement('small');
+            small.textContent = sub;
+            text.appendChild(small);
+          }
+          li.appendChild(text);
+
+          li.addEventListener('click', () => choose(p.description, mainText));
+          li.addEventListener('mousemove', () => {
+            active = i;
+            paintActive();
+          });
+          list.appendChild(li);
+        }
+        if (panel) panel.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        paintActive();
+      };
+
+      // Suggestions need a key; without one the field still works as free text.
+      if (hasMapsKey) {
+        void loadGoogleMaps().then((ready) => {
+          const google = (window as unknown as { google?: GoogleMapsGlobal }).google;
+          if (!ready || !google) return;
+          service = new google.maps.places.AutocompleteService();
+        });
+      } else if (hint) {
+        hint.textContent = 'Type your area and press Enter.';
+      }
+
+      input.addEventListener('input', () => {
+        const value = input.value.trim();
+        syncClearButton();
+        window.clearTimeout(debounce);
+        if (!service || value.length < 3) return closeList();
+        // Debounced so we bill one request per pause, not per keystroke.
+        debounce = window.setTimeout(() => {
+          service?.getPlacePredictions(
+            { input: value, componentRestrictions: { country: 'in' } },
+            (results, status) => {
+              predictions = status === 'OK' && results ? results.slice(0, 6) : [];
+              active = -1;
+              render();
+            },
+          );
+        }, 220);
+      });
+
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+          if (predictions.length === 0) return;
+          event.preventDefault();
+          const step = event.key === 'ArrowDown' ? 1 : -1;
+          active = (active + step + predictions.length) % predictions.length;
+          paintActive();
+          return;
+        }
+        // Escape closes the suggestions first; a second press closes the dialog.
+        if (event.key === 'Escape' && panel && !panel.hidden) {
+          event.preventDefault();
+          closeList();
+          return;
+        }
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          const picked = predictions[active];
+          if (picked) {
+            choose(
+              picked.description,
+              picked.structured_formatting?.main_text ?? picked.description,
+            );
+            return;
+          }
+          const typed = input.value.trim();
+          if (typed) choose(typed, typed);
+        }
+      });
+
+      /**
+       * Keep focus in the input when a suggestion is pressed.
+       *
+       * Without this, mousedown blurs the input, the blur handler tears the list down,
+       * and the <li> can be gone before mouseup — so `click` never fires and the
+       * suggestion is simply not selectable. Suppressing the default mousedown action
+       * stops the focus change, so blur never fires and the row survives to be clicked.
+       *
+       * Deliberately `mousedown`, not `pointerdown`: the list scrolls (6 results
+       * overflow its max-height), and cancelling pointerdown would kill touch scrolling
+       * inside it. A touch *scroll* fires no compatibility mouse events at all, while a
+       * touch *tap* fires mousedown → mouseup → click, so this covers taps without
+       * touching scroll.
+       */
+      panel?.addEventListener('mousedown', (event) => event.preventDefault());
+
+      input.addEventListener('blur', () => {
+        // Focus genuinely left the field (tab away, click elsewhere) — dismiss.
+        // Selecting a suggestion never reaches here, because the handler above
+        // suppresses the focus change, so there is no race to lose.
+        closeList();
       });
     }
   }

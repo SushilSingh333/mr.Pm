@@ -12,3 +12,6 @@ packages/shared/src/payload-types.ts
 **/manifest.json
 **/manifest.sample.json
 coverage
+# Verbatim port of proposal-studio/app.js — its header says DO NOT restyle, because the
+# exact approved PDF design depends on it. Formatting it would defeat that.
+apps/cms/src/components/proposal/proposal-pdf.ts

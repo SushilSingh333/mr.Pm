@@ -28,34 +28,52 @@ function genQuoteNo(): string {
   );
 }
 
+/** A Payload doc arrives as untyped JSON; model it as unknown-valued rather than `any`. */
+type Json = Record<string, unknown>;
+
+const obj = (v: unknown): Json => (v !== null && typeof v === 'object' ? (v as Json) : {});
+const rows = (v: unknown): Json[] => (Array.isArray(v) ? (v as Json[]) : []);
+/** Mirrors the previous `value || fallback` semantics (falsy → fallback). */
+const text = (v: unknown, fallback = ''): string => (v ? String(v) : fallback);
+
+/** A caught value is `unknown`; render it the way `e?.message || e` used to. */
+function errText(e: unknown): string {
+  const message = e instanceof Error ? e.message : '';
+  return message || String(e);
+}
+
 /** Map a saved Proposals doc → the PDF generator's data shape. */
-function toPdfData(doc: Record<string, any>): Record<string, any> {
-  const charges = (doc.charges || []).map((c: any) => ({ name: c?.name || '', amt: num(c?.amt) }));
-  const sub = charges.reduce((s: number, c: any) => s + num(c.amt), 0);
-  const p = doc.pricing || {};
+function toPdfData(doc: Json): Json {
+  const charges = rows(doc.charges).map((c) => ({ name: text(c.name), amt: num(c.amt) }));
+  const sub = charges.reduce((s, c) => s + num(c.amt), 0);
+  const p = obj(doc.pricing);
   const gstRate = num(p.gstRate);
   const gv = num(p.goodsValue);
   const insRate = num(p.insRate);
   const premium = Math.round((gv * insRate) / 100);
   const gst = Math.round((sub * gstRate) / 100);
   const grand = sub + gst + premium;
-  const move = doc.move || {};
+  const move = obj(doc.move);
   return {
-    quoteNo: doc.quoteNo || genQuoteNo(),
-    company: doc.company || {},
-    customer: doc.customer || {},
+    quoteNo: text(doc.quoteNo) || genQuoteNo(),
+    company: obj(doc.company),
+    customer: obj(doc.customer),
     move: { ...move, date: move.date ? String(move.date).slice(0, 10) : '' },
-    items: (doc.inventory || []).map((it: any) => ({
-      name: it?.name || '',
-      qty: num(it?.qty),
-      pack: it?.pack || 'Standard Wrap',
-      rem: it?.rem || '',
+    items: rows(doc.inventory).map((it) => ({
+      name: text(it.name),
+      qty: num(it.qty),
+      pack: text(it.pack, 'Standard Wrap'),
+      rem: text(it.rem),
     })),
     charges,
     totals: { sub, gstRate, gst, gv, insRate, premium, grand },
-    services: (doc.services || []).map((s: any) => s?.line).filter(Boolean),
-    terms: (doc.terms || []).map((s: any) => s?.line).filter(Boolean),
-    pay: p.pay || '',
+    services: rows(doc.services)
+      .map((s) => text(s.line))
+      .filter(Boolean),
+    terms: rows(doc.terms)
+      .map((s) => text(s.line))
+      .filter(Boolean),
+    pay: text(p.pay),
     validDays: num(p.validDays) || 15,
   };
 }
@@ -91,27 +109,29 @@ export function ProposalPdf(): React.JSX.Element {
       const data = toPdfData(doc);
       const blob = genProposalPDF(data);
       const name =
-        (data.company?.name || 'MrPackerMover').replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '') +
+        text(obj(data.company).name, 'MrPackerMover')
+          .replace(/[^\w-]+/g, '-')
+          .replace(/^-|-$/g, '') +
         '-Proposal-' +
-        data.quoteNo +
+        text(data.quoteNo) +
         '.pdf';
       setFileName(name);
       setUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
         return URL.createObjectURL(blob);
       });
-    } catch (e: any) {
-      setError('Could not build the PDF: ' + (e?.message || e));
+    } catch (e) {
+      setError('Could not build the PDF: ' + errText(e));
     } finally {
       setBusy(false);
     }
   }, [id]);
 
-  // Auto-build once the proposal is saved (has an id).
+  // Auto-build once the proposal is saved (has an id). `build` is itself keyed on `id`,
+  // so listing it here is equivalent to the previous [id]-only dependency list.
   useEffect(() => {
     if (id) void build();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, build]);
 
   if (!id) {
     return (
@@ -157,7 +177,11 @@ export function ProposalPdf(): React.JSX.Element {
             </a>
             <a href={url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
               <span
-                style={{ ...btn, background: 'var(--theme-elevation-100)', color: 'var(--theme-text)' }}
+                style={{
+                  ...btn,
+                  background: 'var(--theme-elevation-100)',
+                  color: 'var(--theme-text)',
+                }}
               >
                 ⧉ Open / Print
               </span>

@@ -1,9 +1,20 @@
 # systemd unit — keeps the Payload/Next CMS running and restarts it on crash/reboot.
-# Install:  sudo cp deploy/mrpackermover-cms.service /etc/systemd/system/
+#
+# Install:  sudo bash deploy/install-units.sh        ← preferred; rewrites the paths below
+#                                                      to wherever this clone actually is
 #           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-cms
 # Logs:     journalctl -u mrpackermover-cms -f
 #
-# Adjust User, WorkingDirectory, and the pnpm path to match your droplet.
+# PATHS: systemd requires absolute paths, so these are baked in. They assume the
+# production layout, where the pnpm project is nested one level inside the repo:
+#
+#   /srv/mrpackermover/repo              ← the git clone (repo root)
+#   /srv/mrpackermover/repo/mrpackermover ← the pnpm workspace (package.json lives here)
+#
+# A plain `cp` of this file only works if your clone matches that layout exactly.
+# `install-units.sh` derives the real paths from its own location, so prefer it.
+#
+# Adjust User and the pnpm path to match your droplet.
 
 [Unit]
 Description=MrPackerMover Payload CMS (Next.js)
@@ -13,13 +24,15 @@ Wants=postgresql.service
 [Service]
 Type=simple
 User=mpm
-WorkingDirectory=/srv/mrpackermover/apps/cms
+WorkingDirectory=/srv/mrpackermover/repo/mrpackermover/apps/cms
 # Loads DATABASE_URL, PAYLOAD_SECRET, TURNSTILE_SECRET_KEY, etc.
-EnvironmentFile=/srv/mrpackermover/apps/cms/.env
+EnvironmentFile=/srv/mrpackermover/repo/mrpackermover/apps/cms/.env
 Environment=NODE_ENV=production
 # pnpm must be on PATH; `corepack enable` puts it at /usr/bin/pnpm. Adjust if needed.
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-# Runs `next start -p 3000` (see apps/cms/package.json).
+# Runs `next start -p 3000 -H 127.0.0.1` (see apps/cms/package.json). Binding to
+# loopback is deliberate: Caddy reverse-proxies to it, so the admin must not be
+# reachable directly on the droplet's public IP (that would bypass TLS).
 ExecStart=/usr/bin/pnpm start
 Restart=always
 RestartSec=5

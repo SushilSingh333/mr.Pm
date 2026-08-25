@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start -p 3000 -H 127.0.0.1",
     "generate:types": "payload generate:types && node ./scripts/copy-types.mjs",
     "migrate": "payload migrate",
-    "migrate:create": "payload migrate:create",
+    "migrate:create": "payload migrate:create && node ./scripts/fix-migration.mjs",
     "build-manifest": "tsx src/scripts/build-manifest.ts",
     "set-city-services": "tsx src/scripts/set-city-services.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",

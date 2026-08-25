@@ -37,7 +37,8 @@ export const Blog: CollectionConfig = {
       type: 'textarea',
       required: true,
       admin: {
-        description: 'One–two sentence summary — shown on the card and used as the meta description.',
+        description:
+          'One–two sentence summary — shown on the card and used as the meta description.',
       },
     },
     {
@@ -67,7 +68,8 @@ export const Blog: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       admin: {
-        description: 'Cover image (uploads to Cloudinary). Falls back to a stock hero if left empty.',
+        description:
+          'Cover image (uploads to Cloudinary). Falls back to a stock hero if left empty.',
       },
     },
     { name: 'tags', type: 'text', hasMany: true },

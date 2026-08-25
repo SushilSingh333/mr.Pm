@@ -1,4 +1,27 @@
-# Hero image attributions
+# Attributions
+
+## Icons — Tabler Icons (MIT)
+
+The inline icon set in [`apps/web/src/lib/icons.ts`](../apps/web/src/lib/icons.ts) is
+**Tabler Icons** by Paweł Kuna — https://tabler.io/icons — used under the MIT licence.
+
+Only the ~36 glyphs the site actually renders are inlined as SVG inner markup; the
+package is deliberately **not** a dependency, so there is no runtime cost, no external
+request, and nothing unused in the bundle. Each entry carries a `// tabler: <name>`
+comment naming its source glyph, so any of them can be re-fetched from
+`https://raw.githubusercontent.com/tabler/tabler-icons/main/icons/outline/<name>.svg`.
+
+> MIT License — Copyright (c) 2020–present Paweł Kuna
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy of this
+> software and associated documentation files (the "Software"), to deal in the Software
+> without restriction, including without limitation the rights to use, copy, modify,
+> merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+> permit persons to whom the Software is furnished to do so, subject to the following
+> conditions: The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+
+## Hero images
 
 Source: Wikimedia Commons (via Wikipedia PageImages).
 

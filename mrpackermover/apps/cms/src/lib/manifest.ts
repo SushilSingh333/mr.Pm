@@ -681,7 +681,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       where: { _status: { equals: 'published' } } as never,
       overrideAccess: true,
     });
-    blog = (res.docs as PostDoc[]).map((p) => {
+    // `collection` is passed `as never` above, so `find` resolves to its untyped overload
+    // and `docs` comes back as generic JSON. Go through `unknown` to reach `PostDoc`.
+    blog = (res.docs as unknown as PostDoc[]).map((p) => {
       const cover =
         p.cover && typeof p.cover === 'object' ? (p.cover as { url?: string; alt?: string }) : null;
       const words = richTextToPlain(p.body).split(/\s+/).filter(Boolean).length;

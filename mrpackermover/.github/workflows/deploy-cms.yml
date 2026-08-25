@@ -6,14 +6,27 @@ name: Deploy CMS
 #
 # Required repo secrets: DROPLET_HOST, DROPLET_USER, DROPLET_SSH_KEY.
 # The droplet user needs passwordless `systemctl restart mrpackermover-cms` (sudoers).
+#
+# ⚠️  THIS WORKFLOW IS CURRENTLY INERT — AND THAT IS DELIBERATE.
+# GitHub only reads workflows from `.github/workflows/` at the REPOSITORY ROOT. This
+# file lives one level down (`mrpackermover/.github/workflows/`), so Actions never runs
+# it. Production is deployed by hand.
+#
+# Moving this file to the repo root ACTIVATES it: every push to main would then SSH into
+# the live droplet and run migrations against the production database. Do not move it
+# without deciding you want push-to-deploy. The quality-gate CI (which touches nothing
+# outside the runner) lives at the repo root as `.github/workflows/ci.yml`.
+#
+# Paths below are repo-root-relative and account for the project being nested in
+# `mrpackermover/`.
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'apps/cms/**'
-      - 'packages/**'
+      - 'mrpackermover/apps/cms/**'
+      - 'mrpackermover/packages/**'
 
 jobs:
   migrate-and-deploy:
@@ -27,9 +40,13 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             set -euo pipefail
-            cd /srv/mrpackermover
+            # The clone is at .../repo; the pnpm workspace is nested one level inside it.
+            cd /srv/mrpackermover/repo
             git pull --ff-only
+            cd mrpackermover
             pnpm install --frozen-lockfile
             pnpm --filter @mpm/cms migrate
-            pnpm --filter @mpm/cms build
+            # Typechecks, then builds with the old build kept as a fallback. Exits
+            # non-zero on failure, so the restart below never runs onto a broken build.
+            bash deploy/build-cms.sh
             sudo systemctl restart mrpackermover-cms

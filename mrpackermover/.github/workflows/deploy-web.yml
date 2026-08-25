@@ -5,16 +5,29 @@ name: Deploy web
 # script also rsyncs dist/ into Caddy's web root and purges Cloudflare.
 #
 # Required repo secrets: DROPLET_HOST, DROPLET_USER, DROPLET_SSH_KEY.
+#
+# ⚠️  THIS WORKFLOW IS CURRENTLY INERT — AND THAT IS DELIBERATE.
+# GitHub only reads workflows from `.github/workflows/` at the REPOSITORY ROOT. This
+# file lives one level down (`mrpackermover/.github/workflows/`), so Actions never runs
+# it. Production is deployed by hand.
+#
+# Moving this file to the repo root ACTIVATES it: every push to main would rebuild and
+# republish the live site. Do not move it without deciding you want push-to-deploy. The
+# quality-gate CI (which touches nothing outside the runner) lives at the repo root as
+# `.github/workflows/ci.yml`.
+#
+# Paths below are repo-root-relative and account for the project being nested in
+# `mrpackermover/`.
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'apps/web/**'
-      - 'packages/**'
-      - 'scripts/**'
-      - 'deploy/**'
+      - 'mrpackermover/apps/web/**'
+      - 'mrpackermover/packages/**'
+      - 'mrpackermover/scripts/**'
+      - 'mrpackermover/deploy/**'
 
 jobs:
   deploy:
@@ -28,7 +41,9 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             set -euo pipefail
-            cd /srv/mrpackermover
+            # The clone is at .../repo; the pnpm workspace is nested one level inside it.
+            cd /srv/mrpackermover/repo
             git pull --ff-only
+            cd mrpackermover
             pnpm install --frozen-lockfile
             bash deploy/deploy.sh

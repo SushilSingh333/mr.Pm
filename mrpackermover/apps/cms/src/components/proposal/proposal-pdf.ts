@@ -1,5 +1,5 @@
-// @ts-nocheck
 /* eslint-disable */
+// @ts-nocheck
 /*!
  * proposal-pdf.ts — 2-page A4 vector PDF generator, ported VERBATIM from the Proposal Studio
  * (proposal-studio/app.js). Framework-agnostic: `genProposalPDF(d)` takes a data object and

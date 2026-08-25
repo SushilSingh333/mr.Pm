@@ -128,7 +128,8 @@ export const SAMPLES: QuoteSample[] = [
     interState: false,
     realLow: 33000,
     realHigh: 33000,
-    notes: 'HEAVY load for 14ft: 2 beds, 2 AC, fridge, w/machine, microwave, 2 cylinders — really a 16-17ft load',
+    notes:
+      'HEAVY load for 14ft: 2 beds, 2 AC, fridge, w/machine, microwave, 2 cylinders — really a 16-17ft load',
   },
   {
     id: 'noida-chennai',

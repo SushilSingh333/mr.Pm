@@ -29,6 +29,16 @@ export interface FaqItem {
   answer: string;
 }
 
+/**
+ * Hero/thumbnail image uploaded via the CMS (stored on Cloudinary). The `url` is a
+ * plain Cloudinary delivery URL; templates inject a transform with `cldUrl()`.
+ * Absent ⇒ the template falls back to the static `/images/hero/...` file.
+ */
+export interface HeroImage {
+  url: string;
+  alt?: string;
+}
+
 export interface StatBlock {
   jobs12m: number;
   onTimePct?: number;
@@ -46,12 +56,8 @@ export interface CityHubData {
   priceFrom?: number;
   /** Localities we cover in this city — the "Areas we cover" grid. */
   areas?: Array<{ path: string; name: string }>;
-  /**
-   * Hero/thumbnail image for this city, uploaded via the CMS (stored on Cloudinary).
-   * The `url` is a plain Cloudinary delivery URL; templates inject a transform with
-   * `cldUrl()`. Absent ⇒ the template falls back to the static `/images/hero/...` file.
-   */
-  heroImage?: { url: string; alt?: string };
+  /** This city's own uploaded hero. */
+  heroImage?: HeroImage;
 }
 
 export interface CityServiceData {
@@ -65,6 +71,8 @@ export interface CityServiceData {
   inclusions: string[];
   exclusions: string[];
   priceFrom?: number;
+  /** Inherited from the parent city — a service page has no upload of its own. */
+  heroImage?: HeroImage;
 }
 
 export interface LocalityData {
@@ -77,6 +85,11 @@ export interface LocalityData {
   reviews: ReviewSnippet[];
   faqs: FaqItem[];
   priceFrom?: number;
+  /**
+   * The locality's own uploaded hero when the editor set one, else the parent city's.
+   * Resolved in the CMS manifest builder so templates need no fallback logic.
+   */
+  heroImage?: HeroImage;
 }
 
 export interface RouteData {

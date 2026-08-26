@@ -395,6 +395,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
               inclusions: (service.inclusions ?? []).map((i) => i.item),
               exclusions: (service.exclusions ?? []).map((i) => i.item),
               priceFrom,
+              heroImage: imageFor(city.heroImage),
             },
           },
         ),
@@ -459,6 +460,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             reviews: localityReviews.slice(0, 9),
             faqs: idx.faqsForCity(sid(parent.id)).slice(0, 6),
             priceFrom: idx.priceFrom(idx.cityRateBands(sid(parent.id))),
+            // The locality's own photo when the editor uploaded one, else the city's.
+            // Resolved here so the template needs no fallback logic of its own.
+            heroImage: imageFor(loc.heroImage) ?? imageFor(parent.heroImage),
           },
         },
       ),

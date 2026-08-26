@@ -57,7 +57,9 @@ const intro = isService
   ? `${cs!.serviceName} in ${cityName} with a fixed written quote, verified crews, and reviews tied to real job references.`
   : `Packers and movers in ${loc!.localityName}, ${cityName}. Fixed quotes, verified crews, and notes specific to your society and block.`;
 
-// Both families are city-scoped, so both use that city's landmark photo.
+// A CMS upload wins: the locality's own photo, else its city's (the manifest already
+// resolved that fallback). Without one, the static /images/hero/cities/<city>.jpg file.
+const heroImageUrl = cs?.heroImage?.url ?? loc?.heroImage?.url;
 const heroImage = `cities/${row.slug.split('/')[0]}`;
 ---
 
@@ -68,6 +70,7 @@ const heroImage = `cities/${row.slug.split('/')[0]}`;
     h1={row.h1}
     intro={intro}
     image={heroImage}
+    imageUrl={heroImageUrl}
     prefillCity={cityName}
     prefillService={cs?.serviceName}
     bands={bands}

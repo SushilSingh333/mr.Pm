@@ -125,9 +125,9 @@ export const Locations: CollectionConfig = {
       relationTo: 'media',
       admin: {
         description:
-          'Background photo for this city’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Leave empty to fall back to the built-in /images/hero/cities/<slug>.jpg file.',
-        // Hero image is a city-level asset; localities inherit the city's look.
-        condition: (data) => data?.type === 'city',
+          'Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality — leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.',
+        // States have no hero page of their own; cities and localities both do.
+        condition: (data) => data?.type === 'city' || data?.type === 'locality',
       },
     },
     {

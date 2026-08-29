@@ -46,6 +46,23 @@ export const quoteEndpoint: Endpoint = {
       return json({ error: 'A name and a valid phone are required' }, 422);
     }
 
+    // A move date in the past is never real — it is a mis-tap or a bot. The forms set
+    // `min` on the date input, but that is client-side and trivially bypassed, and this
+    // writes straight into Leads, so it is re-checked here.
+    //
+    // "Today" is Asia/Kolkata, not the server's clock: a UTC server would still be on
+    // yesterday's date until 5:30 am IST and would reject a customer booking for today.
+    const moveDate = (body.date || body.moveDate || '').trim();
+    if (moveDate) {
+      const todayIST = new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(moveDate)) {
+        return json({ error: 'Enter the move date as YYYY-MM-DD' }, 422);
+      }
+      if (moveDate < todayIST) {
+        return json({ error: 'The move date cannot be in the past' }, 422);
+      }
+    }
+
     const ip = clientIp(req);
     const ok = await verifyTurnstile(body.turnstileToken, ip);
     if (!ok) return json({ error: 'Verification failed' }, 403);
@@ -62,7 +79,7 @@ export const quoteEndpoint: Endpoint = {
           service: body.service ?? undefined,
           pickup: body.pickup ?? body.from ?? undefined,
           dropLocation: body.drop ?? body.dropLocation ?? body.to ?? undefined,
-          moveDate: body.date || body.moveDate || undefined,
+          moveDate: moveDate || undefined,
           moveSize: body.size ?? body.moveSize ?? undefined,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,

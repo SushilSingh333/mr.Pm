@@ -182,6 +182,24 @@ const service = prefillService ?? '';
     // The user now picks the truck size (ft) directly; crew grows on the bigger trucks.
     const labourForTruck = (ft: number): number => (ft >= 17 ? 6 : ft >= 15 ? 5 : 4);
 
+    // Nobody can book a move in the past. `min` is set on the client, not at build time:
+    // the page is statically built and Cloudflare holds it for a day, so a build-time date
+    // would go stale and start allowing yesterday. Local date, not toISOString() — that is
+    // UTC and would read as yesterday in IST until 5:30 am.
+    const todayISO = (): string => {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    };
+    const dateEl = byId<HTMLInputElement>('q-date');
+    const clampDate = (): void => {
+      const min = todayISO();
+      dateEl.min = min;
+      // The picker respects `min`, but a typed or pasted value can still be earlier.
+      if (dateEl.value && dateEl.value < min) dateEl.value = min;
+    };
+    clampDate();
+    dateEl.addEventListener('change', clampDate);
+
     // Inter-state detection for the permit/tax surcharge. Google gives the real state;
     // the NCR fallback maps a resolved place's zone to its state when there's no key.
     const ZONE_STATE: Record<string, string> = {

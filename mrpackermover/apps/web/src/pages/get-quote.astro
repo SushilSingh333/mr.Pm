@@ -261,6 +261,24 @@ const assurances = [
   const banner = document.getElementById('form-error');
 
   if (form && card && success) {
+    // Nobody can book a move in the past. Set on the client, not at build time: the page is
+    // static and cached for a day, so a build-time `min` would go stale. Local date, not
+    // toISOString() — that is UTC and reads as yesterday in IST until 5:30 am.
+    const dateEl = document.getElementById('q-date') as HTMLInputElement | null;
+    if (dateEl) {
+      const clampDate = (): void => {
+        const d = new Date();
+        const min = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 10);
+        dateEl.min = min;
+        // The picker respects `min`, but a typed or pasted value can still be earlier.
+        if (dateEl.value && dateEl.value < min) dateEl.value = min;
+      };
+      clampDate();
+      dateEl.addEventListener('change', clampDate);
+    }
+
     // Prefill from query params (e.g. the home city selector passes ?from=Delhi).
     const params = new URLSearchParams(location.search);
     const prefill = (name: string, v: string | null) => {

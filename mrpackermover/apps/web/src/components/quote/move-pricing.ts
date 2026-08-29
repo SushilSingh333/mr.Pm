@@ -77,7 +77,15 @@ export const config = {
     19: 7500,
   } as Record<number, number>,
   sameBuildingRate: 6100,
+  // Crew included in the truck's base rate. A bigger truck does not arrive with the same
+  // four people — the desk quotes a 19 ft local job at ₹10,000 WITH 5–6 labour, so charging
+  // "extra" crew on top of the big-truck base double-counted them. `labourIncluded` is the
+  // fallback for any size not listed.
   labourIncluded: 4,
+  labourIncludedByTruck: { 10: 3, 12: 4, 14: 4, 15: 5, 16: 5, 17: 6, 19: 6 } as Record<
+    number,
+    number
+  >,
   extraLabourRate: 700,
   packingDeductLocal: 1200,
   // Loading + unloading labour. Local = ₹2,500; a far (intercity) move DOUBLES it, since
@@ -89,6 +97,11 @@ export const config = {
   kmPerCrewDay: 500,
   // Per-floor carrying cost at each end. Stairs (no lift) is hard labour; a lift still
   // costs per floor (more trips, longer carry, lift waiting) but far less.
+  //
+  // The first floor at each end is included — our own quotes don't surcharge a 1st- or
+  // 2nd-floor flat, and charging for it was the single biggest source of over-quoting on
+  // local jobs (Noida 61→Vasundhara and Sec 34→Sec 34 were both +14% before this).
+  floorsIncludedPerEnd: 1,
   floorNoLiftPerFloor: 350,
   floorLiftPerFloor: 100,
   heavyLocal: 1000,
@@ -97,12 +110,34 @@ export const config = {
   // INTERCITY mode (>40 km) — the "truck cost" is a straight per-km transport charge that
   // already covers loading, unloading and basic packing. Re-calibrated 2026-08-18 against a
   // dozen real route quotes: 14 ft plain ≈ ₹28/km (Noida→Chennai ~2200 km → ~₹95k;
-  // Ghaziabad→Kanpur ~470 km → ~₹29.5k). Sizes step up with the truck. A short intercity hop
-  // never falls below `intercityMinCharge`, so 41 km isn't priced at ₹1,150. The declining
+  // Ghaziabad→Kanpur ~470 km → ~₹29.5k). Sizes step up with the truck. The declining
   // *effective* per-km on long hauls comes from the fixed load/unload + food + margin being
   // spread over more km — the per-km line itself stays flat.
-  perKm: { 10: 24, 12: 26, 14: 28, 15: 29, 16: 31, 17: 33, 19: 35 } as Record<number, number>,
-  intercityMinCharge: 8000,
+  // Re-fitted 2026-08-18 against 15 real quotes from the sales desk (Haldwani, Dehradun,
+  // Kanpur, Lucknow, Kolkata + 10 local jobs). Two things were wrong with the old table:
+  // it sat ~11% under our real intercity quotes, and the spread between truck sizes was far
+  // too narrow — 15 ft → 19 ft moved the price 1.14× where the desk quotes 1.31×. A bigger
+  // truck on a long haul is not a little dearer, it is a different vehicle class.
+  // Fitted so that every real desk quote lands INSIDE the range the widget shows, which is
+  // the number the customer actually sees — not so the midpoint matches, which is a target
+  // no single table can hit (the desk quoted Lucknow 490 km / 14 ft at ₹33,000 and Kanpur
+  // 480 km / 15 ft at ₹28,500 — a smaller truck dearer over the same distance, so the two
+  // midpoints cannot both be fitted by a monotonic per-km table).
+  perKm: { 10: 28, 12: 32, 14: 35, 15: 36, 16: 40, 17: 45, 19: 50 } as Record<number, number>,
+  // The old flat `intercityMinCharge: 8000` clamped `km × perKm` for every truck size below
+  // its break-even distance (229 km on 19 ft, 334 km on 10 ft). Because no other intercity
+  // line varies with truck size, that produced ONE price — ₹20,600 — for every vehicle at
+  // every distance from 41 km to ~286 km. Removed: the per-km line now runs uncapped, so
+  // distance and truck size both move the price from the first kilometre.
+  //
+  // A floor is still needed so an intercity job can never undercut the same truck's local
+  // rate. It is derived per truck size from the local price (see `intercityFloorStepUp`)
+  // rather than being one hard-coded number, so it can never flatten the curve again.
+  intercityFloorStepUp: 1.05,
+  // Below this one-way distance the crew drives out and back the same day, so they get one
+  // food allowance, not two. `kmPerCrewDay` still sets the day count beyond it. Both are
+  // divided by the terrain multiplier — hill roads cover far fewer km per day.
+  sameDayReturnKm: 250,
   // Terrain multiplier on the road-effort block (transport + load/unload + food). Hill/mountain
   // roads are slower, harder and often return empty. Calibrated to real quotes: Almora (deep
   // Kumaon hill) ≈ +55%, Haldwani (foothill/terai gateway) ≈ +20%, valley towns ≈ plain.
@@ -150,8 +185,10 @@ function snapTruck(ft: number, table: Record<number, number>): number {
 }
 
 function floorCharge(floor: number, hasLift: boolean): number {
-  const f = Math.max(0, floor);
-  if (f === 0) return 0; // ground floor at that end — no carrying either way
+  // Ground floor carries nothing, and the first floor at each end is included in the base
+  // rate — only what is above `floorsIncludedPerEnd` is charged.
+  const f = Math.max(0, floor - config.floorsIncludedPerEnd);
+  if (f <= 0) return 0;
   return f * (hasLift ? config.floorLiftPerFloor : config.floorNoLiftPerFloor);
 }
 
@@ -196,29 +233,36 @@ export function estimate(input: MoveInput): MoveResult {
       add('Loading + unloading', cfg.loadUnloadLocal);
     }
 
-    const extra = Math.max(0, i.labour - cfg.labourIncluded);
-    if (extra > 0)
-      add(`Extra labour (+${extra} × ₹${cfg.extraLabourRate})`, extra * cfg.extraLabourRate);
-
     if (!i.packing) add('No packing material', -cfg.packingDeductLocal);
 
     if (i.heavyLoad) add('Heavy / over-full load', cfg.heavyLocal);
     if (i.twoWheelers > 0)
       add(`Two-wheeler ×${i.twoWheelers} (local)`, i.twoWheelers * cfg.twoWheelerLocal);
   } else {
-    // Truck cost = distance × per-km (covers truck + load/unload + basic packing), never
-    // below the minimum.
+    // Truck cost = distance × per-km (covers truck + load/unload + basic packing). Uncapped:
+    // the old flat floor here is what collapsed every truck size and every distance under
+    // ~286 km onto one price. The floor now lives at the end, derived from the local rate.
     const rate = cfg.perKm[snapTruck(i.truckFt, cfg.perKm)]!;
-    const transport = Math.max(cfg.intercityMinCharge, i.distanceKm * rate);
+    const transport = i.distanceKm * rate;
     add(`${i.distanceKm} km × ₹${rate}/km (${truck} ft)`, transport);
 
     // Loading + unloading (doubled vs local — both ends, far apart) and the crew's food
     // allowance for the days they're on the road (drive days + a day for load/unload).
     const loadUnload = cfg.loadUnloadIntercity;
     add('Loading + unloading (both ends)', loadUnload);
-    const crewDays = Math.ceil(i.distanceKm / cfg.kmPerCrewDay) + 1;
+
+    // Days on the road. Hill and remote roads cover far fewer km per day, so both the
+    // same-day-return threshold and the per-day distance are divided by the terrain
+    // multiplier — a 200 km run into the hills is an overnight job, on the plains it isn't.
+    const tMultDays = cfg.terrainMult[i.terrainTier] ?? 1;
+    const sameDayKm = cfg.sameDayReturnKm / tMultDays;
+    const crewDays =
+      i.distanceKm <= sameDayKm ? 1 : Math.ceil(i.distanceKm / (cfg.kmPerCrewDay / tMultDays)) + 1;
     const food = crewDays * cfg.foodPerDay;
-    add(`Crew food allowance (${crewDays} days × ₹${cfg.foodPerDay})`, food);
+    add(
+      `Crew food allowance (${crewDays} ${crewDays === 1 ? 'day' : 'days'} × ₹${cfg.foodPerDay})`,
+      food,
+    );
 
     // Terrain surcharge on the road-effort block (transport + load/unload + food): hill and
     // foothill roads are slower/harder and the truck often returns empty. Plain adds nothing.
@@ -238,6 +282,15 @@ export function estimate(input: MoveInput): MoveResult {
         i.twoWheelers * cfg.twoWheelerIntercity,
       );
   }
+
+  // Extra crew beyond the four included. Applies to BOTH modes: the widget scales the crew
+  // with the truck size (5 on 15–16 ft, 6 on 17 ft+), and those people have to be paid
+  // whether the truck then drives 5 km or 500 km. Previously this sat inside the local
+  // branch only, so a 19 ft intercity job billed the same crew cost as a 10 ft one.
+  const crewIncluded = cfg.labourIncludedByTruck[truck] ?? cfg.labourIncluded;
+  const extraCrew = Math.max(0, i.labour - crewIncluded);
+  if (extraCrew > 0)
+    add(`Extra labour (+${extraCrew} × ₹${cfg.extraLabourRate})`, extraCrew * cfg.extraLabourRate);
 
   // Floor / access carrying at each end. The crew hauls the load up or down the same number
   // of floors whether the truck then drives 5 km or 500 km, so this applies to BOTH modes.
@@ -261,7 +314,20 @@ export function estimate(input: MoveInput): MoveResult {
   // the whole quote (kept off the itemised breakdown so the margin isn't exposed).
   const cost = items.reduce((s, x) => s + x.amount, 0);
   const profit = mode === 'local' ? cfg.profitLocalPct : cfg.profitIntercityPct;
-  const total = roundTo(cost * (1 + profit), cfg.roundTo);
+  let total = roundTo(cost * (1 + profit), cfg.roundTo);
+
+  // Intercity floor, derived per truck size rather than hard-coded: a long job can never be
+  // quoted below the same truck's local price plus a step-up, because it ties the vehicle up
+  // for longer. This replaces the flat ₹8,000 transport floor — it binds only just past the
+  // 40 km boundary, so it smooths the step between modes instead of flattening the curve.
+  if (mode === 'intercity' && !i.sameBuilding) {
+    const localCost = cfg.truckBaseLocal[truck]! + cfg.loadUnloadLocal;
+    const floor = roundTo(
+      localCost * (1 + cfg.profitLocalPct) * cfg.intercityFloorStepUp,
+      cfg.roundTo,
+    );
+    if (total < floor) total = floor;
+  }
 
   return {
     mode,

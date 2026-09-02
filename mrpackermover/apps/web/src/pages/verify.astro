@@ -4,14 +4,16 @@ import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('verify');
 const row = staticRow({
   path: '/verify',
   pageType: 'trust',
-  title: 'Verify Us – Crew, Vehicle & Company | MrPackerMover',
+  title: ed.metaTitle ?? 'Verify Us – Crew, Vehicle & Company | MrPackerMover',
   h1: 'Verify us before you trust us',
   metaDescription:
+    ed.seoDescription ??
     'Check the company, the crew and the vehicle before your move — GSTIN and CIN lookups, crew ID matching and a sealed inventory. Trust you can confirm, not assume.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

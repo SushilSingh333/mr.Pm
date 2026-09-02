@@ -3,15 +3,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
-import { staticRow, org } from '../../lib/page.js';
+import { staticRow, org, editorialFor } from '../../lib/page.js';
 import { jobs } from '../../data/manifest.js';
 
+const ed = editorialFor('careers');
 const row = staticRow({
   path: '/company/careers',
   pageType: 'core',
-  title: 'Careers – MrPackerMover',
+  title: ed.metaTitle ?? 'Careers – MrPackerMover',
   h1: 'Build the mover India can finally trust',
   metaDescription:
+    ed.seoDescription ??
     'Join MrPackerMover — crews, coordinators and support roles at a packers & movers company built on fixed quotes, verified people and published claims data.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

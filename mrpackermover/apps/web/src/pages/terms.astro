@@ -9,7 +9,7 @@ const ed = editorialFor('terms');
 const row = staticRow({
   path: '/terms',
   pageType: 'core',
-  title: 'Terms of Service | MrPackerMover',
+  title: ed.metaTitle ?? 'Terms of Service | MrPackerMover',
   h1: ed.title ?? 'Terms of service',
   metaDescription:
     ed.seoDescription ??

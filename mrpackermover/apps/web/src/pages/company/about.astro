@@ -10,7 +10,7 @@ const ed = editorialFor('about');
 const row = staticRow({
   path: '/company/about',
   pageType: 'core',
-  title: 'About Us – MrPackerMover',
+  title: ed.metaTitle ?? 'About Us – MrPackerMover',
   h1: ed.title ?? 'The movers who publish the numbers others hide',
   metaDescription:
     ed.seoDescription ??

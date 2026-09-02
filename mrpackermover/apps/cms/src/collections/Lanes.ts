@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { seoOverrideFields } from '../fields/seo.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -51,5 +52,6 @@ export const Lanes: CollectionConfig = {
       type: 'textarea',
       admin: { description: 'Toll, permit, and state-border notes; seasonal caveats.' },
     },
+    seoOverrideFields('this route page'),
   ],
 };

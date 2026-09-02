@@ -11,7 +11,7 @@ const ed = editorialFor('raise-a-complaint');
 const row = staticRow({
   path: '/raise-a-complaint',
   pageType: 'core',
-  title: 'Raise a Complaint | MrPackerMover',
+  title: ed.metaTitle ?? 'Raise a Complaint | MrPackerMover',
   h1: ed.title ?? 'Raise a complaint — and get it tracked to closure',
   metaDescription:
     ed.seoDescription ??

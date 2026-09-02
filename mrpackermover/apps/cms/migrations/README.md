@@ -29,3 +29,19 @@ pnpm --filter @mpm/cms migrate
 
 See `docs/runbook.md` → "Database portability drill". In short: `pg_dump` →
 restore to a PostGIS-capable target → repoint `DATABASE_URL` → `pnpm migrate`.
+
+## Adding a field (e.g. the SEO overrides)
+
+New collection/global fields are new Postgres columns, so they need their own
+migration — Payload never `push`es in production. On a machine where `DATABASE_URL`
+reaches the database:
+
+```bash
+pnpm --filter @mpm/cms migrate:create seo_overrides   # writes NNNN_seo_overrides.ts
+pnpm --filter @mpm/cms migrate                        # applies it
+```
+
+Commit the generated file. Until it runs, the columns do not exist: the CMS admin
+will error on the new fields, and `build-manifest` falls back to the hardcoded
+titles in `@mpm/seo/meta` (the `seo-defaults` global read is wrapped in
+`.catch(() => null)` precisely so a pre-migration build still succeeds).

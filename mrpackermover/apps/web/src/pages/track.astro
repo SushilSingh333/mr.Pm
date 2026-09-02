@@ -3,14 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import { iconSvg } from '../lib/icons.js';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('track');
 const row = staticRow({
   path: '/track',
   pageType: 'core',
-  title: 'Track Your Move | MrPackerMover',
+  title: ed.metaTitle ?? 'Track Your Move | MrPackerMover',
   h1: 'Track your move',
   metaDescription:
+    ed.seoDescription ??
     'Enter your job reference to check the live status of a booked move with MrPackerMover. Real status from our operations system — never a fabricated update.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

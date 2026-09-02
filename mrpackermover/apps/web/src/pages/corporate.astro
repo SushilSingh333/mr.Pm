@@ -5,14 +5,16 @@ import Breadcrumbs from '../components/nav/Breadcrumbs.astro';
 import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('corporate');
 const row = staticRow({
   path: '/corporate',
   pageType: 'corporate',
-  title: 'Corporate & Office Relocation | MrPackerMover',
+  title: ed.metaTitle ?? 'Corporate & Office Relocation | MrPackerMover',
   h1: 'Office moves that don’t cost you a working day',
   metaDescription:
+    ed.seoDescription ??
     'Corporate and office relocation across India — planned around your no-entry windows, with IT-asset handling, a single coordinator, GST invoicing and an MSA.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

@@ -22,9 +22,11 @@ const { post } = Astro.props;
 const row = staticRow({
   path: `/blog/${post.slug}`,
   pageType: 'guide',
-  title: post.title.length <= 65 ? post.title : `${post.title.slice(0, 62)}…`,
+  title: post.metaTitle ?? (post.title.length <= 65 ? post.title : `${post.title.slice(0, 62)}…`),
   h1: post.title,
-  metaDescription: post.excerpt.length <= 175 ? post.excerpt : `${post.excerpt.slice(0, 172)}…`,
+  metaDescription:
+    post.metaDescription ??
+    (post.excerpt.length <= 175 ? post.excerpt : `${post.excerpt.slice(0, 172)}…`),
   breadcrumbs: [
     { path: '/', anchor: 'Home' },
     { path: '/blog', anchor: 'Blog' },

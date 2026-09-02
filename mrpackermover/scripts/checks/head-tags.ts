@@ -5,6 +5,9 @@ import { ROOT, WEB_DIST, listDistHtml, fail, type CheckResult } from './load.js'
 const LOADER = /<script[^>]+src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=([^"]+)"/g;
 const CONFIG = /gtag\('config',\s*'([^']+)'\)/g;
 const VERIFY = /<meta name="google-site-verification" content="([^"]+)"/g;
+const TITLE = /<title>([^<]*)<\/title>/;
+/** The manifest schema's ceiling. Past this, `parseManifest` throws and the build dies. */
+const TITLE_CEILING = 70;
 
 /**
  * Head-tag coverage. Every built page must carry exactly one Google tag, and all
@@ -18,6 +21,10 @@ const VERIFY = /<meta name="google-site-verification" content="([^"]+)"/g;
  * verification succeeds" — drop it and the property silently unverifies, taking the
  * Search Console data with it.
  *
+ * Titles are checked here too, because they are now editable from the CMS
+ * (Settings → SEO defaults, or an override on a record). A blank or over-long
+ * title reaches production as a broken SERP listing, so it fails the build instead.
+ *
  * Runs on dist, so it covers manifest-generated routes (cities, localities,
  * services, lanes) as well as hand-written pages.
  */
@@ -30,6 +37,8 @@ export function checkHeadTags(): CheckResult {
   const ids = new Set<string>();
   const tokens = new Set<string>();
   const verified: string[] = [];
+  const titles = new Map<string, string>();
+  const duplicateTitles: string[] = [];
 
   for (const file of files) {
     const html = fs.readFileSync(file, 'utf8');
@@ -38,6 +47,18 @@ export function checkHeadTags(): CheckResult {
     if (verify.length > 0) {
       verified.push(rel);
       for (const token of verify) tokens.add(token);
+    }
+
+    const title = TITLE.exec(html)?.[1]?.trim();
+    if (!title) {
+      messages.push(`${rel}: empty or missing <title>.`);
+    } else {
+      if (title.length > TITLE_CEILING) {
+        messages.push(`${rel}: title is ${title.length} chars (max ${TITLE_CEILING}) — "${title}"`);
+      }
+      const seen = titles.get(title);
+      if (seen) duplicateTitles.push(`"${title}" on ${seen} and ${rel}`);
+      else titles.set(title, rel);
     }
 
     const loaders = [...html.matchAll(LOADER)].map((m) => m[1]);
@@ -54,6 +75,10 @@ export function checkHeadTags(): CheckResult {
     }
     for (const id of loaders) ids.add(id);
   }
+
+  // Two pages with the same title means a template lost its {token} — the exact
+  // failure the SEO-defaults validation exists to prevent, caught again on output.
+  for (const dupe of duplicateTitles) messages.push(`Duplicate <title>: ${dupe}`);
 
   // Exactly the home page carries the ownership meta — no more, no fewer.
   const home = path.join(WEB_DIST, 'index.html');

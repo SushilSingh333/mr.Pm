@@ -22,6 +22,7 @@ import {
   SERVICES,
 } from '@mpm/shared';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
+import { resolveSeo, type SeoOverride, type SeoTemplate } from '@mpm/seo/resolve';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
 import { countWords, richTextToPlain, richTextToHtml } from './rich-text.js';
 
@@ -40,6 +41,13 @@ const sid = (v: Id): string => String(v);
 const refId = (ref: Id | { id: Id } | null | undefined): string | null =>
   ref == null ? null : sid(typeof ref === 'object' ? ref.id : ref);
 
+/** Per-(city × service) override rows stored on a city. */
+interface ServiceSeoRow {
+  service?: Id | { id: Id } | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+}
+
 interface LocationDoc {
   id: Id;
   slug: string;
@@ -51,6 +59,11 @@ interface LocationDoc {
   servicesOffered?: Array<Id | { id: Id }> | null;
   /** Uploaded hero/thumbnail image (Media id) — resolved to a Cloudinary URL. */
   heroImage?: Id | { id: Id } | null;
+  /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  /** Per-(city × service) overrides for the “{Service} in {City}” pages. */
+  serviceSeo?: ServiceSeoRow[] | null;
   editorialNote?: unknown;
   updatedAt: string;
 }
@@ -67,6 +80,9 @@ interface ServiceDoc {
   summary?: string;
   inclusions?: Array<{ item: string }>;
   exclusions?: Array<{ item: string }>;
+  /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   updatedAt: string;
 }
 interface LaneDoc {
@@ -79,6 +95,9 @@ interface LaneDoc {
   frequency?: string;
   overnightBlock?: unknown;
   borderNotes?: string;
+  /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   updatedAt: string;
 }
 interface RateCardDoc {
@@ -187,6 +206,27 @@ async function loadAll<T>(payload: Payload, collection: string): Promise<T[]> {
 
 const BRAND = 'MrPackerMover';
 
+/**
+ * Settings → SEO defaults. One title/description template per page type, written
+ * with {tokens} the build fills in per page. Absent or blank ⇒ the hardcoded copy
+ * in `@mpm/seo/meta` still ships, so this global is optional in every environment.
+ */
+/**
+ * The override an editor typed for one “{Service} in {City}” page, if any.
+ * Rows naming a service the city does not offer simply never match.
+ */
+function serviceSeoFor(city: LocationDoc, serviceId: string): SeoOverride | undefined {
+  return city.serviceSeo?.find((r) => refId(r.service) === serviceId);
+}
+
+interface SeoDefaultsDoc {
+  cityHub?: SeoTemplate;
+  locality?: SeoTemplate;
+  cityService?: SeoTemplate;
+  serviceHub?: SeoTemplate;
+  route?: SeoTemplate;
+}
+
 export async function buildManifest(payload: Payload, siteOrigin: string): Promise<Manifest> {
   const [locations, services, lanes, rateCards, reviews, jobsStats, faqs, media] =
     await Promise.all([
@@ -199,6 +239,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       loadAll<FaqDoc>(payload, 'faqs'),
       loadAll<MediaDoc>(payload, 'media'),
     ]);
+
+  // Settings → SEO defaults. `.catch(() => null)` so a database without the global
+  // (fresh install, or before the migration runs) builds with the code fallbacks.
+  const seoDefaults = ((await payload
+    .findGlobal({ slug: 'seo-defaults', overrideAccess: true })
+    .catch(() => null)) ?? {}) as SeoDefaultsDoc;
 
   // Services render in the catalogue order from @mpm/shared, never in whatever order
   // Postgres happens to return rows. `loadAll` issues no `sort` and the collection sets
@@ -318,7 +364,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
 
     rows.push(
       makeRow('city-hub', cityPath, city.slug, city.updatedAt, siteOrigin, {
-        title: titleFor.cityHub(city.name, { brand: BRAND }),
+        ...resolveSeo({
+          override: city,
+          template: seoDefaults.cityHub,
+          tokens: { city: city.name, brand: BRAND },
+          fallbackTitle: titleFor.cityHub(city.name, { brand: BRAND }),
+        }),
         h1: `Packers and Movers in ${city.name}`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
         relatedLinks: [...serviceLinks, ...localityLinks].slice(0, 60),
@@ -365,13 +416,25 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           city.updatedAt,
           siteOrigin,
           {
-            title: titleFor.cityService(service.name, city.name, { brand: BRAND }),
-            metaDescription: cityServiceMeta({
-              service: service.name,
-              locality: city.name,
-              priceFrom,
-              jobs12m: csStats.jobs12m,
-              onTimePct: csStats.onTimePct,
+            ...resolveSeo({
+              override: serviceSeoFor(city, svcId),
+              template: seoDefaults.cityService,
+              tokens: {
+                service: service.name,
+                city: city.name,
+                brand: BRAND,
+                priceFrom,
+                jobs12m: csStats.jobs12m,
+                onTimePct: csStats.onTimePct,
+              },
+              fallbackTitle: titleFor.cityService(service.name, city.name, { brand: BRAND }),
+              fallbackDescription: cityServiceMeta({
+                service: service.name,
+                locality: city.name,
+                priceFrom,
+                jobs12m: csStats.jobs12m,
+                onTimePct: csStats.onTimePct,
+              }),
             }),
             h1: `${service.name} in ${city.name}`,
             breadcrumbs: [
@@ -443,7 +506,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         loc.updatedAt,
         siteOrigin,
         {
-          title: titleFor.locality(loc.name, parent.name, { brand: BRAND }),
+          ...resolveSeo({
+            override: loc,
+            template: seoDefaults.locality,
+            tokens: { locality: loc.name, city: parent.name, brand: BRAND },
+            fallbackTitle: titleFor.locality(loc.name, parent.name, { brand: BRAND }),
+          }),
           h1: `Packers and Movers in ${loc.name}, ${parent.name}`,
           breadcrumbs: [
             { path: '/', anchor: 'Home' },
@@ -499,7 +567,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         lane.updatedAt,
         siteOrigin,
         {
-          title: titleFor.route(origin.name, dest.name, { brand: BRAND }),
+          ...resolveSeo({
+            override: lane,
+            template: seoDefaults.route,
+            tokens: { origin: origin.name, destination: dest.name, brand: BRAND },
+            fallbackTitle: titleFor.route(origin.name, dest.name, { brand: BRAND }),
+          }),
           h1: `${origin.name} to ${dest.name} Packers and Movers`,
           breadcrumbs: [
             { path: '/', anchor: 'Home' },
@@ -556,7 +629,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         : [];
     rows.push(
       makeRow('service-hub', path, service.slug, service.updatedAt, siteOrigin, {
-        title: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
+        ...resolveSeo({
+          override: service,
+          template: seoDefaults.serviceHub,
+          tokens: { service: service.name, brand: BRAND },
+          fallbackTitle: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
+        }),
         h1: `${service.name} Services`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
         // Only the cities that actually offer this service (from the pre-pass) — never a
@@ -650,6 +728,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     eyebrow?: string;
     intro?: string;
     body?: unknown;
+    metaTitle?: string;
     seoDescription?: string;
   }
   const editorial: Record<string, EditorialContent> = {};
@@ -657,6 +736,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     if (!p.key) continue;
     editorial[p.key] = {
       title: p.title || undefined,
+      metaTitle: p.metaTitle || undefined,
       eyebrow: p.eyebrow || undefined,
       intro: p.intro || undefined,
       bodyHtml: richTextToHtml(p.body) || undefined,
@@ -697,6 +777,8 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     tags?: string[];
     featured?: boolean;
     body?: unknown;
+    metaTitle?: string;
+    metaDescription?: string;
     updatedAt: string;
   }
   let blog: BlogPost[] = [];
@@ -728,6 +810,8 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         featured: Boolean(p.featured),
         tags: p.tags ?? [],
         body: richTextToHtml(p.body) || '',
+        metaTitle: p.metaTitle || undefined,
+        metaDescription: p.metaDescription || undefined,
       };
     });
   } catch {

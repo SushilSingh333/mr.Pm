@@ -5,15 +5,17 @@ import Band from '../../components/ui/Band.astro';
 import BlogCard from '../../components/blog/BlogCard.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
 import { formatDate } from '../../lib/format.js';
-import { staticRow } from '../../lib/page.js';
+import { staticRow, editorialFor } from '../../lib/page.js';
 import { CATEGORIES, featuredPost, sortedPosts } from '../../data/blog.js';
 
+const ed = editorialFor('blog-index');
 const row = staticRow({
   path: '/blog',
   pageType: 'core',
-  title: 'The Move Well Blog | MrPackerMover',
+  title: ed.metaTitle ?? 'The Move Well Blog | MrPackerMover',
   h1: 'Moving, minus the mystery',
   metaDescription:
+    ed.seoDescription ??
     'Practical, no-nonsense guides on home shifting, office moves, packing, pricing and staying safe from moving fraud — from the MrPackerMover team.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

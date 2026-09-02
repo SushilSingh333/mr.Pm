@@ -130,10 +130,12 @@ export interface Config {
   globals: {
     'org-profile': OrgProfile;
     'home-content': HomeContent;
+    'seo-defaults': SeoDefault;
   };
   globalsSelect: {
     'org-profile': OrgProfileSelect<false> | OrgProfileSelect<true>;
     'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
+    'seo-defaults': SeoDefaultsSelect<false> | SeoDefaultsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -200,7 +202,7 @@ export interface Location {
    */
   servicesOffered?: (number | Service)[] | null;
   /**
-   * Background photo for this city’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Leave empty to fall back to the built-in /images/hero/cities/<slug>.jpg file.
+   * Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality — leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.
    */
   heroImage?: (number | null) | Media;
   /**
@@ -229,6 +231,28 @@ export interface Location {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * Overrides the title template for this city or locality. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
+   */
+  metaTitle?: string | null;
+  /**
+   * Overrides the description template for this city or locality. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
+   */
+  metaDescription?: string | null;
+  /**
+   * Optional. Override the title/description of one “{Service} in {City}” page. Leave empty and those pages use Settings → SEO defaults.
+   */
+  serviceSeo?:
+    | {
+        /**
+         * Which service page in this city this override applies to.
+         */
+        service: number | Service;
+        metaTitle?: string | null;
+        metaDescription?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -263,6 +287,14 @@ export interface Service {
     | null;
   typicalDuration?: string | null;
   insuranceTerms?: string | null;
+  /**
+   * Overrides the title template for this service page. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
+   */
+  metaTitle?: string | null;
+  /**
+   * Overrides the description template for this service page. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -332,6 +364,14 @@ export interface Lane {
    * Toll, permit, and state-border notes; seasonal caveats.
    */
   borderNotes?: string | null;
+  /**
+   * Overrides the title template for this route page. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
+   */
+  metaTitle?: string | null;
+  /**
+   * Overrides the description template for this route page. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -566,6 +606,14 @@ export interface Guide {
   reviewedBy?: (number | null) | Person;
   tags?: string[] | null;
   heroImage?: (number | null) | Media;
+  /**
+   * Overrides the title template for this guide. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
+   */
+  metaTitle?: string | null;
+  /**
+   * Overrides the description template for this guide. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -637,6 +685,14 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Overrides the title template for this blog post. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
+   */
+  metaTitle?: string | null;
+  /**
+   * Overrides the description template for this blog post. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
+   */
+  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1084,6 +1140,16 @@ export interface LocationsSelect<T extends boolean = true> {
   heroImage?: T;
   editorialNote?: T;
   sublocations?: T;
+  metaTitle?: T;
+  metaDescription?: T;
+  serviceSeo?:
+    | T
+    | {
+        service?: T;
+        metaTitle?: T;
+        metaDescription?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1111,6 +1177,8 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   typicalDuration?: T;
   insuranceTerms?: T;
+  metaTitle?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1129,6 +1197,8 @@ export interface LanesSelect<T extends boolean = true> {
   frequency?: T;
   overnightBlock?: T;
   borderNotes?: T;
+  metaTitle?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1249,6 +1319,8 @@ export interface GuidesSelect<T extends boolean = true> {
   reviewedBy?: T;
   tags?: T;
   heroImage?: T;
+  metaTitle?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1268,6 +1340,8 @@ export interface PostsSelect<T extends boolean = true> {
   tags?: T;
   featured?: T;
   body?: T;
+  metaTitle?: T;
+  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1616,6 +1690,67 @@ export interface HomeContent {
   createdAt?: string | null;
 }
 /**
+ * Titles and descriptions for every generated page. Written once here with {tokens}; the build fills them in per page. Anything typed on an individual city, service or lane overrides what is here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo-defaults".
+ */
+export interface SeoDefault {
+  id: number;
+  cityHub?: {
+    /**
+     * Tokens: {city}, {brand}. Aim for 60 characters or fewer. Blank = keep the built-in title.
+     */
+    titleTemplate?: string | null;
+    /**
+     * Tokens: {city}, {brand}. Aim for 140–160 characters. If a token has no value for a page (e.g. {priceFrom} on a city with no rate card), that page ships no description rather than a broken one.
+     */
+    descriptionTemplate?: string | null;
+  };
+  locality?: {
+    /**
+     * Tokens: {locality}, {city}, {brand}. Aim for 60 characters or fewer. Blank = keep the built-in title.
+     */
+    titleTemplate?: string | null;
+    /**
+     * Tokens: {locality}, {city}, {brand}. Aim for 140–160 characters. If a token has no value for a page (e.g. {priceFrom} on a city with no rate card), that page ships no description rather than a broken one.
+     */
+    descriptionTemplate?: string | null;
+  };
+  cityService?: {
+    /**
+     * Tokens: {service}, {city}, {brand}, {priceFrom}, {jobs12m}, {onTimePct}. Aim for 60 characters or fewer. Blank = keep the built-in title.
+     */
+    titleTemplate?: string | null;
+    /**
+     * Tokens: {service}, {city}, {brand}, {priceFrom}, {jobs12m}, {onTimePct}. Aim for 140–160 characters. If a token has no value for a page (e.g. {priceFrom} on a city with no rate card), that page ships no description rather than a broken one.
+     */
+    descriptionTemplate?: string | null;
+  };
+  serviceHub?: {
+    /**
+     * Tokens: {service}, {brand}. Aim for 60 characters or fewer. Blank = keep the built-in title.
+     */
+    titleTemplate?: string | null;
+    /**
+     * Tokens: {service}, {brand}. Aim for 140–160 characters. If a token has no value for a page (e.g. {priceFrom} on a city with no rate card), that page ships no description rather than a broken one.
+     */
+    descriptionTemplate?: string | null;
+  };
+  route?: {
+    /**
+     * Tokens: {origin}, {destination}, {brand}. Aim for 60 characters or fewer. Blank = keep the built-in title.
+     */
+    titleTemplate?: string | null;
+    /**
+     * Tokens: {origin}, {destination}, {brand}. Aim for 140–160 characters. If a token has no value for a page (e.g. {priceFrom} on a city with no rate card), that page ships no description rather than a broken one.
+     */
+    descriptionTemplate?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "org-profile_select".
  */
@@ -1671,6 +1806,45 @@ export interface HomeContentSelect<T extends boolean = true> {
               href?: T;
             };
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo-defaults_select".
+ */
+export interface SeoDefaultsSelect<T extends boolean = true> {
+  cityHub?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
+      };
+  locality?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
+      };
+  cityService?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
+      };
+  serviceHub?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
+      };
+  route?:
+    | T
+    | {
+        titleTemplate?: T;
+        descriptionTemplate?: T;
       };
   updatedAt?: T;
   createdAt?: T;

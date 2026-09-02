@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { seoOverrideFields, cityServiceSeoField } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { latLngFields } from '../fields/geo.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
@@ -152,5 +153,7 @@ export const Locations: CollectionConfig = {
         condition: (data) => data?.type !== 'locality',
       },
     },
+    seoOverrideFields('this city or locality'),
+    cityServiceSeoField,
   ],
 };

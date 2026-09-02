@@ -6,19 +6,21 @@ import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import ServicesGrid from '../../components/sections/ServicesGrid.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
-import { staticRow } from '../../lib/page.js';
+import { staticRow, editorialFor } from '../../lib/page.js';
 
 /** Services landing page — lists every service, each card linking to its own hub. */
 const services = rowsOfType('service-hub')
   .filter((r) => r.path.startsWith('/services/'))
   .map((r) => ({ slug: r.slug, name: dataOf<ServiceHubData>(r).serviceName }));
 
+const ed = editorialFor('services-index');
 const row = staticRow({
   path: '/services',
   pageType: 'core',
-  title: 'Our Services – Packers & Movers | MrPackerMover',
+  title: ed.metaTitle ?? 'Our Services – Packers & Movers | MrPackerMover',
   h1: 'Everything we move, done properly',
   metaDescription:
+    ed.seoDescription ??
     'Every MrPackerMover service — home & office shifting, car & bike transport, packing, storage, loading and international relocation — each with a fixed written quote.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

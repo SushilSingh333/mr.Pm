@@ -12,7 +12,7 @@ const ed = editorialFor('insurance');
 const row = staticRow({
   path: '/insurance',
   pageType: 'trust',
-  title: 'Transit Insurance for Your Move | MrPackerMover',
+  title: ed.metaTitle ?? 'Transit Insurance for Your Move | MrPackerMover',
   h1: ed.title ?? 'Transit insurance, shown as a line — not buried',
   metaDescription:
     ed.seoDescription ??

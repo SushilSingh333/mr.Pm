@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { seoOverrideFields } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -80,5 +81,6 @@ export const Blog: CollectionConfig = {
       admin: { description: 'Show this post in the large featured slot at the top of /blog.' },
     },
     { name: 'body', type: 'richText', required: true },
+    seoOverrideFields('this blog post'),
   ],
 };

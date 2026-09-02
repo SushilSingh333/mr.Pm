@@ -103,12 +103,17 @@ export const blogPostSchema = z.object({
   tags: z.array(z.string()).default([]),
   /** Rendered HTML body (from the CMS rich-text renderer or authored in-repo). */
   body: z.string(),
+  /** Per-post SEO overrides; blank falls back to the headline and excerpt. */
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
 });
 export type BlogPost = z.infer<typeof blogPostSchema>;
 
 /** CMS-editable copy for a hand-built editorial page, keyed by page key. */
 export const editorialSchema = z.object({
   title: z.string().optional(),
+  /** Meta title override; blank falls back to the page's built-in title. */
+  metaTitle: z.string().optional(),
   eyebrow: z.string().optional(),
   intro: z.string().optional(),
   bodyHtml: z.string().optional(),

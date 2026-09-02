@@ -19,6 +19,15 @@ export const EDITORIAL_PAGE_KEYS = [
   { label: 'Protection  (/protection)', value: 'protection' },
   { label: 'Fraud check  (/fraud-check)', value: 'fraud-check' },
   { label: 'Raise a complaint  (/raise-a-complaint)', value: 'raise-a-complaint' },
+  { label: 'Pricing  (/pricing)', value: 'pricing' },
+  { label: 'Get a quote  (/get-quote)', value: 'get-quote' },
+  { label: 'Track a move  (/track)', value: 'track' },
+  { label: 'Verify a crew  (/verify)', value: 'verify' },
+  { label: 'Corporate  (/corporate)', value: 'corporate' },
+  { label: 'Contact  (/company/contact)', value: 'contact' },
+  { label: 'Careers  (/company/careers)', value: 'careers' },
+  { label: 'Services index  (/services)', value: 'services-index' },
+  { label: 'Blog index  (/blog)', value: 'blog-index' },
 ];
 
 export const Pages: CollectionConfig = {
@@ -66,6 +75,16 @@ export const Pages: CollectionConfig = {
       admin: {
         description:
           'Main content. Rendered on the prose pages (Terms, Privacy, Licences); leave blank to keep the built-in text.',
+      },
+    },
+    {
+      name: 'metaTitle',
+      type: 'text',
+      maxLength: 70,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Meta title — the blue line in Google. Aim for 60 characters. Blank = the built-in title.',
       },
     },
     {

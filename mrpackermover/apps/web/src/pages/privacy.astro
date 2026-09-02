@@ -9,7 +9,7 @@ const ed = editorialFor('privacy');
 const row = staticRow({
   path: '/privacy',
   pageType: 'core',
-  title: 'Privacy Policy | MrPackerMover',
+  title: ed.metaTitle ?? 'Privacy Policy | MrPackerMover',
   h1: ed.title ?? 'Privacy policy',
   metaDescription:
     ed.seoDescription ??

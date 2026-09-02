@@ -6,14 +6,16 @@ import Band from '../components/ui/Band.astro';
 import FeatureGrid from '../components/page/FeatureGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
+const ed = editorialFor('pricing');
 const row = staticRow({
   path: '/pricing',
   pageType: 'pricing',
-  title: 'Pricing – Fixed Moving Quotes | MrPackerMover',
+  title: ed.metaTitle ?? 'Pricing – Fixed Moving Quotes | MrPackerMover',
   h1: 'Pricing that is fixed before we lift a box',
   metaDescription:
+    ed.seoDescription ??
     'How MrPackerMover builds a fixed, written moving quote — indicative home-shifting prices, what is always included, and the few things that can change the total.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

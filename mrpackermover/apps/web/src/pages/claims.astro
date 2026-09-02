@@ -12,7 +12,7 @@ const ed = editorialFor('claims');
 const row = staticRow({
   path: '/claims',
   pageType: 'trust',
-  title: 'Claims & Settlement Data | MrPackerMover',
+  title: ed.metaTitle ?? 'Claims & Settlement Data | MrPackerMover',
   h1: ed.title ?? 'The claims page nobody else in this category shows',
   metaDescription:
     ed.seoDescription ??

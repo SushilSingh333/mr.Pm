@@ -3,15 +3,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import { iconSvg } from '../lib/icons.js';
-import { staticRow } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 import { PHONE_DISPLAY, PHONE_TEL } from '../lib/site.js';
 
+const ed = editorialFor('get-quote');
 const row = staticRow({
   path: '/get-quote',
   pageType: 'core',
-  title: 'Get a Fixed Quote | MrPackerMover',
+  title: ed.metaTitle ?? 'Get a Fixed Quote | MrPackerMover',
   h1: 'Get your fixed, written quote',
   metaDescription:
+    ed.seoDescription ??
     'Tell us about your move and get a fixed, itemised quote from MrPackerMover — no moving-day surprises. A coordinator calls you back within 24 hours.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

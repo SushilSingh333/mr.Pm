@@ -12,7 +12,7 @@ const ed = editorialFor('fraud-check');
 const row = staticRow({
   path: '/fraud-check',
   pageType: 'trust',
-  title: 'Fraud Check – Avoid Moving Scams | MrPackerMover',
+  title: ed.metaTitle ?? 'Fraud Check – Avoid Moving Scams | MrPackerMover',
   h1: ed.title ?? 'Don’t get scammed by a fake mover',
   metaDescription:
     ed.seoDescription ??

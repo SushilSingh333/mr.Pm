@@ -5,15 +5,17 @@ import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import Faq from '../../components/sections/Faq.astro';
 import { iconSvg } from '../../lib/icons.js';
-import { staticRow, org } from '../../lib/page.js';
+import { staticRow, org, editorialFor } from '../../lib/page.js';
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../../lib/site.js';
 
+const ed = editorialFor('contact');
 const row = staticRow({
   path: '/company/contact',
   pageType: 'core',
-  title: 'Contact Us – MrPackerMover',
+  title: ed.metaTitle ?? 'Contact Us – MrPackerMover',
   h1: 'Talk to a human, fast',
   metaDescription:
+    ed.seoDescription ??
     'Call, WhatsApp or email MrPackerMover for quotes, live moves and support. Real people, a published response time, and no call-centre runaround.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });

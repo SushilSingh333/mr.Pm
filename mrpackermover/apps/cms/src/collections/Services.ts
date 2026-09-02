@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { seoOverrideFields } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -29,5 +30,6 @@ export const Services: CollectionConfig = {
     { name: 'exclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
     { name: 'typicalDuration', type: 'text' },
     { name: 'insuranceTerms', type: 'textarea' },
+    seoOverrideFields('this service page'),
   ],
 };

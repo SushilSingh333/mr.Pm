@@ -39,7 +39,7 @@ export const Blog: CollectionConfig = {
       required: true,
       admin: {
         description:
-          'One–two sentence summary — shown on the card and used as the meta description.',
+          'One–two sentence summary — shown on the card, and used as the meta description unless you set one in the SEO section below.',
       },
     },
     {

@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload';
 import { publishedOrStaff, isAuthenticated } from '../access/index.js';
-import { seoOverrideFields } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -32,6 +31,5 @@ export const Guides: CollectionConfig = {
     { name: 'reviewedBy', type: 'relationship', relationTo: 'people' },
     { name: 'tags', type: 'text', hasMany: true },
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
-    seoOverrideFields('this guide'),
   ],
 };

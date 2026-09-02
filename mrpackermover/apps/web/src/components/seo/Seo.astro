@@ -61,4 +61,14 @@ blocks.push(...extraJsonLd);
 <meta property="og:url" content={row.canonical} />
 <meta name="theme-color" content={themeColor} />
 
+{
+  /* Search Console ownership — home page only, per Google's instruction. Google:
+    "don't remove the meta tag, even after verification succeeds". */
+}
+{
+  row.pageType === 'home' && (
+    <meta name="google-site-verification" content="HsN_e_p_DDnBcelBJBJZvSW-KEr4XrK1KDf7toxoMHo" />
+  )
+}
+
 <JsonLd blocks={blocks} />

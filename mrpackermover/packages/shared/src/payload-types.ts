@@ -478,7 +478,16 @@ export interface Page {
     | 'insurance'
     | 'protection'
     | 'fraud-check'
-    | 'raise-a-complaint';
+    | 'raise-a-complaint'
+    | 'pricing'
+    | 'get-quote'
+    | 'track'
+    | 'verify'
+    | 'corporate'
+    | 'contact'
+    | 'careers'
+    | 'services-index'
+    | 'blog-index';
   /**
    * Small label shown above the heading in the hero.
    */
@@ -505,6 +514,10 @@ export interface Page {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Meta title — the blue line in Google. Aim for 60 characters. Blank = the built-in title.
+   */
+  metaTitle?: string | null;
   /**
    * Meta description (≈150 chars).
    */
@@ -1272,6 +1285,7 @@ export interface PagesSelect<T extends boolean = true> {
   eyebrow?: T;
   intro?: T;
   body?: T;
+  metaTitle?: T;
   seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1652,6 +1666,14 @@ export interface OrgProfile {
  */
 export interface HomeContent {
   id: number;
+  /**
+   * The blue line in Google for the home page. Aim for 60 characters. Blank = the built-in title.
+   */
+  metaTitle?: string | null;
+  /**
+   * The grey text under the title in Google. Aim for 140–160 characters. Blank = the built-in description.
+   */
+  metaDescription?: string | null;
   taglineLine1?: string | null;
   taglineLine2?: string | null;
   heroSubtext?: string | null;
@@ -1780,6 +1802,8 @@ export interface OrgProfileSelect<T extends boolean = true> {
  * via the `definition` "home-content_select".
  */
 export interface HomeContentSelect<T extends boolean = true> {
+  metaTitle?: T;
+  metaDescription?: T;
   taglineLine1?: T;
   taglineLine2?: T;
   heroSubtext?: T;

@@ -18,6 +18,33 @@ export const HomeContent: GlobalConfig = {
   fields: [
     {
       type: 'collapsible',
+      label: 'SEO  (optional — leave blank to use the built-in copy)',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'metaTitle',
+          type: 'text',
+          label: 'Meta title',
+          maxLength: 70,
+          admin: {
+            description:
+              'The blue line in Google for the home page. Aim for 60 characters. Blank = the built-in title.',
+          },
+        },
+        {
+          name: 'metaDescription',
+          type: 'textarea',
+          label: 'Meta description',
+          maxLength: 180,
+          admin: {
+            description:
+              'The grey text under the title in Google. Aim for 140–160 characters. Blank = the built-in description.',
+          },
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
       label: 'Hero',
       fields: [
         {

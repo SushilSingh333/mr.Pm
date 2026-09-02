@@ -138,7 +138,8 @@ interface FaqDoc {
   priority?: number;
 }
 /** The `home-content` global, as returned by Payload (defaults applied). */
-type HomeContentDoc = Partial<HomeContent> & { pillars?: Array<TrustPillar & { id?: string }> };
+type HomeContentDoc = Partial<HomeContent> &
+  SeoOverride & { pillars?: Array<TrustPillar & { id?: string }> };
 
 /**
  * Map the editable `home-content` global onto the render payload the home template
@@ -664,15 +665,21 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     .map((f) => ({ question: f.question, answer: richTextToPlain(f.answer) }));
   rows.push(
     makeRow('home', '/', 'home', new Date(0).toISOString(), siteOrigin, {
-      title: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
+      // Title + description are editable at Settings → Home page content → SEO;
+      // both fall back to the copy below when left blank.
+      //
       // The templated page families deliberately omit a description rather than repeat
       // boilerplate across thousands of URLs (see @mpm/seo/meta). The home page is the
       // one unique, hand-written page on the site, so that reasoning does not apply —
       // and shipping it with no description costs a Lighthouse SEO point and hands
       // Google a machine-generated snippet for the site's most important result.
-      metaDescription:
-        'Packers and movers across India with fixed, written quotes — verified crews, ' +
-        'published rate cards and real claims data. Get your price before you book.',
+      ...resolveSeo({
+        override: homeContentDoc,
+        fallbackTitle: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
+        fallbackDescription:
+          'Packers and movers across India with fixed, written quotes — verified crews, ' +
+          'published rate cards and real claims data. Get your price before you book.',
+      }),
       h1: 'Packers and Movers you can actually verify',
       relatedLinks: [
         ...publicServices.map<ManifestLink>((s) => ({

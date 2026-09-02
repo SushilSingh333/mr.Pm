@@ -14,6 +14,7 @@ import { checkDuplication } from './checks/duplication.js';
 import { checkCatchAll } from './checks/catchall.js';
 import { checkBannedEntities } from './checks/banned-entities.js';
 import { checkStatusCodes } from './checks/status-codes.js';
+import { checkHeadTags } from './checks/head-tags.js';
 import type { CheckResult } from './checks/load.js';
 
 const checks: Array<() => CheckResult> = [
@@ -23,6 +24,7 @@ const checks: Array<() => CheckResult> = [
   checkDuplication,
   checkCatchAll,
   checkStatusCodes,
+  checkHeadTags,
   checkBannedEntities,
 ];
 

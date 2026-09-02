@@ -9,7 +9,11 @@
  * for staging/preview properties. Skipped in `astro dev` so local traffic never
  * lands in the reports — `astro build` + preview does send hits.
  */
-const GA_ID = (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined) ?? 'G-942TQ0Y8G5';
+// `?? ` alone would not catch a blank `PUBLIC_GA_MEASUREMENT_ID=` line in the env
+// file — an empty string is not null, so the site would ship with no tag at all and
+// no error. Trim first and treat empty as unset.
+const GA_ENV = (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined)?.trim();
+const GA_ID = GA_ENV || 'G-942TQ0Y8G5';
 const enabled = import.meta.env.PROD && Boolean(GA_ID);
 ---
 

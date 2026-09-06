@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { isPlaceholder } from '@mpm/seo/jsonld';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
@@ -48,8 +49,8 @@ const legalName = o?.legalName ?? 'the Company';
             <p>
               These terms are an agreement between you and <strong>{legalName}</strong> (
               {o?.brandName ?? 'MrPackerMover'}), a company registered in India
-              {o?.gstin ? `, GSTIN ${o.gstin}` : ''}. By requesting a quote, booking a move, or
-              using this website, you accept these terms.
+              {o?.gstin && !isPlaceholder(o.gstin) ? `, GSTIN ${o.gstin}` : ''}. By requesting a
+              quote, booking a move, or using this website, you accept these terms.
             </p>
 
             <h2>2. Our services</h2>

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { cldUrl } from '@mpm/shared';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { publicRead, isAuthenticated } from '../access/index.js';
 
 /**
  * Uploads: photos of OUR crews, trucks, and warehouses (Doc 01 §2) — never stock
@@ -16,7 +16,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   admin: { group: 'Content' },
   access: {
-    read: publishedOrStaff,
+    read: publicRead,
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,

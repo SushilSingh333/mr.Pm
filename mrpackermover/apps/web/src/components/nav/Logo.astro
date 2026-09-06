@@ -1,80 +1,58 @@
 ---
 /**
- * MrPackerMover wordmark logo: the two-tone "MR" monogram + "PackerMover" +
- * a location pin, in the brand navy/blue. Rendered inline so it uses the site
- * font and stays crisp at any size. Pass `light` for the dark footer.
+ * MrPackerMover master logo (MPM Brand Guideline).
  *
- * To use the exact brand artwork instead, drop it at `public/logo.svg` (or .png)
- * and swap the markup below for an <img src="/logo.svg" alt="MrPackerMover" />.
+ * The artwork is the approved lockup, not a font rebuild — the guideline forbids
+ * recreating it in a different typeface, so both variants are cut from the master
+ * file with their alpha recovered, keeping the letterforms, the circular movement
+ * arrows and the "o" location pin exactly as drawn.
+ *
+ * Two variants ship, per "Color Usage Guidelines":
+ *   /logo.png          Deep Royal Blue wordmark — for white/light surfaces (header)
+ *   /logo-inverse.png  White wordmark — for the blue and dark surfaces (footer)
+ * Orange stays #FF5500 in both; only the neutral half flips, so contrast stays
+ * maximal on either ground as the guideline requires.
+ *
+ * The tagline-bearing lockup (/logo-lockup*.png) is the one the 240px minimum
+ * width protects. This header mark carries no tagline, so it reads cleanly
+ * smaller — but keep it >=140px or the pin's centre point starts to disappear.
  */
 interface Props {
   light?: boolean;
   href?: string;
+  /** Rendered width in px. Height follows the 3.168:1 artwork ratio. */
+  width?: number;
 }
-const { light = false, href = '/' } = Astro.props;
+const { light = false, href = '/', width = 165 } = Astro.props;
+const height = Math.round((width / 640) * 202);
+const src = light ? '/logo-inverse.png' : '/logo.png';
 ---
 
-<a class:list={['logo', { light }]} href={href} aria-label="MrPackerMover home">
-  <span class="logo-mark"><span class="mk-m">M</span><span class="mk-r">R</span></span>
-  <span class="logo-word"><span class="wd-a">Packer</span><span class="wd-b">Mover</span></span>
-  <svg class="logo-pin" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
-    <path
-      fill="currentColor"
-      d="M12 2a7 7 0 00-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 00-7-7zm0 9.6A2.6 2.6 0 1112 6.4a2.6 2.6 0 010 5.2z"
-    ></path>
-  </svg>
+<a class="logo" href={href} aria-label="MrPackerMover home">
+  <img
+    src={src}
+    alt="MrPackerMover"
+    width={width}
+    height={height}
+    decoding="async"
+    loading="eager"
+    fetchpriority="high"
+  />
 </a>
 
 <style>
   .logo {
     display: inline-flex;
-    align-items: baseline;
-    gap: 0.4rem;
+    align-items: center;
     text-decoration: none;
-    font-family: var(--font-display);
-    line-height: 1;
-    white-space: nowrap;
+    line-height: 0;
   }
   .logo:hover {
     text-decoration: none;
   }
-  .logo-mark {
-    font-weight: 800;
-    font-size: 1.55em;
-    letter-spacing: -0.05em;
-  }
-  .mk-m {
-    color: var(--color-ink-900);
-  }
-  .mk-r {
-    color: var(--color-brand-600);
-  }
-  .logo-word {
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.98em;
-  }
-  .wd-a {
-    color: var(--color-ink-900);
-  }
-  .wd-b {
-    color: var(--color-brand-600);
-  }
-  .logo-pin {
-    color: var(--color-brand-600);
-    align-self: center;
-    margin-inline-start: -0.1rem;
-  }
-
-  /* Light variant for dark backgrounds (footer). */
-  .logo.light .mk-m,
-  .logo.light .wd-a {
-    color: #fff;
-  }
-  .logo.light .mk-r,
-  .logo.light .wd-b,
-  .logo.light .logo-pin {
-    color: var(--color-brand-300);
+  .logo img {
+    display: block;
+    height: auto;
+    max-width: 100%;
   }
 </style>

@@ -59,7 +59,7 @@ const {
     gap: 1.5rem 2.5rem;
     padding: clamp(1.75rem, 4vw, 3rem);
     border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, #071b31 0%, #092341 55%, #0d2f56 100%);
+    background: linear-gradient(135deg, #16008a 0%, #1d00b2 55%, #2a0dbe 100%);
     color: #fff;
     box-shadow: var(--shadow-pop);
   }
@@ -94,10 +94,23 @@ const {
     flex-wrap: wrap;
     gap: 0.75rem;
   }
+  /* The band is now royal blue, and .btn-primary is that same royal blue — on the
+     old navy/crimson palette these contrasted, here the button disappeared into
+     the gradient. Invert it: white plate, brand text. 12.4:1 either way. */
+  .cta-actions :global(.btn-primary) {
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .cta-actions :global(.btn-primary:hover) {
+    background: var(--color-brand-50);
+    color: var(--color-brand-800);
+  }
+
   .cta-ghost {
     background: rgba(255, 255, 255, 0.08);
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.28);
+    /* Same reasoning as the hero ghost: 0.28 was 1.9:1 on the blue band. */
+    border-color: rgba(255, 255, 255, 0.45);
   }
   .cta-ghost:hover {
     background: rgba(255, 255, 255, 0.16);

@@ -227,7 +227,7 @@ const { heading = 'House Shifting you can actually verify', intro, pillars = [] 
     grid-column: 3;
     grid-row: 1 / span 2;
     justify-content: flex-start;
-    background: linear-gradient(165deg, #071b31, #16406f);
+    background: linear-gradient(165deg, #16008a, #2a0dbe);
     border-color: transparent;
     color: #fff;
   }
@@ -297,12 +297,23 @@ const { heading = 'House Shifting you can actually verify', intro, pillars = [] 
     gap: 0.4rem;
     margin-top: 0.35rem;
     font-weight: 600;
-    color: var(--color-brand-300);
+    /* Base = light cards. Pillars are CMS-driven and can be either variant, so
+       this has to read on white; brand-300 did not (2.4:1). */
+    color: var(--color-brand-600);
     text-decoration: none;
   }
   .wb-link:hover {
-    color: #fff;
+    color: var(--color-brand-700);
     text-decoration: none;
+  }
+  /* On the dark claims card, solid white — 12.4:1 on the royal-blue gradient,
+     where the old lavender sat at a muddy 4.2:1. */
+  .wb-dark .wb-link {
+    color: #fff;
+  }
+  .wb-dark .wb-link:hover {
+    color: #fff;
+    text-decoration: underline;
   }
   .wb-link svg {
     transition: transform var(--dur-base) var(--ease-out);

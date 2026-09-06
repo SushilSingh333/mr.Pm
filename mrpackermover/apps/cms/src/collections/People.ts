@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { publicRead, isAuthenticated } from '../access/index.js';
 
 /** Authors, ops managers, reviewers — real named people behind guides and jobs. */
 export const People: CollectionConfig = {
   slug: 'people',
   admin: { useAsTitle: 'name', group: 'Content', defaultColumns: ['name', 'role'] },
   access: {
-    read: publishedOrStaff,
+    read: publicRead,
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,

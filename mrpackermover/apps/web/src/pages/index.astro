@@ -55,7 +55,7 @@ const cityLinks = cityRows.map((r) => {
 ---
 
 <BaseLayout row={row}>
-  <HeroShell align="left" h1={row.h1} image="home" intro={heroSubtext}>
+  <HeroShell align="left" h1={row.h1} image="home" imageUrl={c?.heroImage?.url} intro={heroSubtext}>
     <h1 slot="heading" class="home-tagline">
       <span class="t-line1">{tagline1}</span>
       <span class="t-line2">{tagline2}</span>
@@ -156,7 +156,10 @@ const cityLinks = cityRows.map((r) => {
     font-family: var(--font-display);
     font-size: var(--text-4xl);
     font-weight: 700;
-    color: var(--color-brand-600);
+    /* Safety Orange. Legal here because these are 40px bold — WCAG counts that
+       as large text (3:1), which #FF5500 clears at 3.2:1. Do not reuse this
+       colour for body-size text. */
+    color: var(--color-orange-500);
     line-height: 1;
   }
   .stat dd {

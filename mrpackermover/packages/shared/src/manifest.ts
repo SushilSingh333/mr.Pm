@@ -118,6 +118,8 @@ export const editorialSchema = z.object({
   intro: z.string().optional(),
   bodyHtml: z.string().optional(),
   seoDescription: z.string().optional(),
+  /** CMS-uploaded hero background for this editorial page. */
+  heroImage: z.object({ url: z.string(), alt: z.string().optional() }).optional(),
 });
 export type EditorialContent = z.infer<typeof editorialSchema>;
 

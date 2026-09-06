@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isPlaceholder } from '@mpm/seo/jsonld';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
@@ -151,15 +152,15 @@ const principles = [
             </div>
             <div>
               <dt>GSTIN</dt>
-              <dd>{o.gstin}</dd>
+              <dd>{isPlaceholder(o.gstin) ? 'Pending' : o.gstin}</dd>
             </div>
             <div>
               <dt>CIN</dt>
-              <dd>{o.cin}</dd>
+              <dd>{isPlaceholder(o.cin) ? 'Pending' : o.cin}</dd>
             </div>
             <div class="li-wide">
               <dt>Registered office</dt>
-              <dd>{o.registeredOffice}</dd>
+              <dd>{isPlaceholder(o.registeredOffice) ? 'Pending' : o.registeredOffice}</dd>
             </div>
           </dl>
           <p class="li-note">
@@ -276,7 +277,10 @@ const principles = [
   :global(.cta-ghost-hero) {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
-    border-color: rgba(255, 255, 255, 0.3);
+    /* 0.3 over the royal-blue hero is 2.0:1 - under the 3:1 a control edge
+       needs. This hero's gradient has a lighter stop (navy-500) than the CTA
+       band's, so it needs 0.5 to clear 3:1 against the worst stop (3.35:1). */
+    border-color: rgba(255, 255, 255, 0.5);
   }
   :global(.cta-ghost-hero:hover) {
     background: rgba(255, 255, 255, 0.18);

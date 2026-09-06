@@ -8,10 +8,29 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { getPayload } from 'payload';
-import config from '../payload.config.js';
-import { buildManifest } from '../lib/manifest.js';
-import { rebuildInternalLinks } from '../lib/internal-links.js';
+
+// Next loads apps/cms/.env automatically; tsx does not, so running this script
+// directly failed with "DATABASE_URL: Required" even though .env had it. Load the
+// file ourselves before anything imports the Payload config (which reads env at
+// module scope). Real environment variables always win, so CI/production are
+// unaffected.
+const envFile = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';
+for (const rawLine of envFile.split('\n')) {
+  const line = rawLine.trim();
+  const eq = line.indexOf('=');
+  if (!line || line.startsWith('#') || eq < 1) continue;
+  const key = line.slice(0, eq).trim();
+  if (!/^[A-Z0-9_]+$/.test(key) || process.env[key] !== undefined) continue;
+  process.env[key] = line
+    .slice(eq + 1)
+    .trim()
+    .replace(/^["']|["']$/g, '');
+}
+
+const { getPayload } = await import('payload');
+const { default: config } = await import('../payload.config.js');
+const { buildManifest } = await import('../lib/manifest.js');
+const { rebuildInternalLinks } = await import('../lib/internal-links.js');
 
 // cwd is apps/cms when run via the package script.
 const OUT = path.resolve(process.cwd(), '../web/src/data/manifest.json');

@@ -138,15 +138,22 @@ interface FaqDoc {
   priority?: number;
 }
 /** The `home-content` global, as returned by Payload (defaults applied). */
-type HomeContentDoc = Partial<HomeContent> &
-  SeoOverride & { pillars?: Array<TrustPillar & { id?: string }> };
+type HomeContentDoc = Omit<Partial<HomeContent>, 'heroImage'> &
+  SeoOverride & {
+    pillars?: Array<TrustPillar & { id?: string }>;
+    heroImage?: Id | { id: Id } | null;
+  };
 
 /**
  * Map the editable `home-content` global onto the render payload the home template
  * reads. Blank fields fall back to the built-in copy so the page always renders.
  */
-function toHomeContent(doc: HomeContentDoc | null): HomeContent {
+function toHomeContent(
+  doc: HomeContentDoc | null,
+  imageFor: (ref: Id | { id: Id } | null | undefined) => { url: string; alt?: string } | undefined,
+): HomeContent {
   return {
+    heroImage: imageFor(doc?.heroImage),
     taglineLine1: doc?.taglineLine1 || 'Shifting Aapki,',
     taglineLine2: doc?.taglineLine2 || 'Zimmedari Hamari.',
     heroSubtext: doc?.heroSubtext || undefined,
@@ -264,11 +271,18 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
 
   // Media id → { url, alt } so a location's uploaded hero resolves to a Cloudinary URL.
   const mediaById = new Map(media.map((m) => [sid(m.id), m]));
+  // With Cloudinary configured, Payload hands back an absolute CDN URL. Without it
+  // (local design work, CI) Media falls back to local disk and the URL is relative to
+  // the CMS origin — e.g. `/api/media/file/photo.png`. The Astro site is served from a
+  // DIFFERENT origin, so a relative URL 404s there. Absolutise it against the CMS.
+  const cmsOrigin = (process.env.CMS_PUBLIC_URL || 'http://localhost:3000').replace(/\/+$/, '');
+  const absolute = (url: string): string =>
+    /^https?:\/\//i.test(url) ? url : `${cmsOrigin}${url.startsWith('/') ? '' : '/'}${url}`;
   const imageFor = (
     ref: Id | { id: Id } | null | undefined,
   ): { url: string; alt?: string } | undefined => {
     const m = mediaById.get(refId(ref) ?? '');
-    return m?.url ? { url: m.url, alt: m.alt || undefined } : undefined;
+    return m?.url ? { url: absolute(m.url), alt: m.alt || undefined } : undefined;
   };
 
   const idx = new DataIndex(locations, services, lanes, rateCards, reviews, jobsStats, faqs);
@@ -659,7 +673,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const homeContentDoc = (await payload
     .findGlobal({ slug: 'home-content', overrideAccess: true })
     .catch(() => null)) as HomeContentDoc | null;
-  const homeContent = toHomeContent(homeContentDoc);
+  const homeContent = toHomeContent(homeContentDoc, imageFor);
   const homeFaqs: FaqItem[] = faqs
     .filter((f) => f.scope === 'global')
     .map((f) => ({ question: f.question, answer: richTextToPlain(f.answer) }));
@@ -737,6 +751,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     body?: unknown;
     metaTitle?: string;
     seoDescription?: string;
+    heroImage?: Id | { id: Id } | null;
   }
   const editorial: Record<string, EditorialContent> = {};
   for (const p of await loadAll<PageDoc>(payload, 'pages')) {
@@ -748,6 +763,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       intro: p.intro || undefined,
       bodyHtml: richTextToHtml(p.body) || undefined,
       seoDescription: p.seoDescription || undefined,
+      heroImage: imageFor(p.heroImage),
     };
   }
 

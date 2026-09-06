@@ -1,5 +1,6 @@
 ---
 import type { ManifestLink } from '@mpm/shared';
+import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
 import Breadcrumbs from '../nav/Breadcrumbs.astro';
 
 /**
@@ -15,12 +16,40 @@ interface Props {
   dark?: boolean;
   breadcrumbs?: ManifestLink[];
   current?: string;
+  /**
+   * Static-file convention, matching HeroShell: /images/hero/<image>.jpg. Used when
+   * the CMS has no upload for this page. Omit both and the hero stays a flat gradient.
+   */
+  image?: string;
+  /** CMS-uploaded hero background (Cloudinary) — takes precedence over `image`. */
+  imageUrl?: string;
 }
-const { eyebrow, h1, intro, dark = false, breadcrumbs = [], current } = Astro.props;
+const {
+  eyebrow,
+  h1,
+  intro,
+  dark = false,
+  breadcrumbs = [],
+  current,
+  image,
+  imageUrl,
+} = Astro.props;
 const hasCta = Astro.slots.has('default');
+// A photo forces the dark treatment - the light gradient has no scrim, so dark text
+// over a photograph would be unreadable.
+// A CMS upload wins; otherwise fall back to the committed artwork — same precedence
+// as HeroShell. `cldUrl` adds the delivery transform and is a no-op for a local path.
+const resolvedImage = imageUrl
+  ? cldUrl(imageUrl, CLD_TRANSFORM.hero)
+  : image
+    ? `/images/hero/${image}.jpg`
+    : null;
+const hasImage = Boolean(resolvedImage);
+const isDark = dark || hasImage;
+const heroStyle = hasImage ? `--phero-image: url('${resolvedImage}')` : undefined;
 ---
 
-<section class:list={['phero', { dark }]}>
+<section class:list={['phero', { dark: isDark, 'has-image': hasImage }]} style={heroStyle}>
   <span class="phero-glow" aria-hidden="true"></span>
   <div class="container-page phero-inner">
     {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} current={current ?? h1} />}
@@ -104,6 +133,18 @@ const hasCta = Astro.slots.has('default');
     color: var(--color-ink-500);
     max-width: 60ch;
   }
+  /* The hero backdrop is royal blue and .btn-primary is that same royal blue,
+     so the solid CTA disappeared into it after the brand change. Invert to a
+     white plate with brand text — 11:1 against the gradient either way. */
+  .phero-cta :global(.btn-primary) {
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .phero-cta :global(.btn-primary:hover) {
+    background: var(--color-brand-50);
+    color: var(--color-brand-800);
+  }
+
   .phero-cta {
     display: flex;
     flex-wrap: wrap;
@@ -136,6 +177,19 @@ const hasCta = Astro.slots.has('default');
       radial-gradient(80% 70% at 50% -20%, var(--color-navy-500), transparent 65%),
       linear-gradient(180deg, var(--color-navy-800), var(--color-navy-700));
   }
+  /* CMS photo. Sits under a dark scrim so the white heading keeps its contrast
+     whatever the editor uploads - same approach as the home hero. */
+  .phero.has-image {
+    background-color: var(--color-navy-700);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.42)), var(--phero-image);
+    background-size: cover;
+    background-position: center;
+    border-bottom: 0;
+  }
+  .phero.has-image .phero-glow {
+    display: none;
+  }
+
   .phero.dark .phero-glow {
     top: -120px;
     background: radial-gradient(

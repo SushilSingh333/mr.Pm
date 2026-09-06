@@ -1,5 +1,6 @@
 ---
 import { manifest } from '../../data/manifest.js';
+import { isPlaceholder } from '@mpm/seo/jsonld';
 
 /**
  * The hard credibility marker under the H1 (Doc 01 §3): registration + insurance +
@@ -16,7 +17,7 @@ const org = manifest().org;
         d="M10 1l7 3v5c0 4.4-3 8.3-7 10-4-1.7-7-5.6-7-10V4l7-3zm-1 12l5-5-1.4-1.4L9 10.2 7.4 8.6 6 10l3 3z"
       ></path></svg
     >
-    {org ? <>GSTIN {org.gstin}</> : 'Registered & GST-verified'}
+    {org && !isPlaceholder(org.gstin) ? <>GSTIN {org.gstin}</> : 'Registered & GST-verified'}
   </span>
   <span class="trust-item">
     <svg aria-hidden="true" viewBox="0 0 20 20" width="18" height="18"

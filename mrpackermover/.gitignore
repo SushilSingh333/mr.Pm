@@ -40,3 +40,9 @@ pnpm-debug.log*
 
 # Coverage
 coverage/
+
+# Local-disk uploads. With Cloudinary configured (production) Media is stored on the
+# CDN and this folder never appears; without the secrets (local dev, CI) Payload falls
+# back to disk here. These are developer test uploads, not source - keep them out of
+# the repo so they can never be pushed or end up in a production image.
+apps/cms/media/

@@ -30,8 +30,30 @@ function read(): Manifest {
 }
 
 let cached: Manifest | null = null;
+let cachedMtimeMs = 0;
+
+/**
+ * In production the manifest is written once before the build, so it is read once and
+ * kept in memory for the whole run.
+ *
+ * In dev the file is rewritten by `pnpm build-manifest` while the server is running,
+ * and this module reads it with `fs` rather than importing it — so Vite has no idea it
+ * is a dependency and never invalidates. The cache therefore held the manifest from
+ * whenever the dev server booted, and CMS edits appeared to do nothing until it was
+ * restarted. Re-stat the file per call in dev (a stat is ~microseconds, and dev is not
+ * the hot path) and re-parse only when the mtime moves.
+ */
 export function manifest(): Manifest {
-  return (cached ??= read());
+  if (!import.meta.env.DEV) return (cached ??= read());
+  const generated = path.join(dataDir, 'manifest.json');
+  const sample = path.join(dataDir, 'manifest.sample.json');
+  const file = fs.existsSync(generated) ? generated : sample;
+  const mtimeMs = fs.statSync(file).mtimeMs;
+  if (!cached || mtimeMs !== cachedMtimeMs) {
+    cached = read();
+    cachedMtimeMs = mtimeMs;
+  }
+  return cached;
 }
 
 export function rowsOfType(type: PageType): ManifestRow[] {

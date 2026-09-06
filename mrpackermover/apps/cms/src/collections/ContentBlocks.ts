@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { publicRead, isAuthenticated } from '../access/index.js';
 
 /**
  * Reusable prose fragments (Doc 01 §5). Rotated by `variantKey` and bounded by
@@ -14,7 +14,7 @@ export const ContentBlocks: CollectionConfig = {
     defaultColumns: ['label', 'scope', 'variantKey'],
   },
   access: {
-    read: publishedOrStaff,
+    read: publicRead,
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,

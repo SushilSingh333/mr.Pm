@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { publicRead, isAuthenticated } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /** Scoped Q&A (Doc 01 §5). Seeded editorially, grown from real support tickets. */
@@ -11,7 +11,7 @@ export const Faqs: CollectionConfig = {
     defaultColumns: ['question', 'scope', 'priority'],
   },
   access: {
-    read: publishedOrStaff,
+    read: publicRead,
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,

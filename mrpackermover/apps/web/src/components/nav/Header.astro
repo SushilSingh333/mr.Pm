@@ -233,8 +233,13 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
     display: flex;
     align-items: center;
   }
-  .brand :global(.logo) {
-    font-size: 1.02rem;
+  .brand :global(.logo img) {
+    width: 165px;
+  }
+  @media (max-width: 480px) {
+    .brand :global(.logo img) {
+      width: 142px;
+    }
   }
 
   /* ── Centered primary nav (desktop) ───────────────────────────────────── */

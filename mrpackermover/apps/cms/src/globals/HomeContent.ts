@@ -65,6 +65,15 @@ export const HomeContent: GlobalConfig = {
           ],
         },
         { name: 'heroSubtext', type: 'textarea' },
+        {
+          name: 'heroImage',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description:
+              'Background photo for the home page hero banner. Uploaded to Cloudinary and served through the hero transform. Leave empty to use the built-in /images/hero/home.jpg file.',
+          },
+        },
       ],
     },
     {

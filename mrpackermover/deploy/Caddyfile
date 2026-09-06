@@ -8,6 +8,19 @@
 #   SITE_DOMAIN=mrpackermover.com caddy run --config /etc/caddy/Caddyfile
 
 {$SITE_DOMAIN} {
+	# TLS: a Cloudflare Origin Certificate, not ACME.
+	#
+	# Caddy's default is Let's Encrypt over the HTTP-01 challenge, which CANNOT renew
+	# here: Cloudflare proxies the domain, so Let's Encrypt's validation request never
+	# reaches this box and the renewal fails ~60 days in. An Origin Certificate is
+	# issued by Cloudflare, is free, lasts 15 years and never renews, so there is no
+	# recurring failure mode. It is trusted by Cloudflare rather than by browsers
+	# directly, which is exactly right for a proxied origin - set the zone's SSL/TLS
+	# mode to "Full (strict)" so Cloudflare verifies it.
+	#
+	# Generate at: Cloudflare > SSL/TLS > Origin Server > Create Certificate.
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+
 	encode zstd gzip
 
 	# Payload admin UI + REST API, including the public JSON endpoints

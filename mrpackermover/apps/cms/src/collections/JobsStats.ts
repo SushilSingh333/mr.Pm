@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { publicRead, isAuthenticated } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -17,7 +17,7 @@ export const JobsStats: CollectionConfig = {
     defaultColumns: ['label', 'month', 'count'],
   },
   access: {
-    read: publishedOrStaff,
+    read: publicRead,
     create: isAuthenticated,
     update: isAuthenticated,
     delete: isAuthenticated,

@@ -88,6 +88,15 @@ export const Pages: CollectionConfig = {
       },
     },
     {
+      name: 'heroImage',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description:
+          'Optional background photo for this page’s hero banner. Uploaded to Cloudinary. Leave empty and the hero keeps its plain brand-blue gradient.',
+      },
+    },
+    {
       name: 'seoDescription',
       type: 'text',
       maxLength: 200,

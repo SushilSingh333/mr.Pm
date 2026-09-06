@@ -1,0 +1,21 @@
+# Normalise line endings for everyone.
+#
+# Files are stored in the repo with LF. Windows checkouts with core.autocrlf=true were
+# rewriting them to CRLF on disk, which then failed `pnpm format:check` locally because
+# .prettierrc.json pins "endOfLine": "lf" — while CI (ubuntu-latest) passed, since
+# autocrlf does not apply there. Pinning eol=lf here makes Windows, macOS, Linux and CI
+# all agree, regardless of each developer's local git config.
+* text=auto eol=lf
+
+# Binary assets: never touch these.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.avif binary
+*.ico  binary
+*.pdf  binary
+*.woff  binary
+*.woff2 binary
+*.zip  binary

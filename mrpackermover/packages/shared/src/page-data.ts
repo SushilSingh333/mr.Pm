@@ -125,6 +125,8 @@ export interface HomeContent {
   taglineLine1: string;
   taglineLine2: string;
   heroSubtext?: string;
+  /** CMS-uploaded hero background. Absent = the page uses its built-in static file. */
+  heroImage?: { url: string; alt?: string };
   servicesHeading: string;
   servicesIntro?: string;
   trustHeading: string;

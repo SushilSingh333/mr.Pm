@@ -35,16 +35,41 @@ export function organization(input: OrgInput): JsonLd {
     name: input.brandName,
     legalName: input.legalName,
     url: trim(input.siteOrigin),
-    taxID: input.gstin, // GSTIN
-    identifier: input.cin, // CIN
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: input.registeredOffice,
-      addressCountry: 'IN',
-    },
+    // GSTIN / CIN / registered office are legal identifiers Google reads as proof of
+    // a real business. `seed.ts` ships obvious placeholders so a fresh install boots,
+    // and those were reaching production — a fake tax ID in structured data is worse
+    // than none. Emit each field only once it holds a real value.
+    ...(isPlaceholder(input.gstin) ? {} : { taxID: input.gstin }),
+    ...(isPlaceholder(input.cin) ? {} : { identifier: input.cin }),
+    ...(isPlaceholder(input.registeredOffice)
+      ? {}
+      : {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: input.registeredOffice,
+            addressCountry: 'IN',
+          },
+        }),
     ...(input.logoUrl ? { logo: input.logoUrl } : {}),
     ...(input.sameAs?.length ? { sameAs: input.sameAs } : {}),
   };
+}
+
+/**
+ * Values seeded by `apps/cms/src/seed.ts` as stand-ins, plus anything still carrying
+ * an obvious "fill me in" marker. Matched exactly rather than by pattern so a real
+ * GSTIN/CIN can never be suppressed by accident.
+ */
+const PLACEHOLDERS = new Set([
+  '07AAAAA0000A1Z5',
+  'U63030DL2020PTC000000',
+  'Registered office address — confirm before launch.',
+]);
+
+export function isPlaceholder(value: string | undefined): boolean {
+  if (!value) return true;
+  const v = value.trim();
+  return v === '' || PLACEHOLDERS.has(v) || /confirm before launch|TODO|XXX/i.test(v);
 }
 
 /** WebSite + SearchAction (rendered once, on home). */

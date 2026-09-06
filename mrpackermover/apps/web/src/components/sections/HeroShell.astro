@@ -42,7 +42,7 @@ const hasHeadingSlot = Astro.slots.has('heading');
   .hero {
     position: relative;
     overflow: hidden;
-    background-color: #092341;
+    background-color: #1d00b2;
     background-image: var(--hero-image);
     background-size: cover;
     /* The banner is much wider than the photos (≈2.7:1 vs 1.75:1), so `cover` crops
@@ -96,8 +96,11 @@ const hasHeadingSlot = Astro.slots.has('heading');
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Safety Orange accent. Kept as a translucent wash + solid rule so the
+       label stays white-on-dark (high contrast) rather than white-on-orange,
+       which is only 3.2:1. */
+    background: rgba(255, 85, 0, 0.22);
+    border: 1px solid var(--color-orange-500);
     color: #fff;
     font-size: var(--text-sm);
     font-weight: 600;

@@ -3,47 +3,66 @@
  * Tailwind v4 CSS-first theme. Every token below is emitted as a CSS custom
  * property AND generates matching utilities (e.g. --color-brand-600 → bg-brand-600).
  *
- * Visual language: a Porter-grade layout in a deep-crimson brand — a single
- * technical sans (Titillium Web), a rich ruby primary (#990010), white cards on a
- * warm blush base, soft rounded cards, crimson circular icon badges, and a tight
- * 4px button radius. The trust slots (see components/trust/*) carry real data.
+ * Visual language follows the MPM Brand Guideline: Deep Royal Blue (#1D00B2) as
+ * the primary — "high capability, trust, professional safety" — with Safety
+ * Orange (#FF5500), the vermilion accent for "energetic motion, careful speed,
+ * target accuracy". Solid white and cool grey carry the high-contrast neutral
+ * system. Both hexes are sampled straight from the master logo artwork.
+ *
+ * Division of labour: blue is structural (buttons, links, dark surfaces), orange
+ * is deliberate punctuation (eyebrows, icon accents, active states, the pin
+ * motif). Orange is never used behind small white text — at #FF5500 that is a
+ * 3.2:1 pair, below WCAG AA; --color-orange-600 is the text-safe step.
  */
 
 @theme {
-  /* ── Brand palette (deep crimson #990010) ───────────────────────────────── */
-  --color-brand-50: #fdecee; /* icon-badge background */
-  --color-brand-100: #fbd2d6;
-  --color-brand-200: #f4a7ad;
-  --color-brand-300: #ea757f;
-  --color-brand-400: #d94452;
-  --color-brand-500: #bd1325;
-  --color-brand-600: #990010; /* primary — buttons, links, icons */
-  --color-brand-700: #7e0311;
-  --color-brand-800: #660410;
-  --color-brand-900: #4d060e;
+  /* ── Primary: Deep Royal Blue (#1D00B2, sampled from the logo) ───────────── */
+  --color-brand-50: #efecff; /* icon-badge background */
+  --color-brand-100: #dcd5ff;
+  --color-brand-200: #bcadff;
+  --color-brand-300: #9a83ff;
+  --color-brand-400: #7355f7;
+  --color-brand-500: #4820d9;
+  --color-brand-600: #1d00b2; /* primary — buttons, links, icons */
+  --color-brand-700: #180095;
+  --color-brand-800: #130077;
+  --color-brand-900: #0e005a;
 
-  /* ── Deep navy (secondary) — dark surfaces, hero/footer/CTA gradients (#092341).
-     Crimson stays the primary/accent; navy carries the heavy dark areas so the
-     brand red is used deliberately, not everywhere. ───────────────────────── */
-  --color-navy-500: #16406f;
-  --color-navy-600: #0d2f56;
-  --color-navy-700: #092341; /* base dark surface */
-  --color-navy-800: #071b31;
-  --color-navy-900: #051121;
+  /* ── Accent: Safety Orange (#FF5500, sampled from the logo "mover") ───────
+     Energy and action. Use for eyebrows, icon accents, highlights and hover —
+     not as a background for small white text (use -600 there). ───────────── */
+  --color-orange-50: #fff1ea;
+  --color-orange-100: #ffdccb;
+  --color-orange-200: #ffb894;
+  --color-orange-300: #ff945e;
+  --color-orange-400: #ff7429;
+  --color-orange-500: #ff5500; /* Safety Orange — the brand accent */
+  --color-orange-600: #db4600; /* text-safe step: 4.3:1 with white */
+  --color-orange-700: #b03700;
 
-  --color-accent-500: #12a150; /* verified / success green (used sparingly) */
+  /* ── Dark surfaces — hero, footer, CTA bands. A deepened royal blue so the
+     dark areas read as the same family as the logo field, not a separate navy.
+     Token names kept (`navy-*`) to avoid churn across ~20 call sites. ─────── */
+  --color-navy-500: #3b22c9;
+  --color-navy-600: #2a0dbe;
+  --color-navy-700: #1d00b2; /* base dark surface — the logo blue */
+  --color-navy-800: #16008a;
+  --color-navy-900: #0f0063;
+
+  --color-accent-500: #12a150; /* verified / success green (semantic, not brand) */
   --color-accent-600: #0e8443;
   --color-warn-500: #c2620a; /* honest caveats, "extra cost" (warm amber) */
 
-  /* Neutrals — cool slate headings, cool grey body & hairlines (pairs with navy) */
-  --color-ink-900: #1c2637; /* headings */
-  --color-ink-700: #434e60; /* body */
-  --color-ink-500: #6b7488; /* muted */
-  --color-line: #e3e7ef; /* hairlines / card borders */
+  /* Neutrals — cool grey per the guideline's neutral system, carrying a faint
+     violet cast so they sit with royal blue rather than against it. */
+  --color-ink-900: #1a1c2e; /* headings */
+  --color-ink-700: #464a60; /* body */
+  --color-ink-500: #6f7389; /* muted */
+  --color-line: #e5e6ef; /* hairlines / card borders */
   --color-surface: #ffffff; /* cards, header */
-  --color-surface-2: #f2f5fa; /* page base / alt sections (cool light) */
-  --color-surface-3: #e9eef6; /* icon badges, soft fills */
-  --color-hero: #092341; /* dark navy hero backdrop */
+  --color-surface-2: #f5f5fb; /* page base / alt sections (cool light) */
+  --color-surface-3: #ebebf6; /* icon badges, soft fills */
+  --color-hero: #1d00b2; /* royal blue hero backdrop */
 
   /* ── Typography — single family, matching Porter (Titillium Web) ─────────── */
   --font-display: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -67,9 +86,9 @@
   --radius-xl: 26px; /* large feature cards */
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 2px rgba(9, 35, 65, 0.05), 0 10px 30px rgba(9, 35, 65, 0.08);
-  --shadow-bar: 0 16px 40px rgba(9, 35, 65, 0.16); /* the booking bar lift */
-  --shadow-pop: 0 12px 40px rgba(9, 35, 65, 0.12);
+  --shadow-card: 0 1px 2px rgba(20, 8, 90, 0.05), 0 10px 30px rgba(20, 8, 90, 0.08);
+  --shadow-bar: 0 16px 40px rgba(20, 8, 90, 0.16); /* the booking bar lift */
+  --shadow-pop: 0 12px 40px rgba(20, 8, 90, 0.12);
 
   --container-page: 1200px;
 

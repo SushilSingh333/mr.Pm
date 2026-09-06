@@ -519,6 +519,10 @@ export interface Page {
    */
   metaTitle?: string | null;
   /**
+   * Optional background photo for this page’s hero banner. Uploaded to Cloudinary. Leave empty and the hero keeps its plain brand-blue gradient.
+   */
+  heroImage?: (number | null) | Media;
+  /**
    * Meta description (≈150 chars).
    */
   seoDescription?: string | null;
@@ -619,14 +623,6 @@ export interface Guide {
   reviewedBy?: (number | null) | Person;
   tags?: string[] | null;
   heroImage?: (number | null) | Media;
-  /**
-   * Overrides the title template for this guide. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
-   */
-  metaTitle?: string | null;
-  /**
-   * Overrides the description template for this guide. Aim for 140–160 characters. Blank = use Settings → SEO defaults.
-   */
-  metaDescription?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -662,7 +658,7 @@ export interface Post {
    */
   slug: string;
   /**
-   * One–two sentence summary — shown on the card and used as the meta description.
+   * One–two sentence summary — shown on the card, and used as the meta description unless you set one in the SEO section below.
    */
   excerpt: string;
   category: 'Guides' | 'Pricing' | 'Safety' | 'Packing' | 'Business';
@@ -1286,6 +1282,7 @@ export interface PagesSelect<T extends boolean = true> {
   intro?: T;
   body?: T;
   metaTitle?: T;
+  heroImage?: T;
   seoDescription?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1333,8 +1330,6 @@ export interface GuidesSelect<T extends boolean = true> {
   reviewedBy?: T;
   tags?: T;
   heroImage?: T;
-  metaTitle?: T;
-  metaDescription?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1677,6 +1672,10 @@ export interface HomeContent {
   taglineLine1?: string | null;
   taglineLine2?: string | null;
   heroSubtext?: string | null;
+  /**
+   * Background photo for the home page hero banner. Uploaded to Cloudinary and served through the hero transform. Leave empty to use the built-in /images/hero/home.jpg file.
+   */
+  heroImage?: (number | null) | Media;
   servicesHeading?: string | null;
   servicesIntro?: string | null;
   trustHeading?: string | null;
@@ -1807,6 +1806,7 @@ export interface HomeContentSelect<T extends boolean = true> {
   taglineLine1?: T;
   taglineLine2?: T;
   heroSubtext?: T;
+  heroImage?: T;
   servicesHeading?: T;
   servicesIntro?: T;
   trustHeading?: T;

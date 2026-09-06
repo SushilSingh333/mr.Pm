@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isPlaceholder } from '@mpm/seo/jsonld';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import Prose from '../../components/page/Prose.astro';
@@ -48,15 +49,15 @@ const o = org();
               </tr>
               <tr>
                 <th scope="row">GSTIN</th>
-                <td>{o.gstin}</td>
+                <td>{isPlaceholder(o.gstin) ? 'Pending' : o.gstin}</td>
               </tr>
               <tr>
                 <th scope="row">CIN</th>
-                <td>{o.cin}</td>
+                <td>{isPlaceholder(o.cin) ? 'Pending' : o.cin}</td>
               </tr>
               <tr>
                 <th scope="row">Registered office</th>
-                <td>{o.registeredOffice}</td>
+                <td>{isPlaceholder(o.registeredOffice) ? 'Pending' : o.registeredOffice}</td>
               </tr>
               <tr>
                 <th scope="row">Insurance partner</th>

@@ -100,6 +100,16 @@ export const Locations: CollectionConfig = {
       options: ['A', 'A-S', 'B'].map((v) => ({ label: v, value: v })),
     },
     {
+      name: 'displayPriority',
+      type: 'number',
+      min: 1,
+      admin: {
+        description:
+          'Order in every city list (home page grid, footer, service pages). 1 shows first. Leave blank and the city sorts after all prioritised cities, alphabetically.',
+        condition: (data) => data?.type === 'city',
+      },
+    },
+    {
       name: 'isServiceable',
       type: 'checkbox',
       defaultValue: false,

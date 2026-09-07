@@ -59,6 +59,7 @@ interface LocationDoc {
   servicesOffered?: Array<Id | { id: Id }> | null;
   /** Uploaded hero/thumbnail image (Media id) — resolved to a Cloudinary URL. */
   heroImage?: Id | { id: Id } | null;
+  displayPriority?: number | null;
   /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -286,7 +287,17 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   };
 
   const idx = new DataIndex(locations, services, lanes, rateCards, reviews, jobsStats, faqs);
-  const cities = locations.filter((l) => l.type === 'city' && l.isServiceable);
+  // Editor-controlled ordering for every city listing (home grid, footer, the
+  // service hubs' city lists): lower displayPriority first, blanks after all
+  // prioritised cities, ties and blanks alphabetical. One sort here so every
+  // surface shows the same order.
+  const cities = locations
+    .filter((l) => l.type === 'city' && l.isServiceable)
+    .sort(
+      (a, b) =>
+        (a.displayPriority ?? Number.MAX_SAFE_INTEGER) -
+          (b.displayPriority ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name),
+    );
   const localities = locations.filter((l) => l.type === 'locality' && l.isServiceable);
   const publicServices = services.filter((s) => !s.isCorporate);
 

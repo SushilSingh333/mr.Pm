@@ -86,6 +86,17 @@ export const jobSchema = z.object({
 });
 export type JobPosting = z.infer<typeof jobSchema>;
 
+/** A named person shown on /company/team (CMS `people`, opt-in via `showOnTeam`). */
+export const teamMemberSchema = z.object({
+  name: z.string(),
+  role: z.string(),
+  bio: z.string().optional(),
+  credentials: z.string().optional(),
+  linkedin: z.string().optional(),
+  photo: z.object({ url: z.string(), alt: z.string().optional() }).optional(),
+});
+export type TeamMember = z.infer<typeof teamMemberSchema>;
+
 /** A blog post (from the CMS `posts` collection), rendered on /blog. */
 export const blogPostSchema = z.object({
   slug: z.string(),
@@ -128,6 +139,8 @@ export const manifestSchema = z.object({
   siteOrigin: z.string().url(),
   org: orgSchema.optional(),
   jobs: z.array(jobSchema).default([]),
+  /** People opted in to the public team page, already ordered. */
+  team: z.array(teamMemberSchema).default([]),
   /** Editable copy for the hand-built editorial pages, keyed by page key. */
   editorial: z.record(z.string(), editorialSchema).default({}),
   /**

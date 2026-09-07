@@ -1,0 +1,157 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/page/PageHero.astro';
+import Band from '../../components/ui/Band.astro';
+import CtaBand from '../../components/page/CtaBand.astro';
+import { staticRow, editorialFor } from '../../lib/page.js';
+import { team } from '../../data/manifest.js';
+
+/**
+ * The people behind the company (Doc 01 §2: accountability over anonymity).
+ * Members come from the CMS `people` collection, opted in with `showOnTeam` and
+ * ordered by `teamOrder`. With nobody opted in the roster section is omitted
+ * entirely rather than rendering an empty grid.
+ */
+const ed = editorialFor('team');
+const members = team();
+
+const row = staticRow({
+  path: '/company/team',
+  pageType: 'core',
+  title: ed.metaTitle ?? 'Our Team – MrPackerMover',
+  h1: ed.title ?? 'The people who move your home',
+  metaDescription:
+    ed.seoDescription ??
+    'Meet the coordinators, crew leads and operations team behind MrPackerMover — named, ID-verified people accountable for every move we run.',
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+
+const intro =
+  ed.intro ??
+  'We put our names on our work. Every move is run by trained, ID-verified people you can ask for by name — not an anonymous subcontractor.';
+---
+
+<BaseLayout row={row}>
+  <PageHero
+    dark
+    eyebrow={ed.eyebrow ?? 'Our team'}
+    h1={row.h1}
+    intro={intro}
+    breadcrumbs={row.breadcrumbs}
+    current="Our team"
+    imageUrl={ed.heroImage?.url}
+  />
+
+  {
+    members.length > 0 && (
+      <Band label="Team">
+        <ul class="team-grid">
+          {members.map((m) => (
+            <li class="team-card">
+              {m.photo?.url ? (
+                <img
+                  class="team-photo"
+                  src={m.photo.url}
+                  alt={m.photo.alt ?? m.name}
+                  width="96"
+                  height="96"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span class="team-photo team-initials" aria-hidden="true">
+                  {m.name
+                    .split(' ')
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join('')}
+                </span>
+              )}
+              <h3>{m.name}</h3>
+              <p class="team-role">{m.role}</p>
+              {m.credentials && <p class="team-cred">{m.credentials}</p>}
+              {m.bio && <p class="team-bio">{m.bio}</p>}
+              {m.linkedin && (
+                <a class="team-link" href={m.linkedin} rel="noopener noreferrer" target="_blank">
+                  LinkedIn profile
+                  <span class="sr-only"> for {m.name}</span>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </Band>
+    )
+  }
+
+  <CtaBand
+    heading="Moving soon?"
+    text="Get a fixed, written quote — surveyed first, then held to the rupee."
+    primaryHref="/get-quote"
+    primaryLabel="Get a fixed quote"
+    secondaryHref="/company/about"
+    secondaryLabel="About the company"
+  />
+</BaseLayout>
+
+<style>
+  .team-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .team-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    padding: 1.4rem;
+    box-shadow: var(--shadow-card);
+  }
+  .team-photo {
+    width: 96px;
+    height: 96px;
+    border-radius: var(--radius-pill);
+    object-fit: cover;
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+  /* No photo uploaded: initials on a brand tint, so the grid never gaps. */
+  .team-initials {
+    display: grid;
+    place-items: center;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    letter-spacing: 0.02em;
+  }
+  .team-card h3 {
+    font-size: var(--text-lg);
+    color: var(--color-ink-900);
+    margin: 0;
+  }
+  .team-role {
+    margin: 0.15rem 0 0;
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+  .team-cred {
+    margin: 0.35rem 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
+  }
+  .team-bio {
+    margin: 0.6rem 0 0;
+    color: var(--color-ink-700);
+  }
+  .team-link {
+    display: inline-block;
+    margin-top: 0.7rem;
+    font-weight: 600;
+    color: var(--color-brand-700);
+  }
+</style>

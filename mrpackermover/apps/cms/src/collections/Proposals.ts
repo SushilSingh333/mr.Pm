@@ -343,7 +343,11 @@ export const Proposals: CollectionConfig = {
                       type: 'number',
                       label: 'GST rate (%)',
                       defaultValue: 18,
-                      admin: { width: '25%' },
+                      admin: {
+                        width: '25%',
+                        description:
+                          'Clear this field to quote without GST; the PDF then drops the GST line.',
+                      },
                     },
                     {
                       name: 'goodsValue',

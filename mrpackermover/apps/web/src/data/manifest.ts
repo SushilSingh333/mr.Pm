@@ -6,6 +6,7 @@ import {
   type ManifestRow,
   type PageType,
   type JobPosting,
+  type TeamMember,
 } from '@mpm/shared';
 
 /**
@@ -67,6 +68,11 @@ export function rowByPath(p: string): ManifestRow | undefined {
 /** Open careers postings (from the CMS Jobs collection). */
 export function jobs(): JobPosting[] {
   return manifest().jobs ?? [];
+}
+
+/** People published to /company/team (CMS People collection, already ordered). */
+export function team(): TeamMember[] {
+  return manifest().team ?? [];
 }
 
 /** Narrow a row's `data` blob to a page-data shape (the CMS guarantees the shape). */

@@ -359,12 +359,45 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     }
   }
 
+  // ── Pre-pass: which localities publish ─────────────────────────────────────
+  // Decided before any row is built, because the city hub's "Areas we cover" grid
+  // and every sibling link must point only at locality pages that will exist.
+  // `isServiceable` is an ops flag; a URL exists only once the gate passes. The
+  // bulk import made the difference real: a locality can be serviceable long
+  // before it has the reviews and rate card that earn it a page.
+  const publishedLocalityIds = new Set<string>();
+  for (const loc of localities) {
+    const parent = idx.location(refId(loc.parent));
+    if (!parent || !publishedCityIds.has(sid(parent.id))) continue;
+    const lid = sid(loc.id);
+    const words = countWords(loc.editorialNote);
+    const candidate: GateCandidate = {
+      pageType: 'locality',
+      hasRateCard: idx.hasCityRateCard(sid(parent.id)),
+      jobCount12m: idx.statsFor(lid).jobs12m,
+      reviewsCount: idx.reviewsFor(lid).length,
+      baseDistanceMeters: 0,
+      localContentWords: words,
+      scopedFaqCount: idx.faqsForCity(lid).length + 4, // locality FAQs seeded editorially
+      hasLocationPhotos: false,
+      namedLocalFacts: words >= 40 ? 2 : 0,
+      hasNamedCoordinator: true,
+      rateBandCount: idx.cityRateBands(sid(parent.id)).length,
+    };
+    if (evaluateCandidate(candidate).passed) publishedLocalityIds.add(lid);
+  }
+
+  // Nearby-city links walk published cities only: the cyclic picker takes six
+  // steps then gives up, so serviceable-but-unpublished cities in the walk starve
+  // real pages of inbound links (the inbound-links gate caught exactly that when
+  // the north India import landed).
+  const publishedCities = cityPlan.map((p) => p.city);
   // ── City hubs + their city × service pages ─────────────────────────────────
   for (const { city, cid, services: servicesForCity } of cityPlan) {
     const stats = idx.statsFor(cid);
     const cityPath = paths.cityHub(city.slug);
     const localityLinks = localities
-      .filter((l) => refId(l.parent) === cid)
+      .filter((l) => refId(l.parent) === cid && publishedLocalityIds.has(sid(l.id)))
       .map<ManifestLink>((l) => ({
         path: paths.locality(city.slug, l.slug),
         anchor: l.name,
@@ -459,7 +492,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             // Also link the localities we cover in this city — a natural in-page link
             // that gives each locality page a third contextual inbound link (Doc 02 §7).
             relatedLinks: [
-              ...nearbyCityServiceLinks(cities, city, service.slug, cityServicePaths),
+              ...nearbyCityServiceLinks(publishedCities, city, service.slug, cityServicePaths),
               ...localityLinks.slice(0, 6),
             ],
             data: {
@@ -489,21 +522,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     // orphan the locality (its breadcrumb/back-link points at a missing city hub).
     if (!publishedCityIds.has(sid(parent.id))) continue;
     const lid = sid(loc.id);
-    const words = countWords(loc.editorialNote);
-    const candidate: GateCandidate = {
-      pageType: 'locality',
-      hasRateCard: idx.hasCityRateCard(sid(parent.id)),
-      jobCount12m: idx.statsFor(lid).jobs12m,
-      reviewsCount: idx.reviewsFor(lid).length,
-      baseDistanceMeters: 0,
-      localContentWords: words,
-      scopedFaqCount: idx.faqsForCity(lid).length + 4, // locality FAQs seeded editorially
-      hasLocationPhotos: false,
-      namedLocalFacts: words >= 40 ? 2 : 0,
-      hasNamedCoordinator: true,
-      rateBandCount: idx.cityRateBands(sid(parent.id)).length,
-    };
-    if (!evaluateCandidate(candidate).passed) continue;
+    if (!publishedLocalityIds.has(lid)) continue; // gate evaluated in the pre-pass
 
     // Reviews render as the moving marquee (like the city page) once there are >4. A
     // locality rarely has that many of its own, so top up with the parent city's verified
@@ -532,7 +551,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             { path: '/', anchor: 'Home' },
             { path: paths.cityHub(parent.slug), anchor: parent.name },
           ],
-          relatedLinks: siblingLocalityLinks(localities, loc, parent),
+          relatedLinks: siblingLocalityLinks(localities, loc, parent, publishedLocalityIds),
           data: {
             localityName: loc.name,
             cityName: parent.name,
@@ -742,6 +761,35 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       summary: j.summary ?? '',
     }));
 
+  // ── Team (public /company/team) ────────────────────────────────────────────
+  // Opt-in: only people with `showOnTeam` ticked are published, so adding a guide
+  // author or a reviewer never silently puts them on the public page.
+  interface PersonDoc {
+    name: string;
+    role?: string;
+    bio?: string;
+    credentials?: string;
+    linkedin?: string;
+    photo?: Id | { id: Id } | null;
+    showOnTeam?: boolean;
+    teamOrder?: number;
+  }
+  const team = (await loadAll<PersonDoc>(payload, 'people'))
+    .filter((m) => m.showOnTeam === true && m.name && m.role)
+    .sort(
+      (a, b) =>
+        (a.teamOrder ?? Number.MAX_SAFE_INTEGER) - (b.teamOrder ?? Number.MAX_SAFE_INTEGER) ||
+        a.name.localeCompare(b.name),
+    )
+    .map((m) => ({
+      name: m.name,
+      role: m.role as string,
+      bio: m.bio || undefined,
+      credentials: m.credentials || undefined,
+      linkedin: m.linkedin || undefined,
+      photo: imageFor(m.photo),
+    }));
+
   // ── Editable copy for the hand-built editorial pages, looked up by key ─────
   interface PageDoc {
     key?: string;
@@ -848,6 +896,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     generatedAt: new Date().toISOString(),
     siteOrigin: siteOrigin.replace(/\/$/, ''),
     jobs,
+    team,
     editorial,
     hiddenPages,
     blog,
@@ -875,9 +924,13 @@ function siblingLocalityLinks(
   all: LocationDoc[],
   loc: LocationDoc,
   parent: LocationDoc,
+  published: Set<string>,
 ): ManifestLink[] {
   return all
-    .filter((l) => refId(l.parent) === sid(parent.id) && sid(l.id) !== sid(loc.id))
+    .filter(
+      (l) =>
+        refId(l.parent) === sid(parent.id) && sid(l.id) !== sid(loc.id) && published.has(sid(l.id)),
+    )
     .slice(0, 6)
     .map((l) => ({
       path: paths.locality(parent.slug, l.slug),

@@ -13,6 +13,11 @@ interface Props {
   intro?: string;
 }
 const { cities, heading = 'Cities we serve', intro } = Astro.props;
+// Keep the section compact as the city list grows: the first six render
+// visible, the rest ship in the HTML (crawlable) but hidden until the visitor
+// asks. With six or fewer cities no button renders.
+const VISIBLE_CITIES = 6;
+const hasMore = cities.length > VISIBLE_CITIES;
 const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?? '';
 // Prefer the city's uploaded (Cloudinary) thumbnail; fall back to the static file.
 const thumbFor = (c: ManifestLink): string =>
@@ -24,23 +29,44 @@ const thumbFor = (c: ManifestLink): string =>
   {intro && <p>{intro}</p>}
 </div>
 
-<div class="cities-grid">
+<div data-cities-block>
+  <div class="cities-grid">
+    {
+      cities.map((c, i) => (
+        <a
+          class:list={['city-card', { 'city-extra': hasMore && i >= VISIBLE_CITIES }]}
+          href={c.path}
+          hidden={hasMore && i >= VISIBLE_CITIES}
+        >
+          <span class="city-thumb">
+            <img src={thumbFor(c)} alt="" loading="lazy" width="72" height="72" />
+          </span>
+          <span class="city-body">
+            <strong>{c.anchor}</strong>
+            <small>View areas &amp; prices</small>
+          </span>
+        </a>
+      ))
+    }
+  </div>
+
   {
-    cities.map((c) => (
-      <a class="city-card" href={c.path}>
-        <span class="city-thumb">
-          <img src={thumbFor(c)} alt="" loading="lazy" width="72" height="72" />
-        </span>
-        <span class="city-body">
-          <strong>{c.anchor}</strong>
-          <small>View areas &amp; prices</small>
-        </span>
-      </a>
-    ))
+    hasMore && (
+      <div class="cities-more">
+        <button type="button" class="btn btn-ghost" data-show-cities>
+          Show all {cities.length} cities
+        </button>
+      </div>
+    )
   }
 </div>
 
 <style>
+  .cities-more {
+    margin-top: 1.1rem;
+    text-align: center;
+  }
+
   .cities-grid {
     display: flex;
     flex-wrap: wrap;

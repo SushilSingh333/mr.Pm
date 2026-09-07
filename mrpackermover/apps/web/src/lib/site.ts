@@ -22,13 +22,14 @@ export const FOOTER_COMPANY = [
   { label: 'About us', href: '/company/about', key: 'about' },
   { label: 'Blog', href: '/blog' },
   { label: 'Licences & GST', href: '/company/licences', key: 'licences' },
+  { label: 'Our team', href: '/company/team', key: 'team' },
   { label: 'Careers', href: '/company/careers' },
   { label: 'Contact', href: '/company/contact' },
 ];
 
 export const FOOTER_TRUST = [
   { label: 'Pricing', href: '/pricing' },
-  { label: 'Track your move', href: '/track' },
+  { label: 'Track your move', href: '/track', key: 'track' },
   { label: 'Verify crew & vehicle', href: '/verify' },
   { label: 'Claims & settlement', href: '/claims', key: 'claims' },
   { label: 'Transit insurance', href: '/insurance', key: 'insurance' },
@@ -59,9 +60,22 @@ export const MORE_NAV = [
     desc: 'Who we are & why',
     key: 'about',
   },
+  {
+    label: 'Our team',
+    href: '/company/team',
+    icon: 'handshake',
+    desc: 'The people behind it',
+    key: 'team',
+  },
   { label: 'Blog', href: '/blog', icon: 'doc', desc: 'Guides & moving tips' },
   { label: 'Verify us', href: '/verify', icon: 'shield-check', desc: 'Check crew & vehicle' },
-  { label: 'Track your move', href: '/track', icon: 'truck', desc: 'Live shipment status' },
+  {
+    label: 'Track your move',
+    href: '/track',
+    icon: 'truck',
+    desc: 'Live shipment status',
+    key: 'track',
+  },
   {
     label: 'Claims & settlement',
     href: '/claims',

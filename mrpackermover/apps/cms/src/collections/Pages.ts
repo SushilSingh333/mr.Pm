@@ -26,6 +26,7 @@ export const EDITORIAL_PAGE_KEYS = [
   { label: 'Corporate  (/corporate)', value: 'corporate' },
   { label: 'Contact  (/company/contact)', value: 'contact' },
   { label: 'Careers  (/company/careers)', value: 'careers' },
+  { label: 'Our team  (/company/team)', value: 'team' },
   { label: 'Services index  (/services)', value: 'services-index' },
   { label: 'Blog index  (/blog)', value: 'blog-index' },
 ];

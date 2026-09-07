@@ -7,12 +7,13 @@ import GeoHero from '../../components/sections/GeoHero.astro';
 import Band from '../../components/ui/Band.astro';
 import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
 import StatStrip from '../../components/trust/StatStrip.astro';
-import RateTable from '../../components/pricing/RateTable.astro';
 import AreasGrid from '../../components/sections/AreasGrid.astro';
 import LocalNotes from '../../components/sections/LocalNotes.astro';
 import ReviewList from '../../components/trust/ReviewList.astro';
 import RelatedLinks from '../../components/sections/RelatedLinks.astro';
 import Faq from '../../components/sections/Faq.astro';
+import fs from 'node:fs';
+import path from 'node:path';
 import { SITE_ORIGIN } from '../../lib/site.js';
 
 /** City hub. Every path comes from a manifest row — no arbitrary input (ADR-0003). */
@@ -25,6 +26,11 @@ export function getStaticPaths() {
 
 const { row } = Astro.props;
 const data = dataOf<CityHubData>(row);
+// Dedicated artwork ships for the original cities only. A city added later (the
+// north India import) falls back to the brand hero until its own photo is added,
+// instead of a broken background from a missing /images/hero/cities file.
+const cityArt = path.resolve('public/images/hero/cities', `${row.slug}.jpg`);
+const heroImage = fs.existsSync(cityArt) ? `cities/${row.slug}` : 'home';
 const areas = data.areas ?? [];
 // Localities are shown in the Areas grid, so keep RelatedLinks to services + routes.
 const otherLinks = row.relatedLinks.filter((l) => l.group !== 'localities');
@@ -46,7 +52,7 @@ const extraJsonLd = [
   <GeoHero
     h1={row.h1}
     intro={`Fixed written quotes, verified crews, and ${data.stats.jobs12m.toLocaleString('en-IN')} moves completed across ${data.cityName}. We pick up here — and deliver anywhere in India.`}
-    image={`cities/${row.slug}`}
+    image={heroImage}
     imageUrl={data.heroImage?.url}
     prefillCity={data.cityName}
     bands={data.rateBands}
@@ -56,14 +62,6 @@ const extraJsonLd = [
     <div class="section-head"><h2>Our track record in {data.cityName}</h2></div>
     <StatStrip stats={data.stats} scope={`in ${data.cityName}`} />
   </Band>
-
-  {
-    data.rateBands.length > 0 && (
-      <Band alt label="Pricing">
-        <RateTable bands={data.rateBands} heading={`${data.cityName} rate card`} />
-      </Band>
-    )
-  }
 
   {
     areas.length > 0 && (

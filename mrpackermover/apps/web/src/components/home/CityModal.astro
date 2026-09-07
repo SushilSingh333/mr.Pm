@@ -56,10 +56,14 @@ const thumbFor = (c: City): string =>
             <circle cx="12" cy="10" r="2.5"></circle>
           </svg>
         </span>
+        <!-- aria-label, not just a placeholder: a placeholder is not an accessible name
+             (it is not reliably announced and disappears once the user types), and this
+             combobox previously had no name at all. -->
         <input
           id="city-search"
           type="text"
           autocomplete="off"
+          aria-label="Search for your city, area or locality"
           role="combobox"
           aria-expanded="false"
           aria-controls="city-search-results"

@@ -20,6 +20,8 @@ const ORIGIN = manifest().siteOrigin.replace(/\/$/, '');
 const EDITORIAL_PATH_KEYS: Record<string, string> = {
   '/company/about': 'about',
   '/company/licences': 'licences',
+  '/company/team': 'team',
+  '/track': 'track',
   '/terms': 'terms',
   '/privacy': 'privacy',
   '/claims': 'claims',

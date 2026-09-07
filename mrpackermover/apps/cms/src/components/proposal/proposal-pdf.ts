@@ -335,7 +335,10 @@ const _proposalPdf = (function () {
     rrect(O,CM,y,CW,gh,10,CO.navy);
     fillRect(O,CM,y+12,4,gh-24,CO.crim);
     txt(O,CM+22,y+25,'GRAND TOTAL',11,1,CO.crimLt);
-    txt(O,CM+22,y+43,'+ GST @ '+t.gstRate+'% extra'+(t.premium>0?'      + Insurance extra':''),8.5,2,'8ea1ba');
+    // A blank GST rate means the proposal is quoted without GST, so the line is
+    // omitted instead of printing "+ GST @ 0% extra".
+    var extras=[];if(t.gstRate>0)extras.push('+ GST @ '+t.gstRate+'% extra');if(t.premium>0)extras.push('+ Insurance extra');
+    if(extras.length)txt(O,CM+22,y+43,extras.join('      '),8.5,2,'8ea1ba');
     txt(O,RX-22,y+39,gv,gsz,1,CO.white,'r');
     y+=gh+16;
     txt(O,CM,y,'IN WORDS',7.5,1,CO.crim);

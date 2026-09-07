@@ -93,6 +93,10 @@ function lex(paragraphs: string[]): unknown {
 }
 
 const dryRun = process.argv.includes('--dry-run');
+// --update-notes: for records that already exist (matched by slug), replace the
+// editorialNote with the file's version. Nothing else on the record is touched,
+// so serviceability, photos and any editor changes survive a content refresh.
+const updateNotes = process.argv.includes('--update-notes');
 const file = path.resolve(
   path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')),
   'data/locations-import.json',
@@ -169,9 +173,21 @@ for (const s of data.states) {
 }
 
 // ── Cities ──────────────────────────────────────────────────────────────────
+let refreshed = 0;
 for (const c of data.cities) {
   if (bySlug.has(c.slug)) {
-    skipped.push(`city ${c.slug}`);
+    if (updateNotes && !dryRun) {
+      await payload.update({
+        collection: 'locations',
+        id: bySlug.get(c.slug)!,
+        overrideAccess: true,
+        data: { editorialNote: lex(c.note) } as never,
+      });
+      refreshed += 1;
+      console.info(`city     ~ ${c.name} (note refreshed)`);
+    } else {
+      skipped.push(`city ${c.slug}`);
+    }
     continue;
   }
   const stateId = bySlug.get(c.state);
@@ -227,7 +243,18 @@ for (const [citySlug, stateSlug] of Object.entries(data.linkExistingCityToState)
 // ── Localities ──────────────────────────────────────────────────────────────
 for (const l of data.localities) {
   if (bySlug.has(l.slug)) {
-    skipped.push(`locality ${l.slug}`);
+    if (updateNotes && !dryRun) {
+      await payload.update({
+        collection: 'locations',
+        id: bySlug.get(l.slug)!,
+        overrideAccess: true,
+        data: { editorialNote: lex(l.note) } as never,
+      });
+      refreshed += 1;
+      console.info(`locality ~ ${l.name} (note refreshed)`);
+    } else {
+      skipped.push(`locality ${l.slug}`);
+    }
     continue;
   }
   const cityId = bySlug.get(l.city);
@@ -259,7 +286,7 @@ for (const l of data.localities) {
 console.info(
   `\n${dryRun ? 'DRY RUN — nothing written. Would create' : 'Created'}: ` +
     `${created.states} states, ${created.cities} cities, ${created.localities} localities. ` +
-    `Skipped (already exist): ${skipped.length}${skipped.length ? ` [${skipped.slice(0, 6).join(', ')}${skipped.length > 6 ? ', ...' : ''}]` : ''}`,
+    `Notes refreshed: ${refreshed}. Skipped: ${skipped.length}${skipped.length ? ` [${skipped.slice(0, 6).join(', ')}${skipped.length > 6 ? ', ...' : ''}]` : ''}`,
 );
 console.info(
   'Reminder: records are not pages. A city page publishes only after it has a rate card, ' +

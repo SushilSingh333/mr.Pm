@@ -85,6 +85,20 @@ export function cacheTagFor(pageType: PageType, citySlug?: string): string {
 /** The publish-gate pass threshold (Doc 01 §6). Weights live in the CMS. */
 export const PUBLISH_GATE_THRESHOLD = 60;
 
+/**
+ * Per-page-type overrides of the pass threshold. Owner decision (Sep 2026): rate
+ * cards are no longer part of city pages, and a city or locality earns its URL
+ * through written local content instead of pricing plus review evidence. The
+ * mandatory blocks in the CMS publish gate still apply (400+ words for a city
+ * hub, named local facts for a locality); these lower bars simply stop the score
+ * from double-charging pages for the rate card and review points they can no
+ * longer hold. Types not listed here keep the default above.
+ */
+export const PUBLISH_GATE_THRESHOLDS: Partial<Record<string, number>> = {
+  'city-hub': 30,
+  locality: 20,
+};
+
 /** Duplication ceiling: fail the build if the median 8-gram Jaccard exceeds this. */
 export const DUPLICATION_CEILING = 0.45;
 

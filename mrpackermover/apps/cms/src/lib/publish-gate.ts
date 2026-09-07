@@ -1,4 +1,4 @@
-import { PUBLISH_GATE_THRESHOLD, type PageType } from '@mpm/shared';
+import { PUBLISH_GATE_THRESHOLD, PUBLISH_GATE_THRESHOLDS, type PageType } from '@mpm/shared';
 
 /**
  * The publish gate (Doc 01 §6 + Excel Content Spec).
@@ -69,15 +69,16 @@ export function missingMandatoryBlocks(c: GateCandidate): string[] {
   const missing: string[] = [];
   switch (c.pageType) {
     case 'locality':
-      if (c.rateBandCount < 3) missing.push('Rate band for 1BHK/2BHK/3BHK');
+      // Owner decision (Sep 2026): localities publish on written local content.
+      // Rate bands are no longer shown on city pages, and review evidence
+      // accumulates after launch rather than gating it.
       if (c.namedLocalFacts < 2) missing.push('≥ 2 named local facts');
-      if (c.reviewsCount < 3) missing.push('≥ 3 genuine local reviews');
       if (c.scopedFaqCount < 4) missing.push('4–6 locality-specific FAQs');
       if (!c.hasNamedCoordinator) missing.push('Named coordinator with direct contact');
       break;
     case 'city-hub':
-      if (!c.hasRateCard) missing.push('Full city rate card');
-      if (c.reviewsCount < 10) missing.push('≥ 10 genuine city reviews');
+      // Owner decision (Sep 2026): a city hub earns its URL with substantial
+      // written coverage; rate cards and pre-launch reviews are not required.
       if (c.localContentWords < 400) missing.push('Substantial city coverage content');
       break;
     case 'city-service':
@@ -100,6 +101,8 @@ export function evaluateCandidate(c: GateCandidate): GateResult {
   const breakdown = scoreCandidate(c);
   const score = breakdown.reduce((sum, item) => (item.met ? sum + item.points : sum), 0);
   const missingMandatory = missingMandatoryBlocks(c);
-  const passed = score >= PUBLISH_GATE_THRESHOLD && missingMandatory.length === 0;
+  const passed =
+    score >= (PUBLISH_GATE_THRESHOLDS[c.pageType] ?? PUBLISH_GATE_THRESHOLD) &&
+    missingMandatory.length === 0;
   return { score, passed, breakdown, missingMandatory };
 }

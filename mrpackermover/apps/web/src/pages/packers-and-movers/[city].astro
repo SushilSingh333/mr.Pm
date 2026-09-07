@@ -51,17 +51,28 @@ const extraJsonLd = [
 
   <GeoHero
     h1={row.h1}
-    intro={`Fixed written quotes, verified crews, and ${data.stats.jobs12m.toLocaleString('en-IN')} moves completed across ${data.cityName}. We pick up here — and deliver anywhere in India.`}
+    intro={data.stats.jobs12m > 0
+      ? `Fixed written quotes, verified crews, and ${data.stats.jobs12m.toLocaleString('en-IN')} moves completed across ${data.cityName}. We pick up here — and deliver anywhere in India.`
+      : `Fixed written quotes and verified crews in ${data.cityName}. We pick up here — and deliver anywhere in India.`}
     image={heroImage}
     imageUrl={data.heroImage?.url}
     prefillCity={data.cityName}
     bands={data.rateBands}
   />
 
-  <Band label="Serviceability">
-    <div class="section-head"><h2>Our track record in {data.cityName}</h2></div>
-    <StatStrip stats={data.stats} scope={`in ${data.cityName}`} />
-  </Band>
+  {
+    /* A newly launched city has no completed-job data yet. Claiming a track
+       record with zeros would contradict the site's own honesty pitch, so the
+       band appears only once real numbers exist. */
+    data.stats.jobs12m > 0 && (
+      <Band label="Serviceability">
+        <div class="section-head">
+          <h2>Our track record in {data.cityName}</h2>
+        </div>
+        <StatStrip stats={data.stats} scope={`in ${data.cityName}`} />
+      </Band>
+    )
+  }
 
   {
     areas.length > 0 && (

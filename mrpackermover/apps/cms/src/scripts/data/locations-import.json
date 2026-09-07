@@ -1,19 +1,31 @@
 {
   "_readme": "Bulk location import for the north India expansion. Review before running against production: set serviceable to false for any city that has no crew yet, and adjust tiers if needed. Notes render on the public city and locality pages once a page clears the publish gate, so keep them honest and local. Slugs are unique across the whole locations collection. Coordinates are set here on purpose because the geocoder only queries by bare name and would place generic names like Sector 13 in the wrong city.",
-
   "states": [
-    { "name": "Uttar Pradesh", "slug": "uttar-pradesh" },
-    { "name": "Bihar", "slug": "bihar" },
-    { "name": "Uttarakhand", "slug": "uttarakhand" },
-    { "name": "Himachal Pradesh", "slug": "himachal-pradesh" },
-    { "name": "Haryana", "slug": "haryana" }
+    {
+      "name": "Uttar Pradesh",
+      "slug": "uttar-pradesh"
+    },
+    {
+      "name": "Bihar",
+      "slug": "bihar"
+    },
+    {
+      "name": "Uttarakhand",
+      "slug": "uttarakhand"
+    },
+    {
+      "name": "Himachal Pradesh",
+      "slug": "himachal-pradesh"
+    },
+    {
+      "name": "Haryana",
+      "slug": "haryana"
+    }
   ],
-
   "linkExistingCityToState": {
     "noida": "uttar-pradesh",
     "gurgaon": "haryana"
   },
-
   "cities": [
     {
       "name": "Ghaziabad",
@@ -25,7 +37,10 @@
       "lng": 77.4538,
       "note": [
         "Ghaziabad sits right on the Delhi border, so most moves here are either families shifting in from Delhi rentals or households moving between the big society clusters of Indirapuram, Vaishali, Vasundhara and Raj Nagar Extension. High rise towers dominate, which means service lifts, tower gate passes and society entry timings decide how smoothly a move goes.",
-        "NH 24 and the elevated road carry almost every truck in and out of the city. Weekday mornings are slow near the UP Gate crossing, so crews plan loading either early or after the office rush. Societies in Ghaziabad usually ask for mover entry approval a day in advance, and we sort that paperwork with the RWA before the truck reaches the gate."
+        "NH 24 and the elevated road carry almost every truck in and out of the city. Weekday mornings are slow near the UP Gate crossing, so crews plan loading either early or after the office rush. Societies in Ghaziabad usually ask for mover entry approval a day in advance, and we sort that paperwork with the RWA before the truck reaches the gate.",
+        "Beyond the tower belts, older Ghaziabad still moves the traditional way. Kavi Nagar, Nehru Nagar and Raj Nagar proper are plotted colonies of two and three storey family houses, where the job is stair carry and courtyard loading rather than lift bookings. Kaushambi sits at the metro end with a mix of offices and flats, and Crossings Republik on the NH 24 side adds another wall of societies every year. The two halves of the city need different crews and different vehicles, which is why the survey always asks for the exact block, not just the area name.",
+        "Moving day in Ghaziabad is a timing exercise. The elevated road is the fast lane across the city but takes light vehicles only, so loaded trucks work the ground route past Vijay Nagar and plan around the school run and the office rush. Sahibabad brings industrial traffic into the mix through the day. Most societies want the mover entry request lodged with the RWA or the facility office a day ahead, along with crew ID lists, and the service lift booked in a fixed window. When those three are set in advance the loading itself is usually done inside a morning.",
+        "The city is one of the busiest moving corridors in the country because three destinations sit at its door. Delhi is minutes away, Noida and Greater Noida connect through the link roads, and Meerut is under an hour up the expressway. The new regional rail has pulled even more families into the belt. Monsoon needs care, since the underpasses near Vaishali hold water after heavy rain and a loaded truck should not attempt them. Month ends and weekends book out first, so a midweek date usually gets a better slot and a calmer society gate."
       ]
     },
     {
@@ -38,7 +53,11 @@
       "lng": 77.504,
       "note": [
         "Greater Noida is a city of new possessions. A large share of moves here are first time shifts into freshly delivered towers around Pari Chowk, Zeta, Alpha and the sectors of Greater Noida West. New towers often have unfinished service lifts or single working lifts, so the survey checks lift status before we fix the crew size.",
-        "Wide sector roads and the Noida Greater Noida Expressway make truck access easy compared to older cities. The common friction point is society formalities in newly handed over projects, where maintenance offices are still setting their rules. We confirm gate permissions and interior work timings with the builder office before moving day."
+        "Wide sector roads and the Noida Greater Noida Expressway make truck access easy compared to older cities. The common friction point is society formalities in newly handed over projects, where maintenance offices are still setting their rules. We confirm gate permissions and interior work timings with the builder office before moving day.",
+        "The lettered sectors of the original city, Alpha, Beta, Gamma and Delta, are settled now, with plotted houses and low rise flats where loading is simple and parking is generous. The newer story is vertical. Tower clusters along the expressway and in Greater Noida West hand over possession in waves, and each wave brings hundreds of families in the same quarter. Knowledge Park adds student and faculty movement around its campuses each session. A move here is rarely difficult on the road side. The work is inside the tower, in the queue for the one working service lift.",
+        "Plan a Greater Noida move around the society office rather than the traffic. Roads are wide, roundabouts keep vehicles flowing, and a truck can reach almost any tower gate without trouble. What slows a job is paperwork at a newly handed over project, where the builder office, not an RWA, still controls entry and may allow interior work and shifting only in fixed hours. We collect that approval before the crew leaves, and we carry floor protection sheets because new lobbies attract damage charges faster than old ones.",
+        "The city sits on the Yamuna Expressway with Agra a straight run south and the new airport at Jewar changing the map around it. Moves in are mostly first possession from Delhi, Noida and Ghaziabad. Moves out often follow job changes toward Gurgaon or Bengaluru. Dust is the season to respect here. In the dry months a loaded truck picks up a film of fine dust on any open stretch, so wardrobes and mattresses travel in covered wrap as standard. Weekday mornings are the easiest slots, and possession season weekends are the hardest.",
+        "Booking here works best in two calls. The first fixes the survey, which in a tower city can happen on video without losing accuracy, and the second confirms the society slot once the maintenance office replies. Families moving within the city, from a rented flat in one cluster to a bought one in another, make up a rising share of the work, and those short hops still deserve the same written quote as a long haul."
       ]
     },
     {
@@ -51,7 +70,11 @@
       "lng": 80.9462,
       "note": [
         "Lucknow mixes two very different kinds of moves. Gomti Nagar, Indira Nagar and the newer townships along Shaheed Path are apartment moves with lifts and society rules. Old Lucknow around Chowk and Aminabad is a different job, with narrow lanes where a large truck cannot reach the door and goods travel the last stretch on smaller vehicles.",
-        "The city is a major posting and transfer centre for government staff and bank employees, so end of month and academic season dates fill up early. Our survey notes the lane width at both ends of the move, which decides whether we quote a direct truck or a shuttle arrangement."
+        "The city is a major posting and transfer centre for government staff and bank employees, so end of month and academic season dates fill up early. Our survey notes the lane width at both ends of the move, which decides whether we quote a direct truck or a shuttle arrangement.",
+        "Each side of Lucknow moves differently. Hazratganj and the civil lines carry old bungalows with deep verandahs and heavy furniture that has not left the house in decades. Aliganj, Indira Nagar and Jankipuram are the settled middle of the city, block after block of family homes with rooftop water tanks and stair carry. South, along Shaheed Path, the new Lucknow of Sushant Golf City and the airport belt runs on tower rules and service lifts. Ashiyana and Alambagh connect the two eras. The survey settles which Lucknow a home belongs to before anything is priced.",
+        "Crossing the Gomti decides many schedules. The bridges bunch up in the morning and evening, so a move from the trans Gomti colonies to the airport side is loaded either early or after lunch. VIP movements around the secretariat can hold traffic without notice, and crews here know the diversions well enough to route around them. In the old city, from Chowk to Aminabad, goods travel by handcart and small tempo to a truck point on the main road, and that carry is written into the quote line by line.",
+        "Lucknow is a posting city, and its calendar shows it. Bank, government and university transfers cluster at quarter ends and academic breaks, and the wedding season empties the truck market for days at a time, so confirmed dates matter more here than in most cities. The Agra expressway has put Delhi within a single day run and Kanpur is barely an hour away, which makes part household moves between the two cities common. Summer loading starts at first light to beat the heat, and langra season fills every spare corner of a truck with mango boxes.",
+        "First time customers here often ask whether the old city surcharge is negotiable, and the honest answer is that it is not a surcharge at all, it is labour counted in advance. A Chowk address simply needs more hands and more hours than a Gomti Nagar tower, and writing that into the quote is what keeps moving day free of arguments. The city rewards that candour, and most of our Lucknow work arrives by word of mouth."
       ]
     },
     {
@@ -64,7 +87,11 @@
       "lng": 80.3319,
       "note": [
         "Kanpur is the industrial anchor of Uttar Pradesh, and household moves here often travel with a small office or shop component in the same load. Residential shifting concentrates around Swaroop Nagar, Kakadeo, Kalyanpur and Kidwai Nagar, where older independent houses with staircases are as common as new apartments.",
-        "GT Road and the highway toward Lucknow carry the heavy traffic, and the stretch through the city centre stays busy most of the day. Older houses in Kanpur often have steep internal stairs and rooftop storage, so our surveys pay extra attention to carry distance and stair work before the price is written."
+        "GT Road and the highway toward Lucknow carry the heavy traffic, and the stretch through the city centre stays busy most of the day. Older houses in Kanpur often have steep internal stairs and rooftop storage, so our surveys pay extra attention to carry distance and stair work before the price is written.",
+        "Kanpur homes hold more than most. The trading families of Swaroop Nagar and Civil Lines keep large houses with iron almirahs, showcases and stock that has accumulated across generations. Govind Nagar and Shyam Nagar to the south are dense plotted colonies where lanes tighten and a smaller vehicle bridges the last stretch. Kalyanpur and the IIT side add campus households with libraries and instruments. Panki and Dada Nagar are working belts where a house move often shares the day with a factory shifting job next door.",
+        "GT Road is the spine and the problem. The stretch through the city crawls from late morning, so loaded movement aims for the early window or the evening clearance. The Ganga bridge crossings toward Unnao and Shuklaganj carry their own queues. Inside the bazaars, Birhana Road and the cloth markets are handcart territory through business hours. Older Kanpur houses have steep internal stairs and rooftop store rooms, and the stair count changes the crew size, so we count it during the survey rather than argue about it on moving day.",
+        "Winter fog is the season to plan around. December and January mornings can hold a highway convoy for hours, so long moves out of Kanpur in those months carry a buffer day rather than a promise that the weather will ignore. The Lucknow expressway link keeps the capital an easy hop and Delhi a single long day. Leather and hosiery trade shipments move constantly toward both, and household loads often ride the same corridors. Any home near the tannery belt gets sealed double wrap on soft furnishings as a standard step, not an extra.",
+        "A useful habit for Kanpur customers is the pre survey photograph. Pictures of the staircase, the street outside and the heaviest three items let the estimate land right the first time, because this city's homes hide their weight indoors. Trade families here often phase a move across two weekends, house first, stock second, and the quote can be split the same way so each day has its own plan and its own vehicle."
       ]
     },
     {
@@ -77,7 +104,11 @@
       "lng": 78.0081,
       "note": [
         "Agra moves cluster around Dayalbagh, Sikandra, Kamla Nagar and the cantonment side. The city has a large trading community, so a typical job here can include showroom stock or workshop tools along with the household. Yamuna Expressway keeps Delhi and Noida within a comfortable single day round trip.",
-        "Areas near the old city and the monuments have vehicle restrictions and timed entry for commercial trucks. When a home falls inside those zones we plan the move around permitted hours and use smaller vehicles for the final leg, and that plan is agreed in the written quote rather than decided on moving day."
+        "Areas near the old city and the monuments have vehicle restrictions and timed entry for commercial trucks. When a home falls inside those zones we plan the move around permitted hours and use smaller vehicles for the final leg, and that plan is agreed in the written quote rather than decided on moving day.",
+        "Agra living splits between the settled north and the tourist core. Kamla Nagar, Khandari and Dayalbagh in the north are calm colonies with straightforward truck access, and the university and medical college keep a steady churn of staff households there. Shahganj and the dense wards near the fort are old trading quarters where lanes decide the vehicle. Taj Ganj, pressed against the monument, lives under the tightest rules in the city. The cantonment brings its own gate procedures and a regular cycle of service families arriving and leaving.",
+        "The monument zone shapes logistics like nowhere else in the state. Areas near the Taj restrict polluting vehicles and hold commercial entry to fixed hours, so a household inside the zone moves on battery or CNG vehicles for the last leg, at the times the rules allow. The inner ring road and the bypass keep through trucks out of the centre. Marble inlay pieces, a signature of Agra homes, are packed like glass, boxed singly with corner guards, because one careless mile undoes a craftsman's month.",
+        "Few cities connect better. The Yamuna Expressway puts Delhi and Greater Noida within a comfortable morning run, the Lucknow expressway opens the east, and Gwalior sits an easy drive south. That is why Agra works both as a destination and as a staging point for longer moves across the belt. Tourist season thickens traffic near the river from October to March, and summer afternoons are brutal for loading, so crews here start at dawn by habit. Petha boxes will always find space in the cab on the way out, and we have stopped fighting it.",
+        "Ask about the zone before you book a date. A home inside the restricted belt moves on different vehicles and different hours than one in Kamla Nagar, and five minutes on the map settles which rules apply. Wedding season fills the city's transport from November, so winter moves benefit from early confirmation, while the deep summer weeks often have same week slots for anyone willing to load at sunrise."
       ]
     },
     {
@@ -90,7 +121,11 @@
       "lng": 82.9739,
       "note": [
         "Varanasi is one of the trickiest cities in the country for door to door trucking, and honest planning matters more here than anywhere. Homes in the old city near the ghats sit on lanes where nothing larger than a handcart fits, so goods are carried out to the nearest motorable point before loading. Newer areas like Sigra, Mahmoorganj and the colonies toward BHU in Lanka are straightforward truck jobs.",
-        "The ring road has improved long distance movement, but inside the city the day is shaped by congestion near Godowlia and the station. Our quote for an old city address always states the carry distance in writing so the price holds."
+        "The ring road has improved long distance movement, but inside the city the day is shaped by congestion near Godowlia and the station. Our quote for an old city address always states the carry distance in writing so the price holds.",
+        "Modern Varanasi lives west of the old city. Bhelupur, Sigra and Mahmoorganj carry apartment blocks and marriage halls on roads a truck can actually use, and Sunderpur and the DLW side add planned colony order. The university belt at Lanka runs on the academic year, with faculty bungalows inside the campus wall and student floors outside it. Then there is the Varanasi of the ghats, where addresses are reached on foot through galis older than any map, and where moving is a relay of shoulders, handcarts and patience.",
+        "Nothing in the old city moves in a straight line. A household near Dashashwamedh or Manikarnika loads onto handcarts that thread the lanes to the nearest motorable point, and the evening aarti hours close even that window on the river side. Godowlia and the station approaches crawl through the day. The ring road has finally given through traffic a way around the city, which helps long moves, but the last kilometre inside Varanasi is still the slowest kilometre in the state, and the quote prices it honestly.",
+        "Timing a Varanasi move means reading the city's calendar. Sawan fills the roads with kanwariyas, Dev Deepawali floods the riverfront, and any big snan can lock the ghats side for a day. The corridors run west to Lucknow and Prayagraj, east toward Bihar and Kolkata, all improved by the highway ring. Homes here carry brass, silk and books in quantities other cities do not, and each has its own packing discipline. Banarasi saris travel flat in tissue, never folded hard, and the loom families will check before they sign anything.",
+        "Customers in the old city sometimes apologise for their lanes, and they never need to. The relay method is standard practice here, priced by carry distance and crew count, and it works because it has been the city's way for centuries. What helps most is an honest word about the timing of household aartis and shop hours on the lane, so the carry runs when the gali is quietest and nobody's shutter blocks a doorway."
       ]
     },
     {
@@ -103,7 +138,11 @@
       "lng": 81.8463,
       "note": [
         "Prayagraj is a city of institutions. The High Court, the university and a dense band of government offices mean a steady flow of transfer postings, and many of our jobs here are timed to joining dates. Civil Lines and George Town carry the classic large bungalow move, while Naini across the river is growing with newer flats and industrial staff housing.",
-        "The Yamuna and Ganga bridges are the pinch points, and a move that crosses the river is planned outside peak hours. During the big religious gatherings the city changes completely, routes close and schedules shift, so in those weeks we confirm dates with extra care."
+        "The Yamuna and Ganga bridges are the pinch points, and a move that crosses the river is planned outside peak hours. During the big religious gatherings the city changes completely, routes close and schedules shift, so in those weeks we confirm dates with extra care.",
+        "The civic heart of Prayagraj was planned wide. George Town, Tagore Town and Civil Lines hold professor and lawyer households in bungalows with libraries that outweigh the furniture, and Ashok Nagar and Mumfordganj continue the pattern in a denser grid. Across the rivers the city has grown twins. Jhunsi on the Ganga side and Naini on the Yamuna side both stack new flats beside old industry, and both depend on their bridges. The university and the High Court set the city's rhythm, and half the moves here follow a posting order or an enrolment letter.",
+        "Bridges rule the schedule. The old Naini bridge queues at both ends, the newer six lane crossing eases it but draws everything to itself, and a move that crosses either river is planned outside court hours and school hours alike. Within the civic grid, roads are generous and loading is easy by UP standards. The one immovable date is the Magh Mela. For a month each winter the riverside becomes a tented city, routes redraw themselves, and any move near the sangam side works around the mela's traffic plan, not the other way round.",
+        "Prayagraj moves are heavy with paper in the most literal sense. Judges' households, professors' studies and coaching libraries ship cartons of books by the hundred, and the crew that packs them numbers every box against a list because unpacking a library out of order is its own small disaster. The corridors are kind. Lucknow, Varanasi and the Vindhya side are all short hauls, and Delhi is one long expressway day. Summer here is fierce and power cuts ride with it, so inverters and batteries are packed last and unloaded first at the other end.",
+        "Two practical notes for booking here. Court term dates decide the traffic around Civil Lines, so a mid vacation move often saves an hour each way, and during the mela months the sensible plan books the truck for the city side and lets smaller vehicles handle anything near the riverfront grounds. Families here keep meticulous lists, which suits our method perfectly, and the handover at both ends runs against the same numbered inventory."
       ]
     },
     {
@@ -116,7 +155,11 @@
       "lng": 77.7064,
       "note": [
         "Meerut works as the trading capital of west Uttar Pradesh, and the new expressway has pulled it firmly into the Delhi orbit. Moves to and from NCR make up a large share of the work here. Shastri Nagar, Pallavpuram and Ganga Nagar are the main residential belts, mixing independent houses with a growing line of apartment projects.",
-        "The inner city around Abu Lane and the bazaar streets is congested through business hours, so loading there happens early morning. Sports goods and scissors trades mean many homes double as small workshops, and our survey lists machine and stock items separately so the vehicle size is right."
+        "The inner city around Abu Lane and the bazaar streets is congested through business hours, so loading there happens early morning. Sports goods and scissors trades mean many homes double as small workshops, and our survey lists machine and stock items separately so the vehicle size is right.",
+        "Meerut is the market that never quite sleeps. The sports goods and scissors workshops of the inner city run right against the bazaars, and a large share of homes double as workplaces, with stock and machines sharing rooms with beds and almirahs. Shastri Nagar and Ganga Nagar hold the settled residential blocks, Saket and the cantonment add order and old trees, and Pallavpuram stretches the city north toward Modipuram. The survey here always lists business goods separately from the household, because mixing them muddles both the load plan and the insurance.",
+        "The Delhi road bears the weight of the city's ambition and its jams. Through trucks take the bypass, and local loading avoids the market hours around Abu Lane and Budhana Gate, where handcarts own the road. The expressway entry at Modipuram changed everything for long moves, and homes on that side load straight onto the fast corridor. In sugarcane season, tractor trolleys queue outside the mills on the rural edges and rural pickups plan an extra hour, a small local truth every crew here learns in the first winter.",
+        "Meerut to Delhi is now a commuter run, and the regional rail is pulling the two cities closer each year, so cross NCR household swaps fill much of the calendar. Wedding season is the other force. The city's band and catering trades book vehicles solid through the saya dates, and moving trucks become scarce in exactly those weeks, which makes early booking worth real money. Loads out of Meerut regularly carry cricket kit, gym sets and workshop tools, all steel and awkward corners, and the crews pad them like they pad glass.",
+        "The best Meerut bookings name the goods honestly at survey time. A wardrobe is a wardrobe anywhere, but here the follow up question is about the workshop, the stock room and the gym set on the roof, because those decide the vehicle more often than the furniture does. Give the crew a true picture and the quote holds to the rupee, which is the whole point of writing it down."
       ]
     },
     {
@@ -129,7 +172,11 @@
       "lng": 85.1376,
       "note": [
         "Patna is the gateway for almost every household move in Bihar. Kankarbagh, one of the largest colonies in Asia, together with Boring Road, Rajendra Nagar and Bailey Road, generates most of the residential work. The city runs long and narrow along the Ganga, so a move from the east side to Danapur in the west can take longer than the distance suggests.",
-        "Ashok Rajpath and the station area stay crowded through the day, and monsoon waterlogging in low lying colonies is a real planning factor in July and August. Many families here also book moves toward Delhi and Bengaluru for work and study, so our interstate paperwork is kept ready as a standard part of the quote."
+        "Ashok Rajpath and the station area stay crowded through the day, and monsoon waterlogging in low lying colonies is a real planning factor in July and August. Many families here also book moves toward Delhi and Bengaluru for work and study, so our interstate paperwork is kept ready as a standard part of the quote.",
+        "Patna runs long against the Ganga, and distance inside the city fools outsiders. Kankarbagh alone is the size of a small town, Rajendra Nagar and Boring Road hold the professional class in flats stacked over clinics and coaching centres, Bailey Road carries the government quarters, and Patliputra Colony keeps its old bungalow calm. East, the lanes of Patna City are another century, reached by handcart and goodwill. A move from the west side to Danapur can take longer than the run to Muzaffarpur, and the schedule respects that.",
+        "The city's pressure points are known by name. Ashok Rajpath is dense from morning to night, the station area knots at school hours, and the flyover works reroute traffic month by month. Freight crossing the river queues for the bridges toward Hajipur, and a north Bihar move builds that queue into the day. Monsoon is the real examiner. Low colonies hold water for days in a heavy year, and an experienced crew walks the lane the evening before rather than discovering the depth with a loaded truck.",
+        "Everything in Bihar eventually touches Patna, and the moving trade is no exception. Households from the districts stage here for the long runs to Delhi, Pune and Bengaluru, and returning families land here first. Chhath is the fixed point of the calendar. For that week the city belongs to the ghats, roads close in rings, and no sensible move is scheduled against it. The rest of the year, corridors run smooth toward Gaya, Muzaffarpur and the highway junctions, and an early start beats both the heat and the traffic.",
+        "For Patna bookings the single most useful detail is the lane width at both addresses, told plainly at survey time. The city's colonies range from truck friendly avenues to passages a rickshaw squeezes through, and the right vehicle mix planned in advance saves hours on the day. Long haul customers should also keep one document folder aside, unpacked, because interstate checkposts occasionally want papers faster than a packed carton can give them up."
       ]
     },
     {
@@ -142,7 +189,11 @@
       "lng": 85.0002,
       "note": [
         "Gaya pairs an old temple town with a fast growing modern edge. Homes near the Vishnupad temple sit in tight lanes where careful hand carry is part of the job, while A P Colony and the areas along the Bodh Gaya road offer normal truck access. Bodh Gaya itself brings steady moves connected to monasteries, hotels and institutes.",
-        "The city connects well by NH 22 toward Patna, and most long moves route through that corridor. Pilgrimage season lifts traffic sharply around the temple zone, so moves in that pocket are planned for early hours with the route agreed the day before."
+        "The city connects well by NH 22 toward Patna, and most long moves route through that corridor. Pilgrimage season lifts traffic sharply around the temple zone, so moves in that pocket are planned for early hours with the route agreed the day before.",
+        "Gaya's two halves could not be less alike. The civic side around A P Colony and the Delha region lives in orderly lanes with normal truck work, and the collectorate belt keeps a steady rotation of officer households. The temple city near Vishnupad is dense, sloped toward the Falgu, and moves there are carried by hand past doorways that have never seen a vehicle. Bodh Gaya, a short run south, is its own world of monasteries, institutes and hotels, with a resident international community that moves on retreat calendars rather than Indian seasons.",
+        "Pitru Paksha changes everything for a fortnight. Pilgrims arrive in lakhs, the riverside roads close in sequence, and the town's rickshaws and lodges run beyond capacity, so household moves in that window either finish before it or wait it out. The rest of the year the pinch points are the Falgu bridges and the market spine, both best crossed before ten. Monastery moves carry their own care, with thangkas rolled in cloth, statues boxed upright and libraries in numbered cartons, and the lamas will inspect the wrap before the first box leaves.",
+        "As a corridor city, Gaya works cleanly. The highway north to Patna is quick, the Grand Chord rail line makes it a natural handover point, and the airport connects the Buddhist circuit through the winter season. Loads out of Gaya lean toward Delhi and the south, following students and service families. Summer here is among the hottest in the state, and afternoon loading is simply avoided in May and June. Winter mornings bring their own charm, and their own fog delays on the Dobhi stretch, which the schedule absorbs rather than denies.",
+        "Booking around the pilgrimage calendar is half the wisdom here. The fortnight of Pitru Paksha is best left to the pilgrims, and the weeks on either side of it are the calmest of the year for a temple side address. Bodh Gaya moves should mention the monastery or institute by name at survey time, since each has its own gate practice, and a call ahead from the office smooths the crew's arrival."
       ]
     },
     {
@@ -155,7 +206,11 @@
       "lng": 85.3906,
       "note": [
         "Muzaffarpur is the hub of north Bihar, and moves here often connect smaller towns of the region to Patna, Delhi and Kolkata. Mithanpura, Bhagwanpur and the club road side hold the main residential colonies, a mix of older family houses and newer flats above shops.",
-        "The town centre around Motijheel is dense and slow moving for anything bigger than a tempo, so larger trucks stage on the bypass and shuttle vehicles cover the last kilometre. Power backup items like inverters and stabilisers travel in almost every load here, and they are packed and listed separately so nothing fragile is buried."
+        "The town centre around Motijheel is dense and slow moving for anything bigger than a tempo, so larger trucks stage on the bypass and shuttle vehicles cover the last kilometre. Power backup items like inverters and stabilisers travel in almost every load here, and they are packed and listed separately so nothing fragile is buried.",
+        "Muzaffarpur is north Bihar's meeting point, and its homes show a trading city's habits. Mithanpura and Club Road hold the established families, with clinics and schools woven between houses, while Brahmpura and Bhagwanpur catch the newer growth toward the bypass. Many households run a shop or agency from the ground floor, so moves here often lift a business and a home in one operation, and the packing list keeps ledgers and stock apart from kitchens and cupboards. The litchi orchards on the fringes mark the city's edge and its sweetest export.",
+        "Inside the town, Motijheel and the station road belong to handcarts and rickshaws through the day, and anything larger stages on the outer roads. The bypass has eased through traffic, but local moving still runs on morning discipline. Power reliability shapes the load itself, since nearly every home ships an inverter and a battery bank, and those travel upright, charged down, and clear of anything that minds an acid smell. In the wet months the Burhi Gandak asserts itself and low lanes hold water, so the crew checks the route the evening before.",
+        "The corridors from Muzaffarpur fan across the north, to Sitamarhi, Darbhanga and the border districts, and south over the river to Patna. Long moves toward Delhi and Kolkata are a nightly rhythm on the highway. Flood season needs honest planning rather than bravado, and a monsoon week can shift a date without shame. The city's calendar peaks at marriage seasons and at the litchi harvest, when transport tightens across the district and a confirmed booking is worth far more than a cheap one.",
+        "A Muzaffarpur booking runs smoothest when the shop and the home are surveyed together, even if only the home is moving, because shared walls and shared staircases decide the working space. Customers here value a fixed figure over a low figure, having heard enough stories of quotes that grew on the highway, and the written number we give at survey is the number the family pays at the door."
       ]
     },
     {
@@ -168,7 +223,11 @@
       "lng": 86.9842,
       "note": [
         "Bhagalpur anchors eastern Bihar and is famous for its silk weaving houses, which means moves here regularly include looms, thread stock and finished fabric that need dry, careful packing. Adampur and Tatarpur are the busy residential pockets, with the university area adding a steady rhythm of staff and student shifts.",
-        "Road connections run west toward Patna and east into Bengal, and the Vikramshila bridge is the key crossing for anything north of the river. Old market lanes limit truck entry in the heart of the town, so surveys here always settle the loading point before the price is fixed."
+        "Road connections run west toward Patna and east into Bengal, and the Vikramshila bridge is the key crossing for anything north of the river. Old market lanes limit truck entry in the heart of the town, so surveys here always settle the loading point before the price is fixed.",
+        "Silk is not a slogan in Bhagalpur, it is the load itself. Weaving households in Nathnagar and the Champa Nagar side keep looms, warps and finished tussar in the same rooms as their furniture, and a move there is planned around the loom first, everything else second. Adampur and the university belt hold teachers, officers and old trading families, while Barari stretches the city along the Ganga with newer flats. Tilka Manjhi's campus sets a session rhythm of arrivals and departures that the moving calendar follows.",
+        "The Vikramshila setu is the city's one great gate. Everything crossing the Ganga queues for it, and a move to or from the north bank builds that queue into the plan, early or late, never midday. Inside town, the cloth market lanes are for handcarts, and the highway skirts the city close enough that staging on it is simple. Monsoon lifts the river into the city's lowest streets in a strong year, and crews here read the water like farmers, moving dates rather than risking loads.",
+        "Bhagalpur's corridors run long. West to Patna, east into Bengal, and outward with the silk trade to Delhi, Mumbai and the export houses, so the packing standard here is set by fabric, not furniture. Tussar travels rolled, interleaved and dry, in cases that never meet the floor of the truck without a pallet. Student season and the wedding months tighten vehicle supply, and the smart booking lands midweek. It is a city where the crew learns patience at the bridge and precision at the loom, in that order.",
+        "Weaving households booking a move should walk the crew through the loom room first, since dismantling order matters and the warp must be secured before anything else in the house is touched. For everyone else the advice is simpler, book against the bridge queue rather than the clock, and let the crew choose the crossing hour. The city's pace is unhurried, and a move planned with that grain finishes faster than one planned against it."
       ]
     },
     {
@@ -181,7 +240,11 @@
       "lng": 85.8918,
       "note": [
         "Darbhanga is rising quickly since the airport opened, pulling families back to the region and lifting demand for proper household shifting. Laheriasarai and Donar carry most of the residential work, with a mix of heritage houses around the old estates and plain new construction along the ring roads.",
-        "The town floods easily in a heavy monsoon, and experienced planning around drainage prone stretches saves hours on a bad day. Many moves here are long distance, toward Delhi, Patna or further south, so packing standards are set for highway travel rather than a short hop across town."
+        "The town floods easily in a heavy monsoon, and experienced planning around drainage prone stretches saves hours on a bad day. Many moves here are long distance, toward Delhi, Patna or further south, so packing standards are set for highway travel rather than a short hop across town.",
+        "Darbhanga wears its history in its architecture, and its moves inherit the scale. The old estate quarters and the Rajbari precincts hold high ceilinged homes with heavy carved furniture that demands slings, blankets and extra hands. Laheriasarai carries the courts, the medical college and the administrative households, while Donar and Benta absorb the new growth toward the airport road. The airport itself has turned return migration from a trickle into a stream, and inbound moves from Delhi and the south now anchor the calendar.",
+        "The town centre asks for small vehicles and early hours. Tower Chowk and the bazaar spine crawl by mid morning, so trucks stage on the ring roads while tempos shuttle the lanes. Makhana season fills godowns and vehicles alike, and in those weeks transport is shared with the trade. Monsoon is the great scheduler. Mithila's water sits long in a heavy year, and every experienced crew here keeps a day in hand between pack and load rather than promising a calendar the sky has not signed.",
+        "Corridors from Darbhanga run to Muzaffarpur, Samastipur and Madhubani for the short hauls, to Patna for the state's business, and by night highway to Delhi and Kolkata for the long ones. Households here ship the Mithila arts with pride, and painted panels, sikki work and old brass travel in flat cases with soft interleaving, listed piece by piece. The city's pace rewards politeness at every gate, and a crew that greets the para properly loads faster than one that only carries boxes.",
+        "Returning families booking from Delhi or Bengaluru can run the survey by video with a relative walking the rooms here, and the quote holds as long as the walkthrough was honest. Heritage furniture deserves a word at booking time, because carved pieces need slings and padding the standard kit does not carry. The airport has made short notice moves possible, but the monsoon months still prefer a flexible date over a fixed one."
       ]
     },
     {
@@ -194,7 +257,11 @@
       "lng": 78.0322,
       "note": [
         "Dehradun is the busiest moving market in Uttarakhand, fed by government offices, defence establishments, boarding schools and a steady stream of families relocating from Delhi for a quieter life. Rajpur Road climbs toward the hills with bungalows and gated flats, while Clement Town and the Haridwar bypass side hold newer societies with standard tower access.",
-        "School session changes drive a clear seasonal peak, and hostels plus staff quarters make partial household loads common. Streets in the older market core are narrow, so bigger jobs there stage the truck on a main road and bridge the gap with smaller vehicles."
+        "School session changes drive a clear seasonal peak, and hostels plus staff quarters make partial household loads common. Streets in the older market core are narrow, so bigger jobs there stage the truck on a main road and bridge the gap with smaller vehicles.",
+        "Dehradun collects institutions the way other cities collect industries, and each drives its own moving pattern. The boarding schools bring trunk season twice a year, the academies and survey establishments rotate officers with clockwork, and the IT belt along Sahastradhara Road adds young households that move light and fast. Rajpur Road and Vasant Vihar hold the established homes under old litchi trees, Clement Town keeps its cantonment order, and the new flats push toward the Haridwar bypass with lifts and society rules the old city never needed.",
+        "Two small rivers and one big weekend shape the traffic. The Rispana and Bindal crossings knot at rush hour, and the Mussoorie road fills with tourists every Friday, so hill leg pickups run midweek by preference. School zones lock roads at bell hours, and the city's polite pace hides how quickly its junctions saturate. In monsoon the Mussoorie stretch can slip and close for hours, so any move with a hill component carries flex in the schedule and chains in the toolbox.",
+        "The new expressway has pulled Delhi within a comfortable day and changed the city's arithmetic, and moves now flow both ways in volume, retirees and remote workers up, students and postings down. Haridwar and Rishikesh sit under an hour away, making tri city swaps routine. June brings admission season and the trunk tide, and the crews here pack tin trunks and study desks with a school matron's discipline. Winter is kind, work runs all day, and the smell of pine in a loaded truck is the valley's parting gift.",
+        "School trunk season is its own booking category here, and parents who name the school and the hostel block at the first call get a crew that knows the campus gate and its rules already. For full households the useful detail is the lane gradient, since a sloped approach changes the carry plan. Winter is the underrated season for a Dehradun move, with clear roads, cool working hours and easy slots."
       ]
     },
     {
@@ -207,7 +274,11 @@
       "lng": 78.1642,
       "note": [
         "Haridwar runs on two engines, the temple town along the Ganga and the industrial estate at Sidcul where large plants keep a rotating population of engineers and managers. Company transfers in and out of Sidcul housing make up a big slice of our work, and those moves usually run on tight joining dates.",
-        "The pilgrimage core near Har Ki Pauri has entry restrictions and dense lanes, so household moves there are planned around temple hours with hand carry to the nearest truck point. During the big bathing festivals whole routes close for days and we schedule around the official traffic plan."
+        "The pilgrimage core near Har Ki Pauri has entry restrictions and dense lanes, so household moves there are planned around temple hours with hand carry to the nearest truck point. During the big bathing festivals whole routes close for days and we schedule around the official traffic plan.",
+        "Haridwar's two economies barely touch, and moving serves them both. Sidcul's industrial township rotates engineers and managers through company housing on transfer letters that rarely give more than two weeks' notice, so those jobs run on checklists and speed. The old city is the opposite. Kankhal's ashram lanes and the wards near Har Ki Pauri hold homes reached on foot, where crews carry past cows, kanwars and history to a truck waiting at the nearest permitted point, and nobody hurries the last hundred metres.",
+        "The kanwar yatra is the calendar's iron rule. For most of Sawan the highways belong to the pilgrims, routes close in sequence, and no serious move is planned across those weeks. Big snan days lock the ghats side at shorter notice, and the ganga canal roads carry their own restrictions. Outside those windows the city moves easily, with the bypass keeping through freight out and Sidcul's wide avenues making tower loading simple. Ashram moves carry deities and granth collections, and those are packed first, upright, and with visible respect.",
+        "Corridors from Haridwar run north to Dehradun and Rishikesh in under an hour and south to Delhi in a determined day, with the rail head making it a natural junction for long moves. Winter fog on the flat approach can slow a dawn start, and monsoon swells the canal district's low lanes. The steady base of work, though, is industrial rotation, batch after batch of households in and out of the township, and the crew that keeps a Sidcul move inside one calm day earns the next three referrals on its own.",
+        "Book a Haridwar move with the yatra calendar open. Outside the closure weeks the city is straightforward, and Sidcul transfers can run survey to unload inside three days when the paperwork is ready. Ashram and old city addresses should mention the nearest motorable point by name, since the carry from there is the real variable, and an accurate word about it at booking time is worth more than any discount."
       ]
     },
     {
@@ -220,7 +291,11 @@
       "lng": 78.2676,
       "note": [
         "Rishikesh has grown from a pilgrimage stop into a year round town of yoga schools, cafes and remote workers, and its moves reflect that mix. Tapovan and the Muni Ki Reti side see constant turnover of furnished flats and studio setups, often smaller loads with valuable equipment like instruments and cameras.",
-        "The bridges over the Ganga set hard limits for vehicles, and homes across the river load onto small carriers before goods meet the truck on the highway side. Weekend tourist traffic on the Dehradun and Haridwar roads is heavy, so weekday mornings are the calm window for loading."
+        "The bridges over the Ganga set hard limits for vehicles, and homes across the river load onto small carriers before goods meet the truck on the highway side. Weekend tourist traffic on the Dehradun and Haridwar roads is heavy, so weekday mornings are the calm window for loading.",
+        "Rishikesh has become a town of arrivals, and its households show it. Tapovan and the High Bank carry studios and furnished floors that turn over with the yoga calendar, filled with mats, bolsters, instruments and cameras rather than heavy furniture. The town side around Triveni Ghat keeps the settled homes of teachers, shopkeepers and retired officers, while Shyampur and the Dehradun road catch the newer plotted growth. IDPL's old township adds its own quiet colony rhythm. Small loads, high value, careful hands, that is the local formula.",
+        "Geography writes the rules here. The suspension bridges take foot traffic and two wheelers only, so any home across the river hand carries to a staging point before a vehicle enters the story. The chardham season pushes pilgrim convoys through town from April, and weekend rafting crowds thicken the riverside roads year round. Crews load early, before the town wakes, and the quote states the carry metres plainly because in Rishikesh the distance from door to truck matters more than the distance from city to city.",
+        "The corridors are short and kind, Haridwar and Dehradun both under an hour, Delhi a day. February and March bring the international yoga season and its wave of furnished moves, June brings the student turnover, and monsoon brings respect for the hill approaches. Sound equipment, harmoniums and singing bowls ride in padded cases with silica against the river damp. It is the rare market where the smallest truck in the fleet is the busiest, and where half the customers ask the crew to work quietly past an ashram gate.",
+        "The best booking detail here is a photograph of the approach, bridge, steps and all, sent before the survey call. It tells us the vehicle, the crew size and the carry in one glance. Seasonal residents moving out at the end of a course can usually share a slot calendar with others from the same school, and pairing two small loads on one vehicle keeps the cost sensible for both."
       ]
     },
     {
@@ -233,7 +308,11 @@
       "lng": 79.513,
       "note": [
         "Haldwani is the doorway to the Kumaon hills, and a large share of moves here are staging jobs, where a household comes down from hill towns like Nainital or Almora and reloads for the plains, or the reverse. Kathgodam with its railhead and Mukhani with its newer colonies are the two busy ends of town.",
-        "Hill legs above Haldwani need smaller trucks with strong brakes and experienced drivers, and our quotes separate the hill portion from the highway portion so the pricing is clear. The mandi traffic keeps the bypass loaded in the mornings, which shapes our pickup timings."
+        "Hill legs above Haldwani need smaller trucks with strong brakes and experienced drivers, and our quotes separate the hill portion from the highway portion so the pricing is clear. The mandi traffic keeps the bypass loaded in the mornings, which shapes our pickup timings.",
+        "Haldwani is where the mountains do their shopping, and its moving trade mirrors that. Kathgodam's railhead makes it the natural break point for hill households, with goods coming down from Nainital, Bhimtal and Almora to meet the trains and the highway trucks. Mukhani and the Rampur Road side hold the town's own growth, plotted colonies and new flats with easy access. The mandi is the morning's ruler, filling the bypass with produce trucks before dawn, and a crew that respects the mandi's hours owns the rest of the day.",
+        "A Haldwani move is often two moves stitched together. The hill leg runs on short wheelbase trucks with strong brakes and drivers who know every hairpin between here and the lakes, and the plains leg runs on the full size vehicle waiting below. We write the two legs separately in the quote so the arithmetic is visible. Railway gate closures cut the town in half at odd moments, and season traffic to Nainital can back up the hill entry, so timing borrows from local knowledge more than from maps.",
+        "Corridors run south to Bareilly and Delhi and up into every valley of Kumaon, which makes the city a permanent junction for postings, students and returning families. Monsoon closes hill roads without apology, and a wise schedule in those months keeps a fallback date. Winter brings tourists and a brisk trade in heater carrying cartons. Loads here carry a hill signature, woollens in trunks, pickle jars packed like ammunition, and always one basket of hill lemons riding in the cab that nobody declared.",
+        "Hill bound customers should book the full relay in one go rather than arranging the plains truck and the hill carrier separately, because a single written quote with both legs named removes the argument at the transfer point. The mandi's morning rush is the only local constraint worth planning around, and an eight o'clock start clears it. Winter bookings enjoy the calmest roads and the clearest mountain views of the year."
       ]
     },
     {
@@ -246,7 +325,11 @@
       "lng": 77.888,
       "note": [
         "Roorkee revolves around the IIT campus and the army cantonment, which together create a very predictable moving calendar of academic sessions and postings. Faculty and officer households are typically full home moves with books, instruments and lab material that need methodical packing and labelled cartons.",
-        "Ganeshpur and Ramnagar hold the civilian residential spread, with the Ganga canal cutting the town in two and its crossings deciding the best route. Delhi and Dehradun both sit within an easy day run on NH 334, which keeps long distance options flexible."
+        "Ganeshpur and Ramnagar hold the civilian residential spread, with the Ganga canal cutting the town in two and its crossings deciding the best route. Delhi and Dehradun both sit within an easy day run on NH 334, which keeps long distance options flexible.",
+        "Roorkee is ruled by two calendars, the academic and the military, and both are punctual. The IIT campus rotates faculty and research households on session dates, and their loads are libraries, instruments and computers that travel catalogued and cushioned. The cantonment across the Solani keeps its own gate discipline and a steady flow of officer families. Civil Lines and Ganeshpur hold the town's professional homes, and Ramnagar rides the highway edge where loading is easiest. It is a small city that moves with big city paperwork.",
+        "The Ganga canal is the town's spine and its oldest landmark, and its bridges set the crossings. Campus moves clear security lists in advance, with crew IDs submitted and vehicle numbers logged before the gate lifts. The bazaars near the clock tower belong to handcarts in business hours. Otherwise access is gentle, the bypass keeps NH traffic out, and a truck reaches most gates without drama. Instrument crates from the labs get foam, straps and a named owner at both ends, because a misplaced box here can stall a research year.",
+        "Haridwar is half an hour, Dehradun barely more, and Delhi a straight highway day, which keeps Roorkee stitched into every corridor that matters. July and December bring the session surges, posting season adds its own waves, and the town between them is calm enough that crews service the surrounding belt from here. Monsoon rarely blocks the plains roads but slows the canal side lanes. The signature load is the study, shelf after shelf of books that must return to their exact order, and the crews number cartons like exam papers.",
+        "Campus moves book best against the session calendar, with the gate list submitted two days ahead so the truck rolls through without a wait. For town addresses the only preparation that matters is the canal crossing hour, and the crew picks it from experience. Families leaving for postings elsewhere often ship the study as a separate early load, and the split quote makes that simple to arrange."
       ]
     },
     {
@@ -259,7 +342,11 @@
       "lng": 79.4077,
       "note": [
         "Rudrapur is an industrial town first, built around the Sidcul estate and the factories that line the Pantnagar belt. Most household moves track company transfers, with managers and engineers shifting in and out of Awas Vikas, Metropolis and the colonies along the Kashipur road on employer timelines.",
-        "Truck access is generally easy on the wide industrial roads, but factory shift hours load the highway junctions at fixed times of day, and our crews plan around them. Pantnagar university and the airport add a second stream of staff moves with their own session calendar."
+        "Truck access is generally easy on the wide industrial roads, but factory shift hours load the highway junctions at fixed times of day, and our crews plan around them. Pantnagar university and the airport add a second stream of staff moves with their own session calendar.",
+        "Rudrapur exists because factories chose it, and its moves follow appointment letters. The Sidcul estate's auto, electronics and food plants rotate managers and engineers through Awas Vikas, Metropolis and the company leased flats, usually on two week notice and quarter end clusters. Pantnagar next door adds the university's session rhythm and the airport's slow rise. Older Rudrapur along the Kashipur and Bilaspur roads keeps the trading households that predate the boom, in houses where stock and family share the address.",
+        "The town's clock is the shift siren. Plant change hours flood the junctions with buses and two wheelers, and loading windows are chosen between them. The estate's internal roads are wide and forgiving, so a full truck reaches most towers and plots easily, and the real variable is the exit onto the Rampur road corridor, which carries the district's freight. Terai fog in December and January can erase a morning, so winter schedules start late and finish patient, and nobody promises a dawn departure they cannot see.",
+        "Corridors run to Haldwani and the hills one way and to Bareilly, Moradabad and Delhi the other, with the plants shipping outward around the clock. Company moves come with their own HR checklists, and the crews here fill inventory formats as fluently as they wrap glassware. Monsoon sits heavy on the terai, and low plots near the drains need a walk through before loading day. The unofficial signature of a Rudrapur load is the balcony garden, pot after pot of it, and the last carton is always soil, somehow.",
+        "Company moves here run on HR timelines, and the booking that names the employer and the colony at the first call gets the paperwork template right immediately. Quarter ends fill fast, so a transfer letter in hand is reason enough to reserve a slot even before the flat is finalised. The fog months reward afternoon loading, and the crew plans the highway leg to run in daylight."
       ]
     },
     {
@@ -272,7 +359,11 @@
       "lng": 77.1734,
       "note": [
         "Shimla is a true hill move, and pretending otherwise is how other movers get it wrong. Large trucks stop at designated points below the town, and the last stretch to most homes runs on narrow climbing lanes, sometimes with porter carry over the final steps. Sanjauli and New Shimla have somewhat easier road access than the heritage core near the Ridge.",
-        "The city restricts heavy vehicle timings, and winter snow can close the route plan entirely for a day or two. Our surveys for Shimla map the exact carry path, count the stairs and state the porter charges in the written quote, so the hill work never appears as a surprise later."
+        "The city restricts heavy vehicle timings, and winter snow can close the route plan entirely for a day or two. Our surveys for Shimla map the exact carry path, count the stairs and state the porter charges in the written quote, so the hill work never appears as a surprise later.",
+        "Shimla is a vertical city, and every move in it is measured in steps before kilometres. The Mall and the heritage core are sealed to trucks, so households there meet their vehicle at Chhota Shimla, the lift, or a sanctioned point below, with porters bridging the climb. Sanjauli lives beyond its tunnel and its timing rules, New Shimla's sectors offer the rare luxury of road touching gates, and Boileauganj and Summer Hill hang their lanes off the university slope. The town's porters are a guild of legend, and no crew works here without them.",
+        "Weather is a scheduling partner in Shimla, not a backdrop. Monsoon brings slips that shut a road for an afternoon, winter brings snow that shuts it for a day, and both are answered with buffer time rather than bravado. The tunnel's one way hours meter the Sanjauli side, and season traffic from the plains chokes the Kalka approach on weekends. Loads are broken to hill size below the town, and furniture that entered a flat through a window decades ago tends to leave the same way, which the survey notes with a straight face.",
+        "The corridors are the old ones, Kalka and Chandigarh below, the apple belt above, and posting season moves the secretariat's households on the government's calendar. September and October fill the highway with fruit trucks and squeeze transport for everything else, so autumn moves book early. The classic Shimla load is dense with wood, old deodar furniture, heaters, and books swollen by forty damp winters. Crews wrap for rain even under a clear sky, because the town's weather has a sense of humour and everyone local knows it.",
+        "Booking a Shimla move means booking the porters with the truck, and the office arranges both together so the customer never negotiates the climb separately. Customers who share a photo of their lane and their door help the survey count the steps honestly, and the written quote carries the porter charges as a plain line. Government transfer season fills the calendar fastest, and an early word secures the better dates."
       ]
     },
     {
@@ -285,7 +376,11 @@
       "lng": 76.7914,
       "note": [
         "Baddi is the pharmaceutical capital of the region, an industrial belt that runs into Barotiwala and Nalagarh with hundreds of plants and a workforce that moves on company orders. Most jobs here are executive households shifting between company housing, Sai Road colonies and nearby Chandigarh or Panchkula.",
-        "The terrain is nearly flat compared with the rest of Himachal, so full size trucks work fine, and the real planning point is factory traffic at shift change on the Sai Road corridor. Weekends are quieter on the internal roads, which makes them good moving days."
+        "The terrain is nearly flat compared with the rest of Himachal, so full size trucks work fine, and the real planning point is factory traffic at shift change on the Sai Road corridor. Weekends are quieter on the internal roads, which makes them good moving days.",
+        "Baddi is Himachal wearing an industrial uniform. The pharma and packaging plants stretching through Barotiwala toward Nalagarh house one of the densest concentrations of factories in the north, and the town's moves track transfer orders almost exclusively. Executive households rotate through the Sai Road colonies, Housing Board pockets and company flats, usually mid career, usually mid quarter, always in a hurry. The terrain is nearly flat by the state's standards, which makes it the one Himachal address where a full size truck works a normal day.",
+        "Shift change is the local rush hour, and the Sai Road corridor carries it three times a day, so loading slots dodge the sirens. Freight from the plants owns the roads at dispatch hours, and a household truck slips between those waves. Dust from the industrial traffic is constant in the dry months, so wardrobes and mattresses travel wrapped as a rule. Monsoon sends the seasonal streams across low crossings for an hour at a time, and local drivers treat a flowing causeway with the respect it demands.",
+        "Chandigarh, Panchkula and Mohali sit under an hour away, and half of Baddi's workforce commutes from them, so short radius household swaps are the bread and butter here. Longer corridors run to Delhi and to the company headquarters cities, with loads that often pair a home with an office cabin's worth of files. The signature challenge is notice period, plants move people fast, and the crew that can survey on a video call today and load tomorrow is the one this town keeps on speed dial.",
+        "Speed is the currency of a Baddi booking. Video surveys are standard, quotes go out the same day, and a crew can usually load within forty eight hours of confirmation because the town's timelines demand it. Name the plant and the colony at the first call, since gate procedures differ, and keep the transfer letter handy for the housing office. The rest is routine, and routine is what we are for."
       ]
     },
     {
@@ -298,7 +393,11 @@
       "lng": 77.0967,
       "note": [
         "Solan sits on the Kalka Shimla highway and grows a little every year, fed by the university at Saproon, the breweries and the Baddi industry within commuting range. Homes spread along ridges above the highway, so many addresses involve a short but steep approach that a big truck cannot take.",
-        "Chambaghat and the bypass side offer the easiest loading points, and moves from ridge side homes plan a small vehicle shuttle down to the highway. Monsoon fog and rain slow the hill highway sharply, so in those months we build extra time into the schedule instead of promising times we cannot keep."
+        "Chambaghat and the bypass side offer the easiest loading points, and moves from ridge side homes plan a small vehicle shuttle down to the highway. Monsoon fog and rain slow the hill highway sharply, so in those months we build extra time into the schedule instead of promising times we cannot keep.",
+        "Solan stacks itself along the Kalka Shimla highway, and its addresses climb away from the road in short, steep bursts. Saproon's valley holds the university and its session households, Chambaghat anchors the industry and the easiest loading in town, and the ridge side colonies above the bazaar reach their gates by lanes that choose the vehicle for you. The mushroom institute and the breweries give the town its nicknames and a steady professional class that moves on postings and promotions.",
+        "The four laning of the highway is redrawing the town's edges, and work zones shift the traffic pattern month to month, so crews check the day's diversions before committing a loaded truck. Parking in the bazaar core is scarce enough that loading there happens early or not at all. Homes above the road level move by relay, small carrier down, truck onward, and the quote names the transfer point. Winter ice on the shaded bends asks for morning patience, and monsoon fog can turn the highway into a slow grey ribbon.",
+        "Corridors run down to Chandigarh inside two hours and up to Shimla in one, which makes Solan a favourite compromise address and keeps two way moves constant. Tomato season loads the highway with produce trucks in the summer flush, tightening transport just when the university's session change needs it. The town's loads lean academic and administrative, books, files and instruments, packed dry against the hill damp. It is an easy city to move in by Himachal standards, exactly because it never pretends the hill is not there.",
+        "A Solan booking benefits from one photograph of the approach lane and one honest sentence about the slope. Between them they set the vehicle and the relay point, which are the only real variables in this town. University families moving at session change can share slots with colleagues, and the crew runs the valley pockets in sequence on those weeks, which keeps every load's cost lighter."
       ]
     },
     {
@@ -311,7 +410,11 @@
       "lng": 76.3234,
       "note": [
         "Dharamshala spreads across a mountainside, from the lower town with its offices and markets up to Mcleodganj, and altitude decides the shape of every move here. Roads narrow and steepen as you climb, so upper homes load onto small hill carriers while the highway truck waits below at Sidhpur or the lower bus stand side.",
-        "The town hosts a large international community around the monasteries, and their moves often include delicate items like thangkas, books and instruments that we pack with extra layers. Cricket season and tourist weekends congest the single main climb, which our crews route around by starting early."
+        "The town hosts a large international community around the monasteries, and their moves often include delicate items like thangkas, books and instruments that we pack with extra layers. Cricket season and tourist weekends congest the single main climb, which our crews route around by starting early.",
+        "Dharamshala is two towns holding hands up a mountainside. The lower town, with Kotwali Bazar and the civil offices, moves like any busy hill district headquarters. The upper world of Mcleodganj, Bhagsu and Naddi is monastery land and international guesthouse territory, where households are libraries, shrines and studios, and where the single climbing road decides everything. Sidhpur and the Norbulingka side offer the gentlest slopes and the easiest truck work, which is why most upper moves stage there before the highway leg begins.",
+        "The climb road is the town's throat, and match days at the stadium, tourist weekends and monsoon slips all close their fingers around it. Upper addresses hand carry to small hill vehicles, and the transfer to the full truck happens below, logged in the quote so the arithmetic is honest. This is among the wettest districts in the country in a strong monsoon, and covered loading is not an option but a reflex. Winter brings snow to the upper reaches, and a January move keeps chains, tarps and an alternate date in the same pocket.",
+        "The community here moves globally. Monastery households ship to settlements across the country, volunteers rotate on visa calendars, and retired officers come home to the Kangra valley with a lifetime of belongings. Thangkas roll in cloth, statues ride upright and boxed, and prayer books travel wrapped in their own covers, checked by their keepers before the tape goes on. Corridors run to Pathankot's railhead and down the valley to Kangra, and the crew that learns a little courtesy in Tibetan finds every gate opens quicker.",
+        "Upper town bookings should name the exact landmark, cafe, monastery or guesthouse, because addresses here navigate by them and the carrier plans its climb accordingly. The monsoon booking asks for flexibility rather than a fixed promise, and customers who allow a two day window in July are always glad they did. International departures get extra lead time for the packing lists that customs papers want."
       ]
     },
     {
@@ -324,7 +427,11 @@
       "lng": 76.9318,
       "note": [
         "Mandi holds the centre of Himachal where the Kullu, Shimla and Pathankot roads meet, and it works as the staging town for moves deeper into the valleys. The old town by the Beas river keeps tight bazaar lanes where hand carry is normal, while Bhiuli and the Nerchowk side handle trucks without trouble.",
-        "The IIT campus at Kamand and the medical college at Nerchowk bring regular staff and student moves on academic dates. Landslide closures on the highway are a real monsoon risk, so long moves through Mandi carry a weather buffer in the plan rather than a promise that ignores the mountain."
+        "The IIT campus at Kamand and the medical college at Nerchowk bring regular staff and student moves on academic dates. Landslide closures on the highway are a real monsoon risk, so long moves through Mandi carry a weather buffer in the plan rather than a promise that ignores the mountain.",
+        "Mandi holds the state's crossroads, where the Kullu, Shimla and Pathankot roads tie their knot above the Beas. The old town's temple lanes and bazaars move by handcart and shoulder, and its riverside ghats give the town its nickname and its tight geography. Bhiuli across the river carries the newer colonies where trucks work normally, and Nerchowk down the highway adds the medical college's session households. Sundernagar's colonies sit close enough to share the same crews and the same calendar.",
+        "The four laning toward Manali has turned the highway into a moving construction site, and diversions change with the season, so every long leg starts with a call about today's road. Inside town, the bazaar hours belong to pedestrians, and staging happens at Bhiuli or the bypass. Monsoon is landslide season on every approach, and the honest schedule in those months carries a spare day the way other trucks carry a spare tyre. Shivratri's great fair fills the town for a week each spring and pauses everything else with it.",
+        "Mandi's role as a staging town means half its moves are relays, plains truck to hill carrier for Kullu and beyond, or the reverse for families coming down. The IIT at Kamand adds a research community whose loads are instruments and books in equal weight. The town's own households ship old wooden furniture and temple brass that ask for blanket wrap and careful hands. Corridors reach Chandigarh in a long morning and Manali in a careful afternoon, and the crew that reads the mountain's mood moves twice as fast as the one that argues with it.",
+        "Book a Mandi move with the highway's mood in mind. The four laning means today's route is not last month's, and the office checks the current diversions before every long leg, so a confirmed date here always carries a road report with it. Relay moves toward Kullu name the transfer point in the quote, and the hill carrier is booked in the same breath as the truck."
       ]
     },
     {
@@ -337,7 +444,11 @@
       "lng": 77.3178,
       "note": [
         "Faridabad is the second big moving market of Haryana after Gurgaon, and it splits cleanly in two. The old industrial city along Mathura Road runs on independent houses and factory linked moves, while Greater Faridabad across the Agra canal is a wall of new high rise societies in sectors 75 to 89 where lifts, gate passes and society slots rule the day.",
-        "The metro and the highway keep Delhi close, and many jobs here are cross border swaps with south Delhi. On the new side we book the society service lift in advance, and on the old side we measure lane access, because both details move the price if ignored."
+        "The metro and the highway keep Delhi close, and many jobs here are cross border swaps with south Delhi. On the new side we book the society service lift in advance, and on the old side we measure lane access, because both details move the price if ignored.",
+        "Faridabad's two eras live side by side. The old planned city of sectors 15 to 17 and the NIT blocks carries mature trees, settled families and houses that load from their own gates. Across the canal, Greater Faridabad stacks the new city into towers from sector 75 onward, where the service lift and the society slot decide the day. The Mathura Road industrial spine still anchors thousands of working households, and Badkhal and Surajkund fold a little green into the western edge. Two cities, one name, two completely different moving days.",
+        "On the old side the constraint is the lane and the stair, on the new side it is the calendar of the facility office. Tower moves book the service lift and gate pass in advance, carry crew ID lists, and pay attention to interior work hours. The metro spine and the highway keep the city stitched to Delhi, but the crossings over the canal bottleneck at rush hour, so cross town moves pick their window. Industrial dispatch traffic owns Mathura Road by night, which oddly makes late evening loading smoother than morning.",
+        "Most Faridabad moves are NCR moves, swaps with south Delhi, Noida and Gurgaon that finish inside a day when the paperwork is ready. Possession waves in Greater Faridabad bring surges of first time shifts, all wanting the same auspicious weekends, so midweek dates win on both price and calm. The city's loads carry a workshop flavour, tools, machines and stock riding beside the sofas, and the crews here pack a lathe with the same straight face as a crockery box.",
+        "The one question that shapes a Faridabad booking is which side of the canal the home sits on. Old city addresses need a stair count, new city addresses need a society slot, and the survey settles both in a single visit. Cross NCR swaps run best midweek, and the quote names the border crossing plan so the day holds no surprises at the toll."
       ]
     },
     {
@@ -350,7 +461,11 @@
       "lng": 77.0151,
       "note": [
         "Sonipat has quietly become a northern extension of Delhi, with Kundli industrial area and the new university belt along the highway pulling in families and staff every session. Kundli sits directly on the Delhi border, so many of our jobs here are short cross border moves that still need interstate awareness at the toll and border points.",
-        "The education city hosting Ashoka and other campuses creates furnished hostel and faculty moves with valuable electronics in nearly every load. Sector 14 and Model Town side carry the established local households. The GT Road corridor is busiest with trucks late evening, so we prefer morning slots."
+        "The education city hosting Ashoka and other campuses creates furnished hostel and faculty moves with valuable electronics in nearly every load. Sector 14 and Model Town side carry the established local households. The GT Road corridor is busiest with trucks late evening, so we prefer morning slots.",
+        "Sonipat has quietly become Delhi's northern campus and warehouse, and its moves show both faces. The education city at Rai rotates faculty and hostel households on academic dates, with loads heavy in books and electronics. Kundli's estates and the highway warehousing belt bring worker and manager households in equal measure. The city proper, around Model Town and sectors 14 and 15, keeps the settled Haryanvi core, courtyard houses with rooftop stores and families that have not moved in a generation, until the day they do.",
+        "GT Road is the artery and the obstacle, busiest with freight at night and with commuters at the border hours. Kundli's proximity to the Delhi line means short cross border moves that still pass the toll and check post arithmetic, and timing them against the freight waves saves an hour without trying. Village edge addresses ask for smaller vehicles in their lanes, and harvest season puts tractors on every rural road at their own unhurried pace. The city rewards early loading and a philosophical attitude at the border queue.",
+        "Corridors run south into Delhi within the hour and north up the GT Road spine toward Panipat and Chandigarh. University session changes in July and December bring the surges, and the warehousing belt adds steady mid month company moves. Sonipat loads often include the village trousseau furniture, carved, heavy and beloved, and the crews sling it with the respect it has earned. The smart booking here is a weekday morning, papers ready, gate informed, and the border crossed before Delhi finishes its breakfast.",
+        "Campus bookings here run on the academic office's calendar, and naming the university at the first call lets the crew arrive with the right gate paperwork. For city homes the useful truth is the rooftop, since Sonipat stores more overhead than most towns and the stair carry sets the crew size. Border timing is our problem, not the customer's, and the quote absorbs it."
       ]
     },
     {
@@ -363,7 +478,11 @@
       "lng": 76.9635,
       "note": [
         "Panipat is the textile floor of north India, and that shapes its moves. Households here often own bulk fabric, carpets and loom output, so loads run heavier than the room count suggests and our surveys weigh that honestly instead of quoting blind. Model Town and the sectors along GT Road hold the main family homes.",
-        "The refinery side and the export units keep a manager class moving in and out on postings. GT Road itself carries some of the densest truck traffic in the country through Panipat, and the flyover stretch crawls at peak evening hours, so loading windows are set to miss it."
+        "The refinery side and the export units keep a manager class moving in and out on postings. GT Road itself carries some of the densest truck traffic in the country through Panipat, and the flyover stretch crawls at peak evening hours, so loading windows are set to miss it.",
+        "Panipat weaves for the whole country, and its households are half warehouse by birthright. Handloom families in the colonies keep yarn, rugs and export lots beside their beds, and a household move here routinely ships bales alongside beds. Model Town and the HUDA sectors hold the settled professional homes, the refinery township adds its disciplined rotation of officer families, and the market spine of the old city trades from lanes that have never respected a truck's turning radius.",
+        "The GT Road flyover stretch is the city's hourglass, crawling at peak and flowing at dawn, and every schedule here is written around it. Export dispatch season loads the highway with container traffic, and household trucks slot between those waves. Inside the markets, handcarts rule the business hours, so bazaar side homes load before the shutters rise. December and January bring fog thick enough to erase the highway, and winter moves plan by the visibility report as much as by the calendar.",
+        "Half of Panipat's moves ride the corridor south to Delhi and north to Chandigarh, both inside a comfortable day. The refinery and the export houses drive quarter end transfer clusters, while the loom trade moves on order cycles all year. The signature cargo is textile, rolls, bales and carpets that must stay dry and unbent, and the crews here rig rope like sailors. A city that has fought three famous battles treats a difficult move as a mild afternoon, and the customers carry the same calm.",
+        "A Panipat booking that mentions the loom, the godown or the export lot at survey time gets a load plan that protects fabric first and furniture second, which is the right order in this city. Fog season moves book a window rather than an hour, and the crew calls the road before the truck rolls. The refinery township runs on its own gate list, submitted a day ahead as routine."
       ]
     },
     {
@@ -376,7 +495,11 @@
       "lng": 76.8606,
       "note": [
         "Panchkula is the Haryana corner of the Chandigarh tricity, a planned grid of sectors where addresses are logical and truck access is rarely a problem. Most moves swap between Panchkula, Chandigarh and Mohali, short distance jobs where careful packing matters more than road time. Sector 20 and the Mansa Devi Complex side are the busiest pockets.",
-        "Government officers and retired defence families form a large part of the residents, and their moves tend to be full households with years of collected furniture. The Zirakpur junction is the one choke point on longer routes, and we time around its rush."
+        "Government officers and retired defence families form a large part of the residents, and their moves tend to be full households with years of collected furniture. The Zirakpur junction is the one choke point on longer routes, and we time around its rush.",
+        "Panchkula is the tricity's tidy corner, a Haryana grid drawn with Chandigarh's ruler. The sectors from 2 to 21 hold government officers, defence retirees and professionals in houses and group housing societies where the address logic alone saves an hour of searching. The MDC side climbs gently toward the Shivaliks with newer societies, and the industrial phases keep their working households close. It is a city of full households and long tenures, so when a Panchkula home moves, it moves deep, decades of it.",
+        "Loading here is as easy as the region offers, wide internal roads, marked parking, and societies that answer their phones. The constraints sit at the edges, the Zirakpur junction's permanent knot, the Chandigarh border crossings at office hours, and the Ghaggar's monsoon moods on the low crossings. Retiree households ask for slow careful days rather than fast ones, and the crews adjust their pace and their volume accordingly. A morning start clears the tricity before it thickens, and the rest follows.",
+        "Most moves are tricity swaps with Chandigarh and Mohali, an hour of driving wrapped in a day of care. The longer corridors run to Shimla up the hill highway and to Delhi down the GT Road spine. Posting season moves the government calendar, and the school admission window adds its own wave. Panchkula loads are furniture rich and paper rich, service records, albums and libraries, and the unpacking order matters as much as the packing. It is the market where a labelled carton earns more goodwill than a discount.",
+        "Bookings here are the calmest in the region, and the only preparation that matters is unhurried packing time for households that have sat still for decades. Retiree customers often prefer a two day rhythm, pack one day and load the next, and the quote prices that as its own plan rather than an extra. Tricity swaps confirm fastest when both societies are informed on the same afternoon."
       ]
     },
     {
@@ -389,7 +512,11 @@
       "lng": 76.9905,
       "note": [
         "Karnal sits midway between Delhi and Chandigarh on GT Road, a calm administrative city with strong agricultural institutions. The dairy research institute and the agriculture university rotate scientists and staff through the city on fixed tenures, and those moves are our steady work here, usually complete households with study rooms full of books.",
-        "Sector 13 and Prem Nagar carry the residential weight, with wide internal roads that make loading straightforward. Basmati trade offices add commercial moves in season. The highway position means a Karnal move connects north or south with equal ease, often within the same day."
+        "Sector 13 and Prem Nagar carry the residential weight, with wide internal roads that make loading straightforward. Basmati trade offices add commercial moves in season. The highway position means a Karnal move connects north or south with equal ease, often within the same day.",
+        "Karnal sits at the exact halfway mark of the GT Road's most travelled stretch, and its institutions give it a scientist's calendar. The dairy research campus and the agricultural institutes rotate researchers and their libraries on tenure dates, sector 13 and its neighbours hold the settled professional grid, and Model Town keeps the older family homes. The basmati trade runs the city's commerce, and in season its aroma rides every truck whether invited or not.",
+        "Access is the city's gift. The highway touches the sectors directly, internal roads are broad, and a truck reaches most gates without negotiation, which makes Karnal one of the smoothest loading cities on the corridor. The old committee chowk lanes are the exception, handcart country at business hours. Fog is the honest enemy, December mornings can hold the highway hostage, and winter schedules speak in ranges rather than minutes. The rest of the year, a Karnal move is as close to routine as this trade allows.",
+        "Delhi and Chandigarh sit at equal distance, and the city ships households both ways in balance, with posting season and academic tenures setting the peaks. Rice season fills the highway with grain trucks from October, tightening transport exactly when the festival moves want it, so autumn bookings go early. The classic Karnal load pairs a family home with a study full of research, and the crews number the book cartons by shelf. It is a city that likes order, and it extends that courtesy to its moving days.",
+        "The practical Karnal booking names the highway side of the address, since a sector gate minutes from the NH loads onto the corridor almost immediately while a committee chowk lane needs the relay plan. Research households should flag the library early, because carton counts here run high and the crew brings stock accordingly. Autumn dates book earliest, ahead of the grain season's squeeze on transport."
       ]
     },
     {
@@ -402,7 +529,11 @@
       "lng": 76.7767,
       "note": [
         "Ambala is two towns wearing one name. Ambala Cantt is among the oldest cantonments in the country, and defence postings in and out of it run all year with their own gate procedures, verification and packing lists that include trunks and regulated items. Ambala City, some kilometres away, is the trading half famous for its cloth market and scientific instrument industry.",
-        "Moves between the two halves are common enough that we price them as a distinct short route. The railway junction and the highway split toward Chandigarh and Amritsar make Ambala a natural handover point for long north bound moves."
+        "Moves between the two halves are common enough that we price them as a distinct short route. The railway junction and the highway split toward Chandigarh and Amritsar make Ambala a natural handover point for long north bound moves.",
+        "Ambala is two towns and one junction. The Cantt is among the oldest in the country, and its moves run on defence procedure, gate passes, verification, listed trunks and the family's next station already printed on the order. Ambala City, a few kilometres away, is the trader's half, its cloth market feeding half the north and its scientific instrument workshops shipping to schools everywhere. Mahesh Nagar and the civil sectors hold the middle ground where both worlds keep their homes.",
+        "The rail junction defines the geography, and its level crossings still cut the town's rhythm when the gates drop. Moves between City and Cantt are so common they price as a standard short route, run between the crossing timings. The cloth market's lanes belong to handcarts and porters through business hours, and instrument workshop moves pack brass and glass with laboratory patience. NH 44 skirts the town generously, so long hauls stage easily on the bypass and the day's only suspense is the railway gate.",
+        "Posting season is perpetual here, with units rotating through the year and family after family moving on service timelines that do not negotiate. The corridors fan wide, Chandigarh in an hour, Amritsar and Jammu up the line, Delhi down it, which is exactly why the army put the junction here two centuries ago. Cantonment loads carry their own inventory formats and the crews fill them from memory. In fog season the junction earns its reputation, and every winter schedule holds a margin for the morning the signals vanish.",
+        "Cantonment bookings travel on the order's paperwork, and sharing the movement order at the first call lets the office prepare the inventory format the station expects. City side bookings need only one detail, whether the address sits inside the cloth market's lanes, because that answer decides the vehicle. Between the two towns, the standard short route price applies and the crossing timings do the rest."
       ]
     },
     {
@@ -415,7 +546,11 @@
       "lng": 76.6066,
       "note": [
         "Rohtak is the heart of central Haryana, an education and administration city with the big MDU campus and the medical university setting its rhythm. Student and faculty movements peak at session change, and many family moves connect Rohtak with Delhi, an easy run down NH 9 that we often complete same day.",
-        "DLF Colony and Sector 3 are the established residential areas, mostly independent houses where staircase work matters more than lifts. The inner bazaar around Shori Market is dense, and homes there load through a smaller vehicle relay to the truck point on the outer roads."
+        "DLF Colony and Sector 3 are the established residential areas, mostly independent houses where staircase work matters more than lifts. The inner bazaar around Shori Market is dense, and homes there load through a smaller vehicle relay to the truck point on the outer roads.",
+        "Rohtak carries central Haryana's administration and its education in one grid. The MDU campus and the health university rotate students, doctors and faculty on session dates, and their loads lean to books and single room efficiency. Model Town and DLF Colony hold the established households with courtyards and heavy furniture, while the HUDA sectors add plotted order at the edges. The inner city around Shori Market trades from lanes where a handcart is a large vehicle, and homes there move by relay to the outer roads.",
+        "NH 9 gives the city its fast exit toward Delhi, and most long moves ride it inside three hours door to door. Inside town, the bus stand chowks knot at peak hours and the bypass ring spares loaded trucks the argument. Session changes in June and July bring the hostel tide, hundreds of compact moves in a fortnight, and the crews run them with an assembly line's calm. Mustard and wheat harvests put tractors on the district roads at their own pace, and rural pickups plan around the trolley convoys.",
+        "Rohtak's moves split between Delhi bound careers and district bound postings, with the medical university adding a steady exchange of doctor households across the state. The city's loads are honest Haryanvi weight, iron beds, stone grinders, and the almirah that three generations have refused to part with, and the crews sling them without complaint. Winter fog and summer loo both push loading to the early hours. It is a straightforward city that respects straightforward work, and it pays its movers in referrals.",
+        "Hostel and campus bookings cluster into a fortnight here, and students who book as a group get sequenced slots on the same days, which keeps each move quick and each cost small. Family homes should mention the courtyard pieces at survey, since the stone and iron items need equipment more than muscle. NH 9 makes the Delhi leg predictable, and the quote commits to it plainly."
       ]
     },
     {
@@ -428,11 +563,14 @@
       "lng": 75.7217,
       "note": [
         "Hisar serves the wide farming belt of western Haryana, and it doubles as a university city with the agricultural and veterinary campuses rotating staff through town. Urban Estate and Azad Nagar hold most of the family homes, largely independent houses with courtyards where loading space is generous.",
-        "Steel and galvanising units on the industrial side add works related moves. Distances inside the city are short, but summer heat is severe, so May and June moves start at first light and electronics travel with extra padding against the hot truck body. Delhi is a comfortable single day round trip on NH 9."
+        "Steel and galvanising units on the industrial side add works related moves. Distances inside the city are short, but summer heat is severe, so May and June moves start at first light and electronics travel with extra padding against the hot truck body. Delhi is a comfortable single day round trip on NH 9.",
+        "Hisar anchors the west of the state with a university's brain and a steel town's back. The agricultural university's campus households move on tenure and session dates, libraries first, and the galvanising units keep a working city's rotation of homes. Urban Estate and the newer sectors hold the professional grid, Model Town the older money, and Azad Nagar the busy mixed lanes where homes sit above shops. The airport's slow rise is beginning to add a new kind of arrival to the mix.",
+        "Distances inside Hisar are short and the roads are flat and wide, so the city itself rarely slows a move. The climate does. Summer here is among the fiercest in the country, and May and June loading starts at first light, finishes by ten, and treats electronics like patients, padded against a truck body hot enough to bake. Camp Chowk and the bazaar spine crawl at business hours, and the cattle fair weeks fill the outer roads with their own unhurried traffic.",
+        "Corridors run east to Delhi in a determined morning and west toward Sirsa and the Rajasthan line, with the university sending households across the agricultural belt every season. Steel trade moves pair homes with workshop tools as a matter of course. The signature of a Hisar load is the courtyard's contents, cots, churns and the swing seat, packed beside the television with equal care. Fog in winter and loo in summer bracket the calendar, and the city's movers learn early that here the sky sets the schedule.",
+        "Summer bookings here are a dawn discipline, and customers who accept a first light start get their electronics loaded cool and their crew working at full strength. The university calendar sets the busy fortnights, and naming the campus quarter at booking time brings the right gate paperwork. For the rest, Hisar is a straightforward city that keeps its word, and it expects its movers to do the same."
       ]
     }
   ],
-
   "localities": [
     {
       "name": "Indirapuram",
@@ -453,7 +591,7 @@
       "lat": 28.704,
       "lng": 77.409,
       "note": [
-        "Raj Nagar Extension is one of the fastest filling tower belts in NCR, full of first possession moves into new flats. Many towers are still finishing common areas, so lift availability changes week to week and we reconfirm it a day before loading."
+        "Raj Nagar Extension is one of the fastest filling tower belts in NCR, full of first possession moves into new flats. Many towers are still finishing common areas, so lift availability changes week to week and we reconfirm it a day before loading. Tower basements rarely fit trucks, so the loading point is agreed with the guard desk first."
       ]
     },
     {
@@ -508,7 +646,7 @@
       "lat": 26.485,
       "lng": 80.312,
       "note": [
-        "Swaroop Nagar is old money Kanpur, tree lined roads with large houses that hold decades of furniture. Jobs here run heavier than average and often include piano class items and big wooden almirahs that need door measurements in advance."
+        "Swaroop Nagar is old money Kanpur, tree lined roads with large houses that hold decades of furniture. Jobs here run heavier than average and often include piano class items and big wooden almirahs that need door measurements in advance. The tree cover keeps summer loading bearable, and most gates take a full size vehicle without fuss."
       ]
     },
     {
@@ -519,7 +657,7 @@
       "lat": 26.522,
       "lng": 80.25,
       "note": [
-        "Kalyanpur sits on the IIT side of Kanpur and mixes campus linked households with newer apartment blocks along GT Road. Academic session dates drive the calendar, and part loads of books and lab equipment are a regular feature of moves here."
+        "Kalyanpur sits on the IIT side of Kanpur and mixes campus linked households with newer apartment blocks along GT Road. Academic session dates drive the calendar, and part loads of books and lab equipment are a regular feature of moves here. Session weeks fill the calendar fast, so campus side homes book their dates early."
       ]
     },
     {
@@ -530,7 +668,7 @@
       "lat": 27.221,
       "lng": 78.009,
       "note": [
-        "Dayalbagh is a calm institutional colony in north Agra with disciplined internal roads and easy truck entry. Many homes belong to long settled families, so moves here are full households with careful attention to old wooden furniture and framed pictures."
+        "Dayalbagh is a calm institutional colony in north Agra with disciplined internal roads and easy truck entry. Many homes belong to long settled families, so moves here are full households with careful attention to old wooden furniture and framed pictures. The colony's discipline extends to its gates, and confirmed timings are respected on both sides."
       ]
     },
     {
@@ -552,7 +690,7 @@
       "lat": 25.282,
       "lng": 82.991,
       "note": [
-        "Lanka is the BHU side of Varanasi, and campus rhythm rules it. Faculty quarters, student hostels and the colonies off the main gate produce steady session time moves, with books making up half the cartons in a typical load."
+        "Lanka is the BHU side of Varanasi, and campus rhythm rules it. Faculty quarters, student hostels and the colonies off the main gate produce steady session time moves, with books making up half the cartons in a typical load. The main gate stretch crawls at class hours, so loading here starts before the campus wakes."
       ]
     },
     {
@@ -574,7 +712,7 @@
       "lat": 25.452,
       "lng": 81.832,
       "note": [
-        "Civil Lines is the planned colonial core of Prayagraj, broad avenues with bungalows, courts and coffee houses. Moves here are often senior officer households with heavy classic furniture, and the wide roads let us bring the right truck to the porch."
+        "Civil Lines is the planned colonial core of Prayagraj, broad avenues with bungalows, courts and coffee houses. Moves here are often senior officer households with heavy classic furniture, and the wide roads let us bring the right truck to the porch. Old trees shade the avenues, and long carry from deep compounds is the only regular extra."
       ]
     },
     {
@@ -585,7 +723,7 @@
       "lat": 25.392,
       "lng": 81.868,
       "note": [
-        "Naini sits across the Yamuna with industry, new flats and institute campuses. Every move to the main city crosses the bridge, so timing decides everything, and our crews cross before the morning build up or after it clears."
+        "Naini sits across the Yamuna with industry, new flats and institute campuses. Every move to the main city crosses the bridge, so timing decides everything, and our crews cross before the morning build up or after it clears. Industrial shift hours load the bridge approaches, and the schedule threads between them."
       ]
     },
     {
@@ -596,7 +734,7 @@
       "lat": 28.97,
       "lng": 77.74,
       "note": [
-        "Shastri Nagar is the established heart of residential Meerut, block after block of family houses on a fine grid. Internal lanes take small trucks comfortably, and most jobs here are full homes with rooftop items that need careful stair work."
+        "Shastri Nagar is the established heart of residential Meerut, block after block of family houses on a fine grid. Internal lanes take small trucks comfortably, and most jobs here are full homes with rooftop items that need careful stair work. Block markets bring evening crowds, so trucks work the morning side of the day here."
       ]
     },
     {
@@ -607,7 +745,7 @@
       "lat": 29.048,
       "lng": 77.705,
       "note": [
-        "Pallavpuram lies on the Modipuram side of Meerut near the expressway entry, which makes it the fastest point in the city for a Delhi bound move. Phase wise plotted homes with gated pockets give easy access, and loads roll straight onto the highway."
+        "Pallavpuram lies on the Modipuram side of Meerut near the expressway entry, which makes it the fastest point in the city for a Delhi bound move. Phase wise plotted homes with gated pockets give easy access, and loads roll straight onto the highway. The expressway entry minutes away makes early loading here worth the alarm clock."
       ]
     },
     {
@@ -618,7 +756,7 @@
       "lat": 25.59,
       "lng": 85.161,
       "note": [
-        "Kankarbagh is a giant planned colony and probably the busiest moving pocket in Bihar. Its main roads take trucks easily, but the inner blocks tighten, so the survey settles whether goods roll from the door or shuttle out to the colony road."
+        "Kankarbagh is a giant planned colony and probably the busiest moving pocket in Bihar. Its main roads take trucks easily, but the inner blocks tighten, so the survey settles whether goods roll from the door or shuttle out to the colony road. Colony gates on the main avenues take full trucks without any argument."
       ]
     },
     {
@@ -629,7 +767,7 @@
       "lat": 25.613,
       "lng": 85.118,
       "note": [
-        "Boring Road is the premium west Patna strip where old bungalow plots have turned into apartments and coaching institutes. Daytime congestion is constant, so loading happens early morning, and building lifts here are often small, which changes how we pack large furniture."
+        "Boring Road is the premium west Patna strip where old bungalow plots have turned into apartments and coaching institutes. Daytime congestion is constant, so loading happens early morning, and building lifts here are often small, which changes how we pack large furniture. Evening coaching hours crowd the stretch, so afternoons stay clear for carrying."
       ]
     },
     {
@@ -640,7 +778,7 @@
       "lat": 24.696,
       "lng": 84.991,
       "note": [
-        "Bodh Gaya runs on the monastery and institute calendar, with moves tied to retreat seasons and academic terms. Loads often include libraries, shrine items and delicate art that we wrap with extra layers, and the temple zone road rules set our vehicle timings."
+        "Bodh Gaya runs on the monastery and institute calendar, with moves tied to retreat seasons and academic terms. Loads often include libraries, shrine items and delicate art that we wrap with extra layers, and the temple zone road rules set our vehicle timings. Retreat season ends bring clustered departures, and shared slots keep each load's cost low."
       ]
     },
     {
@@ -651,7 +789,7 @@
       "lat": 24.78,
       "lng": 85.01,
       "note": [
-        "A P Colony is the settled professional quarter of Gaya where doctors, teachers and officers keep family homes. Lanes are orderly by old town standards, and a medium truck reaches most gates, keeping moves here simple and quick."
+        "A P Colony is the settled professional quarter of Gaya where doctors, teachers and officers keep family homes. Lanes are orderly by old town standards, and a medium truck reaches most gates, keeping moves here simple and quick. School vans own the lanes at bell hours, and loading slots simply respect that."
       ]
     },
     {
@@ -662,7 +800,7 @@
       "lat": 26.13,
       "lng": 85.38,
       "note": [
-        "Mithanpura is the main residential address of Muzaffarpur, with schools, clinics and multi floor family houses close together. Evening market traffic blocks the connecting roads, so crews here work morning shifts and wrap up loading before the bazaar wakes fully."
+        "Mithanpura is the main residential address of Muzaffarpur, with schools, clinics and multi floor family houses close together. Evening market traffic blocks the connecting roads, so crews here work morning shifts and wrap up loading before the bazaar wakes fully. Clinics keep the area awake early, and a dawn start clears the lanes before the rush."
       ]
     },
     {
@@ -673,7 +811,7 @@
       "lat": 26.105,
       "lng": 85.365,
       "note": [
-        "Bhagwanpur sits at the highway end of Muzaffarpur where the NH ring meets the city, making it the natural loading point for long distance moves. Newer flats and plotted homes here have straightforward access, and goods head directly onto the Patna road."
+        "Bhagwanpur sits at the highway end of Muzaffarpur where the NH ring meets the city, making it the natural loading point for long distance moves. Newer flats and plotted homes here have straightforward access, and goods head directly onto the Patna road. Highway staging here saves an hour against any inner city loading point."
       ]
     },
     {
@@ -684,7 +822,7 @@
       "lat": 25.25,
       "lng": 86.98,
       "note": [
-        "Adampur is central Bhagalpur living, close to the courts and the university, with older family houses on connected lanes. Moves here frequently include silk trade material along with the household, listed separately in the survey so the load plan is honest."
+        "Adampur is central Bhagalpur living, close to the courts and the university, with older family houses on connected lanes. Moves here frequently include silk trade material along with the household, listed separately in the survey so the load plan is honest. Court days thicken the traffic toward the chowk, so midweek mornings work best."
       ]
     },
     {
@@ -695,7 +833,7 @@
       "lat": 25.245,
       "lng": 86.97,
       "note": [
-        "Tatarpur is a weaving neighbourhood at heart, and its moves can carry looms and fabric stock that outweigh the furniture. We plan those items first, then the household around them, which keeps the vehicle choice right."
+        "Tatarpur is a weaving neighbourhood at heart, and its moves can carry looms and fabric stock that outweigh the furniture. We plan those items first, then the household around them, which keeps the vehicle choice right. Loom rooms open to the lane itself, and the crew stages padding before anything lifts."
       ]
     },
     {
@@ -706,7 +844,7 @@
       "lat": 26.12,
       "lng": 85.89,
       "note": [
-        "Laheriasarai is the administrative half of Darbhanga with the courts, the medical college and settled residential lanes. Posting driven moves dominate, usually complete households on government timelines that we meet with confirmed dates."
+        "Laheriasarai is the administrative half of Darbhanga with the courts, the medical college and settled residential lanes. Posting driven moves dominate, usually complete households on government timelines that we meet with confirmed dates. Court and college hours set the traffic, and the calm window sits before ten in the morning."
       ]
     },
     {
@@ -717,7 +855,7 @@
       "lat": 26.135,
       "lng": 85.87,
       "note": [
-        "Donar lies on the growing edge of Darbhanga near the airport road, with new plots filling in fast. Access is easy by the town standard, and many jobs here are inbound families returning to the region after years outside."
+        "Donar lies on the growing edge of Darbhanga near the airport road, with new plots filling in fast. Access is easy by the town standard, and many jobs here are inbound families returning to the region after years outside. New plots mean unfinished lanes in patches, and the survey walks the approach before loading day."
       ]
     },
     {
@@ -728,7 +866,7 @@
       "lat": 30.36,
       "lng": 78.08,
       "note": [
-        "Rajpur Road climbs gently out of Dehradun toward Mussoorie, lined with bungalows, schools and boutique apartments. Upper stretches narrow and turn sharply, so bigger homes there sometimes need a smaller vehicle bridge to the main road."
+        "Rajpur Road climbs gently out of Dehradun toward Mussoorie, lined with bungalows, schools and boutique apartments. Upper stretches narrow and turn sharply, so bigger homes there sometimes need a smaller vehicle bridge to the main road. Weekend hill traffic clogs the upper stretch, so moves here prefer the middle of the week."
       ]
     },
     {
@@ -739,7 +877,7 @@
       "lat": 30.268,
       "lng": 77.997,
       "note": [
-        "Clement Town in south Dehradun mixes cantonment order with new gated societies near the ISBT side. Highway access toward Delhi is immediate, which makes it a favourite starting point for plains bound moves."
+        "Clement Town in south Dehradun mixes cantonment order with new gated societies near the ISBT side. Highway access toward Delhi is immediate, which makes it a favourite starting point for plains bound moves. Cantonment order keeps the lanes clear, and gate formalities are settled a day ahead."
       ]
     },
     {
@@ -750,7 +888,7 @@
       "lat": 29.964,
       "lng": 78.09,
       "note": [
-        "Sidcul is the industrial township of Haridwar, and its housing clusters turn over with plant postings. Company assisted moves on fixed joining dates are the routine here, with security gate procedures at both the estate and the societies."
+        "Sidcul is the industrial township of Haridwar, and its housing clusters turn over with plant postings. Company assisted moves on fixed joining dates are the routine here, with security gate procedures at both the estate and the societies. Plant shift sirens set the road's rhythm, and loading windows sit between them by design."
       ]
     },
     {
@@ -761,7 +899,7 @@
       "lat": 29.927,
       "lng": 78.15,
       "note": [
-        "Kankhal is the old sage quarter of Haridwar, calm lanes with ashrams and heritage houses. Streets tighten near the ghats, so moves here often stage the truck on the outer road while the crew hand carries the final stretch."
+        "Kankhal is the old sage quarter of Haridwar, calm lanes with ashrams and heritage houses. Streets tighten near the ghats, so moves here often stage the truck on the outer road while the crew hand carries the final stretch. Ashram lanes ask for quiet handling, and crews here work softly past the gates."
       ]
     },
     {
@@ -772,7 +910,7 @@
       "lat": 30.124,
       "lng": 78.318,
       "note": [
-        "Tapovan above Laxman Jhula is the yoga school quarter, full of furnished flats and studio homes that change hands every season. Loads are small but valuable, mats to sound equipment, and the steep approach lanes decide the vehicle."
+        "Tapovan above Laxman Jhula is the yoga school quarter, full of furnished flats and studio homes that change hands every season. Loads are small but valuable, mats to sound equipment, and the steep approach lanes decide the vehicle. The climb from the bridge decides the vehicle, and most loads stage at the road head above."
       ]
     },
     {
@@ -783,7 +921,7 @@
       "lat": 30.113,
       "lng": 78.312,
       "note": [
-        "Muni Ki Reti runs along the Ganga between Rishikesh town and the bridges, dense with guest houses and ashram housing. River side lanes are foot traffic first, so crews carry to the road head and load there."
+        "Muni Ki Reti runs along the Ganga between Rishikesh town and the bridges, dense with guest houses and ashram housing. River side lanes are foot traffic first, so crews carry to the road head and load there. Pilgrim traffic swells by mid morning, so the carry to the road finishes early."
       ]
     },
     {
@@ -794,7 +932,7 @@
       "lat": 29.265,
       "lng": 79.547,
       "note": [
-        "Kathgodam is where the railway ends and the hills begin, which makes it a natural transfer point for Kumaon moves. Households heading up to Nainital or Bhimtal often reload here onto hill trucks, and we manage that handover inside one written quote."
+        "Kathgodam is where the railway ends and the hills begin, which makes it a natural transfer point for Kumaon moves. Households heading up to Nainital or Bhimtal often reload here onto hill trucks, and we manage that handover inside one written quote. Rail parcel timings matter for split loads, and the office checks them while booking."
       ]
     },
     {
@@ -805,7 +943,7 @@
       "lat": 29.23,
       "lng": 79.51,
       "note": [
-        "Mukhani is the growing residential crossroads of Haldwani with new colonies spreading toward the bypass. Roads are wide enough for full trucks, and most jobs here are standard plains moves without hill complications."
+        "Mukhani is the growing residential crossroads of Haldwani with new colonies spreading toward the bypass. Roads are wide enough for full trucks, and most jobs here are standard plains moves without hill complications. The crossing toward the bypass backs up at peak, and trucks slot around the mandi hours."
       ]
     },
     {
@@ -816,7 +954,7 @@
       "lat": 29.87,
       "lng": 77.88,
       "note": [
-        "Ganeshpur is the civilian residential heart of Roorkee, close to the canal and the market. Homes are family houses with courtyards, and moves here are steady staircase work with easy truck access on the connecting roads."
+        "Ganeshpur is the civilian residential heart of Roorkee, close to the canal and the market. Homes are family houses with courtyards, and moves here are steady staircase work with easy truck access on the connecting roads. Canal side lanes narrow in places, and a mid size vehicle handles the inner blocks best."
       ]
     },
     {
@@ -827,7 +965,7 @@
       "lat": 29.845,
       "lng": 77.885,
       "note": [
-        "Ramnagar sits on the highway side of Roorkee, convenient for loads joining NH 334 toward Haridwar or Delhi. Plots are generous and lanes are manageable, so trucks generally park within carry distance of the door."
+        "Ramnagar sits on the highway side of Roorkee, convenient for loads joining NH 334 toward Haridwar or Delhi. Plots are generous and lanes are manageable, so trucks generally park within carry distance of the door. Highway access makes this the quickest loading point in town for long hauls."
       ]
     },
     {
@@ -838,7 +976,7 @@
       "lat": 28.975,
       "lng": 79.405,
       "note": [
-        "Awas Vikas is the settled planned colony of Rudrapur where factory managers and local business families live side by side. Company transfer moves in and out of here run all year, and the grid roads keep loading simple."
+        "Awas Vikas is the settled planned colony of Rudrapur where factory managers and local business families live side by side. Company transfer moves in and out of here run all year, and the grid roads keep loading simple. Company transfer dates cluster at quarter ends, and slots in those weeks go early."
       ]
     },
     {
@@ -849,7 +987,7 @@
       "lat": 29.022,
       "lng": 79.49,
       "note": [
-        "Pantnagar is the university and airport belt beside Rudrapur, with staff quarters and campus housing on academic timelines. Loads regularly include research books and equipment, packed and labelled so unpacking at the destination campus is orderly."
+        "Pantnagar is the university and airport belt beside Rudrapur, with staff quarters and campus housing on academic timelines. Loads regularly include research books and equipment, packed and labelled so unpacking at the destination campus is orderly. Campus gates log vehicles and crew lists, and the paperwork travels ahead of the truck."
       ]
     },
     {
@@ -860,7 +998,7 @@
       "lat": 31.109,
       "lng": 77.199,
       "note": [
-        "Sanjauli is the largest suburb of Shimla, stacked on the hillside past the tunnel. The tunnel timing rules and one way flows set the schedule, and most homes need porter carry from the road head, which our survey counts step by step."
+        "Sanjauli is the largest suburb of Shimla, stacked on the hillside past the tunnel. The tunnel timing rules and one way flows set the schedule, and most homes need porter carry from the road head, which our survey counts step by step. Porter teams here know every stair run, and the survey names the carry route."
       ]
     },
     {
@@ -871,7 +1009,7 @@
       "lat": 31.08,
       "lng": 77.15,
       "note": [
-        "New Shimla is the planned government sector side of the city, and its wider curved roads accept medium trucks better than the old town. Officer transfers dominate the calendar, and winter moves here plan around snow days."
+        "New Shimla is the planned government sector side of the city, and its wider curved roads accept medium trucks better than the old town. Officer transfers dominate the calendar, and winter moves here plan around snow days. Winter mornings can ice the curves, so cold season loading waits for the sun."
       ]
     },
     {
@@ -882,7 +1020,7 @@
       "lat": 30.955,
       "lng": 76.8,
       "note": [
-        "Sai Road is the main artery of Baddi with worker housing, executive flats and factory gates in one long line. Shift change hours load this road heavily, so pickups here run mid morning or early afternoon by design."
+        "Sai Road is the main artery of Baddi with worker housing, executive flats and factory gates in one long line. Shift change hours load this road heavily, so pickups here run mid morning or early afternoon by design. Freight dispatch waves own the corridor at fixed hours, and household trucks ride between them."
       ]
     },
     {
@@ -893,7 +1031,7 @@
       "lat": 30.91,
       "lng": 76.84,
       "note": [
-        "Barotiwala extends the Baddi industrial belt with its own plants and colonies. Moves track company postings, and the flat wide estate roads make it one of the easiest truck territories in Himachal."
+        "Barotiwala extends the Baddi industrial belt with its own plants and colonies. Moves track company postings, and the flat wide estate roads make it one of the easiest truck territories in Himachal. Plant gates dominate the stretch, and moves here plan around the shift sirens."
       ]
     },
     {
@@ -904,7 +1042,7 @@
       "lat": 30.893,
       "lng": 77.09,
       "note": [
-        "Saproon holds the university side of Solan in a valley pocket below the highway. Student and faculty session moves are the rhythm here, and the short steep link roads decide whether a truck or a small carrier meets the building."
+        "Saproon holds the university side of Solan in a valley pocket below the highway. Student and faculty session moves are the rhythm here, and the short steep link roads decide whether a truck or a small carrier meets the building. Session change fills the valley with student shifts, and vans handle the hostel lanes."
       ]
     },
     {
@@ -915,7 +1053,7 @@
       "lat": 30.88,
       "lng": 77.105,
       "note": [
-        "Chambaghat is the industrial and transport edge of Solan on the Kalka road, the practical loading zone for the town. Homes above the market climb quickly, so crews stage at the road and carry up the lanes."
+        "Chambaghat is the industrial and transport edge of Solan on the Kalka road, the practical loading zone for the town. Homes above the market climb quickly, so crews stage at the road and carry up the lanes. The highway junction makes it the natural staging point for loads leaving Solan."
       ]
     },
     {
@@ -926,7 +1064,7 @@
       "lat": 32.2427,
       "lng": 76.32,
       "note": [
-        "Mcleodganj crowns the Dharamshala hillside and its single climbing road sets every rule. Trucks stay below while small hill carriers do the climb, and moves often include monastery libraries and art that we pack to survive the winding descent."
+        "Mcleodganj crowns the Dharamshala hillside and its single climbing road sets every rule. Trucks stay below while small hill carriers do the climb, and moves often include monastery libraries and art that we pack to survive the winding descent. Tourist weekends jam the single climb, so moves here run on weekday mornings."
       ]
     },
     {
@@ -937,7 +1075,7 @@
       "lat": 32.19,
       "lng": 76.3,
       "note": [
-        "Sidhpur spreads on the gentler lower slope of Dharamshala near the Norbulingka side, where roads are kinder and full trucks manage most gates. It works as the staging ground for moves headed further up the mountain."
+        "Sidhpur spreads on the gentler lower slope of Dharamshala near the Norbulingka side, where roads are kinder and full trucks manage most gates. It works as the staging ground for moves headed further up the mountain. The gentle slope takes full trucks, which is why upper town moves stage here first."
       ]
     },
     {
@@ -948,7 +1086,7 @@
       "lat": 31.72,
       "lng": 76.94,
       "note": [
-        "Bhiuli is the newer residential spread of Mandi across the Beas, with straighter roads than the old bazaar core. Most full truck loads for Mandi town actually load here, with hand carry bridging the old town lanes."
+        "Bhiuli is the newer residential spread of Mandi across the Beas, with straighter roads than the old bazaar core. Most full truck loads for Mandi town actually load here, with hand carry bridging the old town lanes. The bridge timing sets the day, and crews cross before the bazaar traffic builds."
       ]
     },
     {
@@ -959,7 +1097,7 @@
       "lat": 31.648,
       "lng": 76.885,
       "note": [
-        "Nerchowk sits on the highway south of Mandi and hosts the medical college, so staff and student moves anchor the work. Its flat highway frontage makes it the easiest loading point in the district."
+        "Nerchowk sits on the highway south of Mandi and hosts the medical college, so staff and student moves anchor the work. Its flat highway frontage makes it the easiest loading point in the district. College session dates bring the surges, and the highway frontage keeps loading simple."
       ]
     },
     {
@@ -970,7 +1108,7 @@
       "lat": 28.399,
       "lng": 77.31,
       "note": [
-        "Sector 15 is old planned Faridabad at its best, mature trees and settled family houses near the market. Moves here are full households with decades of belongings, and trucks park at the gate in most blocks."
+        "Sector 15 is old planned Faridabad at its best, mature trees and settled family houses near the market. Moves here are full households with decades of belongings, and trucks park at the gate in most blocks. Mature trees line the gates, and most homes here load straight from the porch."
       ]
     },
     {
@@ -981,7 +1119,7 @@
       "lat": 28.41,
       "lng": 77.37,
       "note": [
-        "Greater Faridabad, the Neharpar sectors, is a fresh wall of high rise societies where possession moves arrive every month. Service lift bookings and society slots decide the day, and we lock both before the truck rolls."
+        "Greater Faridabad, the Neharpar sectors, is a fresh wall of high rise societies where possession moves arrive every month. Service lift bookings and society slots decide the day, and we lock both before the truck rolls. Possession waves bring lift queues, so the society slot is booked before anything else."
       ]
     },
     {
@@ -992,7 +1130,7 @@
       "lat": 28.87,
       "lng": 77.12,
       "note": [
-        "Kundli hugs the Delhi border on GT Road with industrial estates and new residential towers side by side. Short cross border moves into north Delhi are the staple, quick runs where border and toll timing still matter."
+        "Kundli hugs the Delhi border on GT Road with industrial estates and new residential towers side by side. Short cross border moves into north Delhi are the staple, quick runs where border and toll timing still matter. Border and toll timing decide the day, and early trucks clear before the freight builds."
       ]
     },
     {
@@ -1003,7 +1141,7 @@
       "lat": 28.99,
       "lng": 77.03,
       "note": [
-        "Sector 14 is the established civic heart of Sonipat with courts and schools around orderly residential blocks. Family homes here move with heavy furniture and rooftop stores, priced honestly after a proper stair count."
+        "Sector 14 is the established civic heart of Sonipat with courts and schools around orderly residential blocks. Family homes here move with heavy furniture and rooftop stores, priced honestly after a proper stair count. Courtyard homes load from their own gates, and the stair count sets the crew size."
       ]
     },
     {
@@ -1014,7 +1152,7 @@
       "lat": 29.395,
       "lng": 76.97,
       "note": [
-        "Model Town is the classic family quarter of Panipat, close to the markets yet quieter inside its lanes. Loads out of here often carry the city signature, carpets and bulk textiles alongside the household."
+        "Model Town is the classic family quarter of Panipat, close to the markets yet quieter inside its lanes. Loads out of here often carry the city signature, carpets and bulk textiles alongside the household. Loom lots often ride with the household, listed separately so the load plan stays honest."
       ]
     },
     {
@@ -1025,7 +1163,7 @@
       "lat": 29.37,
       "lng": 76.95,
       "note": [
-        "Sector 25 lies on the industrial flank of Panipat where managers and supervisors from the units keep homes. Access from the highway is direct, and posting driven timelines shape most bookings."
+        "Sector 25 lies on the industrial flank of Panipat where managers and supervisors from the units keep homes. Access from the highway is direct, and posting driven timelines shape most bookings. Industrial traffic peaks at shift change, and loading windows sit between the waves."
       ]
     },
     {
@@ -1036,7 +1174,7 @@
       "lat": 30.67,
       "lng": 76.87,
       "note": [
-        "Sector 20 is one of the larger residential sectors of Panchkula, past the Ghaggar toward Zirakpur. The grid keeps truck work simple, and many moves swap with Chandigarh sectors just minutes away."
+        "Sector 20 is one of the larger residential sectors of Panchkula, past the Ghaggar toward Zirakpur. The grid keeps truck work simple, and many moves swap with Chandigarh sectors just minutes away. The grid keeps access simple, and society formalities close in a single call."
       ]
     },
     {
@@ -1047,7 +1185,7 @@
       "lat": 30.71,
       "lng": 76.85,
       "note": [
-        "Mansa Devi Complex climbs the Shivalik edge of Panchkula beside the temple, housing board flats and private homes in tiers. Upper pockets need shorter vehicles on the internal climbs, which the survey flags early."
+        "Mansa Devi Complex climbs the Shivalik edge of Panchkula beside the temple, housing board flats and private homes in tiers. Upper pockets need shorter vehicles on the internal climbs, which the survey flags early. Temple mornings bring foot traffic to the approach, so crews load after the early rush."
       ]
     },
     {
@@ -1058,7 +1196,7 @@
       "lat": 29.69,
       "lng": 76.98,
       "note": [
-        "Sector 13 is settled urban Karnal near the highway with straightforward plotted homes. Loads join GT Road within minutes, which makes both Delhi and Chandigarh runs efficient from this address."
+        "Sector 13 is settled urban Karnal near the highway with straightforward plotted homes. Loads join GT Road within minutes, which makes both Delhi and Chandigarh runs efficient from this address. Highway access sits minutes away, which makes this the easiest launch point in Karnal."
       ]
     },
     {
@@ -1069,7 +1207,7 @@
       "lat": 29.695,
       "lng": 76.97,
       "note": [
-        "Prem Nagar is an older Karnal colony of compact family houses on tighter lanes. Medium vehicles handle it well, and moves here usually pair with institute postings around the city."
+        "Prem Nagar is an older Karnal colony of compact family houses on tighter lanes. Medium vehicles handle it well, and moves here usually pair with institute postings around the city. Inner lanes take medium vehicles, and the crew shuttles the last stretch when needed."
       ]
     },
     {
@@ -1080,7 +1218,7 @@
       "lat": 30.341,
       "lng": 76.829,
       "note": [
-        "Ambala Cantt runs on defence procedure, gate passes, verification and colony rules that our crews know well. Posting season fills the calendar, and trunks, cycles and regulated items travel with proper listing."
+        "Ambala Cantt runs on defence procedure, gate passes, verification and colony rules that our crews know well. Posting season fills the calendar, and trunks, cycles and regulated items travel with proper listing. Verification and gate lists travel a day ahead, and the move itself runs on service time."
       ]
     },
     {
@@ -1091,7 +1229,7 @@
       "lat": 30.375,
       "lng": 76.782,
       "note": [
-        "Ambala City is the trading half of town, its cloth market lanes tight through business hours. Household moves here load early, and shop linked stock often shares the truck with the home."
+        "Ambala City is the trading half of town, its cloth market lanes tight through business hours. Household moves here load early, and shop linked stock often shares the truck with the home. Market hours belong to handcarts, so bazaar side homes load before the shutters rise."
       ]
     },
     {
@@ -1102,7 +1240,7 @@
       "lat": 28.89,
       "lng": 76.62,
       "note": [
-        "DLF Colony is the recognised premium address of Rohtak with generous plots and clean internal roads. Full households with heavy furniture are the norm, and trucks reach the gate in nearly every lane."
+        "DLF Colony is the recognised premium address of Rohtak with generous plots and clean internal roads. Full households with heavy furniture are the norm, and trucks reach the gate in nearly every lane. Wide plots mean long carries from deep porches, counted plainly in the survey."
       ]
     },
     {
@@ -1113,7 +1251,7 @@
       "lat": 28.885,
       "lng": 76.63,
       "note": [
-        "Sector 3 is HUDA planned Rohtak, orderly plots popular with university and hospital staff. Session and posting dates drive the movement, and access is simple by design."
+        "Sector 3 is HUDA planned Rohtak, orderly plots popular with university and hospital staff. Session and posting dates drive the movement, and access is simple by design. University households cluster here, and session dates set the busy weeks. Wide plotted lanes take medium trucks easily, and gate side loading is the norm here."
       ]
     },
     {
@@ -1124,7 +1262,7 @@
       "lat": 29.16,
       "lng": 75.73,
       "note": [
-        "Urban Estate is planned Hisar at its most comfortable, wide lanes and courtyard houses that load easily. Campus families from the agricultural university favour it, and their moves carry study rooms of books."
+        "Urban Estate is planned Hisar at its most comfortable, wide lanes and courtyard houses that load easily. Campus families from the agricultural university favour it, and their moves carry study rooms of books. Courtyard loads run heavy, and summer work starts at first light by habit."
       ]
     },
     {
@@ -1135,7 +1273,7 @@
       "lat": 29.155,
       "lng": 75.71,
       "note": [
-        "Azad Nagar is a busy mixed colony of Hisar where homes sit above shops on the market stretches. Early starts beat the bazaar traffic, and smaller vehicles cover the tighter inner lanes."
+        "Azad Nagar is a busy mixed colony of Hisar where homes sit above shops on the market stretches. Early starts beat the bazaar traffic, and smaller vehicles cover the tighter inner lanes. Shop fronts wake early, so trucks here finish loading before the bazaar opens."
       ]
     },
     {
@@ -1146,7 +1284,7 @@
       "lat": 28.5677,
       "lng": 77.2433,
       "note": [
-        "Lajpat Nagar packs central market energy beside dense residential blocks, and parking is the whole game. Police assist timings on the market lanes are limited, so moves here start at dawn and the truck position is scouted the evening before."
+        "Lajpat Nagar packs central market energy beside dense residential blocks, and parking is the whole game. Police assist timings on the market lanes are limited, so moves here start at dawn and the truck position is scouted the evening before. Metro construction pockets shift the parking game, and the crew scouts the block a day ahead."
       ]
     },
     {
@@ -1157,7 +1295,7 @@
       "lat": 28.6219,
       "lng": 77.0878,
       "note": [
-        "Janakpuri spreads across west Delhi in lettered blocks of DDA flats and independent houses. Stair carry from third and fourth floor walkup flats is the defining work here, counted flight by flight in our survey."
+        "Janakpuri spreads across west Delhi in lettered blocks of DDA flats and independent houses. Stair carry from third and fourth floor walkup flats is the defining work here, counted flight by flight in our survey. The district centre and the metro corridor keep truck access simple on the outer roads, so most jobs here load close to the block gate."
       ]
     }
   ]

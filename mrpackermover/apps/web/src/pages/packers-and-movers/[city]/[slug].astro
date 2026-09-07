@@ -9,7 +9,6 @@ import GeoHero from '../../../components/sections/GeoHero.astro';
 import Band from '../../../components/ui/Band.astro';
 import Breadcrumbs from '../../../components/nav/Breadcrumbs.astro';
 import StatStrip from '../../../components/trust/StatStrip.astro';
-import RateTable from '../../../components/pricing/RateTable.astro';
 import Inclusions from '../../../components/sections/Inclusions.astro';
 import LocalNotes from '../../../components/sections/LocalNotes.astro';
 import ReviewList from '../../../components/trust/ReviewList.astro';
@@ -35,12 +34,16 @@ const loc = !isService ? dataOf<LocalityData>(row) : null;
 
 const cityName = cs?.cityName ?? loc?.cityName ?? '';
 const areaServed = isService ? cs!.cityName : loc!.localityName;
-const stats = cs?.stats ?? loc!.stats;
-const bands = cs?.rateBands ?? loc!.rateBands;
-const reviews = cs?.reviews ?? loc!.reviews;
-const faqs = cs?.faqs ?? loc!.faqs;
-const editorial = cs?.editorial ?? loc!.editorial;
-const priceFrom = cs?.priceFrom ?? loc!.priceFrom;
+// Pick per page type, never `cs?.x ?? loc!.x`: on a city-service page a missing
+// field (a city without pricing data, say) would fall through the `??` into
+// `loc!`, which is null there — that crashed the first build of a city that
+// launched on content alone.
+const stats = isService ? cs!.stats : loc!.stats;
+const bands = (isService ? cs!.rateBands : loc!.rateBands) ?? [];
+const reviews = (isService ? cs!.reviews : loc!.reviews) ?? [];
+const faqs = (isService ? cs!.faqs : loc!.faqs) ?? [];
+const editorial = (isService ? cs!.editorial : loc!.editorial) ?? [];
+const priceFrom = isService ? cs!.priceFrom : loc!.priceFrom;
 const current = isService ? `${cs!.serviceName} in ${cityName}` : `${loc!.localityName}`;
 
 const extraJsonLd = [
@@ -82,12 +85,11 @@ const heroImage = fs.existsSync(path.resolve('public/images/hero/cities', `${cit
     bands={bands}
   />
 
-  <Band label="Serviceability"><StatStrip stats={stats} scope={`in ${areaServed}`} /></Band>
-
   {
-    bands.length > 0 && (
-      <Band alt label="Pricing">
-        <RateTable bands={bands} heading={`Indicative pricing in ${areaServed}`} />
+    /* Same rule as the city hub: no fabricated zeros on a fresh page. */
+    stats.jobs12m > 0 && (
+      <Band label="Serviceability">
+        <StatStrip stats={stats} scope={`in ${areaServed}`} />
       </Band>
     )
   }

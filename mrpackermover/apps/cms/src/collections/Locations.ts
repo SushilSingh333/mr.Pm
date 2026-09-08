@@ -125,7 +125,7 @@ export const Locations: CollectionConfig = {
       hasMany: true,
       admin: {
         description:
-          'The services you offer in this city — each one gets its own “{Service} in {City}” page. Leave empty to fall back to the automatic data gate.',
+          'The services you offer in this city, each one gets its own “{Service} in {City}” page. Leave empty to fall back to the automatic data gate.',
         // Only cities offer services; localities inherit the city's.
         condition: (data) => data?.type === 'city',
       },
@@ -136,7 +136,7 @@ export const Locations: CollectionConfig = {
       relationTo: 'media',
       admin: {
         description:
-          'Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality — leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.',
+          'Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality, leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.',
         // States have no hero page of their own; cities and localities both do.
         condition: (data) => data?.type === 'city' || data?.type === 'locality',
       },

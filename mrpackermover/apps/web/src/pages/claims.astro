@@ -16,7 +16,7 @@ const row = staticRow({
   h1: ed.title ?? 'The claims page nobody else in this category shows',
   metaDescription:
     ed.seoDescription ??
-    'How MrPackerMover handles damage claims — the process, what we cover, and the settlement metrics we publish openly instead of hiding behind “100% damage-free”.',
+    'How MrPackerMover handles damage claims, the process, what we cover, and the settlement metrics we publish openly instead of hiding behind “100% damage-free”.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
@@ -34,7 +34,7 @@ const steps = [
   },
   {
     title: 'We assess against the record',
-    body: 'We check your report against the sealed inventory and the packing photos taken on the day — the shared record, not a he-said-she-said.',
+    body: 'We check your report against the sealed inventory and the packing photos taken on the day, the shared record, not a he-said-she-said.',
   },
   {
     title: 'We agree a settlement',
@@ -42,7 +42,7 @@ const steps = [
   },
   {
     title: 'You’re paid, and it’s logged',
-    body: 'Settlement is paid out and the case is recorded — which is how the numbers above stay honest and keep improving.',
+    body: 'Settlement is paid out and the case is recorded, which is how the numbers above stay honest and keep improving.',
   },
 ];
 
@@ -50,12 +50,12 @@ const faqs = [
   {
     question: 'Why publish claims data at all?',
     answer:
-      '“100% damage-free” is a claim no honest mover can make. Publishing our real settlement time and damage rate is uncomfortable, but it is verifiable — and it holds us to a standard a slogan never could.',
+      '“100% damage-free” is a claim no honest mover can make. Publishing our real settlement time and damage rate is uncomfortable, but it is verifiable, and it holds us to a standard a slogan never could.',
   },
   {
     question: 'What is actually covered?',
     answer:
-      'Transit damage caused by our handling is our responsibility. Your liability cover is basic by default; opting for transit insurance raises it to your declared value. Pre-existing damage and items you packed yourself without our inspection are treated differently — all spelled out before the move.',
+      'Transit damage caused by our handling is our responsibility. Your liability cover is basic by default; opting for transit insurance raises it to your declared value. Pre-existing damage and items you packed yourself without our inspection are treated differently, all spelled out before the move.',
   },
   {
     question: 'How is a settlement amount decided?',
@@ -78,7 +78,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     eyebrow={ed.eyebrow ?? 'Claims & settlement'}
     h1={row.h1}
     intro={ed.intro ??
-      'Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.'}
+      'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.'}
     breadcrumbs={row.breadcrumbs}
     current="Claims"
   />
@@ -86,7 +86,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
   <Band label="What we publish">
     <div class="section-head">
       <h2>Our claims numbers, in the open</h2>
-      <p>Updated each reporting period — the flattering figures and the unflattering ones alike.</p>
+      <p>Updated each reporting period, the flattering figures and the unflattering ones alike.</p>
     </div>
     <ul class="metrics" role="list">
       {
@@ -102,14 +102,14 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     <p class="metrics-note">
       Figures shown are illustrative sample data during build; they are replaced by live, audited
       numbers from our operations system at the first quarterly report. We publish real data or none
-      — never invented counters.
+      , never invented counters.
     </p>
   </Band>
 
   <Band alt label="How claims work">
     <div class="section-head">
       <h2>How a claim works</h2>
-      <p>Four steps, defined before your move begins — not improvised after something breaks.</p>
+      <p>Four steps, defined before your move begins, not improvised after something breaks.</p>
     </div>
     <FeatureGrid items={steps} columns={4} numbered />
   </Band>

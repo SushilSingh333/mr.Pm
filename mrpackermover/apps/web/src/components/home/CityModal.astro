@@ -7,6 +7,8 @@
  * `mpm:city-select` event ({slug, name}) and closes — consumers decide what to do
  * (home updates the selector; a city page navigates to that city).
  */
+import fs from 'node:fs';
+import path from 'node:path';
 import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
 
 interface City {
@@ -20,7 +22,11 @@ interface Props {
 }
 const { cities } = Astro.props;
 const thumbFor = (c: City): string =>
-  c.image ? cldUrl(c.image, CLD_TRANSFORM.thumb) : `/images/hero/cities/${c.slug}.jpg`;
+  c.image
+    ? cldUrl(c.image, CLD_TRANSFORM.thumb)
+    : fs.existsSync(path.resolve('public/images/hero/cities', `${c.slug}.jpg`))
+      ? `/images/hero/cities/${c.slug}.jpg`
+      : '/images/hero/home.jpg';
 ---
 
 <dialog id="city-modal" class="city-modal" aria-label="Choose your city">

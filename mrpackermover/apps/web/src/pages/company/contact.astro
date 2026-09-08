@@ -5,7 +5,7 @@ import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import Faq from '../../components/sections/Faq.astro';
 import { iconSvg } from '../../lib/icons.js';
-import { staticRow, org, editorialFor } from '../../lib/page.js';
+import { staticRow, org, editorialFor, isPageHidden } from '../../lib/page.js';
 import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../../lib/site.js';
 
 const ed = editorialFor('contact');
@@ -54,7 +54,7 @@ const faqs = [
   {
     question: 'Do you have an office I can walk into?',
     answer:
-      'No — and that is deliberate. We do not run walk-in branch offices; our crews come to you. Our registered office is listed for correspondence, and everything else happens by phone, WhatsApp, email or at your doorstep.',
+      'No, and that is deliberate. We do not run walk-in branch offices; our crews come to you. Our registered office is listed for correspondence, and everything else happens by phone, WhatsApp, email or at your doorstep.',
   },
   {
     question: 'How quickly will I get a reply?',
@@ -63,7 +63,7 @@ const faqs = [
   {
     question: 'Can I get a quote without a call?',
     answer:
-      'Yes. Use the fixed-quote form on the site, or WhatsApp us photos of what you are moving and the pickup and drop locations — we will send an itemised written quote.',
+      'Yes. Use the fixed-quote form on the site, or WhatsApp us photos of what you are moving and the pickup and drop locations. We will send an itemised written quote.',
   },
   {
     question: 'Something went wrong with my move. Who do I contact?',
@@ -80,7 +80,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     dark
     eyebrow="Contact"
     h1={row.h1}
-    intro="No ticket queues, no 12-digit IVR maze. Pick the channel that suits you — a real person on our team will pick it up."
+    intro="No ticket queues, no 12-digit IVR maze. Pick the channel that suits you, a real person on our team will pick it up."
     breadcrumbs={row.breadcrumbs}
     current="Contact"
   />
@@ -204,7 +204,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
       </div>
       <div class="cform-success card" id="contact-success" hidden>
         <h2 id="cs-title">Thanks!</h2>
-        <p>Your message is with us — we'll reply within our published response time.</p>
+        <p>Your message is with us. We'll reply within our published response time.</p>
       </div>
     </div>
   </Band>
@@ -218,10 +218,17 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
         <strong>Get a fixed quote</strong>
         <span>Itemised, written, and yours in minutes.</span>
       </a>
-      <a href="/track" class="ql card">
-        <strong>Track your move</strong>
-        <span>Check the live status of a booked shipment.</span>
-      </a>
+      {
+        /* Hand written quick link, so it needs the same unpublished check the nav
+           components apply. Without it this card kept pointing at /track after the
+           page was set to draft. */
+        !isPageHidden('track') && (
+          <a href="/track" class="ql card">
+            <strong>Track your move</strong>
+            <span>Check the live status of a booked shipment.</span>
+          </a>
+        )
+      }
       <a href="/raise-a-complaint" class="ql card">
         <strong>Raise a complaint</strong>
         <span>Log an issue and get it tracked to closure.</span>
@@ -277,7 +284,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
         }
         if (banner)
           banner.textContent =
-            "Sorry — we couldn't send that just now. Please try again in a moment.";
+            "Sorry. We couldn't send that just now. Please try again in a moment.";
         banner?.removeAttribute('hidden');
         return;
       }

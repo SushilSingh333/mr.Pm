@@ -165,13 +165,13 @@ function toHomeContent(
     trustHeading: doc?.trustHeading || 'House Shifting you can actually verify',
     trustIntro:
       doc?.trustIntro ||
-      'Everything below is backed by real job data — no vanity counters, no stock photos.',
+      'Everything below is backed by real job data, no vanity counters, no stock photos.',
     statsHeading: doc?.statsHeading || 'By the numbers',
-    statsIntro: doc?.statsIntro || "Unflattering when it needs to be — that's the point.",
+    statsIntro: doc?.statsIntro || "Unflattering when it needs to be. That's the point.",
     citiesHeading: doc?.citiesHeading || 'Cities we pick up from',
     citiesIntro:
       doc?.citiesIntro ||
-      'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India.',
+      'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews, delivery goes anywhere in India.',
     faqHeading: doc?.faqHeading || 'Questions people ask',
     pillars: (doc?.pillars ?? [])
       .filter((p) => p.title && p.body)
@@ -721,7 +721,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         override: homeContentDoc,
         fallbackTitle: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
         fallbackDescription:
-          'Packers and movers across India with fixed, written quotes — verified crews, ' +
+          'Packers and movers across India with fixed, written quotes, verified crews, ' +
           'published rate cards and real claims data. Get your price before you book.',
       }),
       h1: 'Packers and Movers you can actually verify',

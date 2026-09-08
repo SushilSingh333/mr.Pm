@@ -82,7 +82,7 @@ function validateTemplate(spec: TypeSpec, limit: number) {
       return `Unknown token${unknown.length > 1 ? 's' : ''} {${unknown.join('}, {')}}. Available here: {${spec.tokens.join('}, {')}}.`;
     }
     if (spec.many && !hasToken(value)) {
-      return `This template covers every page of this type, so it must include a token like {${spec.tokens[0]}} — otherwise every page gets the same text.`;
+      return `This template covers every page of this type, so it must include a token like {${spec.tokens[0]}}, otherwise every page gets the same text.`;
     }
     return true;
   };

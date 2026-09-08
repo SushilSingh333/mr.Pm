@@ -11,7 +11,7 @@ import type { Field } from 'payload';
 export function seoOverrideFields(what: string): Field {
   return {
     type: 'collapsible',
-    label: 'SEO  (optional — leave blank to use the defaults)',
+    label: 'SEO  (optional, leave blank to use the defaults)',
     admin: { initCollapsed: true },
     fields: [
       {

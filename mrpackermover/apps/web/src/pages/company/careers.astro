@@ -14,7 +14,7 @@ const row = staticRow({
   h1: 'Build the mover India can finally trust',
   metaDescription:
     ed.seoDescription ??
-    'Join MrPackerMover — crews, coordinators and support roles at a packers & movers company built on fixed quotes, verified people and published claims data.',
+    'Join MrPackerMover, crews, coordinators and support roles at a packers & movers company built on fixed quotes, verified people and published claims data.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
@@ -23,7 +23,7 @@ const values = [
   {
     icon: 'shield-check',
     title: 'Accountability over anonymity',
-    body: 'Every person on a job is trained and ID-verified. We put our names on our work — and we hire people who want theirs there too.',
+    body: 'Every person on a job is trained and ID-verified. We put our names on our work, and we hire people who want theirs there too.',
   },
   {
     icon: 'growth',
@@ -33,7 +33,7 @@ const values = [
   {
     icon: 'heart',
     title: 'Treat goods like our own',
-    body: "A customer's home is their whole life in boxes. Care isn't a slogan here — it is the single thing we screen for hardest.",
+    body: "A customer's home is their whole life in boxes. Care isn't a slogan here. It is the single thing we screen for hardest.",
   },
 ];
 
@@ -53,7 +53,7 @@ const roles = jobs().map((j) => ({
     dark
     eyebrow="Careers"
     h1={row.h1}
-    intro="This industry has a trust problem. We are hiring the people who will fix it — on the van, in the office, and on the phone."
+    intro="This industry has a trust problem. We are hiring the people who will fix it, on the van, in the office, and on the phone."
     breadcrumbs={row.breadcrumbs}
     current="Careers"
   >
@@ -63,7 +63,7 @@ const roles = jobs().map((j) => ({
   <Band label="What we value">
     <div class="section-head">
       <h2>What it's like to work here</h2>
-      <p>Three things we genuinely hire and promote for — everything else can be taught.</p>
+      <p>Three things we genuinely hire and promote for. Everything else can be taught.</p>
     </div>
     <FeatureGrid items={values} columns={3} />
   </Band>
@@ -94,7 +94,7 @@ const roles = jobs().map((j) => ({
         </ul>
       ) : (
         <p class="apply-note">
-          No specific roles are open right now — but if you can make a customer's move calmer, use
+          No specific roles are open right now, but if you can make a customer's move calmer, use
           the form below and we'll keep you in mind.
         </p>
       )
@@ -108,8 +108,7 @@ const roles = jobs().map((j) => ({
           <h2>Apply to join</h2>
           <p>
             Tell us a little about you
-            {o?.brandName ? ` — the ${o.brandName} team reads every application` : ''}. Fields
-            marked
+            {o?.brandName ? `, the ${o.brandName} team reads every application` : ''}. Fields marked
             <span class="req">*</span> are required.
           </p>
         </div>
@@ -253,7 +252,7 @@ const roles = jobs().map((j) => ({
         }
         if (banner)
           banner.textContent =
-            "Sorry — we couldn't submit that just now. Please try again in a moment.";
+            "Sorry. We couldn't submit that just now. Please try again in a moment.";
         banner?.removeAttribute('hidden');
         return;
       }

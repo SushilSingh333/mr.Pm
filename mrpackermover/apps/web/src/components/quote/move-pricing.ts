@@ -227,7 +227,7 @@ export function estimate(input: MoveInput): MoveResult {
 
   if (mode === 'local') {
     if (i.sameBuilding) {
-      add(`${truck} ft — same-building crew rate`, cfg.sameBuildingRate);
+      add(`${truck} ft, same-building crew rate`, cfg.sameBuildingRate);
     } else {
       add(`${truck} ft truck + basic packing`, cfg.truckBaseLocal[truck]!);
       add('Loading + unloading', cfg.loadUnloadLocal);
@@ -269,7 +269,7 @@ export function estimate(input: MoveInput): MoveResult {
     const tMult = cfg.terrainMult[i.terrainTier] ?? 1;
     if (tMult > 1) {
       add(
-        `Terrain — ${i.terrainTier} (+${Math.round((tMult - 1) * 100)}%)`,
+        `Terrain, ${i.terrainTier} (+${Math.round((tMult - 1) * 100)}%)`,
         (tMult - 1) * (transport + loadUnload + food),
       );
     }
@@ -301,7 +301,7 @@ export function estimate(input: MoveInput): MoveResult {
   // (3-layer + crates) adds over it (scaled by truck size).
   if (i.packingGrade !== 'basic') {
     const up = Math.round((cfg.packingUplift[i.packingGrade] ?? 0) * (truck / 14));
-    if (up > 0) add(`Packing — ${PACKING_LABEL[i.packingGrade] ?? i.packingGrade}`, up);
+    if (up > 0) add(`Packing, ${PACKING_LABEL[i.packingGrade] ?? i.packingGrade}`, up);
   }
 
   // Inter-state move: state permit + entry tax, on top of the mode price.

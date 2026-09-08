@@ -15,7 +15,7 @@ export const OperatingBases: CollectionConfig = {
   labels: { singular: 'Operating base (internal)', plural: 'Operating bases (internal)' },
   admin: {
     useAsTitle: 'label',
-    group: 'Internal — never rendered',
+    group: 'Internal, never rendered',
     description: 'Dispatch geography only. Feeds the publish gate. Never shown on the site.',
   },
   access: {

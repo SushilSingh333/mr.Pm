@@ -14,7 +14,7 @@ const row = staticRow({
   h1: 'Get your fixed, written quote',
   metaDescription:
     ed.seoDescription ??
-    'Tell us about your move and get a fixed, itemised quote from MrPackerMover — no moving-day surprises. A coordinator calls you back within 24 hours.',
+    'Tell us about your move and get a fixed, itemised quote from MrPackerMover, no moving-day surprises. A coordinator calls you back within 24 hours.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 
@@ -33,7 +33,7 @@ const assurances = [
   {
     icon: 'search',
     title: 'Survey-based',
-    body: 'We assess your goods first — a real price, not a phone guess.',
+    body: 'We assess your goods first, a real price, not a phone guess.',
   },
   {
     icon: 'fixed-quote',
@@ -123,9 +123,9 @@ const assurances = [
             </div>
           </div>
           <p class="field-hint">
-            Start typing and pick your <strong>exact address</strong> from the suggestions — the more
-            precise the pickup and drop points, the more accurate your quote. Pickup is from the cities
-            we serve — <strong>delivery can be anywhere in India.</strong>
+            Start typing and pick your <strong>exact address</strong> from the suggestions, the more precise
+            the pickup and drop points, the more accurate your quote. Pickup is from the cities we serve,
+            <strong>delivery can be anywhere in India.</strong>
           </p>
 
           <div class="field-row">
@@ -185,7 +185,7 @@ const assurances = [
             >
           </button>
           <p class="qform-fine">
-            By submitting, you agree to be contacted about your move. We never sell your data — see
+            By submitting, you agree to be contacted about your move. We never sell your data, see
             our <a href="/privacy">privacy policy</a>.
           </p>
         </form>
@@ -210,7 +210,7 @@ const assurances = [
         <ul class="qs-steps">
           <li><strong>1.</strong> A coordinator reviews your details.</li>
           <li><strong>2.</strong> We call you (within 24 hours) to confirm the scope.</li>
-          <li><strong>3.</strong> You receive a fixed, written quote — no surprises.</li>
+          <li><strong>3.</strong> You receive a fixed, written quote, no surprises.</li>
         </ul>
         <div class="qs-actions">
           <a class="btn btn-primary" href={`tel:${PHONE_TEL}`}>Call us now</a>
@@ -372,7 +372,7 @@ const assurances = [
         }
         if (banner)
           banner.textContent =
-            "Sorry — we couldn't send that just now. Please try again, or call us and we'll take your details.";
+            "Sorry. We couldn't send that just now. Please try again, or call us and we'll take your details.";
         banner?.removeAttribute('hidden');
         return;
       }

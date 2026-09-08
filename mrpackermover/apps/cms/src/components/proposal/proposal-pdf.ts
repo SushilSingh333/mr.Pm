@@ -24,7 +24,7 @@ const _proposalPdf = (function () {
     {name:'Sofa Set (3-Seater)',qty:2,pack:'Bubble Wrap',rem:''},
     {name:'Single Seater / Chairs',qty:4,pack:'Bubble Wrap',rem:''},
     {name:'Centre Table (Glass)',qty:1,pack:'Wooden Crate',rem:'Glass 43"'},
-    {name:'LED Television — 43"',qty:1,pack:'Wooden Crate',rem:''},
+    {name:'LED Television, 43"',qty:1,pack:'Wooden Crate',rem:''},
     {name:'Air Conditioner (Split/Window)',qty:2,pack:'Standard Wrap',rem:'De-install'},
     {name:'Air Cooler',qty:1,pack:'Standard Wrap',rem:'Plastic'},
     {name:'Ceiling Fans',qty:3,pack:'Standard Wrap',rem:''},
@@ -47,19 +47,19 @@ const _proposalPdf = (function () {
     {name:'Wooden Boxes',qty:2,pack:'Standard Wrap',rem:''}
   ];
   var defaultCharges=[
-    {name:'Professional packing — material & labour',amt:18000},
+    {name:'Professional packing, material & labour',amt:18000},
     {name:'Transportation (Meerut → Jamnagar)',amt:24000},
     {name:'Loading & unloading',amt:6000},
     {name:'Unpacking & basic rearrangement',amt:4000},
     {name:'Toll, permits & state entry',amt:3000}
   ];
   var defaultServices=[
-    'Professional packing — Premium 5-layer materials, room-wise labelling',
-    'Trained & verified crew — Uniformed, background-checked movers',
-    'GPS-tracked transport — Dedicated container, live location on request',
-    'Loading & unloading — Careful handling with floor & wall protection',
-    'Unpacking & rearrangement — Boxes opened and furniture placed',
-    'All-risk transit insurance — Optional cover on declared goods value'
+    'Professional packing, Premium 5-layer materials, room-wise labelling',
+    'Trained & verified crew, Uniformed, background-checked movers',
+    'GPS-tracked transport, Dedicated container, live location on request',
+    'Loading & unloading, Careful handling with floor & wall protection',
+    'Unpacking & rearrangement, Boxes opened and furniture placed',
+    'All-risk transit insurance, Optional cover on declared goods value'
   ];
   var defaultTerms=[
     'This proposal is valid for the number of days stated on page one from the date of issue.',
@@ -151,7 +151,7 @@ const _proposalPdf = (function () {
     var mid=Math.ceil(d.items.length/2);
     var invLeft=invTableHTML(d.items.slice(0,mid),0), invRight=invTableHTML(d.items.slice(mid),mid);
     var chargeRows=d.charges.map(function(c){return '<tr><td>'+esc(c.name)+'</td><td class="num">'+fmt(c.amt)+'</td></tr>';}).join('');
-    var svc=d.services.map(function(s){var p=s.split(/—|–|\|/);var h=p[0].trim();var sub=(p.slice(1).join('—')).trim();return '<div class="svc"><span class="ck">'+IC.check+'</span><div><b>'+esc(h)+'</b>'+(sub?'<span>'+esc(sub)+'</span>':'')+'</div></div>';}).join('');
+    var svc=d.services.map(function(s){var p=s.split(/, |–|\|/);var h=p[0].trim();var sub=(p.slice(1).join('—')).trim();return '<div class="svc"><span class="ck">'+IC.check+'</span><div><b>'+esc(h)+'</b>'+(sub?'<span>'+esc(sub)+'</span>':'')+'</div></div>';}).join('');
     var terms=d.terms.map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
     var contact=[];
     if(c.phone)contact.push('<span>'+IC.phone+esc(c.phone)+'</span>');
@@ -176,14 +176,14 @@ const _proposalPdf = (function () {
       '<div class="chip"><div class="k">Home size</div><div class="v">'+esc(mv.house)+'</div></div>'+
       '<div class="chip"><div class="k">Distance</div><div class="v">'+esc(mv.dist||'-')+'</div></div>'+
       '<div class="chip"><div class="k">Service</div><div class="v">'+esc(mv.svc)+'</div></div></div></div>'+
-      '<p class="intro">Dear '+esc(cu.name||'Customer')+', thank you for choosing <b>'+esc(c.name)+'</b> for your '+esc(mv.house)+' relocation from <b>'+esc(mv.from)+'</b> to <b>'+esc(mv.to)+'</b>. Please find your itemised inventory and a fully transparent estimate below — with no hidden charges.</p>'+
+      '<p class="intro">Dear '+esc(cu.name||'Customer')+', thank you for choosing <b>'+esc(c.name)+'</b> for your '+esc(mv.house)+' relocation from <b>'+esc(mv.from)+'</b> to <b>'+esc(mv.to)+'</b>. Please find your itemised inventory and a fully transparent estimate below, with no hidden charges.</p>'+
       '<div class="p-block"><div class="p-sec"><h3>Inventory of Articles</h3><div class="rule"></div><div class="meta">'+d.items.length+' items · '+totalArticles+' articles</div></div>'+
       '<div class="inv-cols"><div>'+invLeft+'</div><div>'+invRight+'</div></div></div>'+
       '<div class="p-block"><div class="p-sec"><h3>Cost Estimate</h3><div class="rule"></div><div class="meta">All figures in ₹ INR</div></div>'+
       '<div class="grandbar"><div><div class="gl">Grand Total</div><div class="gi">+ GST @ '+t.gstRate+'% extra'+(t.premium>0?' &nbsp;·&nbsp; + Insurance extra':'')+'</div></div><div class="gv">'+fmt(t.sub)+'</div></div>'+
       '<div class="costfoot"><div><span class="p-eyebrow">In words</span>Rupees '+inWords(t.sub)+' Only</div><div class="ct-r"><span class="p-eyebrow">Payment terms</span>'+esc(d.pay)+'</div></div>'+
       '<div class="validstrip">'+IC.clock+'<div>This estimate is valid till <b>'+validTill+'</b>. Book early to lock your move date &amp; pricing.</div></div></div>'+
-      '<div class="pagefoot"><span><span class="gold">'+esc(c.name)+'</span> · '+esc(QUOTE_NO)+'</span><span>Page 1 of 2 — Quotation</span></div></div></section>';
+      '<div class="pagefoot"><span><span class="gold">'+esc(c.name)+'</span> · '+esc(QUOTE_NO)+'</span><span>Page 1 of 2, Quotation</span></div></div></section>';
 
     var s2='<section class="sheet s2"><header class="slimhead"><div class="slim-l"><span class="mm">'+IC.truck+'</span><b>'+esc(c.name)+'</b></div>'+
       '<div class="slim-r"><div class="p-eyebrow">Terms &amp; Agreement</div><div class="q">'+esc(QUOTE_NO)+'</div></div></header><div class="body">'+
@@ -191,8 +191,8 @@ const _proposalPdf = (function () {
       '<div class="p-block"><div class="p-sec"><h3>Terms &amp; Conditions</h3><div class="rule"></div></div><ol class="terms">'+terms+'</ol></div>'+
       '<div class="p-block"><div class="p-sec"><h3>Acceptance</h3><div class="rule"></div></div>'+
       '<div class="signs"><div class="sign"><div class="line"></div><div class="who">For '+esc(c.name)+'</div><div class="role">Authorised Signatory · Date</div></div>'+
-      '<div class="sign"><div class="line"></div><div class="who">'+esc(cu.name||'Customer')+'</div><div class="role">Accepted — Signature &amp; Date</div></div></div></div>'+
-      '<div class="pagefoot"><span><span class="gold">'+esc(c.name)+'</span> · '+esc(QUOTE_NO)+'</span><span>Page 2 of 2 — Terms</span></div></div>'+
+      '<div class="sign"><div class="line"></div><div class="who">'+esc(cu.name||'Customer')+'</div><div class="role">Accepted, Signature &amp; Date</div></div></div></div>'+
+      '<div class="pagefoot"><span><span class="gold">'+esc(c.name)+'</span> · '+esc(QUOTE_NO)+'</span><span>Page 2 of 2, Terms</span></div></div>'+
       '<div class="p-foot"><div><div class="thanks">Thank you for trusting '+esc(c.name)+' with your move.</div>'+
       '<div class="ct">'+[c.phone,c.mobile,c.email,c.web].filter(Boolean).map(esc).join(' · ')+(c.addr?' · '+esc(c.addr):'')+'</div></div>'+
       '<div class="p-badges"><span class="b">Insured Transit</span><span class="b">On-time Delivery</span><span class="b">Trained Crew</span><span class="b">GPS Tracked</span><span class="b">24×7 Support</span></div></div></section>';
@@ -208,7 +208,7 @@ const _proposalPdf = (function () {
 
   function ff(n){return (isFinite(n)?n:0).toFixed(2);}
   function col(hex){return ff(parseInt(hex.substr(0,2),16)/255)+' '+ff(parseInt(hex.substr(2,2),16)/255)+' '+ff(parseInt(hex.substr(4,2),16)/255);}
-  function san(s){return String(s==null?'':s).replace(/₹/g,'Rs.').replace(/[—–]/g,'-').replace(/→/g,'->').replace(/≈/g,'~').replace(/×/g,'x').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/·/g,'|').replace(/[^\x20-\x7E]/g,'');}
+  function san(s){return String(s==null?'':s).replace(/₹/g,'Rs.').replace(/[, –]/g,'-').replace(/→/g,'->').replace(/≈/g,'~').replace(/×/g,'x').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/·/g,'|').replace(/[^\x20-\x7E]/g,'');}
   function tw(s,sz,b){var a=(b===1)?HB:HW,w=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i)-32;w+=(c>=0&&c<95)?a[c]:556;}return w*sz/1000;}
   function trunc(s,sz,b,mw){s=san(s);if(tw(s,sz,b)<=mw)return s;var t=s;while(t.length>1&&tw(t+'..',sz,b)>mw)t=t.slice(0,-1);return t+'..';}
   function wrap(s,sz,b,mw){s=san(s);var wds=s.split(/\s+/),L=[],c='';for(var i=0;i<wds.length;i++){var t=c?c+' '+wds[i]:wds[i];if(tw(t,sz,b)>mw&&c){L.push(c);c=wds[i];}else c=t;}if(c)L.push(c);return L;}
@@ -371,7 +371,7 @@ const _proposalPdf = (function () {
     var svcs=d.services,colH=Math.ceil(svcs.length/2),yA=y,yB=y;
     for(var i=0;i<svcs.length;i++){
       var isL=i<colH,cx=isL?CM:CM+half+24,cyy=isL?yA:yB;
-      var parts=svcs[i].split(/—|–|\|/),head=parts[0].trim(),sub=parts.slice(1).join('-').trim();
+      var parts=svcs[i].split(/, |–|\|/),head=parts[0].trim(),sub=parts.slice(1).join('-').trim();
       badge(O,cx+8,cyy-1,8,CO.crim,'check',CO.white,10);
       txt(O,cx+24,cyy+1,trunc(head,11,1,half-28),11,1,CO.navy);
       if(sub)txt(O,cx+24,cyy+12,trunc(sub,9,0,half-28),9,0,CO.soft);
@@ -449,7 +449,7 @@ const _proposalPdf = (function () {
       var url=URL.createObjectURL(blob);
       var a=document.createElement('a');a.href=url;a.download=fileName()+'.pdf';document.body.appendChild(a);a.click();document.body.removeChild(a);
       setTimeout(function(){URL.revokeObjectURL(url);},3000);
-      setStep(3);toast('PDF downloaded — check your Downloads folder.');
+      setStep(3);toast('PDF downloaded, check your Downloads folder.');
     }catch(e){
       toast('Could not build the PDF: '+((e&&e.message)||e)+'. Opening print instead.');
       printDoc();

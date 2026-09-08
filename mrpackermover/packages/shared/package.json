@@ -8,7 +8,8 @@
     "./manifest": "./src/manifest.ts",
     "./paths": "./src/paths.ts",
     "./constants": "./src/constants.ts",
-    "./payload-types": "./src/payload-types.ts"
+    "./payload-types": "./src/payload-types.ts",
+    "./blog-fallback": "./src/blog-fallback.ts"
   },
   "files": [
     "src"

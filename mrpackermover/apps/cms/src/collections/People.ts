@@ -44,7 +44,7 @@ export const People: CollectionConfig = {
           label: 'Show on the public team page',
           admin: {
             description:
-              'Off by default. Tick to publish this person on /company/team — needs a role, and a photo looks best.',
+              'Off by default. Tick to publish this person on /company/team, needs a role, and a photo looks best.',
           },
         },
         {

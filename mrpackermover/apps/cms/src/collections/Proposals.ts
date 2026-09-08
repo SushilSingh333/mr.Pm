@@ -41,19 +41,19 @@ const DEFAULT_INVENTORY = [
   { name: 'Cartons (Assorted)', qty: 10, pack: 'Standard Wrap', rem: 'Kitchen, books' },
 ];
 const DEFAULT_CHARGES = [
-  { name: 'Professional packing — material & labour', amt: 18000 },
+  { name: 'Professional packing, material & labour', amt: 18000 },
   { name: 'Transportation', amt: 24000 },
   { name: 'Loading & unloading', amt: 6000 },
   { name: 'Unpacking & basic rearrangement', amt: 4000 },
   { name: 'Toll, permits & state entry', amt: 3000 },
 ];
 const DEFAULT_SERVICES = [
-  { line: 'Professional packing — Premium 5-layer materials, room-wise labelling' },
-  { line: 'Trained & verified crew — Uniformed, background-checked movers' },
-  { line: 'GPS-tracked transport — Dedicated container, live location on request' },
-  { line: 'Loading & unloading — Careful handling with floor & wall protection' },
-  { line: 'Unpacking & rearrangement — Boxes opened and furniture placed' },
-  { line: 'All-risk transit insurance — Optional cover on declared goods value' },
+  { line: 'Professional packing, Premium 5-layer materials, room-wise labelling' },
+  { line: 'Trained & verified crew, Uniformed, background-checked movers' },
+  { line: 'GPS-tracked transport, Dedicated container, live location on request' },
+  { line: 'Loading & unloading, Careful handling with floor & wall protection' },
+  { line: 'Unpacking & rearrangement, Boxes opened and furniture placed' },
+  { line: 'All-risk transit insurance, Optional cover on declared goods value' },
 ];
 const DEFAULT_TERMS = [
   {
@@ -390,7 +390,7 @@ export const Proposals: CollectionConfig = {
               label: "What's included (page 2)",
               labels: { singular: 'Service', plural: 'Services' },
               defaultValue: DEFAULT_SERVICES,
-              admin: { description: 'Use “Title — description” for a bold title + subtext.' },
+              admin: { description: 'Use “Title, description” for a bold title + subtext.' },
               fields: [{ name: 'line', type: 'text' }],
             },
             {
@@ -405,8 +405,7 @@ export const Proposals: CollectionConfig = {
         },
         {
           label: 'Company',
-          description:
-            'Header & footer branding — set once; it carries to every proposal you make.',
+          description: 'Header & footer branding, set once; it carries to every proposal you make.',
           fields: [
             {
               name: 'company',
@@ -437,7 +436,7 @@ export const Proposals: CollectionConfig = {
                       name: 'phone',
                       type: 'text',
                       label: 'Phone / WhatsApp',
-                      defaultValue: '+91 99104 26834',
+                      defaultValue: '+91 87960 92007',
                       admin: { width: '50%' },
                     },
                     {

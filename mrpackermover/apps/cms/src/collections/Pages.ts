@@ -85,7 +85,7 @@ export const Pages: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Meta title — the blue line in Google. Aim for 60 characters. Blank = the built-in title.',
+          'Meta title, the blue line in Google. Aim for 60 characters. Blank = the built-in title.',
       },
     },
     {

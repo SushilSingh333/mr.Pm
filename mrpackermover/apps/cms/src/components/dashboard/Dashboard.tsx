@@ -308,7 +308,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
           <h1 className="mpm-dash__title">
             {firstName ? `Welcome back, ${firstName}` : 'Operations overview'}
           </h1>
-          <p className="mpm-dash__sub">Live from your data — leads, careers, inbox and coverage.</p>
+          <p className="mpm-dash__sub">Live from your data, leads, careers, inbox and coverage.</p>
         </div>
         <Link href="/admin/collections/leads" className="mpm-dash__cta">
           View all leads {ICONS.arrow}

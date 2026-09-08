@@ -74,7 +74,7 @@ const CITIES: CitySeed[] = [
       'East Delhi across the Yamuna (Mayur Vihar, Patparganj) mixes DDA pockets and newer group-housing towers with service-lift booking arranged a day ahead. Central and Lutyens stock is older, with stair-only access common above the second floor.',
       'The single biggest price driver across Delhi is vertical access. Where a working service lift exists a 2BHK loads in three to four hours; where the crew is carrying down three or four floors of a South Delhi builder floor, the same job takes half a day longer and two extra hands. We measure this at survey, not on the day.',
       'Timing is the second driver. Many societies bar commercial vehicles between roughly 9 and 11 AM and again in the evening, and RWAs insist on a written gate pass a day ahead. Our coordinator books the pass, confirms the lift slot, and schedules the load-out for first light so the truck clears the colony before the no-entry window.',
-      'Delhi weather shapes packing too: summer heat and winter damp punish poorly wrapped wood and electronics, so we crate flat-screens, foam-wrap polished surfaces and keep a moisture barrier on upholstery. None of it is an upsell — it is itemised on the quote and you can decline any line.',
+      'Delhi weather shapes packing too: summer heat and winter damp punish poorly wrapped wood and electronics, so we crate flat-screens, foam-wrap polished surfaces and keep a moisture barrier on upholstery. None of it is an upsell. It is itemised on the quote and you can decline any line.',
       'The upshot for a Delhi move is that the survey matters more here than almost anywhere: the difference between a lift and a stair-carry, a 40-metre and an 80-metre lift-to-tempo distance, and a clear versus a peak-hour window can each swing a job by half a day. A named Delhi coordinator confirms every one of those before we commit to the fixed quote, assigns a crew briefed on your zone’s RWA norms, and stays reachable on the number printed on your gate pass the day the truck rolls.',
     ],
     localities: [
@@ -113,7 +113,7 @@ const CITIES: CitySeed[] = [
       'Gurgaon splits cleanly into the DLF phases and Golf Course Road high-rises, the newer Sohna Road and New Gurgaon (sectors 80 to 95) group housing, and the older sectors nearer the city. The high-rise belt is the highest-ticket work in NCR.',
       'The binding constraint is the service lift: most Golf Course Road and Golf Course Extension towers require a lift-booking slot and a security deposit, and many restrict move-in and move-out to specific hours. Udyog Vihar and the corporate parks add dock and gate-pass procedures for office relocations.',
       'We price the lift wait and the gate formalities explicitly rather than discovering them on the day. The coordinator holds the society approvals and the lift slot before the crew is dispatched, and confirms whether the tower allows a tempo at the podium or only at a distant service gate.',
-      'New Gurgaon and Sohna Road townships are newer and generally smoother — wider approach roads, better lifts — but their societies still gate-log vehicles and cap move hours, so an early slot is worth booking. The older sectors near the city are a mix of builder floors and independent houses where stair-carry and narrow lanes drive the price.',
+      'New Gurgaon and Sohna Road townships are newer and generally smoother, wider approach roads, better lifts, but their societies still gate-log vehicles and cap move hours, so an early slot is worth booking. The older sectors near the city are a mix of builder floors and independent houses where stair-carry and narrow lanes drive the price.',
       'Because so much of Gurgaon is glass-and-steel high-rise, we carry extra protection for lifts and lobbies: corner guards, floor sheeting and lift-blankets, which some societies require before they release the lift. That protection is on the quote as a line, not a surprise.',
       'Intercity demand out of Gurgaon is heavy toward Bengaluru, Pune and Mumbai for IT relocations; we run those as fixed-quote lanes with the permit paperwork handled end to end so nothing stalls at a state border.',
       'Because the Gurgaon high-rise belt is corporate-heavy, weekday morning slots fill fast and weekend moves need booking well ahead; we hold your slot the moment the survey is signed. And since so many towers here charge a refundable lift deposit against damage, our crews carry the lobby and lift protection those societies ask for as standard, so the deposit comes back to you and the fixed quote holds even when the building committee is at its strictest.',
@@ -135,7 +135,7 @@ const CITIES: CitySeed[] = [
         lat: 28.4211,
         lng: 77.0384,
         note: [
-          'Sohna Road is newer group-housing territory — mid and high-rise societies with working service lifts and gate-logged entry. Most jobs here are 2BHK and 3BHK family moves.',
+          'Sohna Road is newer group-housing territory, mid and high-rise societies with working service lifts and gate-logged entry. Most jobs here are 2BHK and 3BHK family moves.',
           'The constraint is the lift-slot booking and the society move-hour window; our coordinator holds both a day ahead so the crew is not left waiting on the day.',
         ],
       },
@@ -154,8 +154,8 @@ const CITIES: CitySeed[] = [
       "Noida's sector grid maps almost exactly to how people search. The high-rise clusters in the 70s, 100s and 120s sectors are the bulk of organised demand, alongside the older independent-house sectors nearer the city and the fast-growing Noida Extension (Greater Noida West) belt.",
       'Most Noida societies require a gate pass and a service-lift slot booked a day ahead, and many run a strict no-move window during peak hours. Our coordinator holds both the gate pass and the lift slot before the crew is dispatched, so the truck is not turned away at the boom barrier.',
       'The high-rise towers in sectors 74 to 79 and 100 to 121 have working lifts, so a 2BHK loads quickly; the constraint is lobby and lift protection, which several societies require before releasing the lift. We carry corner guards, floor sheeting and lift-blankets as standard and show them as a line on the quote.',
-      'Noida Extension is newer and cheaper to move within, but its approach roads and under-construction stretches can slow a tempo, and a few societies there still lack a fully commissioned service lift — we confirm which applies to your tower at survey.',
-      'The older sectors — 15A, 27, 44 and similar — are independent houses and low-rise builder units where stair-carry and gate parking drive the price rather than lift slots. Long-carry from the gate to the door is common and we measure it up front.',
+      'Noida Extension is newer and cheaper to move within, but its approach roads and under-construction stretches can slow a tempo, and a few societies there still lack a fully commissioned service lift. We confirm which applies to your tower at survey.',
+      'The older sectors, 15A, 27, 44 and similar, are independent houses and low-rise builder units where stair-carry and gate parking drive the price rather than lift slots. Long-carry from the gate to the door is common and we measure it up front.',
       'A large share of Noida demand is intercity, out toward Bengaluru, Pune and Hyderabad for IT moves; those run as fixed-quote overnight lanes with inter-state permits handled end to end.',
       'One Noida-specific point: the metro-corridor sectors and the Expressway carry periodic vehicle restrictions and diversions, so we plan the tempo route as carefully as the load-out and keep the coordinator’s number on the gate pass so society security can reach us directly. For office moves in the 60s sectors we work around your no-entry and lift-sharing windows so the workday is barely interrupted, and we confirm the loading dock and freight-lift booking with the building manager the day before.',
     ],
@@ -192,10 +192,10 @@ const CITIES: CitySeed[] = [
     onTime: 93,
     settle: 12,
     note: [
-      'Mumbai has the highest volume and the toughest access conditions in the country, and both the stairs and the lift wait are the real cost drivers — so we price them explicitly rather than discovering them on the day.',
-      'The island city — Colaba, Worli, Dadar, Parel — is old, dense building stock where many buildings have no service lift or only a small passenger lift, which means stair-carry and long waits. Society and building-committee permissions are strict and often need a written no-objection before the move.',
-      'The western suburbs — Bandra, Andheri, Goregaon, Malad — range from old low-rise to new towers. The new towers have service lifts but cap move hours and require a lift-booking deposit; the older buildings are stair-carry with narrow internal staircases that slow large furniture.',
-      'The central suburbs and Navi Mumbai — Chembur, Ghatkopar, Powai, Vashi — are generally newer and smoother, with working service lifts and gate-logged entry, so a 2BHK loads faster there than anywhere in the island city.',
+      'Mumbai has the highest volume and the toughest access conditions in the country, and both the stairs and the lift wait are the real cost drivers, so we price them explicitly rather than discovering them on the day.',
+      'The island city, Colaba, Worli, Dadar, Parel, is old, dense building stock where many buildings have no service lift or only a small passenger lift, which means stair-carry and long waits. Society and building-committee permissions are strict and often need a written no-objection before the move.',
+      'The western suburbs, Bandra, Andheri, Goregaon, Malad, range from old low-rise to new towers. The new towers have service lifts but cap move hours and require a lift-booking deposit; the older buildings are stair-carry with narrow internal staircases that slow large furniture.',
+      'The central suburbs and Navi Mumbai, Chembur, Ghatkopar, Powai, Vashi, are generally newer and smoother, with working service lifts and gate-logged entry, so a 2BHK loads faster there than anywhere in the island city.',
       'Monsoon is a genuine planning factor for four months of the year: we schedule around high tide and heavy-rain windows, double-wrap against moisture, and keep a contingency slot because a flooded approach road can move a job by a day. That risk is explained up front, not billed after.',
       'Parking and the municipal move-permit are the other Mumbai specifics: many buildings only allow a tempo at a distant service entrance, so long-carry is common and we measure it at survey. On intercity moves we handle the octroi-successor and inter-state permit paperwork end to end.',
       'The practical Mumbai rule is that time, not distance, sets the cost: a three-kilometre move across the island city with a stair-carry and a tide-timed window can cost more than a suburb-to-suburb run with a working lift. We price that reality honestly, plan the load-out around the building committee’s permitted hours, and keep a monsoon-season contingency slot so a wet day never quietly becomes a billed surprise on delivery.',
@@ -208,7 +208,7 @@ const CITIES: CitySeed[] = [
         lng: 72.8468,
         note: [
           'Andheri spans old low-rise buildings and new towers on both the east and west sides. The towers have bookable service lifts with capped move hours; the older buildings are stair-carry with narrow staircases that slow large furniture.',
-          'Traffic and parking are the practical constraints — a tempo is often only allowed at a distant entrance, so we measure the long-carry and the lift slot at survey.',
+          'Traffic and parking are the practical constraints, a tempo is often only allowed at a distant entrance, so we measure the long-carry and the lift slot at survey.',
         ],
       },
       {
@@ -233,13 +233,13 @@ const CITIES: CitySeed[] = [
     onTime: 95,
     settle: 11,
     note: [
-      'Bengaluru is the largest addressable market after NCR, driven almost entirely by the IT corridors. Whitefield, Sarjapur Road, the Outer Ring Road belt and Electronic City see the most organised relocation, and the calendar is spiky — appraisal-season and lease-cycle months are far busier than the rest.',
+      'Bengaluru is the largest addressable market after NCR, driven almost entirely by the IT corridors. Whitefield, Sarjapur Road, the Outer Ring Road belt and Electronic City see the most organised relocation, and the calendar is spiky, appraisal-season and lease-cycle months are far busier than the rest.',
       'Apartment complexes here are strict on move timings and gate passes: most require a booking with the association a day or two ahead, a security deposit against lift and lobby damage, and a fixed move-out window. We plan the load-out around each society’s rules and hold the approvals before dispatch.',
-      'The service lift is the price driver in the tower belt — where it works, a 2BHK loads quickly; where a complex only has a passenger lift or a broken service lift, stair-carry adds hours and hands. We confirm which applies to your block at survey, along with the exact tempo-parking point, which is often a short carry from the lobby.',
-      'Older Bengaluru — Jayanagar, Malleshwaram, Basavanagudi — is independent houses and low-rise builder units where narrow lanes, tree cover and stair-carry drive cost rather than lift slots. Long, established localities also mean tighter approach roads for a full tempo.',
+      'The service lift is the price driver in the tower belt, where it works, a 2BHK loads quickly; where a complex only has a passenger lift or a broken service lift, stair-carry adds hours and hands. We confirm which applies to your block at survey, along with the exact tempo-parking point, which is often a short carry from the lobby.',
+      'Older Bengaluru, Jayanagar, Malleshwaram, Basavanagudi, is independent houses and low-rise builder units where narrow lanes, tree cover and stair-carry drive cost rather than lift slots. Long, established localities also mean tighter approach roads for a full tempo.',
       'Bengaluru rain is a real but manageable factor: sharp evening showers for much of the year mean we keep moisture wrapping on wood and electronics and a covered-loading plan so nothing sits exposed at the lift lobby.',
-      'A large share of demand is intercity — Bengaluru to Hyderabad, Chennai, Pune and Mumbai — which we run as fixed-quote lanes with inter-state permits and the destination-society approvals handled end to end so the move does not stall at either end.',
-      'Two Bengaluru specifics we plan for: the ORR and tech-park traffic, which makes an early or late-evening load-out far faster than a midday one, and the appraisal-season rush, when association move-slots are booked out days ahead. We reserve your slot at survey and route the tempo to avoid the worst corridors, so the crew is loading rather than idling — and we confirm the association’s deposit and protection rules before the day so nothing is renegotiated at the gate.',
+      'A large share of demand is intercity, Bengaluru to Hyderabad, Chennai, Pune and Mumbai, which we run as fixed-quote lanes with inter-state permits and the destination-society approvals handled end to end so the move does not stall at either end.',
+      'Two Bengaluru specifics we plan for: the ORR and tech-park traffic, which makes an early or late-evening load-out far faster than a midday one, and the appraisal-season rush, when association move-slots are booked out days ahead. We reserve your slot at survey and route the tempo to avoid the worst corridors, so the crew is loading rather than idling, and we confirm the association’s deposit and protection rules before the day so nothing is renegotiated at the gate.',
     ],
     localities: [
       {
@@ -275,12 +275,12 @@ const CITIES: CitySeed[] = [
     settle: 10,
     note: [
       'Pune is really two markets priced separately: the IT belt of Hinjewadi, Wakad, Baner and Kharadi, and old Pune inside the city. The IT belt drives most intercity and local demand and runs on the same appraisal-and-lease calendar as Bengaluru.',
-      'The IT-belt townships are newer, with well-run service lifts, gate-logged entry and a booked move-out window — smooth to move within, provided the lift slot and society approval are held a day ahead, which our coordinator arranges.',
-      'Old Pune — Sadashiv Peth, Kothrud, Deccan — is a different job entirely: independent houses and older low-rise buildings where narrow lanes, tree cover and stair-carry are the price drivers, and a full tempo often cannot reach the door, so long-carry is measured at survey.',
+      'The IT-belt townships are newer, with well-run service lifts, gate-logged entry and a booked move-out window, smooth to move within, provided the lift slot and society approval are held a day ahead, which our coordinator arranges.',
+      'Old Pune, Sadashiv Peth, Kothrud, Deccan, is a different job entirely: independent houses and older low-rise buildings where narrow lanes, tree cover and stair-carry are the price drivers, and a full tempo often cannot reach the door, so long-carry is measured at survey.',
       'The service lift, where it exists, decides how fast a 2BHK loads; where a building has only a passenger lift or none, we plan for stair-carry and add hands rather than surprising you with a floor-rise charge on the day.',
       'Pune’s monsoon is heavy for a stretch of the year, so we keep moisture wrapping on wood and electronics and a covered-loading plan, and we keep a contingency slot because a flooded approach in the low-lying pockets can push a job by a day.',
-      'A large share of Pune demand is intercity — to Bengaluru, Hyderabad, Mumbai and the NCR — which we run as fixed-quote overnight lanes with inter-state permits and destination approvals handled end to end.',
-      'The Pune split between the IT townships and the old city means we assign the crew to match: a lift-and-dock team for the Hinjewadi and Kharadi high-rises, a narrow-lane stair-carry team for Sadashiv Peth and Kothrud. Getting that right is the difference between a smooth day and an improvised one, and it is decided at the survey — along with the exact tempo-parking point and any long-carry — not on the morning of the move.',
+      'A large share of Pune demand is intercity, to Bengaluru, Hyderabad, Mumbai and the NCR, which we run as fixed-quote overnight lanes with inter-state permits and destination approvals handled end to end.',
+      'The Pune split between the IT townships and the old city means we assign the crew to match: a lift-and-dock team for the Hinjewadi and Kharadi high-rises, a narrow-lane stair-carry team for Sadashiv Peth and Kothrud. Getting that right is the difference between a smooth day and an improvised one, and it is decided at the survey, along with the exact tempo-parking point and any long-carry, not on the morning of the move.',
     ],
     localities: [
       {
@@ -289,7 +289,7 @@ const CITIES: CitySeed[] = [
         lat: 18.5913,
         lng: 73.7389,
         note: [
-          'Hinjewadi is the Rajiv Gandhi Infotech Park belt — newer township apartments and gated communities with working service lifts and association-booked move windows. Jobs skew 2BHK and 3BHK.',
+          'Hinjewadi is the Rajiv Gandhi Infotech Park belt, newer township apartments and gated communities with working service lifts and association-booked move windows. Jobs skew 2BHK and 3BHK.',
           'The constraint is the lift slot and the phase-wise internal traffic; our coordinator books the slot and confirms tempo access before the crew rolls.',
         ],
       },
@@ -315,13 +315,13 @@ const CITIES: CitySeed[] = [
     onTime: 95,
     settle: 11,
     note: [
-      'West Hyderabad — Gachibowli, Kondapur, HITEC City, Madhapur and the Financial District — is roughly 60 percent of organised demand, driven by the IT corridor. Gated communities dominate and each has its own move protocol, which is the single most important thing to get right here.',
+      'West Hyderabad, Gachibowli, Kondapur, HITEC City, Madhapur and the Financial District, is roughly 60 percent of organised demand, driven by the IT corridor. Gated communities dominate and each has its own move protocol, which is the single most important thing to get right here.',
       'These communities require a booking with the association a day or two ahead, a written gate pass, a security deposit against lift and lobby damage, and a fixed move-out window; some also insist on lift-lobby protection before releasing the service lift. We hold the gate pass and the lift slot for your community before dispatch so nothing stalls at the gate.',
-      'The service lift decides the pace in the tower belt — where it works a 2BHK loads in a few hours; where a community has only a passenger lift, stair-carry adds hours and hands, which we measure at survey rather than billing later.',
-      'The older city — Begumpet, Ameerpet, Kukatpally on the other side — is a mix of independent houses and older apartments where narrow lanes and stair-carry drive cost, and a full tempo often parks a short carry from the door.',
+      'The service lift decides the pace in the tower belt, where it works a 2BHK loads in a few hours; where a community has only a passenger lift, stair-carry adds hours and hands, which we measure at survey rather than billing later.',
+      'The older city, Begumpet, Ameerpet, Kukatpally on the other side, is a mix of independent houses and older apartments where narrow lanes and stair-carry drive cost, and a full tempo often parks a short carry from the door.',
       'Hyderabad’s terrain means some approach roads are steep or rock-cut and parking can be tight inside older colonies; we confirm the exact tempo-parking point and any long-carry up front so the fixed quote holds.',
       'Intercity demand runs strongly to Bengaluru, Chennai, Pune and Mumbai, handled as fixed-quote lanes with inter-state permits and destination-society approvals arranged end to end.',
-      'A Hyderabad-specific habit: because the gated communities here vary so much in their move protocol, our coordinator reads each community’s rulebook — deposit, gate pass, lift protection, permitted hours — before we quote, so nothing is discovered at the boom barrier. On the older-city side we plan for steep or rock-cut approaches and tight colony parking, both of which we measure up front so the fixed quote survives contact with the actual street.',
+      'A Hyderabad-specific habit: because the gated communities here vary so much in their move protocol, our coordinator reads each community’s rulebook, deposit, gate pass, lift protection, permitted hours, before we quote, so nothing is discovered at the boom barrier. On the older-city side we plan for steep or rock-cut approaches and tight colony parking, both of which we measure up front so the fixed quote survives contact with the actual street.',
     ],
     localities: [
       {
@@ -356,10 +356,10 @@ const CITIES: CitySeed[] = [
     onTime: 94,
     settle: 12,
     note: [
-      'The OMR corridor — the IT expressway running south past Thoraipakkam, Sholinganallur and Navalur — dominates organised relocation in Chennai; the rest of the city is comparatively thin, so the IT-belt apartments set the pace and the calendar.',
+      'The OMR corridor, the IT expressway running south past Thoraipakkam, Sholinganallur and Navalur, dominates organised relocation in Chennai; the rest of the city is comparatively thin, so the IT-belt apartments set the pace and the calendar.',
       'The corridor’s apartment complexes require an association booking a day or two ahead, a gate pass, a lift deposit and a fixed move-out window. We hold the approvals and the lift slot before dispatch so the tempo is not turned away at the gate.',
       'The service lift is the price driver in the tower belt; where it works a 2BHK loads quickly, and where a complex has only a passenger lift, stair-carry adds hours and hands, which we measure at survey.',
-      'Central and older Chennai — Adyar, Mylapore, T. Nagar, Anna Nagar — is a mix of independent houses and older apartments where narrow lanes, dense traffic and stair-carry drive cost, and a full tempo often parks a short carry from the door.',
+      'Central and older Chennai, Adyar, Mylapore, T. Nagar, Anna Nagar, is a mix of independent houses and older apartments where narrow lanes, dense traffic and stair-carry drive cost, and a full tempo often parks a short carry from the door.',
       'Coastal humidity is a real packing factor here: the sea air punishes electronics and polished wood, so we pay extra attention to moisture-safe wrapping and desiccant on sensitive items, and that protection is on the quote as a line rather than an afterthought.',
       'Chennai also sees a monsoon-and-flood risk in the late-year months, so we keep a covered-loading plan and a contingency slot; a flooded approach in the low-lying areas can move a job by a day, and we flag that up front. Intercity demand runs to Bengaluru, Hyderabad and beyond as fixed-quote lanes.',
       'For Chennai, two things shape the plan beyond the lift: coastal humidity, which we counter with moisture-safe wrapping and desiccant on electronics and polished wood, and the late-year flood risk, for which we keep a covered-loading plan and a held-back contingency slot. Both are explained on the quote so a rainy week or a salt-laden coastal breeze never turns into an after-the-fact charge, and the coordinator confirms the society’s lift and gate rules the day before.',
@@ -402,39 +402,39 @@ const EDITORIAL_PAGES: Array<{
     title: 'The movers who publish the numbers others hide',
     eyebrow: 'About us',
     intro:
-      'Moving is one of the most stressful things a family or business does — and an industry built on vague quotes and fake reviews has earned every bit of that dread. We are building the opposite: a mover you can verify before you trust.',
+      'Moving is one of the most stressful things a family or business does, and an industry built on vague quotes and fake reviews has earned every bit of that dread. We are building the opposite: a mover you can verify before you trust.',
   },
   {
     key: 'terms',
     title: 'Terms of service',
     eyebrow: 'Legal',
     intro:
-      'The plain-language terms for using our website and moving services. We’ve kept them readable on purpose — you shouldn’t need a lawyer to understand what you’re agreeing to.',
+      'The plain-language terms for using our website and moving services. We’ve kept them readable on purpose. You shouldn’t need a lawyer to understand what you’re agreeing to.',
   },
   {
     key: 'privacy',
     title: 'Privacy policy',
     eyebrow: 'Legal',
     intro:
-      'What we collect, why we collect it, and the control you have over it — written to India’s Digital Personal Data Protection Act, 2023, and in language you can actually follow.',
+      'What we collect, why we collect it, and the control you have over it, written to India’s Digital Personal Data Protection Act, 2023, and in language you can actually follow.',
   },
   {
     key: 'licences',
     title: 'Licences, GST & the entity behind your move',
     eyebrow: 'Company',
     intro:
-      'A legitimate mover should be happy to be checked. Here is exactly who you are contracting with, under what registrations — and how to confirm each detail yourself.',
+      'A legitimate mover should be happy to be checked. Here is exactly who you are contracting with, under what registrations, and how to confirm each detail yourself.',
   },
   {
     key: 'claims',
     title: 'The claims page nobody else in this category shows',
     eyebrow: 'Claims & settlement',
     intro:
-      'Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.',
+      'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.',
   },
   {
     key: 'insurance',
-    title: 'Transit insurance, shown as a line — not buried',
+    title: 'Transit insurance, shown as a line, not buried',
     eyebrow: 'Protection',
     intro:
       'Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, backed by a named insurer, so you decide with your eyes open.',
@@ -444,18 +444,18 @@ const EDITORIAL_PAGES: Array<{
     title: 'Protection & claims, layer by layer',
     eyebrow: 'Protection & claims',
     intro:
-      '“Protection” shouldn’t be a slogan on a truck. It’s a stack of concrete things we do — before, during and after your move — that add up to goods arriving intact, and a fair path if they don’t.',
+      '“Protection” shouldn’t be a slogan on a truck. It’s a stack of concrete things we do, before, during and after your move, that add up to goods arriving intact, and a fair path if they don’t.',
   },
   {
     key: 'fraud-check',
     title: 'Don’t get scammed by a fake mover',
     eyebrow: 'Stay safe',
     intro:
-      'Moving fraud is common, and it preys on people at their most stressed. Here are the scams to know, the checks that stop them, and what to do if you’re targeted — whether or not it involves us.',
+      'Moving fraud is common, and it preys on people at their most stressed. Here are the scams to know, the checks that stop them, and what to do if you’re targeted, whether or not it involves us.',
   },
   {
     key: 'raise-a-complaint',
-    title: 'Raise a complaint — and get it tracked to closure',
+    title: 'Raise a complaint, and get it tracked to closure',
     eyebrow: 'We’re listening',
     intro:
       'Something went wrong, or just didn’t meet the bar we set? Tell us properly. Every complaint gets a reference, a real investigation, and a defined path to closure.',
@@ -493,7 +493,7 @@ function reviewsFor(
   const templates = [
     `On time in ${cityName}, nothing broken, and the final bill matched the quote to the rupee.`,
     `The ${cityName} crew wrapped every fragile item and reassembled the beds. Would use again.`,
-    `Coordinator confirmed the lift slot a day ahead — no waiting on moving day in ${cityName}.`,
+    `Coordinator confirmed the lift slot a day ahead, no waiting on moving day in ${cityName}.`,
     `Fair price for a ${cityName} move and the packing materials were genuinely good quality.`,
     `Handled a tricky stair-carry in ${cityName} without a single scratch on the walls.`,
     `Clear written quote, verified crew, and they cleared the society gate formalities in ${cityName} for us.`,
@@ -507,7 +507,7 @@ function reviewsFor(
     location: locId,
     service: serviceId,
     verifiedBy: 'Ops (job sheet)',
-    response: i === 4 ? 'Thanks for the fair rating — we’ve fed it back to the crew.' : undefined,
+    response: i === 4 ? 'Thanks for the fair rating. We’ve fed it back to the crew.' : undefined,
     _status: 'published',
   }));
 }
@@ -534,12 +534,12 @@ async function seed(): Promise<void> {
     slug: 'org-profile',
     data: {
       brandName: 'MrPackerMover',
-      legalName: 'AAJneeti Connect Private Limited', // placeholder — confirm real entity
+      legalName: 'AAJneeti Connect Private Limited', // placeholder, confirm real entity
       gstin: '07AAAAA0000A1Z5',
       cin: 'U63030DL2020PTC000000',
       yearsOperating: 6,
       insurancePartner: 'ICICI Lombard (transit)',
-      registeredOffice: 'Registered office address — confirm before launch.',
+      registeredOffice: 'Registered office address, confirm before launch.',
       complaintSla: 'First response within 24 hours; median claim settlement published on /claims.',
       phone: '+91-00000-00000',
       whatsapp: '+91-00000-00000',
@@ -557,25 +557,25 @@ async function seed(): Promise<void> {
       servicesIntro: 'One operation, verified crews, and a written fixed quote for every service.',
       trustHeading: 'House Shifting you can actually verify',
       trustIntro:
-        'Everything below is backed by real job data — no vanity counters, no stock photos.',
+        'Everything below is backed by real job data, no vanity counters, no stock photos.',
       statsHeading: 'By the numbers',
-      statsIntro: "Unflattering when it needs to be — that's the point.",
+      statsIntro: "Unflattering when it needs to be. That's the point.",
       citiesHeading: 'Cities we pick up from',
       citiesIntro:
-        'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews — delivery goes anywhere in India.',
+        'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews, delivery goes anywhere in India.',
       faqHeading: 'Questions people ask',
       pillars: [
         {
           icon: 'fixed-quote',
           variant: 'lead',
           title: 'Fixed quote, no surprises',
-          body: 'The written quote is the price you pay. Anything that could change it — floor rise, long carry, extra packing — is itemised up front, never sprung on you on delivery day.',
+          body: 'The written quote is the price you pay. Anything that could change it, floor rise, long carry, extra packing, is itemised up front, never sprung on you on delivery day.',
         },
         {
           icon: 'claims',
           variant: 'dark',
-          title: 'Claims settled — and published',
-          body: 'Damage is rare, but when it happens we settle. And we publish our median settlement time on the claims page — an unflattering-but-honest number nobody else in this category shows.',
+          title: 'Claims settled, and published',
+          body: 'Damage is rare, but when it happens we settle. And we publish our median settlement time on the claims page, an unflattering-but-honest number nobody else in this category shows.',
           link: { label: 'See our claims data', href: '/claims' },
         },
         {
@@ -588,7 +588,7 @@ async function seed(): Promise<void> {
           icon: 'insurance',
           variant: 'default',
           title: 'Transit insurance',
-          body: 'Optional transit cover, shown as a clear line item on your quote — never buried in the fine print.',
+          body: 'Optional transit cover, shown as a clear line item on your quote, never buried in the fine print.',
         },
       ],
     } as never,
@@ -630,7 +630,7 @@ async function seed(): Promise<void> {
     collection: 'operating-bases',
     data: {
       label: 'NCR dispatch base',
-      address: 'Internal dispatch yard — not a public premises.',
+      address: 'Internal dispatch yard, not a public premises.',
       lat: 28.6139,
       lng: 77.209,
       established: 2020,
@@ -645,7 +645,7 @@ async function seed(): Promise<void> {
     const areas = c.localities.map((l) => l.name).join(', ');
     const closer =
       `Over the last twelve months our ${c.name} crews completed ${c.jobs} tracked moves at ` +
-      `${c.onTime}% on time, with a median claim settlement of ${c.settle} days — every figure ` +
+      `${c.onTime}% on time, with a median claim settlement of ${c.settle} days, every figure ` +
       `published on our claims page, not polished for a brochure. Within ${c.name} we work ` +
       `${areas} and the neighbourhoods around them with our own trained, ID-verified teams, and we ` +
       `itemise the floor-rise, the long-carry and the packing grade as separate lines on a written, ` +
@@ -761,7 +761,7 @@ async function seed(): Promise<void> {
     {
       q: 'Are my goods insured in transit?',
       scope: 'global',
-      a: 'Yes, transit insurance is available and the premium is shown as a line item on your quote — never hidden.',
+      a: 'Yes, transit insurance is available and the premium is shown as a line item on your quote, never hidden.',
     },
     {
       q: 'How do you verify the crew and vehicle?',
@@ -844,7 +844,7 @@ async function seed(): Promise<void> {
   await payload.create({
     collection: 'guides',
     data: {
-      title: 'How movers overcharge — and the five lines to check in any quote',
+      title: 'How movers overcharge, and the five lines to check in any quote',
       slug: 'how-movers-overcharge',
       excerpt: 'The specific line items where a low quote becomes a high bill, with the numbers.',
       body: lex([
@@ -874,7 +874,7 @@ async function seed(): Promise<void> {
       employmentType: 'full-time',
       location: 'NCR',
       summary:
-        "Own a customer's move end-to-end — survey, fixed quote, scheduling and day-of coordination. The single point of contact who makes the promise real.",
+        "Own a customer's move end-to-end, survey, fixed quote, scheduling and day-of coordination. The single point of contact who makes the promise real.",
       order: 2,
     },
     {
@@ -892,7 +892,7 @@ async function seed(): Promise<void> {
       employmentType: 'full-time',
       location: 'Remote',
       summary:
-        'Answer real questions from people mid-move with clarity and calm. First response within our published SLA — no scripts, no runaround.',
+        'Answer real questions from people mid-move with clarity and calm. First response within our published SLA, no scripts, no runaround.',
       order: 4,
     },
   ];

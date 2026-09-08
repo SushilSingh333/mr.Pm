@@ -22,6 +22,7 @@ const EDITORIAL_PATH_KEYS: Record<string, string> = {
   '/company/licences': 'licences',
   '/company/team': 'team',
   '/track': 'track',
+  '/pricing': 'pricing',
   '/terms': 'terms',
   '/privacy': 'privacy',
   '/claims': 'claims',

@@ -228,7 +228,7 @@ for (const [citySlug, stateSlug] of Object.entries(data.linkExistingCityToState)
     depth: 0,
     overrideAccess: true,
   })) as { parent?: unknown };
-  if (doc.parent) continue; // an editor set something — leave it alone
+  if (doc.parent) continue; // an editor set something, leave it alone
   if (!dryRun) {
     await payload.update({
       collection: 'locations',
@@ -284,7 +284,7 @@ for (const l of data.localities) {
 }
 
 console.info(
-  `\n${dryRun ? 'DRY RUN — nothing written. Would create' : 'Created'}: ` +
+  `\n${dryRun ? 'DRY RUN. Nothing written. Would create' : 'Created'}: ` +
     `${created.states} states, ${created.cities} cities, ${created.localities} localities. ` +
     `Notes refreshed: ${refreshed}. Skipped: ${skipped.length}${skipped.length ? ` [${skipped.slice(0, 6).join(', ')}${skipped.length > 6 ? ', ...' : ''}]` : ''}`,
 );

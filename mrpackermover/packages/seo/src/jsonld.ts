@@ -63,7 +63,7 @@ export function organization(input: OrgInput): JsonLd {
 const PLACEHOLDERS = new Set([
   '07AAAAA0000A1Z5',
   'U63030DL2020PTC000000',
-  'Registered office address — confirm before launch.',
+  'Registered office address, confirm before launch.',
 ]);
 
 export function isPlaceholder(value: string | undefined): boolean {

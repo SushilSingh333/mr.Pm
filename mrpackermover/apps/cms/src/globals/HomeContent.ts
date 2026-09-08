@@ -18,7 +18,7 @@ export const HomeContent: GlobalConfig = {
   fields: [
     {
       type: 'collapsible',
-      label: 'SEO  (optional — leave blank to use the built-in copy)',
+      label: 'SEO  (optional, leave blank to use the built-in copy)',
       admin: { initCollapsed: true },
       fields: [
         {

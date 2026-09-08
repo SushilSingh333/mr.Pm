@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import { cldUrl, CLD_TRANSFORM, type ManifestLink } from '@mpm/shared';
 
 /**
@@ -20,8 +22,17 @@ const VISIBLE_CITIES = 6;
 const hasMore = cities.length > VISIBLE_CITIES;
 const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?? '';
 // Prefer the city's uploaded (Cloudinary) thumbnail; fall back to the static file.
+// Dedicated city artwork exists only for the original cities. A city added later
+// (the north India import) has no file yet, so fall back to the brand image rather
+// than emitting a src that 404s in the grid.
+const cityArt = (slug: string): string | null =>
+  fs.existsSync(path.resolve('public/images/hero/cities', `${slug}.jpg`))
+    ? `/images/hero/cities/${slug}.jpg`
+    : null;
 const thumbFor = (c: ManifestLink): string =>
-  c.image ? cldUrl(c.image, CLD_TRANSFORM.thumb) : `/images/hero/cities/${slugOf(c.path)}.jpg`;
+  c.image
+    ? cldUrl(c.image, CLD_TRANSFORM.thumb)
+    : (cityArt(slugOf(c.path)) ?? '/images/hero/home.jpg');
 ---
 
 <div class="section-head">

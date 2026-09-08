@@ -10,6 +10,22 @@ import type { BlogPost } from './manifest.js';
 
 const AUTHOR = 'The MrPackerMover Team';
 
+/**
+ * Cover art per category. Posts rarely ship with their own upload, and falling back
+ * to one shared image made every card on /blog look identical. Each category maps to
+ * the service photography it is actually about, so the grid reads as five different
+ * articles even before an editor attaches a cover.
+ */
+export const COVER_BY_CATEGORY: Record<string, string> = {
+  Guides: '/images/hero/home-shifting.jpg',
+  Pricing: '/images/hero/services.jpg',
+  Safety: '/images/hero/home.jpg',
+  Packing: '/images/hero/packing-unpacking.jpg',
+  Business: '/images/hero/office-shifting.jpg',
+};
+export const coverForCategory = (category: string): string =>
+  COVER_BY_CATEGORY[category] ?? '/images/hero/moving.jpg';
+
 export const FALLBACK_POSTS: BlogPost[] = [
   {
     slug: 'home-shifting-checklist-8-weeks',

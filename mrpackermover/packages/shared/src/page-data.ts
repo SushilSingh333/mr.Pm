@@ -107,6 +107,8 @@ export interface RouteData {
 export interface ServiceHubData {
   serviceName: string;
   summary?: string;
+  /** Paragraphs of service-specific prose, one string per paragraph. */
+  editorial: string[];
   inclusions: string[];
   exclusions: string[];
 }

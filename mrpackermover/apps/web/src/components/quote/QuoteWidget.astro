@@ -118,35 +118,36 @@ const service = prefillService ?? '';
             </select>
           </label>
         </div>
+        <!-- One grid rather than a row per end. With both ends on the ground the two lift
+             questions are hidden and the floor selects pair up on a single line; raise
+             either end and its lift question flows in beside it. -->
         <div class="est-row">
           <label class="est-ctrl">
             <span>Pickup floor</span>
             <select id="q-ffloor"
-              ><option value="0">Ground</option><option value="1">1st</option><option value="2"
-                >2nd</option
+              ><option value="0" selected>Ground</option><option value="1">1st</option><option
+                value="2">2nd</option
               ><option value="3">3rd</option><option value="4">4th</option><option value="5"
                 >5th+</option
               ></select
             >
           </label>
-          <label class="est-ctrl">
+          <label class="est-ctrl" id="q-flift-ctrl" hidden>
             <span>Lift at pickup</span>
             <select id="q-flift"><option value="1">Yes</option><option value="0">No</option></select
             >
           </label>
-        </div>
-        <div class="est-row">
           <label class="est-ctrl">
             <span>Drop floor</span>
             <select id="q-tfloor"
-              ><option value="0">Ground</option><option value="1">1st</option><option value="2"
-                >2nd</option
+              ><option value="0" selected>Ground</option><option value="1">1st</option><option
+                value="2">2nd</option
               ><option value="3">3rd</option><option value="4">4th</option><option value="5"
                 >5th+</option
               ></select
             >
           </label>
-          <label class="est-ctrl">
+          <label class="est-ctrl" id="q-tlift-ctrl" hidden>
             <span>Lift at drop</span>
             <select id="q-tlift"><option value="1">Yes</option><option value="0">No</option></select
             >
@@ -341,8 +342,23 @@ const service = prefillService ?? '';
       render(lastKm);
       capturePriceCheck();
     });
+    // A lift only matters once there are stairs to avoid: on the ground floor the
+    // floor charge is `floors * rate`, which is zero either way, so the question is
+    // noise. It appears the moment a floor above ground is chosen. The row keeps its
+    // two columns throughout so the floor select never resizes as this toggles.
+    const syncLift = (floorId: string, ctrlId: string): void => {
+      const ctrl = document.getElementById(ctrlId);
+      if (ctrl) ctrl.hidden = byId<HTMLSelectElement>(floorId).value === '0';
+    };
+    const syncLifts = (): void => {
+      syncLift('q-ffloor', 'q-flift-ctrl');
+      syncLift('q-tfloor', 'q-tlift-ctrl');
+    };
+    syncLifts();
+
     ['q-size', 'q-pack', 'q-ffloor', 'q-flift', 'q-tfloor', 'q-tlift', 'q-date'].forEach((id) =>
       byId(id).addEventListener('change', () => {
+        syncLifts();
         if (!est.hidden) render(lastKm);
       }),
     );

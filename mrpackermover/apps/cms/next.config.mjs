@@ -1,7 +1,21 @@
 import { withPayload } from '@payloadcms/next/withPayload';
 
+/**
+ * `next dev` and `next build` both wrote to `.next`, so running a build (directly, or
+ * via `turbo run build` / `pnpm check`) while the dev server was up overwrote the
+ * chunks dev was serving. Dev then threw MODULE_NOT_FOUND out of
+ * `.next/server/pages/_document.js` and every admin route and API route 500'd until
+ * `.next` was deleted and the server restarted.
+ *
+ * Giving dev its own directory removes the collision. Production is untouched: `next
+ * build` and `next start` both still use `.next`, so nothing about the droplet deploy
+ * changes.
+ */
+const distDir = process.env.NODE_ENV === 'development' ? '.next-dev' : '.next';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir,
   // Payload runs inside Next's App Router. The public site is a separate Astro
   // app; this Next app serves ONLY the admin panel + the Local/REST API.
   // Workspace packages ship as TypeScript source, so Next must transpile them.

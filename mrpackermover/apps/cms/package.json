@@ -13,6 +13,7 @@
     "build-manifest": "tsx src/scripts/build-manifest.ts",
     "import-locations": "tsx src/scripts/import-locations.ts",
     "import-blog": "tsx src/scripts/import-blog.ts",
+    "import-service-content": "tsx src/scripts/import-service-content.ts",
     "set-city-services": "tsx src/scripts/set-city-services.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
     "seed": "tsx src/seed.ts",

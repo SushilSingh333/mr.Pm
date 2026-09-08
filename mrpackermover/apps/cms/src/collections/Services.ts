@@ -26,6 +26,15 @@ export const Services: CollectionConfig = {
       admin: { description: 'Part of the corporate relocation silo (higher ticket).' },
     },
     { name: 'summary', type: 'textarea' },
+    {
+      name: 'editorialNote',
+      type: 'richText',
+      label: 'Page content',
+      admin: {
+        description:
+          'The prose that runs on the national service page: how the job actually works, what decides the price, what to have ready. Written per service, not templated.',
+      },
+    },
     { name: 'inclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
     { name: 'exclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
     { name: 'typicalDuration', type: 'text' },

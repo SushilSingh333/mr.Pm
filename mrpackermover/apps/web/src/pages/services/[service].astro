@@ -9,6 +9,7 @@ import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
 import Inclusions from '../../components/sections/Inclusions.astro';
 import RelatedLinks from '../../components/sections/RelatedLinks.astro';
 import ValueProps from '../../components/sections/ValueProps.astro';
+import LocalNotes from '../../components/sections/LocalNotes.astro';
 import { SITE_ORIGIN } from '../../lib/site.js';
 import { heroForService } from '../../lib/hero.js';
 
@@ -50,7 +51,27 @@ const extraJsonLd = [
     prefillService={data.serviceName}
   />
 
-  <Band label="Why us"><ValueProps /></Band>
+  {
+    /* The service's own prose sits above the generic trust band: it is the only part
+       of this page written for this service, so it should not be below boilerplate. */
+    data.editorial.length > 0 && (
+      <Band alt label="About this service">
+        <LocalNotes
+          paragraphs={data.editorial}
+          heading={`What ${data.serviceName.toLowerCase()} actually involves`}
+          eyebrow="How it works"
+        />
+      </Band>
+    )
+  }
+
+  {
+    /* Without a heading this defaults to "House Shifting…", which read wrong on six of
+      the seven service pages. */
+  }
+  <Band label="Why us">
+    <ValueProps heading={`${data.serviceName} you can actually verify`} />
+  </Band>
 
   <Band alt label="Scope">
     <div class="section-head"><h2>What's included</h2></div>
@@ -60,10 +81,7 @@ const extraJsonLd = [
   {
     cityLinks.length > 0 && (
       <Band label="Cities">
-        <div class="section-head">
-          <h2>Cities we serve</h2>
-        </div>
-        <RelatedLinks links={cityLinks} heading="Cities we serve" />
+        <RelatedLinks links={cityLinks} />
       </Band>
     )
   }

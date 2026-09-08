@@ -4,8 +4,12 @@ import CityModal from './CityModal.astro';
 
 /**
  * Porter-style home hero card: a City selector (opens the shared "Choose your city"
- * modal), a row of service tiles, and a primary CTA. Picking a city sets the CTA
- * target; the CTA opens that city's hub (where the full booking bar lives).
+ * modal), a row of service tiles, and a primary CTA.
+ *
+ * The tiles pick a service, they do not navigate. They used to be links straight to
+ * the service page, which meant a tap in the middle of choosing a quote threw the
+ * reader out of the hero and lost the city they had just set. They are radios now, so
+ * city and service both travel to the quote form on the CTA.
  */
 interface City {
   slug: string;
@@ -76,10 +80,11 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
     </svg>
   </button>
 
-  <div class="selector-tiles">
+  <div class="selector-tiles" role="radiogroup" aria-label="What are you moving?">
     {
       tiles.map((s) => (
-        <a class="tile" href={`/services/${s.slug}`}>
+        <label class="tile">
+          <input class="tile-input" type="radio" name="hero-service" value={s.name} />
           <span class="tile-icon">
             <svg
               viewBox="0 0 24 24"
@@ -94,7 +99,7 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
             />
           </span>
           <span class="tile-label">{s.name}</span>
-        </a>
+        </label>
       ))
     }
     <a id="selector-cta" href="/get-quote" class="btn btn-primary tile-cta">
@@ -160,6 +165,8 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
     align-items: stretch;
   }
   .tile {
+    position: relative;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -178,6 +185,28 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
     border-color: var(--color-brand-400);
     background: var(--color-surface-3);
     text-decoration: none;
+  }
+  /* The radio itself is the state; it stays in the layout (not display:none) so it
+     keeps its focus ring and remains reachable by keyboard. */
+  .tile-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tile:has(.tile-input:focus-visible) {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .tile:has(.tile-input:checked) {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .tile:has(.tile-input:checked) .tile-icon {
+    background: var(--color-brand-600);
+    color: #fff;
   }
   .tile-icon {
     display: grid;
@@ -222,11 +251,20 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
   const cityCurrent = document.getElementById('city-current');
   const cta = document.getElementById('selector-cta') as HTMLAnchorElement | null;
 
-  const setQuoteHref = (name?: string | null): void => {
+  // Both choices are held here and rewritten onto the CTA together, so whichever the
+  // reader sets first survives when they set the other.
+  let cityName: string | null = cityCurrent?.textContent?.trim() || null;
+  let serviceName: string | null = null;
+
+  const setQuoteHref = (): void => {
     if (!cta) return;
-    cta.href = name ? `/get-quote?from=${encodeURIComponent(name)}` : '/get-quote';
+    const params = new URLSearchParams();
+    if (cityName) params.set('from', cityName);
+    if (serviceName) params.set('service', serviceName);
+    const query = params.toString();
+    cta.href = query ? `/get-quote?${query}` : '/get-quote';
   };
-  setQuoteHref(cityCurrent?.textContent);
+  setQuoteHref();
 
   document.addEventListener('mpm:city-select', (event) => {
     const detail = (event as CustomEvent<{ slug?: string; name?: string; label?: string }>).detail;
@@ -234,6 +272,15 @@ const defaultCity = cities[0] ?? { slug: '', name: 'Select' };
     // A picked Google place carries a long address in `name` (that is what the quote form
     // wants) and a short `label` for this chip, which has one line to play with.
     if (cityCurrent) cityCurrent.textContent = detail.label || detail.name;
-    setQuoteHref(detail.name);
+    cityName = detail.name;
+    setQuoteHref();
+  });
+
+  document.querySelectorAll<HTMLInputElement>('.tile-input').forEach((input) => {
+    input.addEventListener('change', () => {
+      if (!input.checked) return;
+      serviceName = input.value;
+      setQuoteHref();
+    });
   });
 </script>

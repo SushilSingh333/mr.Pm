@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { isPlaceholder } from '@mpm/seo/jsonld';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
@@ -47,7 +46,7 @@ const principles = [
   {
     icon: 'scale',
     title: 'One legal identity',
-    body: 'A single registered company stands behind every move, with its GSTIN and CIN on the page. No shell of look-alike local names.',
+    body: 'A single registered company stands behind every move, with its GSTIN and CIN published on our licences page. No shell of look-alike local names.',
   },
   {
     icon: 'shield-check',
@@ -93,24 +92,6 @@ const principles = [
           long a claim takes us to settle.
         </p>
       </div>
-      <ul class="story-facts" role="list">
-        <li>
-          <span class="sf-k">Operating for</span>
-          <span class="sf-v">{o?.yearsOperating ?? 6}+ years</span>
-        </li>
-        <li>
-          <span class="sf-k">Insurance partner</span>
-          <span class="sf-v">{o?.insurancePartner ?? 'Named IRDAI-licensed insurer'}</span>
-        </li>
-        <li>
-          <span class="sf-k">Pricing model</span>
-          <span class="sf-v">Fixed &amp; written</span>
-        </li>
-        <li>
-          <span class="sf-k">Complaint response</span>
-          <span class="sf-v">{o?.complaintSla ?? 'Within 24 hours'}</span>
-        </li>
-      </ul>
     </div>
   </Band>
 
@@ -133,46 +114,6 @@ const principles = [
     <FeatureGrid items={principles} columns={3} />
   </Band>
 
-  {
-    o && (
-      <Band alt label="Legal identity">
-        <div class="legal-id card">
-          <div class="li-head">
-            <span class="badge badge-verified">Registered entity</span>
-            <h2>Who you are actually contracting with</h2>
-          </div>
-          <dl class="li-grid">
-            <div>
-              <dt>Legal name</dt>
-              <dd>{o.legalName}</dd>
-            </div>
-            <div>
-              <dt>Brand</dt>
-              <dd>{o.brandName}</dd>
-            </div>
-            <div>
-              <dt>GSTIN</dt>
-              <dd>{isPlaceholder(o.gstin) ? 'Pending' : o.gstin}</dd>
-            </div>
-            <div>
-              <dt>CIN</dt>
-              <dd>{isPlaceholder(o.cin) ? 'Pending' : o.cin}</dd>
-            </div>
-            <div class="li-wide">
-              <dt>Registered office</dt>
-              <dd>{isPlaceholder(o.registeredOffice) ? 'Pending' : o.registeredOffice}</dd>
-            </div>
-          </dl>
-          <p class="li-note">
-            Prefer to check us yourself? That is encouraged, see{' '}
-            <a href="/company/licences">licences &amp; GST</a> or learn{' '}
-            <a href="/verify">how to verify the crew and vehicle</a> before they load.
-          </p>
-        </div>
-      </Band>
-    )
-  }
-
   <CtaBand
     heading="Moving soon? Start with an honest number."
     text="Tell us what you're shifting and where. You'll get an itemised, fixed quote, and a company you can look up before you say yes."
@@ -184,12 +125,10 @@ const principles = [
 </BaseLayout>
 
 <style>
+  /* Single column since the facts card came out; held to a readable measure
+     rather than letting the copy stretch across the whole band. */
   .about-story {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 2.5rem;
-    align-items: start;
-    max-width: 1080px;
+    max-width: 68ch;
     margin-inline: auto;
   }
   .story-copy h2 {
@@ -199,80 +138,6 @@ const principles = [
   .story-copy p + p {
     margin-top: 1rem;
   }
-  .story-facts {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-card);
-  }
-  .story-facts li {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .story-facts li:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-  }
-  .sf-k {
-    font-size: var(--text-sm);
-    color: var(--color-ink-500);
-  }
-  .sf-v {
-    font-family: var(--font-display);
-    font-weight: 700;
-    color: var(--color-ink-900);
-    font-size: var(--text-lg);
-  }
-
-  .legal-id {
-    max-width: 1000px;
-    margin-inline: auto;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-  }
-  .li-head {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin-bottom: 1.5rem;
-  }
-  .li-head h2 {
-    font-size: clamp(1.35rem, 3vw, var(--text-2xl));
-  }
-  .li-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.1rem 2rem;
-    margin: 0;
-  }
-  .li-grid dt {
-    font-size: var(--text-sm);
-    color: var(--color-ink-500);
-    margin-bottom: 0.2rem;
-  }
-  .li-grid dd {
-    margin: 0;
-    font-weight: 600;
-    color: var(--color-ink-900);
-  }
-  .li-wide {
-    grid-column: 1 / -1;
-  }
-  .li-note {
-    margin-top: 1.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--color-line);
-    color: var(--color-ink-500);
-    font-size: var(--text-base);
-  }
-
   /* Ghost button on the dark hero. */
   :global(.cta-ghost-hero) {
     background: rgba(255, 255, 255, 0.1);
@@ -285,15 +150,5 @@ const principles = [
   :global(.cta-ghost-hero:hover) {
     background: rgba(255, 255, 255, 0.18);
     text-decoration: none;
-  }
-
-  @media (max-width: 800px) {
-    .about-story {
-      grid-template-columns: 1fr;
-      gap: 1.75rem;
-    }
-    .li-grid {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

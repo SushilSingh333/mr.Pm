@@ -21,6 +21,7 @@ import {
   CLD_TRANSFORM,
   SERVICES,
 } from '@mpm/shared';
+import { coverForCategory } from '@mpm/shared/blog-fallback';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { resolveSeo, type SeoOverride, type SeoTemplate } from '@mpm/seo/resolve';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
@@ -79,6 +80,7 @@ interface ServiceDoc {
   name: string;
   isCorporate?: boolean;
   summary?: string;
+  editorialNote?: unknown;
   inclusions?: Array<{ item: string }>;
   exclusions?: Array<{ item: string }>;
   /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
@@ -503,7 +505,13 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             // Also link the localities we cover in this city — a natural in-page link
             // that gives each locality page a third contextual inbound link (Doc 02 §7).
             relatedLinks: [
-              ...nearbyCityServiceLinks(publishedCities, city, service.slug, cityServicePaths),
+              ...nearbyCityServiceLinks(
+                publishedCities,
+                city,
+                service.slug,
+                service.name,
+                cityServicePaths,
+              ),
               ...localityLinks.slice(0, 6),
             ],
             data: {
@@ -688,6 +696,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         data: {
           serviceName: service.name,
           summary: service.summary,
+          editorial: idx.editorialParagraphs(service.editorialNote),
           inclusions: (service.inclusions ?? []).map((i) => i.item),
           exclusions: (service.exclusions ?? []).map((i) => i.item),
         },
@@ -887,7 +896,9 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         author: p.author || 'The MrPackerMover Team',
         date: p.publishedDate ?? p.updatedAt,
         readMins: Math.max(1, Math.round(words / 200)),
-        cover: cover?.url ? cldUrl(cover.url, CLD_TRANSFORM.blog) : '/images/hero/moving.jpg',
+        cover: cover?.url
+          ? cldUrl(cover.url, CLD_TRANSFORM.blog)
+          : coverForCategory(p.category ?? ''),
         coverAlt: cover?.alt ?? p.title,
         featured: Boolean(p.featured),
         tags: p.tags ?? [],
@@ -953,6 +964,7 @@ function nearbyCityServiceLinks(
   cities: LocationDoc[],
   city: LocationDoc,
   serviceSlug: string,
+  serviceName: string,
   servedPaths: Set<string>,
 ): ManifestLink[] {
   // Cyclic pick of the next N cities so links spread evenly and no city (not even
@@ -970,7 +982,7 @@ function nearbyCityServiceLinks(
     if (!servedPaths.has(path)) continue;
     out.push({
       path,
-      anchor: `${serviceSlug.replace(/-/g, ' ')} in ${c.name}`,
+      anchor: `${serviceName} in ${c.name}`,
       group: 'nearby',
     });
   }

@@ -90,8 +90,19 @@ export const MORE_NAV = [
     desc: 'Cover, explained',
     key: 'insurance',
   },
-  { label: 'Contact', href: '/company/contact', icon: 'headset', desc: 'Talk to a human' },
 ];
+
+/**
+ * Contact sits in the header bar in its own right rather than inside "More", so
+ * reaching a human is never two clicks behind a dropdown. Shared by the desktop
+ * icon button and the mobile drawer so both point at one definition.
+ */
+export const CONTACT_LINK = {
+  label: 'Contact',
+  href: '/company/contact',
+  icon: 'headset',
+  desc: 'Talk to a human',
+};
 
 /** Primary contact — click-to-call in the header + everywhere (user-provided). */
 export const PHONE_DISPLAY = '+91 87960 92007';

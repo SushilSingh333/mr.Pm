@@ -168,9 +168,10 @@ const assurances = [
               </select>
             </div>
             <div class="field">
-              <label for="q-pack">Packing <span class="opt">(optional)</span></label>
-              <select id="q-pack" name="packing">
-                <option value="basic" selected>Basic, cartons + wrap</option>
+              <label for="q-pack">Packing <span class="req">*</span></label>
+              <select id="q-pack" name="packing" required>
+                <option value="" disabled selected> Choose packing </option>
+                <option value="basic">Basic, cartons + wrap</option>
                 <option value="standard">Standard, 3-layer + crates</option>
               </select>
             </div>
@@ -178,13 +179,19 @@ const assurances = [
 
           <!-- Access at both ends, the same questions the city-page estimator asks. One
                grid, so with both ends on the ground the lift questions are hidden and the
-               two floor selects pair up on a single line instead of stranding one. All
-               optional: every field has a default, so the estimate works untouched. -->
+               two floor selects pair up on a single line instead of stranding one.
+               NOT marked optional: each one changes the price, and defaulting quietly to
+               ground floor gives a number the move cannot be done for. -->
+          <p class="field-hint field-hint--tight">
+            Stairs and packing grade change the price, so we ask rather than assume.
+          </p>
+
           <div class="field-row">
             <div class="field">
-              <label for="q-ffloor">Pickup floor <span class="opt">(optional)</span></label>
-              <select id="q-ffloor" name="pickupFloor">
-                <option value="0" selected>Ground</option>
+              <label for="q-ffloor">Pickup floor <span class="req">*</span></label>
+              <select id="q-ffloor" name="pickupFloor" required>
+                <option value="" disabled selected> Choose a floor </option>
+                <option value="0">Ground</option>
                 <option value="1">1st</option>
                 <option value="2">2nd</option>
                 <option value="3">3rd</option>
@@ -193,16 +200,18 @@ const assurances = [
               </select>
             </div>
             <div class="field" id="q-flift-field" hidden>
-              <label for="q-flift">Lift at pickup</label>
+              <label for="q-flift">Lift at pickup <span class="req">*</span></label>
               <select id="q-flift" name="pickupLift">
-                <option value="1" selected>Yes</option>
-                <option value="0">No</option>
+                <option value="" disabled selected> Is there a lift? </option>
+                <option value="1">Yes, there is a lift</option>
+                <option value="0">No, stairs only</option>
               </select>
             </div>
             <div class="field">
-              <label for="q-tfloor">Drop floor <span class="opt">(optional)</span></label>
-              <select id="q-tfloor" name="dropFloor">
-                <option value="0" selected>Ground</option>
+              <label for="q-tfloor">Drop floor <span class="req">*</span></label>
+              <select id="q-tfloor" name="dropFloor" required>
+                <option value="" disabled selected> Choose a floor </option>
+                <option value="0">Ground</option>
                 <option value="1">1st</option>
                 <option value="2">2nd</option>
                 <option value="3">3rd</option>
@@ -211,10 +220,11 @@ const assurances = [
               </select>
             </div>
             <div class="field" id="q-tlift-field" hidden>
-              <label for="q-tlift">Lift at drop</label>
+              <label for="q-tlift">Lift at drop <span class="req">*</span></label>
               <select id="q-tlift" name="dropLift">
-                <option value="1" selected>Yes</option>
-                <option value="0">No</option>
+                <option value="" disabled selected> Is there a lift? </option>
+                <option value="1">Yes, there is a lift</option>
+                <option value="0">No, stairs only</option>
               </select>
             </div>
           </div>
@@ -410,7 +420,10 @@ const assurances = [
     const syncLift = (floorId: string, fieldId: string): void => {
       const floor = document.getElementById(floorId) as HTMLSelectElement | null;
       const field = document.getElementById(fieldId);
-      if (floor && field) field.hidden = floor.value === '0';
+      // Hidden on the ground floor AND before a floor is picked at all: asking "is there
+      // a lift?" before the customer has said which floor is meaningless, and it would
+      // be flagged as a missing required answer the moment they submit.
+      if (floor && field) field.hidden = floor.value === '' || floor.value === '0';
     };
     const syncLifts = (): void => {
       syncLift('q-ffloor', 'q-flift-field');
@@ -483,7 +496,26 @@ const assurances = [
       }
     }
 
-    const required = ['name', 'phone', 'from', 'to', 'service'];
+    const required = [
+      'name',
+      'phone',
+      'from',
+      'to',
+      'service',
+      // These change the price, so an unanswered one produces a number the move cannot
+      // be done for. They are validated like any other required field.
+      'packing',
+      'pickupFloor',
+      'dropFloor',
+    ];
+
+    /** A lift only matters above ground, so it is required exactly while it is shown. */
+    const visibleLiftFields = (): string[] => {
+      const out: string[] = [];
+      if (!document.getElementById('q-flift-field')?.hidden) out.push('pickupLift');
+      if (!document.getElementById('q-tlift-field')?.hidden) out.push('dropLift');
+      return out;
+    };
     const phoneOk = (v: string): boolean => /^[+0-9 ()-]{8,}$/.test(v.trim());
 
     const clearError = (el: HTMLElement) => {
@@ -502,7 +534,7 @@ const assurances = [
       e.preventDefault();
       let firstBad: HTMLElement | null = null;
 
-      for (const name of required) {
+      for (const name of [...required, ...visibleLiftFields()]) {
         const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | null;
         if (!el) continue;
         clearError(el);
@@ -635,6 +667,10 @@ const assurances = [
     font-size: var(--text-sm);
     line-height: 1.55;
     color: var(--color-ink-700);
+  }
+  .field-hint--tight {
+    margin-top: -0.35rem;
+    margin-bottom: 0.9rem;
   }
   .qm-required {
     margin-bottom: 1.5rem;

@@ -59,6 +59,14 @@ export const Leads: CollectionConfig = {
           }
           data.assignedAt = new Date().toISOString();
           data.assignedBy = meId;
+          // Store the name too. Displaying a relationship requires read access on the
+          // target, and salespeople are not allowed to read the staff directory — without
+          // this the lead would show "assigned by 3" instead of naming the handler.
+          // It also survives the account later being deleted.
+          data.assignedByName =
+            (req.user as { name?: string; email?: string } | null)?.name ??
+            (req.user as { email?: string } | null)?.email ??
+            null;
           // The new owner has not seen it yet, whoever had it before.
           data.acknowledgedAt = null;
           handedOverNow = true;
@@ -68,6 +76,7 @@ export const Leads: CollectionConfig = {
         if (operation === 'update' && before && !after) {
           data.assignedAt = null;
           data.assignedBy = null;
+          data.assignedByName = null;
           data.acknowledgedAt = null;
         }
 
@@ -111,8 +120,14 @@ export const Leads: CollectionConfig = {
         // Stamp author and time on any note that arrived without them.
         if (Array.isArray(data.noteLog)) {
           const now = new Date().toISOString();
+          const myName =
+            (req.user as { name?: string; email?: string } | null)?.name ??
+            (req.user as { email?: string } | null)?.email ??
+            null;
           data.noteLog = data.noteLog.map((n: Record<string, unknown>) =>
-            n && !n.at ? { ...n, at: now, author: n.author ?? meId } : n,
+            n && !n.at
+              ? { ...n, at: now, author: n.author ?? meId, authorName: n.authorName ?? myName }
+              : n,
           );
         }
         return data;
@@ -180,6 +195,7 @@ export const Leads: CollectionConfig = {
               relationTo: 'users',
               admin: { readOnly: true, width: '50%' },
             },
+            { name: 'authorName', type: 'text', admin: { readOnly: true, width: '50%' } },
             {
               name: 'at',
               type: 'date',
@@ -268,10 +284,16 @@ export const Leads: CollectionConfig = {
       name: 'assignedBy',
       type: 'relationship',
       relationTo: 'users',
+      admin: { readOnly: true, position: 'sidebar', description: 'Who handed it over.' },
+    },
+    {
+      name: 'assignedByName',
+      label: 'Assigned by',
+      type: 'text',
       admin: {
         readOnly: true,
         position: 'sidebar',
-        description: 'Who handed it over.',
+        description: 'Kept as plain text so it shows without read access on the staff list.',
       },
     },
     {

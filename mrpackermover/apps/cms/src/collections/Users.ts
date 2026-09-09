@@ -1,4 +1,4 @@
-import type { Access, CollectionConfig, FieldAccess, PayloadRequest } from 'payload';
+import type { Access, CollectionConfig, FieldAccess, PayloadRequest, Where } from 'payload';
 import { isAdmin, isAdminField, isRole } from '../access/index.js';
 import { clientIp } from '../endpoints/_lib.js';
 
@@ -30,18 +30,27 @@ const canCreateUser: Access = ({ req }) => {
 };
 
 /**
- * Any signed-in staff member can read the staff list. This is deliberately broader than
- * the rest of the lockdown, and the reason is concrete: a relationship Payload cannot
- * read renders as a bare row id. Restricting a salesperson to their own record made
- * every lead say "assigned by 3" instead of naming the handler, and the note author on
- * their own leads was unreadable too.
+ * Nobody browses the staff directory except an admin.
  *
- * The tradeoff is that colleagues can see each other's name, role and email. That is
- * ordinary for an internal CRM and is the access this collection shipped with before
- * the sales hierarchy existed; the data worth protecting here is the customers' , not
- * the team's own directory. Creating, editing and deleting staff stay locked down.
+ *   admin    — everyone.
+ *   handler  — salespeople (they must pick one to assign work to) plus themselves.
+ *   sales    — themselves only.
+ *
+ * This was briefly opened to all staff because a relationship Payload cannot read
+ * renders as a bare row id, and a salesperson was seeing "assigned by 3". The fix was
+ * not to widen access: the Leads collection now stamps `assignedByName` and a note's
+ * `authorName` as plain text when they are written, so a name displays without anyone
+ * needing to read the person's record. That keeps the directory shut.
  */
-const usersRead: Access = ({ req }) => Boolean(req.user);
+const usersRead: Access = ({ req }) => {
+  if (!req.user) return false;
+  if (isRole(req, 'admin')) return true;
+  const id = (req.user as { id?: string | number }).id;
+  if (isRole(req, 'handler')) {
+    return { or: [{ role: { equals: 'sales' } }, { id: { equals: id } }] } as Where;
+  }
+  return { id: { equals: id } } as Where;
+};
 
 /**
  * Admins update anyone. A handler may update the salespeople they manage, but never
@@ -70,6 +79,14 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Settings',
     defaultColumns: ['name', 'email', 'role'],
+    // Only people who actually manage staff see the collection at all. A salesperson
+    // never does; a handler only when they have been granted the right to add
+    // salespeople. Access above is the real boundary — this just keeps the nav honest.
+    hidden: ({ user }) => {
+      const u = user as { role?: string; canCreateSalesUsers?: boolean } | undefined;
+      if (u?.role === 'admin') return false;
+      return !(u?.role === 'handler' && u?.canCreateSalesUsers);
+    },
   },
   access: {
     create: canCreateUser,

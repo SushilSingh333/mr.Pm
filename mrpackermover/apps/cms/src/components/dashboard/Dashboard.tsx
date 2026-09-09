@@ -133,6 +133,7 @@ interface LeadDoc {
   assignedAt?: string | null;
   assignedTo?: { id?: string | number; name?: string; email?: string } | string | number | null;
   assignedBy?: { id?: string | number; name?: string; email?: string } | string | number | null;
+  assignedByName?: string | null;
 }
 interface AppDoc {
   id: string | number;
@@ -454,7 +455,9 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
                         <span
                           className="mpm-row__sub"
                           title={`Assigned ${exactTime(l.assignedAt)}${
-                            ownerName(l.assignedBy) ? ` by ${ownerName(l.assignedBy)}` : ''
+                            (l.assignedByName ?? ownerName(l.assignedBy))
+                              ? ` by ${l.assignedByName ?? ownerName(l.assignedBy)}`
+                              : ''
                           }`}
                         >
                           {ownerName(l.assignedTo)

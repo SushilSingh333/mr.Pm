@@ -102,6 +102,7 @@ interface LeadDoc {
   createdAt?: string;
   assignedAt?: string | null;
   assignedBy?: { id?: string | number; name?: string; email?: string } | string | number | null;
+  assignedByName?: string | null;
   acknowledgedAt?: string | null;
   assignedTo?: { id?: string | number; name?: string; email?: string } | string | number | null;
 }
@@ -142,8 +143,10 @@ function LeadRow({ lead, showOwner }: { lead: LeadDoc; showOwner: boolean }): Re
           <span className="mpm-row__sub" title={`Assigned ${exactTime(lead.assignedAt)}`}>
             {showOwner
               ? `${ownerName(lead.assignedTo) || 'owner'} · ${timeAgo(lead.assignedAt)}`
-              : ownerName(lead.assignedBy)
-                ? `from ${ownerName(lead.assignedBy)} · ${timeAgo(lead.assignedAt)}`
+              : // Prefer the stored name: a salesperson cannot read the staff directory,
+                // so the relationship would not resolve for them.
+                (lead.assignedByName ?? ownerName(lead.assignedBy))
+                ? `from ${lead.assignedByName ?? ownerName(lead.assignedBy)} · ${timeAgo(lead.assignedAt)}`
                 : `assigned ${timeAgo(lead.assignedAt)}`}
           </span>
         )}

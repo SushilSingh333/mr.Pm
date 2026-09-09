@@ -337,6 +337,47 @@ try {
   })) as { totalDocs: number };
   check('another salesperson cannot see that draft', draftForOther.totalDocs === 0);
 
+  // The staff directory is not browsable by the sales hierarchy. A salesperson sees
+  // only themselves; a handler additionally sees salespeople, because they must pick
+  // one to assign work to.
+  const salesSeesUsers = (await payload.find({
+    collection: 'users',
+    limit: 100,
+    ...asUser(salesA),
+  })) as { docs: { id: string | number }[]; totalDocs: number };
+  check(
+    'salesperson sees only their own user record',
+    salesSeesUsers.totalDocs === 1 && String(salesSeesUsers.docs[0]?.id) === String(salesA.id),
+    `${salesSeesUsers.totalDocs} record(s)`,
+  );
+
+  const handlerSeesUsers = (await payload.find({
+    collection: 'users',
+    limit: 100,
+    ...asUser(handler),
+  })) as { docs: { role?: string }[]; totalDocs: number };
+  const handlerSawOnlySalesOrSelf = handlerSeesUsers.docs.every(
+    (u) => u.role === 'sales' || u.role === 'handler',
+  );
+  check('handler sees salespeople and themselves, nobody else', handlerSawOnlySalesOrSelf);
+  check(
+    'handler cannot see the admin account',
+    !handlerSeesUsers.docs.some((u) => u.role === 'admin'),
+  );
+
+  // Names must still display without that access, or locking the directory would put
+  // bare row ids back on every lead.
+  const stamped = (await payload.findByID({
+    collection: 'leads',
+    id: lead.id,
+    overrideAccess: true,
+  })) as never as { assignedByName?: string };
+  check(
+    'the assigner name is stored on the lead itself',
+    Boolean(stamped.assignedByName),
+    String(stamped.assignedByName),
+  );
+
   // Routing stages belong to the handler. Hiding them from the salesperson's dropdown
   // is presentation; this proves the server refuses them too, because the REST API does
   // not care what the browser rendered.

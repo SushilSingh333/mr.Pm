@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { isAdmin } from '../access/index.js';
+import { hideFromSalesRoles, isAdmin } from '../access/index.js';
 import { latLngFields } from '../fields/geo.js';
 
 /**
@@ -14,6 +14,7 @@ export const OperatingBases: CollectionConfig = {
   slug: 'operating-bases',
   labels: { singular: 'Operating base (internal)', plural: 'Operating bases (internal)' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'label',
     group: 'Internal, never rendered',
     description: 'Dispatch geography only. Feeds the publish gate. Never shown on the site.',

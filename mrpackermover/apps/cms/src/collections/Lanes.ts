@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { seoOverrideFields } from '../fields/seo.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -10,13 +10,18 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
  */
 export const Lanes: CollectionConfig = {
   slug: 'lanes',
-  admin: { useAsTitle: 'label', group: 'Catalogue', defaultColumns: ['label', 'jobCount'] },
+  admin: {
+    hidden: hideFromSalesRoles,
+    useAsTitle: 'label',
+    group: 'Catalogue',
+    defaultColumns: ['label', 'jobCount'],
+  },
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

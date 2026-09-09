@@ -470,14 +470,21 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     color: var(--color-ink-500);
   }
 
+  /* Flex, not a fixed four-column grid: "Track your move" only renders while that page
+     is published, and a fixed grid left the remaining three hugging the left edge with a
+     dead column beside them. This centres three or four alike, and centres a part-filled
+     row when they wrap. */
   .quick-links {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1rem;
     max-width: 1000px;
     margin-inline: auto;
   }
   .ql {
+    flex: 1 1 210px;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
@@ -500,16 +507,17 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     color: var(--color-ink-500);
   }
   @media (max-width: 860px) {
-    .channels,
-    .quick-links {
+    .channels {
       grid-template-columns: 1fr 1fr;
     }
   }
   @media (max-width: 560px) {
     .channels,
-    .quick-links,
     .contact-meta {
       grid-template-columns: 1fr;
+    }
+    .ql {
+      max-width: none;
     }
   }
 </style>

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaffOnly } from '../access/index.js';
 
 /**
  * Applications submitted from the careers page. Created by the public `/api/apply`
@@ -10,6 +10,7 @@ export const JobApplications: CollectionConfig = {
   slug: 'job-applications',
   labels: { singular: 'Application', plural: 'Job applications' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'name',
     group: 'Careers',
     defaultColumns: ['name', 'email', 'position', 'status', 'createdAt'],
@@ -17,9 +18,9 @@ export const JobApplications: CollectionConfig = {
   },
   access: {
     create: () => true,
-    read: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isContentStaffOnly,
+    update: isContentStaffOnly,
+    delete: isContentStaffOnly,
   },
   fields: [
     {

@@ -208,7 +208,12 @@ const _proposalPdf = (function () {
 
   function ff(n){return (isFinite(n)?n:0).toFixed(2);}
   function col(hex){return ff(parseInt(hex.substr(0,2),16)/255)+' '+ff(parseInt(hex.substr(2,2),16)/255)+' '+ff(parseInt(hex.substr(4,2),16)/255);}
-  function san(s){return String(s==null?'':s).replace(/₹/g,'Rs.').replace(/[, –]/g,'-').replace(/→/g,'->').replace(/≈/g,'~').replace(/×/g,'x').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/·/g,'|').replace(/[^\x20-\x7E]/g,'');}
+  // The dash class below must NOT contain a space or a comma. It used to read
+  // `[, –]`, which replaced every SPACE with a hyphen: text rendered as
+  // "All-figures-in-INR", and because wrap() sanitises before splitting on
+  // whitespace, each terms entry became one unbreakable word that could not wrap
+  // and overflowed into the next column.
+  function san(s){return String(s==null?'':s).replace(/₹/g,'Rs.').replace(/[–—]/g,'-').replace(/→/g,'->').replace(/≈/g,'~').replace(/×/g,'x').replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/·/g,'|').replace(/[^\x20-\x7E]/g,'');}
   function tw(s,sz,b){var a=(b===1)?HB:HW,w=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i)-32;w+=(c>=0&&c<95)?a[c]:556;}return w*sz/1000;}
   function trunc(s,sz,b,mw){s=san(s);if(tw(s,sz,b)<=mw)return s;var t=s;while(t.length>1&&tw(t+'..',sz,b)>mw)t=t.slice(0,-1);return t+'..';}
   function wrap(s,sz,b,mw){s=san(s);var wds=s.split(/\s+/),L=[],c='';for(var i=0;i<wds.length;i++){var t=c?c+' '+wds[i]:wds[i];if(tw(t,sz,b)>mw&&c){L.push(c);c=wds[i];}else c=t;}if(c)L.push(c);return L;}

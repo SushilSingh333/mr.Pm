@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publicRead, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publicReadExceptSalesRoles } from '../access/index.js';
 
 /**
  * Authors, ops managers, reviewers — real named people behind guides and jobs.
@@ -10,12 +10,17 @@ import { publicRead, isAuthenticated } from '../access/index.js';
  */
 export const People: CollectionConfig = {
   slug: 'people',
-  admin: { useAsTitle: 'name', group: 'Content', defaultColumns: ['name', 'role'] },
+  admin: {
+    hidden: hideFromSalesRoles,
+    useAsTitle: 'name',
+    group: 'Content',
+    defaultColumns: ['name', 'role'],
+  },
   access: {
-    read: publicRead,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: publicReadExceptSalesRoles,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   fields: [
     { name: 'name', type: 'text', required: true },

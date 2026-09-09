@@ -21,6 +21,8 @@ interface QuoteBody {
   date?: string;
   moveDate?: string;
   size?: string;
+  email?: string;
+  notes?: string;
   moveSize?: string;
   name?: string;
   phone?: string;
@@ -81,6 +83,10 @@ export const quoteEndpoint: Endpoint = {
           dropLocation: body.drop ?? body.dropLocation ?? body.to ?? undefined,
           moveDate: moveDate || undefined,
           moveSize: body.size ?? body.moveSize ?? undefined,
+          // The form asks for these and the customer takes the trouble to fill them in;
+          // dropping them meant a coordinator had to ask all over again.
+          email: (body.email ?? '').trim() || undefined,
+          customerNote: (body.notes ?? '').trim() || undefined,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,
         } as never,

@@ -1,5 +1,7 @@
 import type { Payload } from 'payload';
 import Link from 'next/link';
+import { LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
+import { SalesDashboard } from './SalesDashboard.js';
 
 /**
  * Full dashboard VIEW (admin.components.views.dashboard) — replaces Payload's default
@@ -14,13 +16,6 @@ import Link from 'next/link';
  * DATA AND BEHAVIOUR ARE UNCHANGED — this pass is purely the design.
  */
 
-const LEAD_STATUS = [
-  { value: 'new', label: 'New', color: '#6D5AE6' },
-  { value: 'contacted', label: 'Contacted', color: '#2f6df6' },
-  { value: 'quoted', label: 'Quoted', color: '#c98a00' },
-  { value: 'won', label: 'Won', color: '#1a9d5a' },
-  { value: 'lost', label: 'Lost', color: '#8a8f98' },
-];
 const APP_STATUS = [
   { value: 'new', label: 'New', color: '#6D5AE6' },
   { value: 'reviewing', label: 'Reviewing', color: '#2f6df6' },
@@ -29,16 +24,16 @@ const APP_STATUS = [
   { value: 'rejected', label: 'Rejected', color: '#8a8f98' },
 ];
 
-async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+export async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
   try {
     return await fn();
   } catch {
     return fallback;
   }
 }
-const fmt = (n: number): string => n.toLocaleString('en-IN');
-const initial = (s?: string): string => (s || '?').trim().charAt(0).toUpperCase() || '?';
-function timeAgo(iso: string): string {
+export const fmt = (n: number): string => n.toLocaleString('en-IN');
+export const initial = (s?: string): string => (s || '?').trim().charAt(0).toUpperCase() || '?';
+export function timeAgo(iso: string): string {
   const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
   if (m < 1) return 'just now';
   if (m < 60) return `${m}m ago`;
@@ -49,14 +44,17 @@ function timeAgo(iso: string): string {
 }
 
 /* Inline stroke icons (currentColor). Kept tiny so the badge, not the glyph, carries weight. */
-const S = {
+export const S = {
   fill: 'none',
   stroke: 'currentColor',
   strokeWidth: 1.7,
   strokeLinecap: 'round' as const,
   strokeLinejoin: 'round' as const,
 };
-const ICONS: Record<string, React.JSX.Element> = {
+// No `Record<string, …>` annotation on purpose: that type accepts any key, so a typo
+// like `ICONS.id` compiles happily and renders an empty badge. Letting TypeScript
+// infer the literal keys turns the same typo into a build error.
+export const ICONS = {
   leads: (
     <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
       <circle cx="9" cy="8" r="3.2" />
@@ -121,6 +119,9 @@ const ICONS: Record<string, React.JSX.Element> = {
   ),
 };
 
+/** The icon names that actually exist, so a typo is a build error. */
+export type IconName = keyof typeof ICONS;
+
 interface LeadDoc {
   id: string | number;
   name?: string;
@@ -129,6 +130,9 @@ interface LeadDoc {
   pickup?: string;
   status?: string;
   createdAt: string;
+  assignedAt?: string | null;
+  assignedTo?: { id?: string | number; name?: string; email?: string } | string | number | null;
+  assignedBy?: { id?: string | number; name?: string; email?: string } | string | number | null;
 }
 interface AppDoc {
   id: string | number;
@@ -144,10 +148,18 @@ interface JobStat {
 }
 
 // Props come from the admin view; payload/user may sit at the top level or under initPageResult.
+type DashUser = {
+  id?: string | number;
+  email?: string;
+  name?: string;
+  role?: string;
+} | null;
+
 interface ViewProps {
   payload?: Payload;
-  user?: { email?: string; name?: string } | null;
-  initPageResult?: { req?: { payload?: Payload; user?: { email?: string; name?: string } | null } };
+  user?: DashUser;
+  initPageResult?: { req?: { payload?: Payload; user?: DashUser } };
+  searchParams?: Record<string, string | string[] | undefined>;
 }
 
 export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
@@ -160,6 +172,23 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
         <style>{CSS}</style>
         <p className="mpm-empty">Dashboard data is unavailable.</p>
       </div>
+    );
+  }
+
+  // The sales hierarchy gets its own view. Everything below this point is the
+  // business-wide analytics dashboard, which handlers and salespeople must not see.
+  if (user?.role === 'handler' || user?.role === 'sales') {
+    const sp = props?.searchParams ?? {};
+    const one = (k: string): string | undefined =>
+      Array.isArray(sp[k]) ? (sp[k] as string[])[0] : (sp[k] as string | undefined);
+    return (
+      <SalesDashboard
+        payload={payload}
+        user={user as { id?: string | number; name?: string; email?: string; role?: string }}
+        range={one('range') ?? 'month'}
+        from={one('from')}
+        to={one('to')}
+      />
     );
   }
 
@@ -203,7 +232,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
   ] = await Promise.all([
     Promise.all(LEAD_STATUS.map((s) => count('leads', { status: { equals: s.value } }))),
     // Show only the 5 most recent here; the "open →" link goes to the full leads list.
-    findDocs('leads', { limit: 5, sort: '-createdAt', depth: 0 }),
+    findDocs('leads', { limit: 5, sort: '-createdAt', depth: 1 }),
     Promise.all(APP_STATUS.map((s) => count('job-applications', { status: { equals: s.value } }))),
     findDocs('job-applications', { limit: 5, sort: '-createdAt', depth: 0 }),
     count('jobs', { isOpen: { equals: true } }),
@@ -243,7 +272,15 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
   const recentApps = recentAppsRaw as AppDoc[];
   const firstName = (user?.name || user?.email || '').split(/[@\s]/)[0];
 
-  const kpis = [
+  const kpis: {
+    label: string;
+    value: string;
+    hint: string;
+    icon: IconName;
+    hero?: boolean;
+    hot?: boolean;
+    href?: string;
+  }[] = [
     {
       label: 'New leads',
       value: fmt(newLeads),
@@ -394,7 +431,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
           ) : (
             <ul className="mpm-rows">
               {recentLeads.map((l) => {
-                const meta = LEAD_STATUS.find((s) => s.value === l.status) ?? LEAD_STATUS[0]!;
+                const meta = statusMeta(l.status);
                 return (
                   <li key={String(l.id)} className="mpm-row">
                     <span className="mpm-avatar" aria-hidden="true">
@@ -409,7 +446,23 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
                     <span className="mpm-badge" style={{ ['--c' as string]: meta.color }}>
                       {meta.label}
                     </span>
-                    <span className="mpm-row__time">{timeAgo(l.createdAt)}</span>
+                    {/* Arrival on top, hand-over underneath: an assigned lead is judged
+                        by how long its owner has had it, not by when it came in. */}
+                    <span className="mpm-row__time" title={`Received ${exactTime(l.createdAt)}`}>
+                      {timeAgo(l.createdAt)}
+                      {l.assignedAt && (
+                        <span
+                          className="mpm-row__sub"
+                          title={`Assigned ${exactTime(l.assignedAt)}${
+                            ownerName(l.assignedBy) ? ` by ${ownerName(l.assignedBy)}` : ''
+                          }`}
+                        >
+                          {ownerName(l.assignedTo)
+                            ? `${ownerName(l.assignedTo)} · ${timeAgo(l.assignedAt)}`
+                            : `assigned ${timeAgo(l.assignedAt)}`}
+                        </span>
+                      )}
+                    </span>
                   </li>
                 );
               })}
@@ -561,7 +614,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
   );
 }
 
-const CSS = `
+export const CSS = `
 .mpm-dash {
   --v-100:#ECE8FB; --v-300:#A99BF0; --v-400:#8B7CF0; --v-500:#6D5AE6; --v-600:#5A46D6; --v-700:#4A38B5;
   --ico-bg:#17162A; --ico-fg:#ffffff;
@@ -641,7 +694,8 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 .mpm-row__name { font-weight:600; font-size:.88rem; color:var(--theme-elevation-1000); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mpm-row__main:hover .mpm-row__name { color:var(--v-500); }
 .mpm-row__meta { font-size:.74rem; color:var(--theme-elevation-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mpm-row__time { font-size:.72rem; color:var(--theme-elevation-450); white-space:nowrap; }
+.mpm-row__time { display:flex; flex-direction:column; align-items:flex-end; gap:.1rem; font-size:.72rem; color:var(--theme-elevation-450); white-space:nowrap; }
+.mpm-row__sub { font-size:.66rem; color:var(--v-500); font-weight:600; }
 .mpm-badge { font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--c); background:color-mix(in srgb, var(--c) 14%, transparent); border:1px solid color-mix(in srgb, var(--c) 35%, transparent); padding:.15rem .5rem; border-radius:99px; white-space:nowrap; }
 
 .mpm-chips { display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:.75rem; }

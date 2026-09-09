@@ -1,20 +1,21 @@
 import type { CollectionConfig } from 'payload';
-import { publicRead, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publicReadExceptSalesRoles } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /** Scoped Q&A (Doc 01 §5). Seeded editorially, grown from real support tickets. */
 export const Faqs: CollectionConfig = {
   slug: 'faqs',
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'question',
     group: 'Content',
     defaultColumns: ['question', 'scope', 'priority'],
   },
   access: {
-    read: publicRead,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: publicReadExceptSalesRoles,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

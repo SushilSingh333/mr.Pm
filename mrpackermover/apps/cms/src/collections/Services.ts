@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { seoOverrideFields } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
@@ -7,13 +7,18 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 /** The service catalogue: 8 national services + the corporate silo (flagged). */
 export const Services: CollectionConfig = {
   slug: 'services',
-  admin: { useAsTitle: 'name', group: 'Catalogue', defaultColumns: ['name', 'isCorporate'] },
+  admin: {
+    hidden: hideFromSalesRoles,
+    useAsTitle: 'name',
+    group: 'Catalogue',
+    defaultColumns: ['name', 'isCorporate'],
+  },
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

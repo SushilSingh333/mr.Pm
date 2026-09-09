@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { cldUrl } from '@mpm/shared';
-import { publicRead, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publicRead } from '../access/index.js';
 
 /**
  * Uploads: photos of OUR crews, trucks, and warehouses (Doc 01 §2) — never stock
@@ -14,12 +14,15 @@ import { publicRead, isAuthenticated } from '../access/index.js';
  */
 export const Media: CollectionConfig = {
   slug: 'media',
-  admin: { group: 'Content' },
+  admin: {
+    hidden: hideFromSalesRoles,
+    group: 'Content',
+  },
   access: {
     read: publicRead,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   upload: {
     mimeTypes: ['image/*'],

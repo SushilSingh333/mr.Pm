@@ -7,6 +7,7 @@ import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage';
 import { getDatabaseUrl } from '@mpm/db/env';
 import { cloudinaryStorageAdapter } from './storage/cloudinary.js';
 
+import { LoginEvents } from './collections/LoginEvents.js';
 import { Users } from './collections/Users.js';
 import { Media } from './collections/Media.js';
 import { Locations } from './collections/Locations.js';
@@ -105,6 +106,8 @@ export default buildConfig({
     ContactMessages,
     // Sales
     Proposals,
+    // Security
+    LoginEvents,
     // Internal — never rendered (ADR-0004)
     OperatingBases,
     // System

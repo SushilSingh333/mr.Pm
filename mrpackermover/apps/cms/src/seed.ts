@@ -534,7 +534,7 @@ async function seed(): Promise<void> {
     slug: 'org-profile',
     data: {
       brandName: 'MrPackerMover',
-      legalName: 'AAJneeti Connect Private Limited', // placeholder, confirm real entity
+      legalName: 'MrPackerMover', // set the real registered entity in the CMS
       gstin: '07AAAAA0000A1Z5',
       cin: 'U63030DL2020PTC000000',
       yearsOperating: 6,

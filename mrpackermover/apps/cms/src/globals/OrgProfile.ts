@@ -1,5 +1,5 @@
 import type { GlobalConfig } from 'payload';
-import { isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff } from '../access/index.js';
 
 /**
  * The SINGLE legal identity (ADR-0004). Rendered once as an `Organization` node
@@ -10,8 +10,8 @@ import { isAuthenticated } from '../access/index.js';
 export const OrgProfile: GlobalConfig = {
   slug: 'org-profile',
   label: 'Organisation profile',
-  admin: { group: 'Settings' },
-  access: { read: () => true, update: isAuthenticated },
+  admin: { group: 'Settings', hidden: hideFromSalesRoles },
+  access: { read: () => true, update: isContentStaff },
   fields: [
     { name: 'brandName', type: 'text', required: true, defaultValue: 'MrPackerMover' },
     { name: 'legalName', type: 'text', required: true },

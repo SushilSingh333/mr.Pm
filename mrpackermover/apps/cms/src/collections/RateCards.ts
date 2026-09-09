@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -10,6 +10,7 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 export const RateCards: CollectionConfig = {
   slug: 'rate-cards',
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'label',
     group: 'Catalogue',
     defaultColumns: ['label', 'scope', 'validFrom'],
@@ -17,9 +18,9 @@ export const RateCards: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

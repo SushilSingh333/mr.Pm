@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaffOnly } from '../access/index.js';
 
 /**
  * Messages from the public contact form. Created by the `/api/contact` endpoint
@@ -9,6 +9,7 @@ export const ContactMessages: CollectionConfig = {
   slug: 'contact-messages',
   labels: { singular: 'Message', plural: 'Contact messages' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'name',
     group: 'Inbox',
     defaultColumns: ['name', 'email', 'subject', 'status', 'createdAt'],
@@ -16,9 +17,9 @@ export const ContactMessages: CollectionConfig = {
   },
   access: {
     create: () => true,
-    read: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: isContentStaffOnly,
+    update: isContentStaffOnly,
+    delete: isContentStaffOnly,
   },
   fields: [
     {

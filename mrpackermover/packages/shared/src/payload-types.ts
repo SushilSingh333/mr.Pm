@@ -85,6 +85,7 @@ export interface Config {
     leads: Lead;
     'contact-messages': ContactMessage;
     proposals: Proposal;
+    'login-events': LoginEvent;
     'operating-bases': OperatingBase;
     users: User;
     'payload-kv': PayloadKv;
@@ -116,6 +117,7 @@ export interface Config {
     leads: LeadsSelect<false> | LeadsSelect<true>;
     'contact-messages': ContactMessagesSelect<false> | ContactMessagesSelect<true>;
     proposals: ProposalsSelect<false> | ProposalsSelect<true>;
+    'login-events': LoginEventsSelect<false> | LoginEventsSelect<true>;
     'operating-bases': OperatingBasesSelect<false> | OperatingBasesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -187,22 +189,26 @@ export interface Location {
    */
   parent?: (number | null) | Location;
   /**
-   * Optional — auto-filled from the name via Google. Leave blank.
+   * Optional, auto-filled from the name via Google. Leave blank.
    */
   lat?: number | null;
   lng?: number | null;
   pincodes?: string[] | null;
   populationTier?: ('A' | 'A-S' | 'B') | null;
   /**
+   * Order in every city list (home page grid, footer, service pages). 1 shows first. Leave blank and the city sorts after all prioritised cities, alphabetically.
+   */
+  displayPriority?: number | null;
+  /**
    * Gates publication. A city/locality with no completed jobs is not serviceable.
    */
   isServiceable?: boolean | null;
   /**
-   * The services you offer in this city — each one gets its own “{Service} in {City}” page. Leave empty to fall back to the automatic data gate.
+   * The services you offer in this city, each one gets its own “{Service} in {City}” page. Leave empty to fall back to the automatic data gate.
    */
   servicesOffered?: (number | Service)[] | null;
   /**
-   * Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality — leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.
+   * Background photo for this location’s hero banner (also used as its card thumbnail). Uploaded to Cloudinary. Optional on a locality, leave it empty and the page uses its parent city’s photo. A city with none falls back to the built-in /images/hero/cities/<slug>.jpg file.
    */
   heroImage?: (number | null) | Media;
   /**
@@ -273,6 +279,24 @@ export interface Service {
    */
   isCorporate?: boolean | null;
   summary?: string | null;
+  /**
+   * The prose that runs on the national service page: how the job actually works, what decides the price, what to have ready. Written per service, not templated.
+   */
+  editorialNote?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   inclusions?:
     | {
         item: string;
@@ -486,6 +510,7 @@ export interface Page {
     | 'corporate'
     | 'contact'
     | 'careers'
+    | 'team'
     | 'services-index'
     | 'blog-index';
   /**
@@ -515,7 +540,7 @@ export interface Page {
     [k: string]: unknown;
   } | null;
   /**
-   * Meta title — the blue line in Google. Aim for 60 characters. Blank = the built-in title.
+   * Meta title, the blue line in Google. Aim for 60 characters. Blank = the built-in title.
    */
   metaTitle?: string | null;
   /**
@@ -641,6 +666,18 @@ export interface Person {
    * Credentials shown on guide bylines.
    */
   credentials?: string | null;
+  /**
+   * Optional LinkedIn profile URL, linked from the team card.
+   */
+  linkedin?: string | null;
+  /**
+   * Off by default. Tick to publish this person on /company/team, needs a role, and a photo looks best.
+   */
+  showOnTeam?: boolean | null;
+  /**
+   * Lower numbers appear first. Ties fall back to alphabetical by name.
+   */
+  teamOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -658,7 +695,7 @@ export interface Post {
    */
   slug: string;
   /**
-   * One–two sentence summary — shown on the card, and used as the meta description unless you set one in the SEO section below.
+   * One–two sentence summary, shown on the card, and used as the meta description unless you set one in the SEO section below.
    */
   excerpt: string;
   category: 'Guides' | 'Pricing' | 'Safety' | 'Packing' | 'Business';
@@ -796,7 +833,14 @@ export interface JobApplication {
 export interface User {
   id: number;
   name: string;
-  role: 'admin' | 'editor' | 'ops';
+  /**
+   * Handler sees every lead and distributes them. Sales sees only their own.
+   */
+  role: 'admin' | 'editor' | 'ops' | 'handler' | 'sales';
+  /**
+   * Lets this handler add salespeople of their own. Admin-only to grant. Ignored for other roles.
+   */
+  canCreateSalesUsers?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -817,7 +861,7 @@ export interface User {
   collection: 'users';
 }
 /**
- * Every quote form and price check lands here. Work them through the status pipeline; filter by "source".
+ * Every quote form and price check lands here. Newest first. Filter by date, status, owner or source.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "leads".
@@ -826,21 +870,55 @@ export interface Lead {
   id: number;
   name: string;
   phone: string;
+  /**
+   * Given on the form when the customer chose to.
+   */
+  email?: string | null;
   service?: string | null;
   moveSize?: string | null;
   pickup?: string | null;
   dropLocation?: string | null;
   moveDate?: string | null;
   /**
+   * Straight from the quote form.
+   */
+  customerNote?: string | null;
+  /**
+   * Append a note. Author and time are stamped automatically and cannot be edited.
+   */
+  noteLog?:
+    | {
+        body: string;
+        author?: (number | null) | User;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Written before authored notes existed. Kept for the record.
+   */
+  notes?: string | null;
+  /**
    * How this lead came in.
    */
   source?: ('quote-form' | 'price-check') | null;
-  status: 'new' | 'contacted' | 'quoted' | 'won' | 'lost';
+  status: 'new' | 'assigned' | 'reassigned' | 'contacted' | 'call-not-picked' | 'quoted' | 'won' | 'lost';
+  /**
+   * Setting this moves the lead to Assigned, or Reassigned if it changes hands.
+   */
   assignedTo?: (number | null) | User;
   /**
-   * Internal notes on this lead.
+   * When this lead was handed to its current owner. Stamped automatically.
    */
-  notes?: string | null;
+  assignedAt?: string | null;
+  /**
+   * Who handed it over.
+   */
+  assignedBy?: (number | null) | User;
+  /**
+   * Set the first time the owner saves a change. Empty means they have not actioned it yet.
+   */
+  acknowledgedAt?: string | null;
   sourceIp?: string | null;
   sourcePage?: string | null;
   updatedAt: string;
@@ -883,6 +961,10 @@ export interface Proposal {
    * The lead this proposal is for (optional).
    */
   lead?: (number | null) | Lead;
+  /**
+   * Who raised this proposal. Stamped automatically.
+   */
+  createdBy?: (number | null) | User;
   title?: string | null;
   clientName?: string | null;
   route?: string | null;
@@ -921,6 +1003,9 @@ export interface Proposal {
       }[]
     | null;
   pricing?: {
+    /**
+     * Clear this field to quote without GST; the PDF then drops the GST line.
+     */
     gstRate?: number | null;
     goodsValue?: number | null;
     /**
@@ -931,7 +1016,7 @@ export interface Proposal {
     pay?: string | null;
   };
   /**
-   * Use “Title — description” for a bold title + subtext.
+   * Use “Title, description” for a bold title + subtext.
    */
   services?:
     | {
@@ -960,6 +1045,30 @@ export interface Proposal {
   createdAt: string;
 }
 /**
+ * Sign-in and sign-out history for every CMS account. Written automatically; rows cannot be edited.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "login-events".
+ */
+export interface LoginEvent {
+  id: number;
+  /**
+   * Auto-generated label, shown in the list.
+   */
+  summary?: string | null;
+  event: 'login' | 'logout';
+  user?: (number | null) | User;
+  /**
+   * Kept alongside the relationship so the trail survives the account being deleted.
+   */
+  userEmail?: string | null;
+  userRole?: string | null;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Dispatch geography only. Feeds the publish gate. Never shown on the site.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -970,7 +1079,7 @@ export interface OperatingBase {
   label: string;
   address: string;
   /**
-   * Optional — auto-filled from the name via Google. Leave blank.
+   * Optional, auto-filled from the name via Google. Leave blank.
    */
   lat?: number | null;
   lng?: number | null;
@@ -1082,6 +1191,10 @@ export interface PayloadLockedDocument {
         value: number | Proposal;
       } | null)
     | ({
+        relationTo: 'login-events';
+        value: number | LoginEvent;
+      } | null)
+    | ({
         relationTo: 'operating-bases';
         value: number | OperatingBase;
       } | null)
@@ -1144,6 +1257,7 @@ export interface LocationsSelect<T extends boolean = true> {
   lng?: T;
   pincodes?: T;
   populationTier?: T;
+  displayPriority?: T;
   isServiceable?: T;
   servicesOffered?: T;
   heroImage?: T;
@@ -1172,6 +1286,7 @@ export interface ServicesSelect<T extends boolean = true> {
   slug?: T;
   isCorporate?: T;
   summary?: T;
+  editorialNote?: T;
   inclusions?:
     | T
     | {
@@ -1365,6 +1480,9 @@ export interface PeopleSelect<T extends boolean = true> {
   bio?: T;
   photo?: T;
   credentials?: T;
+  linkedin?: T;
+  showOnTeam?: T;
+  teamOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1431,15 +1549,28 @@ export interface JobApplicationsSelect<T extends boolean = true> {
 export interface LeadsSelect<T extends boolean = true> {
   name?: T;
   phone?: T;
+  email?: T;
   service?: T;
   moveSize?: T;
   pickup?: T;
   dropLocation?: T;
   moveDate?: T;
+  customerNote?: T;
+  noteLog?:
+    | T
+    | {
+        body?: T;
+        author?: T;
+        at?: T;
+        id?: T;
+      };
+  notes?: T;
   source?: T;
   status?: T;
   assignedTo?: T;
-  notes?: T;
+  assignedAt?: T;
+  assignedBy?: T;
+  acknowledgedAt?: T;
   sourceIp?: T;
   sourcePage?: T;
   updatedAt?: T;
@@ -1470,6 +1601,7 @@ export interface ProposalsSelect<T extends boolean = true> {
   status?: T;
   quoteNo?: T;
   lead?: T;
+  createdBy?: T;
   title?: T;
   clientName?: T;
   route?: T;
@@ -1548,6 +1680,21 @@ export interface ProposalsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "login-events_select".
+ */
+export interface LoginEventsSelect<T extends boolean = true> {
+  summary?: T;
+  event?: T;
+  user?: T;
+  userEmail?: T;
+  userRole?: T;
+  ip?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "operating-bases_select".
  */
 export interface OperatingBasesSelect<T extends boolean = true> {
@@ -1567,6 +1714,7 @@ export interface OperatingBasesSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  canCreateSalesUsers?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

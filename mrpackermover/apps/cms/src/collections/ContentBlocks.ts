@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publicRead, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publicReadExceptSalesRoles } from '../access/index.js';
 
 /**
  * Reusable prose fragments (Doc 01 §5). Rotated by `variantKey` and bounded by
@@ -9,15 +9,16 @@ import { publicRead, isAuthenticated } from '../access/index.js';
 export const ContentBlocks: CollectionConfig = {
   slug: 'content-blocks',
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'label',
     group: 'Content',
     defaultColumns: ['label', 'scope', 'variantKey'],
   },
   access: {
-    read: publicRead,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: publicReadExceptSalesRoles,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   fields: [
     { name: 'label', type: 'text', required: true },

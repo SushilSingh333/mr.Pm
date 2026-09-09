@@ -11,7 +11,8 @@ import Link from 'next/link';
 const V = '#6D5AE6';
 
 const QUICK = [
-  { href: '/admin/collections/proposals', label: 'Proposals' },
+  { href: '/admin/collections/leads', label: 'Leads', sales: true },
+  { href: '/admin/collections/proposals', label: 'Proposals', sales: true },
   { href: '/admin/collections/locations', label: 'Locations' },
   { href: '/admin/collections/reviews', label: 'Reviews' },
   { href: '/admin/collections/pages', label: 'Editorial pages' },
@@ -35,10 +36,16 @@ async function tally(payload: Payload | undefined, collection: string): Promise<
 
 export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element> {
   const payload = props?.payload;
+  // This is a hand-built nav, so Payload's `admin.hidden` does not touch it. Without
+  // this the sales hierarchy saw links (and unread counts) for content and careers
+  // collections they are refused by the API anyway — noise at best, and a hint about
+  // data they have no business knowing exists.
+  const role = (props?.user as { role?: string } | undefined)?.role;
+  const salesOnly = role === 'handler' || role === 'sales';
   const [leads, apps, messages] = await Promise.all([
     tally(payload, 'leads'),
-    tally(payload, 'job-applications'),
-    tally(payload, 'contact-messages'),
+    salesOnly ? Promise.resolve(0) : tally(payload, 'job-applications'),
+    salesOnly ? Promise.resolve(0) : tally(payload, 'contact-messages'),
   ]);
 
   const alerts = [
@@ -47,17 +54,24 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
       count: leads,
       href: '/admin/collections/leads?where[status][equals]=new',
     },
-    {
-      label: 'New applications',
-      count: apps,
-      href: '/admin/collections/job-applications?where[status][equals]=new',
-    },
-    {
-      label: 'Unread messages',
-      count: messages,
-      href: '/admin/collections/contact-messages?where[status][equals]=new',
-    },
+    // Careers and the contact inbox belong to content staff, not the sales desk.
+    ...(salesOnly
+      ? []
+      : [
+          {
+            label: 'New applications',
+            count: apps,
+            href: '/admin/collections/job-applications?where[status][equals]=new',
+          },
+          {
+            label: 'Unread messages',
+            count: messages,
+            href: '/admin/collections/contact-messages?where[status][equals]=new',
+          },
+        ]),
   ];
+
+  const quickLinks = QUICK.filter((q) => !salesOnly || q.sales);
   const totalOpen = leads + apps + messages;
 
   return (
@@ -90,7 +104,7 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 
       <div className="mpm-nav__quick">
         <span className="mpm-nav__quick-title">Quick access</span>
-        {QUICK.map((q) => (
+        {quickLinks.map((q) => (
           <Link key={q.href} href={q.href} className="mpm-nav__quick-link">
             {q.label}
           </Link>

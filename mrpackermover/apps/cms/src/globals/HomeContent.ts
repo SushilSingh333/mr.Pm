@@ -1,6 +1,6 @@
 import type { GlobalConfig } from 'payload';
 import { PAGE_TYPE_TO_SHARD } from '@mpm/shared';
-import { isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff } from '../access/index.js';
 import { triggerBuildForShard } from '../hooks/trigger-build.js';
 
 /**
@@ -12,8 +12,8 @@ import { triggerBuildForShard } from '../hooks/trigger-build.js';
 export const HomeContent: GlobalConfig = {
   slug: 'home-content',
   label: 'Home page content',
-  admin: { group: 'Content' },
-  access: { read: () => true, update: isAuthenticated },
+  admin: { group: 'Content', hidden: hideFromSalesRoles },
+  access: { read: () => true, update: isContentStaff },
   hooks: { afterChange: [triggerBuildForShard(PAGE_TYPE_TO_SHARD.home)] },
   fields: [
     {

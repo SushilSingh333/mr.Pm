@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { seoOverrideFields } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
@@ -17,6 +17,7 @@ export const Blog: CollectionConfig = {
   slug: 'posts',
   labels: { singular: 'Blog post', plural: 'Blog' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'title',
     group: 'Content',
     defaultColumns: ['title', 'category', 'publishedDate', '_status'],
@@ -25,9 +26,9 @@ export const Blog: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

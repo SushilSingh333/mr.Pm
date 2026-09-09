@@ -26,7 +26,7 @@ except Exception:  # noqa: BLE001
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HERO_DIR = os.path.join(ROOT, "apps", "web", "public", "images", "hero")
 CITY_DIR = os.path.join(HERO_DIR, "cities")
-UA = "MrPackerMover/0.1 (dev asset fetch; contact alok@aajneeti.social)"
+UA = "MrPackerMover/0.1 (dev asset fetch)"
 CTX = ssl.create_default_context()
 
 # output slug -> ordered candidate Wikipedia titles (first with a photo wins)

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -12,6 +12,7 @@ export const Jobs: CollectionConfig = {
   slug: 'jobs',
   labels: { singular: 'Job opening', plural: 'Job openings' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'title',
     group: 'Careers',
     defaultColumns: ['title', 'team', 'employmentType', 'isOpen'],
@@ -20,9 +21,9 @@ export const Jobs: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

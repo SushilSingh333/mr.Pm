@@ -604,7 +604,7 @@ const manifest = {
   siteOrigin: ORIGIN,
   org: {
     brandName: 'MrPackerMover',
-    legalName: 'AAJneeti Connect Private Limited',
+    legalName: 'MrPackerMover',
     gstin: '07AAAAA0000A1Z5',
     cin: 'U63030DL2020PTC000000',
     yearsOperating: 6,

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -10,6 +10,7 @@ import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 export const Reviews: CollectionConfig = {
   slug: 'reviews',
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'jobRef',
     group: 'Trust & data',
     defaultColumns: ['jobRef', 'rating', 'date'],
@@ -17,9 +18,9 @@ export const Reviews: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

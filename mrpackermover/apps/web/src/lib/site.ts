@@ -124,4 +124,9 @@ export const SOCIALS = [
   { label: 'Instagram', icon: 'instagram', href: 'https://www.instagram.com/mrpackermover/' },
   { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@mrpackermover' },
   { label: 'X', icon: 'x', href: 'https://x.com/mrpackermover' },
+  { label: 'Reddit', icon: 'reddit', href: 'https://www.reddit.com/user/mrmover_packer/' },
+  { label: 'Quora', icon: 'quora', href: 'https://www.quora.com/profile/Mrpackermover' },
+  { label: 'Threads', icon: 'threads', href: 'https://www.threads.com/@mrpackermover' },
+  { label: 'Pinterest', icon: 'pinterest', href: 'https://www.pinterest.com/mrpackermover/' },
+  { label: 'Discord', icon: 'discord', href: 'https://discord.com/users/mrpackermover' },
 ];

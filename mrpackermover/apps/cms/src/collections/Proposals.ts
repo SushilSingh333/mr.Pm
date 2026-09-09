@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { isAuthenticated } from '../access/index.js';
+import { proposalsRead, proposalsWrite, isRole } from '../access/index.js';
 
 /**
  * Moving proposals — a native CMS section. Click "Proposals" → the list of everything created;
@@ -98,13 +98,49 @@ export const Proposals: CollectionConfig = {
       'All moving proposals. Create New → fill the form → the Preview & PDF tab shows the downloadable PDF.',
   },
   access: {
-    create: isAuthenticated,
-    read: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: proposalsWrite,
+    read: proposalsRead,
+    update: proposalsRead,
+    delete: ({ req }) => isRole(req, 'admin', 'handler'),
   },
   hooks: {
+    beforeValidate: [
+      // `create` access can only check the role, not which lead is being attached, so a
+      // salesperson could otherwise raise a proposal against someone else's lead. They
+      // could never read it back (read is scoped by the lead's owner), but they could
+      // still clutter another person's pipeline. Checked here, where the lead is known.
+      async ({ data, req, operation }) => {
+        if (!data || !isRole(req, 'sales')) return data;
+        const leadId =
+          data.lead && typeof data.lead === 'object'
+            ? (data.lead as { id?: unknown }).id
+            : data.lead;
+        if (!leadId) return data;
+        const me = (req.user as { id?: string | number } | null)?.id;
+        const owned = await req.payload.find({
+          collection: 'leads',
+          where: { and: [{ id: { equals: leadId } }, { assignedTo: { equals: me } }] } as never,
+          limit: 1,
+          overrideAccess: true,
+          depth: 0,
+        });
+        if (owned.totalDocs === 0) {
+          throw new Error(
+            `You can only ${operation === 'create' ? 'raise' : 'edit'} a proposal for a lead assigned to you.`,
+          );
+        }
+        return data;
+      },
+    ],
     beforeChange: [
+      // Records the author so a proposal stays visible to whoever raised it, even
+      // before a lead is attached. Set once, on create.
+      ({ data, req, operation }) => {
+        if (operation === 'create' && !data.createdBy) {
+          data.createdBy = (req.user as { id?: string | number } | null)?.id ?? null;
+        }
+        return data;
+      },
       ({ data }) => {
         if (!data.quoteNo) {
           const d = new Date();
@@ -157,6 +193,16 @@ export const Proposals: CollectionConfig = {
       type: 'relationship',
       relationTo: 'leads',
       admin: { position: 'sidebar', description: 'The lead this proposal is for (optional).' },
+    },
+    {
+      name: 'createdBy',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Who raised this proposal. Stamped automatically.',
+      },
     },
     {
       name: 'leadAutofill',

@@ -1,5 +1,5 @@
 import type { GlobalConfig, Field } from 'payload';
-import { isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff } from '../access/index.js';
 import { hasToken, tokensUsed } from '@mpm/seo';
 
 /**
@@ -126,10 +126,11 @@ export const SeoDefaults: GlobalConfig = {
   label: 'SEO defaults',
   admin: {
     group: 'Settings',
+    hidden: hideFromSalesRoles,
     description:
       'Titles and descriptions for every generated page. Written once here with {tokens}; the build fills them in per page. Anything typed on an individual city, service or lane overrides what is here.',
   },
-  access: { read: () => true, update: isAuthenticated },
+  access: { read: () => true, update: isContentStaff },
   fields: TYPES.map(groupFor),
 };
 

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { seoOverrideFields, cityServiceSeoField } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { latLngFields } from '../fields/geo.js';
@@ -18,6 +18,7 @@ export const Locations: CollectionConfig = {
   slug: 'locations',
   labels: { singular: 'Location', plural: 'Locations (cities & localities)' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'name',
     group: 'Geography',
     defaultColumns: ['name', 'type', 'parent', 'isServiceable'],
@@ -27,9 +28,9 @@ export const Locations: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: {
     beforeValidate: [

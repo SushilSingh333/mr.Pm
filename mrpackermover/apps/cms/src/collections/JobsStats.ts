@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publicRead, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publicReadExceptSalesRoles } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -12,15 +12,16 @@ export const JobsStats: CollectionConfig = {
   slug: 'jobs-stats',
   labels: { singular: 'Jobs stat', plural: 'Jobs stats' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'label',
     group: 'Trust & data',
     defaultColumns: ['label', 'month', 'count'],
   },
   access: {
-    read: publicRead,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    read: publicReadExceptSalesRoles,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import { publishedOrStaff, isAuthenticated } from '../access/index.js';
+import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
 /**
@@ -35,6 +35,7 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   labels: { singular: 'Editorial page', plural: 'Editorial pages' },
   admin: {
+    hidden: hideFromSalesRoles,
     useAsTitle: 'title',
     group: 'Content',
     defaultColumns: ['title', 'key', 'updatedAt'],
@@ -44,9 +45,9 @@ export const Pages: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
-    create: isAuthenticated,
-    update: isAuthenticated,
-    delete: isAuthenticated,
+    create: isContentStaff,
+    update: isContentStaff,
+    delete: isContentStaff,
   },
   hooks: { afterChange: [triggerBuildOnChange] },
   fields: [

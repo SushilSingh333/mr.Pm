@@ -337,6 +337,25 @@ try {
   })) as { totalDocs: number };
   check('another salesperson cannot see that draft', draftForOther.totalDocs === 0);
 
+  // Counts must obey the same rules as lists. Payload's Local API defaults to
+  // overrideAccess:true, so a badge or KPI written without thinking shows totals the
+  // person cannot open — the sidebar once told a salesperson "33 new leads" beside an
+  // empty list.
+  const salesCount = (await payload.count({
+    collection: 'leads',
+    overrideAccess: false,
+    user: salesA as never,
+  })) as { totalDocs: number };
+  const everyLead = (await payload.count({
+    collection: 'leads',
+    overrideAccess: true,
+  })) as { totalDocs: number };
+  check(
+    'a lead count run as a salesperson is scoped to their own',
+    salesCount.totalDocs < everyLead.totalDocs,
+    `sales sees ${salesCount.totalDocs} of ${everyLead.totalDocs}`,
+  );
+
   // The staff directory is not browsable by the sales hierarchy. A salesperson sees
   // only themselves; a handler additionally sees salespeople, because they must pick
   // one to assign work to.

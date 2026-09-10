@@ -281,10 +281,13 @@ export const Leads: CollectionConfig = {
       },
     },
     {
+      // Kept for the record and for admin queries, but never shown: a salesperson cannot
+      // read the handler's user record, so Payload rendered it as "Untitled - ID: 11".
+      // `assignedByName` below carries the same fact as plain text and always resolves.
       name: 'assignedBy',
       type: 'relationship',
       relationTo: 'users',
-      admin: { readOnly: true, position: 'sidebar', description: 'Who handed it over.' },
+      admin: { readOnly: true, position: 'sidebar', hidden: true },
     },
     {
       name: 'assignedByName',
@@ -293,7 +296,7 @@ export const Leads: CollectionConfig = {
       admin: {
         readOnly: true,
         position: 'sidebar',
-        description: 'Kept as plain text so it shows without read access on the staff list.',
+        description: 'Who handed this lead to its current owner.',
       },
     },
     {

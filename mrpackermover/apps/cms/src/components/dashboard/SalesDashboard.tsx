@@ -209,22 +209,27 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
       return res.docs;
     }, []);
 
-  const [byStatus, queueRaw, recentRaw, proposalsRaw, teamRaw, totalInRange] = await Promise.all([
-    Promise.all(PIPELINE.map((s) => count(scope({ status: { in: s.merge } })))),
-    // Handler: what still needs an owner. Sales: what they have not opened yet.
-    find('leads', {
-      limit: 8,
-      sort: 'createdAt',
-      depth: 1,
-      where: isHandler
-        ? { and: [{ assignedTo: { exists: false } }, ...(window ? [window] : [])] }
-        : { and: [{ assignedTo: { equals: me } }, { acknowledgedAt: { exists: false } }] },
-    }),
-    find('leads', { limit: 10, sort: '-createdAt', depth: 1, where: scope() }),
-    find('proposals', { limit: 5, sort: '-createdAt', depth: 0 }),
-    isHandler ? find('users', { limit: 50, depth: 0, where: { role: { equals: 'sales' } } }) : [],
-    count(scope()),
-  ]);
+  /** What the queue card is really counting, independent of how many rows we show. */
+  const queueWhere = isHandler
+    ? { and: [{ assignedTo: { exists: false } }, ...(window ? [window] : [])] }
+    : { and: [{ assignedTo: { equals: me } }, { acknowledgedAt: { exists: false } }] };
+
+  const [byStatus, queueRaw, recentRaw, proposalsRaw, teamRaw, totalInRange, queueTotal] =
+    await Promise.all([
+      Promise.all(PIPELINE.map((s) => count(scope({ status: { in: s.merge } })))),
+      // Handler: what still needs an owner. Sales: what they have not opened yet.
+      find('leads', {
+        limit: 8,
+        sort: 'createdAt',
+        depth: 1,
+        where: queueWhere,
+      }),
+      find('leads', { limit: 10, sort: '-createdAt', depth: 1, where: scope() }),
+      find('proposals', { limit: 5, sort: '-createdAt', depth: 0 }),
+      isHandler ? find('users', { limit: 50, depth: 0, where: { role: { equals: 'sales' } } }) : [],
+      count(scope()),
+      count(queueWhere),
+    ]);
 
   const pipeline = PIPELINE.map((s, i) => ({ ...s, count: byStatus[i] ?? 0 }));
   const queue = queueRaw as LeadDoc[];
@@ -294,7 +299,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
                 {ICONS.inbox}
               </span>
               {isHandler ? 'Needs an owner' : 'New to you'}
-              {queue.length > 0 && <span className="mpm-count">{queue.length}</span>}
+              {queueTotal > 0 && <span className="mpm-count">{fmt(queueTotal)}</span>}
             </h3>
             <Link className="mpm-link mpm-open" href="/admin/collections/leads">
               open →
@@ -305,11 +310,21 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
               {isHandler ? 'Every lead has an owner.' : 'Nothing new right now.'}
             </p>
           ) : (
-            <ul className="mpm-rows">
-              {queue.map((l) => (
-                <LeadRow key={String(l.id)} lead={l} showOwner={isHandler} />
-              ))}
-            </ul>
+            <>
+              <ul className="mpm-rows">
+                {queue.map((l) => (
+                  <LeadRow key={String(l.id)} lead={l} showOwner={isHandler} />
+                ))}
+              </ul>
+              {queueTotal > queue.length && (
+                <p className="mpm-more">
+                  Showing the {queue.length} oldest of {fmt(queueTotal)}.{' '}
+                  <Link className="mpm-link mpm-more__link" href="/admin/collections/leads">
+                    see all →
+                  </Link>
+                </p>
+              )}
+            </>
           )}
         </article>
 
@@ -456,9 +471,20 @@ const EXTRA_CSS = `
 .mpm-range.is-on{background:var(--v-500);border-color:var(--v-500);color:#fff}
 .mpm-range.is-on:hover{color:#fff}
 .mpm-range-count{margin-left:auto;font-size:.78rem;color:var(--theme-elevation-500)}
-.mpm-count{display:inline-grid;place-items:center;min-width:1.35rem;height:1.35rem;padding:0 .35rem;
-  border-radius:999px;background:var(--v-500);color:#fff;font-size:.7rem;font-weight:700}
+/* The digit was sitting off-centre: without an explicit line-height the font's own
+   metrics push it up inside the pill, and the pill was tight enough to make that
+   obvious. Fixed height + line-height:1 centres it regardless of the face. */
+.mpm-count{display:inline-flex;align-items:center;justify-content:center;
+  min-width:1.5rem;height:1.5rem;padding:0 .45rem;flex:none;
+  border-radius:999px;background:var(--v-500);color:#fff;
+  font-size:.78rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .mpm-open{font-size:.78rem;font-weight:600;color:var(--v-500);white-space:nowrap}
+/* The truncation note. Its link is the way out of a partial list, so it is set at body
+   size rather than the smaller caption size the note itself uses. */
+.mpm-more{margin:.85rem 0 0;padding-top:.75rem;border-top:1px solid var(--theme-elevation-100);
+  font-size:.8rem;color:var(--theme-elevation-500)}
+.mpm-more__link{font-size:.95rem;font-weight:700;color:var(--v-500);white-space:nowrap}
+.mpm-more__link:hover{text-decoration:underline}
 .mpm-bars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55rem}
 .mpm-bars li{display:grid;grid-template-columns:5.5rem 1fr 2rem;align-items:center;gap:.6rem}
 .mpm-bar-label{font-size:.78rem;color:var(--theme-elevation-600)}

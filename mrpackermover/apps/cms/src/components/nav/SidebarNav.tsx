@@ -20,13 +20,27 @@ const QUICK = [
   { href: '/admin/globals/home-content', label: 'Home page' },
 ];
 
-async function tally(payload: Payload | undefined, collection: string): Promise<number> {
+/**
+ * Count rows this person is actually allowed to see.
+ *
+ * This ran with `overrideAccess: true`, which bypasses the access layer entirely: a
+ * salesperson's "New leads" badge showed every lead in the business — 33 — sitting next
+ * to a list that correctly showed none of them. Both wrong and a small leak, since the
+ * number told them how much work exists that they cannot see.
+ */
+async function tally(
+  payload: Payload | undefined,
+  collection: string,
+  user: unknown,
+  where: Record<string, unknown>,
+): Promise<number> {
   if (!payload) return 0;
   try {
     const res = await payload.count({
       collection: collection as never,
-      where: { status: { equals: 'new' } } as never,
-      overrideAccess: true,
+      where: where as never,
+      overrideAccess: false,
+      user: user as never,
     });
     return res.totalDocs;
   } catch {
@@ -40,19 +54,47 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
   // this the sales hierarchy saw links (and unread counts) for content and careers
   // collections they are refused by the API anyway — noise at best, and a hint about
   // data they have no business knowing exists.
-  const role = (props?.user as { role?: string } | undefined)?.role;
+  const user = props?.user;
+  const role = (user as { role?: string } | undefined)?.role;
+  const userId = (user as { id?: string | number } | undefined)?.id;
   const salesOnly = role === 'handler' || role === 'sales';
+  const isSales = role === 'sales';
+  const isHandler = role === 'handler';
+
+  const leadBadgeWhere: Record<string, unknown> = isSales
+    ? { and: [{ assignedTo: { equals: userId } }, { acknowledgedAt: { exists: false } }] }
+    : isHandler
+      ? { assignedTo: { exists: false } }
+      : { status: { equals: 'new' } };
+  const leadBadgeLabel = isSales ? 'New to you' : isHandler ? 'Needs an owner' : 'New leads';
+  const leadBadgeHref = isHandler
+    ? '/admin/collections/leads?where[assignedTo][exists]=false'
+    : '/admin/collections/leads?where[status][equals]=new';
   const [leads, apps, messages] = await Promise.all([
-    tally(payload, 'leads'),
-    salesOnly ? Promise.resolve(0) : tally(payload, 'job-applications'),
-    salesOnly ? Promise.resolve(0) : tally(payload, 'contact-messages'),
+    // "Needs attention" means something different in each chair, and the badge has to
+    // match what that person's dashboard puts in front of them:
+    //
+    //   sales   — leads handed to them that they have not acted on ("New to you").
+    //             Their own leads are never status `new`; they become `assigned` the
+    //             moment they are handed over, so counting `new` would always show 0.
+    //   handler — leads with nobody on them yet ("Needs an owner"). A handler routes
+    //             work rather than receiving it, so counting leads assigned TO them
+    //             would sit at 0 while the queue filled up behind them.
+    //   others  — leads nobody has touched at all.
+    tally(payload, 'leads', user, leadBadgeWhere),
+    salesOnly
+      ? Promise.resolve(0)
+      : tally(payload, 'job-applications', user, { status: { equals: 'new' } }),
+    salesOnly
+      ? Promise.resolve(0)
+      : tally(payload, 'contact-messages', user, { status: { equals: 'new' } }),
   ]);
 
   const alerts = [
     {
-      label: 'New leads',
+      label: leadBadgeLabel,
       count: leads,
-      href: '/admin/collections/leads?where[status][equals]=new',
+      href: leadBadgeHref,
     },
     // Careers and the contact inbox belong to content staff, not the sales desk.
     ...(salesOnly

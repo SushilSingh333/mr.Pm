@@ -74,11 +74,20 @@ if (Object.keys(orgPatch).length && !DRY) {
 }
 
 // ── Verified profiles ──────────────────────────────────────────────────────────
-const sameAs = org.sameAs ?? [];
+//
+// The row shape is declared here rather than inferred from `org.sameAs`.
+// payload-types.ts is generated, and a copy that has drifted from this one — a
+// `generate:types` run on the server, say — can resolve the field to `any`, which
+// makes these callback parameters implicitly `any` and fails the build's typecheck
+// on that machine while passing on this one. Annotating the array keeps the script
+// typechecking the same way everywhere, which for a one-shot migration script run
+// on an unfamiliar box is worth more than the inference.
+type SameAsRow = { url: string; id?: string | null };
+const sameAs = (org.sameAs ?? []) as SameAsRow[];
 const isLinkedIn = (url: string): boolean => url.toLowerCase().includes('linkedin.com');
-const keptProfiles = sameAs.filter((row) => !isLinkedIn(row.url));
+const keptProfiles = sameAs.filter((row: SameAsRow) => !isLinkedIn(row.url));
 if (keptProfiles.length !== sameAs.length) {
-  for (const dropped of sameAs.filter((row) => isLinkedIn(row.url))) {
+  for (const dropped of sameAs.filter((row: SameAsRow) => isLinkedIn(row.url))) {
     report('org-profile.sameAs', dropped.url, '(removed)');
   }
   if (!DRY) {

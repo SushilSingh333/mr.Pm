@@ -613,7 +613,7 @@ const manifest = {
     complaintSla: 'First response within 24 hours.',
     phone: '+91-00000-00000',
     whatsapp: '+91-00000-00000',
-    sameAs: ['https://www.linkedin.com/company/mrpackermover'],
+    sameAs: [],
   },
   jobs: JOBS,
   editorial: {},

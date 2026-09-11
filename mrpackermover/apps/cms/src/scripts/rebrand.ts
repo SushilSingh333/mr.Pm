@@ -13,11 +13,16 @@
  *              with the PDF in that customer's inbox. History stays as it was issued;
  *              only the default for NEW proposals changes, and that lives in code.
  *
- *   emails     `shiftwith@mrpackermover.com` is a mailbox that receives real mail, and
- *              `admin@mrpackermover.local` is a login credential. Renaming either
- *              breaks something real, so both are left for a deliberate decision.
+ *   emails     `admin@mrpackermover.local` is a login credential, not a mailbox.
+ *              Changing it locks that person out, so it stays as it is. The public
+ *              contact address moved to the new domain in code once the mailbox
+ *              existed; nothing about it is stored here.
  *
- * Idempotent: it matches on the old name, so a second run is a no-op.
+ * Also clears the LinkedIn entry from `org-profile.sameAs`. sameAs is the list of
+ * other profiles Google may check to confirm this business is real, so a link to a
+ * profile we no longer publish is worse there than no link at all.
+ *
+ * Idempotent: every step matches on what it is replacing, so a second run is a no-op.
  *
  * Usage (from apps/cms):  npx tsx src/scripts/rebrand.ts [--dry]
  */
@@ -66,6 +71,23 @@ for (const field of ['brandName', 'legalName'] as const) {
 }
 if (Object.keys(orgPatch).length && !DRY) {
   await payload.updateGlobal({ slug: 'org-profile', data: orgPatch, overrideAccess: true });
+}
+
+// ── Verified profiles ──────────────────────────────────────────────────────────
+const sameAs = org.sameAs ?? [];
+const isLinkedIn = (url: string): boolean => url.toLowerCase().includes('linkedin.com');
+const keptProfiles = sameAs.filter((row) => !isLinkedIn(row.url));
+if (keptProfiles.length !== sameAs.length) {
+  for (const dropped of sameAs.filter((row) => isLinkedIn(row.url))) {
+    report('org-profile.sameAs', dropped.url, '(removed)');
+  }
+  if (!DRY) {
+    await payload.updateGlobal({
+      slug: 'org-profile',
+      data: { sameAs: keptProfiles },
+      overrideAccess: true,
+    });
+  }
 }
 
 // ── Blog byline ────────────────────────────────────────────────────────────────

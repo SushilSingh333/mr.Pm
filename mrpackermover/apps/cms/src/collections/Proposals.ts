@@ -499,7 +499,7 @@ export const Proposals: CollectionConfig = {
                     {
                       name: 'email',
                       type: 'text',
-                      defaultValue: 'shiftwith@mrpackermover.com',
+                      defaultValue: 'shiftwith@mrmoverpacker.com',
                       admin: { width: '50%' },
                     },
                     {

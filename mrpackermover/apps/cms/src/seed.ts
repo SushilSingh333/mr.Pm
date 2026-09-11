@@ -543,7 +543,7 @@ async function seed(): Promise<void> {
       complaintSla: 'First response within 24 hours; median claim settlement published on /claims.',
       phone: '+91-00000-00000',
       whatsapp: '+91-00000-00000',
-      sameAs: [{ url: 'https://www.linkedin.com/company/mrpackermover' }],
+      sameAs: [],
     },
   });
 

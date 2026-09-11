@@ -107,7 +107,7 @@ export const CONTACT_LINK = {
 /** Primary contact — click-to-call in the header + everywhere (user-provided). */
 export const PHONE_DISPLAY = '+91 87960 92007';
 export const PHONE_TEL = '+918796092007';
-export const EMAIL = 'shiftwith@mrpackermover.com';
+export const EMAIL = 'shiftwith@mrmoverpacker.com';
 
 /** WhatsApp click-to-chat: same number, digits only (wa.me rejects "+" and spaces). */
 export const WHATSAPP_NUMBER = PHONE_TEL.replace(/\D/g, '');
@@ -124,11 +124,6 @@ export const SOCIALS = [
   { label: 'Instagram', icon: 'instagram', href: 'https://www.instagram.com/mrpackermover/' },
   { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@mrpackermover' },
   { label: 'X', icon: 'x', href: 'https://x.com/mrpackermover' },
-  {
-    label: 'LinkedIn',
-    icon: 'linkedin',
-    href: 'https://www.linkedin.com/in/packer-mover-a858b4435/',
-  },
   { label: 'Reddit', icon: 'reddit', href: 'https://www.reddit.com/user/mrmover_packer/' },
   { label: 'Quora', icon: 'quora', href: 'https://www.quora.com/profile/Mrpackermover' },
   { label: 'Threads', icon: 'threads', href: 'https://www.threads.com/@mrpackermover' },

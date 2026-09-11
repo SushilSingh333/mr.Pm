@@ -463,7 +463,7 @@ export const Proposals: CollectionConfig = {
                     {
                       name: 'name',
                       type: 'text',
-                      defaultValue: 'MrPackerMover',
+                      defaultValue: 'MrMoverPacker',
                       admin: { width: '50%' },
                     },
                     {
@@ -506,7 +506,7 @@ export const Proposals: CollectionConfig = {
                       name: 'web',
                       type: 'text',
                       label: 'Website',
-                      defaultValue: 'mrpackermover.com',
+                      defaultValue: 'mrmoverpacker.com',
                       admin: { width: '50%' },
                     },
                   ],

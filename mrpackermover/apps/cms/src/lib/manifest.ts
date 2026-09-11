@@ -215,7 +215,7 @@ async function loadAll<T>(payload: Payload, collection: string): Promise<T[]> {
   return out;
 }
 
-const BRAND = 'MrPackerMover';
+const BRAND = 'MrMoverPacker';
 
 /**
  * Settings → SEO defaults. One title/description template per page type, written
@@ -893,7 +893,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         title: p.title,
         excerpt: p.excerpt ?? '',
         category: p.category ?? 'Guides',
-        author: p.author || 'The MrPackerMover Team',
+        author: p.author || 'The MrMoverPacker Team',
         date: p.publishedDate ?? p.updatedAt,
         readMins: Math.max(1, Math.round(words / 200)),
         cover: cover?.url

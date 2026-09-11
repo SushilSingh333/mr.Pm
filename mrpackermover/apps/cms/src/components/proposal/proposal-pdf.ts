@@ -241,7 +241,7 @@ const _proposalPdf = (function () {
       case 'clock': CC(12,12,9,false); L([[12,7],[12,12],[15.5,13.8]],false); break;
     }
   }
-  /* brand palette — matches the MrPackerMover website tokens */
+  /* brand palette — matches the MrMoverPacker website tokens */
   var CO={navy:'092341',navy2:'051121',crim:'990010',crimMid:'bd1325',crimLt:'ea757f',crimDk:'7e0311',blush:'fdecee',ink:'1c2637',body:'434e60',soft:'6b7488',line:'e3e7ef',tint:'f2f5fa',tint2:'e9eef6',white:'ffffff'};
   function rrect(O,x,y,w,h,r,hex,stroke,sw){
     r=Math.min(r,w/2,h/2);var xL=x,xR=x+w,yT=PH-y,yB=PH-(y+h),k=0.5523*r;
@@ -294,7 +294,7 @@ const _proposalPdf = (function () {
     fillRect(O,0,0,PW,112,CO.navy);
     fillRect(O,0,112,PW,4,CO.crim);
     logo(O,CM,20,42);
-    txt(O,CM+58,42,c.name||'MrPackerMover',20,1,CO.white);
+    txt(O,CM+58,42,c.name||'MrMoverPacker',20,1,CO.white);
     if(c.tag)txt(O,CM+58,58,c.tag,10.5,2,'aebccf');
     txt(O,RX,30,'MOVING PROPOSAL',9,1,CO.crimLt,'r');
     txt(O,RX,50,d.quoteNo,15,1,CO.white,'r');
@@ -444,7 +444,7 @@ const _proposalPdf = (function () {
   function setStep(n){var els=$('steps').querySelectorAll('.st');for(var i=0;i<els.length;i++)els[i].classList.toggle('on',(+els[i].getAttribute('data-s'))<=n);}
   function showPreview(){render(collect());$('editorView').setAttribute('hidden','');$('actionbar').setAttribute('hidden','');$('previewView').removeAttribute('hidden');setStep(2);window.scrollTo(0,0);}
   function showEditor(){$('previewView').setAttribute('hidden','');$('editorView').removeAttribute('hidden');$('actionbar').removeAttribute('hidden');setStep(1);window.scrollTo(0,0);}
-  function fileName(){return (val('c_name')||'MrPackerMover').replace(/[^\w-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')+'-Proposal-'+QUOTE_NO;}
+  function fileName(){return (val('c_name')||'MrMoverPacker').replace(/[^\w-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')+'-Proposal-'+QUOTE_NO;}
   function printDoc(){setStep(3);var prev=document.title;document.title=fileName();window.print();setTimeout(function(){document.title=prev;},700);}
   function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},4600);}
 

@@ -56,7 +56,7 @@ export const Blog: CollectionConfig = {
     {
       name: 'author',
       type: 'text',
-      defaultValue: 'The MrPackerMover Team',
+      defaultValue: 'The MrMoverPacker Team',
       admin: { description: 'Byline shown on the article.' },
     },
     {

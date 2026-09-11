@@ -20,6 +20,7 @@
     "verify-lead-flow": "tsx src/scripts/verify-lead-flow.ts",
     "set-city-services": "tsx src/scripts/set-city-services.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
+    "rebrand": "tsx src/scripts/rebrand.ts",
     "seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

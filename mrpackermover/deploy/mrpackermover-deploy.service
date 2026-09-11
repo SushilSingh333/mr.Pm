@@ -18,7 +18,7 @@
 # Adjust User and the PATH to match your droplet.
 
 [Unit]
-Description=MrPackerMover auto-deploy listener (rebuilds the site on CMS publish)
+Description=MrMoverPacker auto-deploy listener (rebuilds the site on CMS publish)
 After=network.target
 
 [Service]

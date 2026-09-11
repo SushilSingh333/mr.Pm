@@ -4,7 +4,7 @@
  */
 export function BrandIcon(): React.JSX.Element {
   return (
-    <svg width="26" height="26" viewBox="0 0 32 32" role="img" aria-label="MrPackerMover">
+    <svg width="26" height="26" viewBox="0 0 32 32" role="img" aria-label="MrMoverPacker">
       <rect width="32" height="32" rx="8" fill="#990010" />
       <path
         fill="#fff"

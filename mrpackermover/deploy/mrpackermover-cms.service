@@ -17,7 +17,7 @@
 # Adjust User and the pnpm path to match your droplet.
 
 [Unit]
-Description=MrPackerMover Payload CMS (Next.js)
+Description=MrMoverPacker Payload CMS (Next.js)
 After=network.target postgresql.service
 Wants=postgresql.service
 

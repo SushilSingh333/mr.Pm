@@ -109,7 +109,7 @@ export function ProposalPdf(): React.JSX.Element {
       const data = toPdfData(doc);
       const blob = genProposalPDF(data);
       const name =
-        text(obj(data.company).name, 'MrPackerMover')
+        text(obj(data.company).name, 'MrMoverPacker')
           .replace(/[^\w-]+/g, '-')
           .replace(/^-|-$/g, '') +
         '-Proposal-' +

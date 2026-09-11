@@ -2,7 +2,7 @@ import { manifest } from '../data/manifest.js';
 
 /** Site-wide constants. Origin comes from the manifest (baked at manifest-build). */
 export const SITE_ORIGIN = manifest().siteOrigin;
-export const BRAND = 'MrPackerMover';
+export const BRAND = 'MrMoverPacker';
 
 /** Footer link budget ≤ 20 (Doc 01 §8) — no city dump, ever. */
 export const FOOTER_SERVICES = [
@@ -111,7 +111,7 @@ export const EMAIL = 'shiftwith@mrpackermover.com';
 
 /** WhatsApp click-to-chat: same number, digits only (wa.me rejects "+" and spaces). */
 export const WHATSAPP_NUMBER = PHONE_TEL.replace(/\D/g, '');
-export const WHATSAPP_MESSAGE = 'Hi MrPackerMover, I would like a fixed quote for my move.';
+export const WHATSAPP_MESSAGE = 'Hi MrMoverPacker, I would like a fixed quote for my move.';
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
 /** Social profiles (user-provided). */
@@ -124,6 +124,11 @@ export const SOCIALS = [
   { label: 'Instagram', icon: 'instagram', href: 'https://www.instagram.com/mrpackermover/' },
   { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@mrpackermover' },
   { label: 'X', icon: 'x', href: 'https://x.com/mrpackermover' },
+  {
+    label: 'LinkedIn',
+    icon: 'linkedin',
+    href: 'https://www.linkedin.com/in/packer-mover-a858b4435/',
+  },
   { label: 'Reddit', icon: 'reddit', href: 'https://www.reddit.com/user/mrmover_packer/' },
   { label: 'Quora', icon: 'quora', href: 'https://www.quora.com/profile/Mrpackermover' },
   { label: 'Threads', icon: 'threads', href: 'https://www.threads.com/@mrpackermover' },

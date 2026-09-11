@@ -322,7 +322,7 @@ for (const [i, s] of SERVICES.entries()) {
     path: `/services/${s.slug}`,
     slug: s.slug,
     cacheTag: 'service-hub',
-    title: `${s.name} Services in India – MrPackerMover`.slice(0, 60),
+    title: `${s.name} Services in India – MrMoverPacker`.slice(0, 60),
     h1: `${s.name} Services`,
     breadcrumbs: [{ path: '/', anchor: 'Home' }],
     relatedLinks: [
@@ -360,7 +360,7 @@ for (const [ci, city] of CITIES.entries()) {
     path: cityPath,
     slug: city.slug,
     cacheTag: `city-${city.slug}`,
-    title: `Packers and Movers in ${city.name} – MrPackerMover`.slice(0, 60),
+    title: `Packers and Movers in ${city.name} – MrMoverPacker`.slice(0, 60),
     h1: `Packers and Movers in ${city.name}`,
     breadcrumbs: [{ path: '/', anchor: 'Home' }],
     relatedLinks: [
@@ -399,7 +399,7 @@ for (const [ci, city] of CITIES.entries()) {
       path: `${cityPath}/${l.slug}`,
       slug: `${city.slug}/${l.slug}`,
       cacheTag: `city-${city.slug}`,
-      title: `Packers and Movers in ${l.name}, ${city.name} – MrPackerMover`.slice(0, 60),
+      title: `Packers and Movers in ${l.name}, ${city.name} – MrMoverPacker`.slice(0, 60),
       h1: `Packers and Movers in ${l.name}, ${city.name}`,
       breadcrumbs: [
         { path: '/', anchor: 'Home' },
@@ -437,7 +437,7 @@ for (const [ci, city] of CITIES.entries()) {
       path: `${cityPath}/${s.slug}`,
       slug: `${city.slug}/${s.slug}`,
       cacheTag: `city-${city.slug}`,
-      title: `${s.name} in ${city.name} – Fixed Quotes, MrPackerMover`.slice(0, 60),
+      title: `${s.name} in ${city.name} – Fixed Quotes, MrMoverPacker`.slice(0, 60),
       metaDescription: `${s.name} in ${city.name} from ₹${priceFrom.toLocaleString('en-IN')}. ${city.jobs} moves completed in ${city.name}, ${city.onTime}% on time. Fixed quote, no surprises.`,
       h1: `${s.name} in ${city.name}`,
       breadcrumbs: [
@@ -481,7 +481,7 @@ for (const r of ROUTES) {
     path: `/routes/${r.o}-to-${r.d}`,
     slug: `${r.o}-to-${r.d}`,
     cacheTag: 'route',
-    title: `${oc.name} to ${dc.name} Packers and Movers – MrPackerMover`.slice(0, 60),
+    title: `${oc.name} to ${dc.name} Packers and Movers – MrMoverPacker`.slice(0, 60),
     h1: `${oc.name} to ${dc.name} Packers and Movers`,
     breadcrumbs: [
       { path: '/', anchor: 'Home' },
@@ -524,7 +524,7 @@ row({
   path: '/',
   slug: 'home',
   cacheTag: 'home',
-  title: `Packers and Movers in India – Fixed Quotes | MrPackerMover`.slice(0, 60),
+  title: `Packers and Movers in India – Fixed Quotes | MrMoverPacker`.slice(0, 60),
   h1: 'Packers and Movers you can actually verify',
   relatedLinks: [
     ...SERVICES.map((s) => ({ path: `/services/${s.slug}`, anchor: s.name, group: 'services' })),
@@ -603,8 +603,8 @@ const manifest = {
   generatedAt: LASTMOD,
   siteOrigin: ORIGIN,
   org: {
-    brandName: 'MrPackerMover',
-    legalName: 'MrPackerMover',
+    brandName: 'MrMoverPacker',
+    legalName: 'MrMoverPacker',
     gstin: '07AAAAA0000A1Z5',
     cin: 'U63030DL2020PTC000000',
     yearsOperating: 6,

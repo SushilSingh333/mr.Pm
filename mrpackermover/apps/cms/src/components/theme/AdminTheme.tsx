@@ -21,7 +21,7 @@ export function AdminTheme({ children }: { children?: ReactNode }): React.JSX.El
 }
 
 const ADMIN_CSS = `
-/* ============ MrPackerMover admin · violet theme ============ */
+/* ============ MrMoverPacker admin · violet theme ============ */
 :root{
   --mpm-v-400:#8B7CF0; --mpm-v-500:#6D5AE6; --mpm-v-600:#5A46D6; --mpm-v-700:#4A38B5;
   --mpm-grad:linear-gradient(140deg,#8B7CF0,#5A46D6);
@@ -84,11 +84,11 @@ html[data-theme="dark"]{ --theme-bg:#131120; }
    Un-clip the wrappers directly around the logo (matched by its aria-label, so it is
    class-name-agnostic) up to 3 levels — without touching the nav scroll container. */
 .nav__header,.nav__brand,.nav__logo,.nav__link--logo,.graphic-logo,.app-header__logo{ overflow:visible; }
-:has(> svg[aria-label="MrPackerMover"]),
-:has(> * > svg[aria-label="MrPackerMover"]),
-:has(> * > * > svg[aria-label="MrPackerMover"]){ overflow:visible; }
-:has(> svg[aria-label="MrPackerMover"]){ height:auto; min-height:0; }
-svg[aria-label="MrPackerMover"]{ flex:none; overflow:visible; }
+:has(> svg[aria-label="MrMoverPacker"]),
+:has(> * > svg[aria-label="MrMoverPacker"]),
+:has(> * > * > svg[aria-label="MrMoverPacker"]){ overflow:visible; }
+:has(> svg[aria-label="MrMoverPacker"]){ height:auto; min-height:0; }
+svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 
 /* ---- Cards, tables, popups: rounder + softer ---- */
 .card{ border-radius:var(--style-radius-l); border-color:color-mix(in srgb, var(--mpm-v-500) 10%, var(--theme-elevation-100)); transition:border-color .12s,transform .12s; }

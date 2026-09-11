@@ -1,4 +1,4 @@
-# MrPackerMover
+# MrMoverPacker
 
 A data-backed packers-and-movers site engineered to become India's largest by **organic
 reach** — without becoming a doorway farm. Every page is a projection of real operational

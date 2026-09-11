@@ -1,11 +1,12 @@
-# Caddyfile — MrPackerMover origin on a single DigitalOcean droplet.
+# Caddyfile — MrMoverPacker origin on a single DigitalOcean droplet.
 #
 # Serves the static Astro site (built to /var/www/mrpackermover) and reverse-proxies
-# the Payload admin + API (/admin, /api/*) to the Node app on :3000. Caddy gets a free
-# TLS cert automatically. Cloudflare sits in front and hard-caches the HTML.
+# the Payload admin + API (/admin, /api/*) to the Node app on :3000. TLS is a
+# Cloudflare Origin Certificate (see the tls line below), not ACME. Cloudflare sits
+# in front and hard-caches the HTML.
 #
-# Set the domain via an env var when starting Caddy, e.g.
-#   SITE_DOMAIN=mrpackermover.com caddy run --config /etc/caddy/Caddyfile
+# The domain comes from /etc/caddy/caddy.env, read by the caddy systemd unit:
+#   SITE_DOMAIN=mrmoverpacker.com
 
 {$SITE_DOMAIN} {
 	# TLS: a Cloudflare Origin Certificate, not ACME.
@@ -59,3 +60,32 @@
 		file_server
 	}
 }
+
+# ── Old domain -> new domain, permanently ────────────────────────────────────
+#
+# Every old URL redirects to the SAME PATH on the new domain. That detail is the
+# whole migration: a blanket redirect to `/` tells Google the old pages no longer
+# exist, and their accumulated ranking is discarded rather than transferred.
+# `{uri}` carries the path and query string through unchanged, so
+# /packers-and-movers/lucknow lands on /packers-and-movers/lucknow.
+#
+# `permanent` is a 301. Google treats 302 as temporary and keeps indexing the old
+# URL, which is exactly what we do not want here.
+#
+# Cloudflare should ALSO hold a redirect rule on the old zone, which fires at the
+# edge before a request ever reaches this box. This block is the backstop for
+# traffic that hits the origin directly, and for the period before that rule
+# exists. Two layers doing the same 301 is harmless.
+#
+# Needs its own Origin Certificate covering the old hostname, since the TLS
+# handshake happens before the redirect can be issued.
+#
+# DISABLED. The old domain is being retired rather than redirected. Left here
+# commented because an unset OLD_SITE_DOMAIN expands to an empty site address,
+# which Caddy refuses to start on - so this must stay commented, not merely
+# unset. To re-enable: uncomment the block, install the old domain's cert as
+# origin-old.pem/.key, and set OLD_SITE_DOMAIN.
+#{$OLD_SITE_DOMAIN} {
+#	tls /etc/caddy/certs/origin-old.pem /etc/caddy/certs/origin-old.key
+#	redir https://{$SITE_DOMAIN}{uri} permanent
+#}

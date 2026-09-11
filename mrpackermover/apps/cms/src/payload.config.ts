@@ -46,7 +46,7 @@ const cloudinaryEnabled = Boolean(
 export default buildConfig({
   admin: {
     user: Users.slug,
-    meta: { titleSuffix: '· MrPackerMover CMS' },
+    meta: { titleSuffix: '· MrMoverPacker CMS' },
     // Custom admin UI: analytics dashboard, branded sidebar quick-access, and brand logo.
     // Paths are resolved from `src` (importMap.baseDir); run `generate:importmap` after
     // adding/renaming any of these so Payload can bundle them.

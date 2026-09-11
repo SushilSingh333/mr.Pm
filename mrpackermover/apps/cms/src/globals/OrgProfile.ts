@@ -13,7 +13,7 @@ export const OrgProfile: GlobalConfig = {
   admin: { group: 'Settings', hidden: hideFromSalesRoles },
   access: { read: () => true, update: isContentStaff },
   fields: [
-    { name: 'brandName', type: 'text', required: true, defaultValue: 'MrPackerMover' },
+    { name: 'brandName', type: 'text', required: true, defaultValue: 'MrMoverPacker' },
     { name: 'legalName', type: 'text', required: true },
     {
       type: 'row',

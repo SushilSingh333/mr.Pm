@@ -10,11 +10,11 @@ const ed = editorialFor('terms');
 const row = staticRow({
   path: '/terms',
   pageType: 'core',
-  title: ed.metaTitle ?? 'Terms of Service | MrPackerMover',
+  title: ed.metaTitle ?? 'Terms of Service | MrMoverPacker',
   h1: ed.title ?? 'Terms of service',
   metaDescription:
     ed.seoDescription ??
-    'The terms governing quotes, bookings, payments, liability, claims and cancellations for moving services provided by MrPackerMover across India.',
+    'The terms governing quotes, bookings, payments, liability, claims and cancellations for moving services provided by MrMoverPacker across India.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
@@ -48,7 +48,7 @@ const legalName = o?.legalName ?? 'the Company';
             <h2>1. Who these terms are with</h2>
             <p>
               These terms are an agreement between you and <strong>{legalName}</strong> (
-              {o?.brandName ?? 'MrPackerMover'}), a company registered in India
+              {o?.brandName ?? 'MrMoverPacker'}), a company registered in India
               {o?.gstin && !isPlaceholder(o.gstin) ? `, GSTIN ${o.gstin}` : ''}. By requesting a
               quote, booking a move, or using this website, you accept these terms.
             </p>
@@ -139,7 +139,7 @@ const legalName = o?.legalName ?? 'the Company';
             <h2>13. Use of this website</h2>
             <p>
               The content, branding and design of this site are owned by{' '}
-              {o?.brandName ?? 'MrPackerMover'}
+              {o?.brandName ?? 'MrMoverPacker'}
               and may not be copied or used to impersonate us. Report any impersonation through our
               <a href="/fraud-check">fraud-check</a> page.
             </p>

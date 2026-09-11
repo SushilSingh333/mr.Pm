@@ -8,7 +8,7 @@
  */
 import type { BlogPost } from './manifest.js';
 
-const AUTHOR = 'The MrPackerMover Team';
+const AUTHOR = 'The MrMoverPacker Team';
 
 /**
  * Cover art per category. Posts rarely ship with their own upload, and falling back

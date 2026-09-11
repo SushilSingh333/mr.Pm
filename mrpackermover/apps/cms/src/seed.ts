@@ -533,8 +533,8 @@ async function seed(): Promise<void> {
   await payload.updateGlobal({
     slug: 'org-profile',
     data: {
-      brandName: 'MrPackerMover',
-      legalName: 'MrPackerMover', // set the real registered entity in the CMS
+      brandName: 'MrMoverPacker',
+      legalName: 'MrMoverPacker', // set the real registered entity in the CMS
       gstin: '07AAAAA0000A1Z5',
       cin: 'U63030DL2020PTC000000',
       yearsOperating: 6,

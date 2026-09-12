@@ -370,9 +370,23 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
       gap: 0.4rem;
     }
   }
-  @media (max-width: 360px) {
+  /* Two columns all the way down, rather than collapsing to one under 360px.
+     
+     The collapse was over-cautious. At 360px the page has 320px of content, so a
+     two-column grid gives each side about 150px - and the longest word in these links
+     that cannot break is "settlement", around 80px. They fit; the labels simply wrap
+     onto a second line, which a footer can carry.
+     
+     One column was the worse trade: it pushed Support and Legal a full screen further
+     down, on exactly the phones whose owners are least likely to keep scrolling to find
+     them. Instead the gap tightens and the link type drops a step, so the wrapping stays
+     occasional rather than constant. */
+  @media (max-width: 400px) {
     .footer-top {
-      grid-template-columns: 1fr;
+      gap: 1.5rem 0.85rem;
+    }
+    .footer-col a {
+      font-size: 0.9375rem;
     }
   }
 </style>

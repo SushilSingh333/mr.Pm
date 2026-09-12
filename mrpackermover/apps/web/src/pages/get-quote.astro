@@ -271,46 +271,6 @@ const assurances = [
         </form>
       </div>
 
-      <!-- Success (revealed on submit) -->
-      <div class="quote-success card" id="quote-success" hidden>
-        <span class="qs-check" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            width="34"
-            height="34"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.4"
-            stroke-linecap="round"
-            stroke-linejoin="round"><path d="M4 12l5 5L20 6"></path></svg
-          >
-        </span>
-        <h2 id="qs-title">Thank you!</h2>
-        <p id="qs-msg" class="qs-msg"></p>
-
-        <!-- Estimate, revealed only when the engine could price the route. -->
-        <div class="qs-estimate" id="qs-estimate" hidden>
-          <span class="qse-label">Your estimated range</span>
-          <strong class="qse-amount" id="qs-amount"></strong>
-          <span class="qse-meta" id="qs-meta"></span>
-          <p class="qse-note">
-            This is an estimate from our published rate card, not your final price. A coordinator
-            will confirm the details with you shortly and send one fixed, itemised number in
-            writing. That written figure is what you pay.
-          </p>
-        </div>
-
-        <ul class="qs-steps">
-          <li><strong>1.</strong> A coordinator reviews your details.</li>
-          <li><strong>2.</strong> We call you to confirm access, dates and anything unusual.</li>
-          <li><strong>3.</strong> You receive a fixed, written quote, no surprises.</li>
-        </ul>
-        <div class="qs-actions">
-          <a class="btn btn-primary" href={`tel:${PHONE_TEL}`}>Call us now</a>
-          <a class="btn btn-ghost" href="/">Back to home</a>
-        </div>
-      </div>
-
       <!-- Assurance aside -->
       <aside class="quote-aside">
         <div class="qa-card card">
@@ -361,10 +321,9 @@ const assurances = [
 
   const form = document.getElementById('quote-form') as HTMLFormElement | null;
   const card = document.getElementById('quote-card');
-  const success = document.getElementById('quote-success');
   const banner = document.getElementById('form-error');
 
-  if (form && card && success) {
+  if (form && card) {
     // Nobody can book a move in the past. Set on the client, not at build time: the page is
     // static and cached for a day, so a build-time `min` would go stale. Local date, not
     // toISOString() — that is UTC and reads as yesterday in IST until 5:30 am.
@@ -614,27 +573,35 @@ const assurances = [
         return;
       }
 
-      const title = document.getElementById('qs-title');
-      const msg = document.getElementById('qs-msg');
-      if (title) title.textContent = `Thank you, ${name.split(' ')[0]}!`;
-      if (msg)
-        msg.textContent =
-          `Your request is with our team. One of our representatives will contact you on ` +
-          `${phone} shortly to confirm the details and give you your fixed price in writing.`;
+      /*
+        Hand off to /thank-you rather than revealing a card in place.
 
-      // Priced after the lead is safely saved, so a pricing hiccup can never cost a lead.
-      const estBox = document.getElementById('qs-estimate');
-      if (est && estBox) {
-        const amount = document.getElementById('qs-amount');
-        const meta = document.getElementById('qs-meta');
-        if (amount) amount.textContent = est.text;
-        if (meta) meta.textContent = est.meta;
-        estBox.hidden = false;
+        A conversion needs a URL of its own: ad platforms count a Lead when a particular
+        page loads, and "a div became visible" is not something they can observe. It also
+        fixes the back button - revealing a card left the browser on /get-quote, so Back
+        returned to a filled-in form and people submitted twice.
+
+        Name, phone and estimate travel in sessionStorage, not the query string: a URL
+        would put the customer's details and their price into browser history, into any
+        link they share, and into our own access logs.
+      */
+      try {
+        sessionStorage.setItem(
+          'mpm:quote-result',
+          JSON.stringify({
+            firstName: name.split(' ')[0],
+            phone,
+            text: est?.text,
+            meta: est?.meta,
+          }),
+        );
+      } catch {
+        /* Private mode or a full store: /thank-you falls back to the generic wording. */
       }
 
-      card.hidden = true;
-      success.hidden = false;
-      success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // `replace`, not `assign`, so Back from the thank-you page returns to the site
+      // rather than to a form that has already been submitted.
+      window.location.replace('/thank-you');
     });
   }
 </script>
@@ -649,11 +616,6 @@ const assurances = [
     align-items: start;
   }
   .quote-main,
-  .quote-success {
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    grid-column: 1;
-    grid-row: 1;
-  }
   .qm-head {
     margin-bottom: 0.9rem;
   }
@@ -805,94 +767,8 @@ const assurances = [
     color: var(--color-ink-500);
   }
 
-  /* Success card */
-  .quote-success {
-    text-align: center;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-  .qs-check {
-    display: grid;
-    place-items: center;
-    width: 68px;
-    height: 68px;
-    border-radius: var(--radius-pill);
-    background: color-mix(in oklab, var(--color-accent-500) 14%, white);
-    color: var(--color-accent-600);
-    margin-bottom: 0.25rem;
-  }
-  .quote-success h2 {
-    font-size: clamp(1.5rem, 3.5vw, var(--text-3xl));
-  }
-  .qs-msg {
-    color: var(--color-ink-700);
-    max-width: 46ch;
-  }
   /* The estimate. Brand-tinted so it reads as a result, not another form panel, and
      the caveat sits with the number rather than in fine print further down. */
-  .qs-estimate {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    margin: 1.5rem auto 0;
-    padding: 1.35rem 1.5rem 1.25rem;
-    max-width: 30rem;
-    background: var(--color-brand-50);
-    border: 1px solid color-mix(in oklab, var(--color-brand-600) 18%, var(--color-line));
-    border-radius: var(--radius-lg);
-  }
-  .qse-label {
-    font-size: var(--text-xs);
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--color-brand-700);
-  }
-  .qse-amount {
-    font-family: var(--font-display);
-    font-size: clamp(1.65rem, 4vw, var(--text-3xl));
-    line-height: 1.1;
-    color: var(--color-ink-900);
-  }
-  .qse-meta {
-    font-size: var(--text-sm);
-    color: var(--color-ink-500);
-  }
-  .qse-note {
-    margin: 0.75rem 0 0;
-    padding-top: 0.85rem;
-    border-top: 1px solid color-mix(in oklab, var(--color-brand-600) 15%, var(--color-line));
-    font-size: var(--text-sm);
-    line-height: 1.55;
-    color: var(--color-ink-700);
-  }
-  .qs-steps {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: left;
-    margin: 0.5rem auto 0.5rem;
-    padding: 1.1rem 1.35rem;
-    background: var(--color-surface-2);
-    border-radius: var(--radius-md);
-    max-width: 42ch;
-    width: 100%;
-  }
-  .qs-steps strong {
-    color: var(--color-brand-600);
-    margin-right: 0.35rem;
-  }
-  .qs-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
 
   /* Aside */
   .quote-aside {
@@ -980,7 +856,6 @@ const assurances = [
       grid-template-columns: 1fr;
     }
     .quote-main,
-    .quote-success,
     .quote-aside {
       grid-column: 1;
     }

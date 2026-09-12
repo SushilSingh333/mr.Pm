@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { staticRow } from '../lib/page.js';
+import { PHONE_TEL, PHONE_DISPLAY } from '../lib/site.js';
+
+/**
+ * Where the quote form lands once a lead is saved.
+ *
+ * This used to be a hidden card revealed on /get-quote. A separate page is better for
+ * two reasons that have nothing to do with looks:
+ *
+ *   Measurement. A conversion needs a URL of its own. Ad platforms count a Lead when a
+ *   particular page loads, and "the form div became visible" is not something Meta or
+ *   Google can see. Without this page the ad spend cannot be attributed to results.
+ *
+ *   The back button. Revealing a card left the browser on /get-quote, so Back returned
+ *   to a filled-in form and people submitted twice. Landing here makes Back go to the
+ *   form in its normal state.
+ *
+ * `noindex`: a thank-you page has no business in search results. Someone arriving here
+ * from Google has not submitted anything, would see a confirmation for a lead that does
+ * not exist, and would fire a false conversion on the way in.
+ */
+const row = staticRow({
+  path: '/thank-you',
+  pageType: 'core',
+  title: 'Thank you | MrMoverPacker',
+  h1: 'Thank you',
+  metaDescription:
+    'Your request has reached our team. A coordinator will call you shortly to confirm the details and send your fixed price in writing.',
+  noindex: true,
+  breadcrumbs: [{ path: '/', anchor: 'Home' }],
+});
+---
+
+<BaseLayout row={row}>
+  <section class="ty">
+    <div class="container-page ty-inner">
+      <span class="ty-tick" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          width="34"
+          height="34"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M4 12.5 9.5 18 20 6.5"></path>
+        </svg>
+      </span>
+
+      <h1 id="ty-title">Thank you!</h1>
+      <p class="ty-msg" id="ty-msg">
+        Your request is with our team. One of our representatives will contact you shortly to
+        confirm the details and give you your fixed price in writing.
+      </p>
+
+      {/* Filled from the estimate the form worked out, when it managed to price the route. */}
+      <div class="ty-estimate" id="ty-estimate" hidden>
+        <span class="tye-label">Your estimated range</span>
+        <strong class="tye-amount" id="ty-amount"></strong>
+        <span class="tye-meta" id="ty-meta"></span>
+        <p class="tye-note">
+          This is an estimate from our published rate card, not your final price. A coordinator will
+          confirm the details with you shortly and send one fixed, itemised number in writing. That
+          written figure is what you pay.
+        </p>
+      </div>
+
+      <ul class="ty-steps">
+        <li><strong>1.</strong> A coordinator reviews your details.</li>
+        <li><strong>2.</strong> We call you to confirm access, dates and anything unusual.</li>
+        <li><strong>3.</strong> You receive a fixed, written quote, no surprises.</li>
+      </ul>
+
+      <div class="ty-actions">
+        <a class="btn btn-primary" href={`tel:${PHONE_TEL}`}>Call us now</a>
+        <a class="btn btn-ghost" href="/">Back to home</a>
+      </div>
+      <p class="ty-call">
+        In a hurry? Call <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> and we will take your details
+        on the phone.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  /*
+    The estimate is worked out in the browser on /get-quote, so it cannot be rendered
+    here on the server. It travels in sessionStorage rather than the URL: a query string
+    would put the customer's name and price in browser history, in any link they shared,
+    and in our own access logs.
+
+    Read once and cleared, so a refresh or a later visit shows the generic thank-you
+    rather than a stale number from a move they already booked.
+  */
+  const KEY = 'mpm:quote-result';
+  try {
+    const raw = sessionStorage.getItem(KEY);
+    sessionStorage.removeItem(KEY);
+    if (raw) {
+      const data = JSON.parse(raw) as {
+        firstName?: string;
+        phone?: string;
+        text?: string;
+        meta?: string;
+      };
+      const title = document.getElementById('ty-title');
+      if (title && data.firstName) title.textContent = `Thank you, ${data.firstName}!`;
+      const msg = document.getElementById('ty-msg');
+      if (msg && data.phone) {
+        msg.textContent =
+          `Your request is with our team. One of our representatives will contact you on ` +
+          `${data.phone} shortly to confirm the details and give you your fixed price in writing.`;
+      }
+      const box = document.getElementById('ty-estimate');
+      if (box && data.text) {
+        const amount = document.getElementById('ty-amount');
+        const meta = document.getElementById('ty-meta');
+        if (amount) amount.textContent = data.text;
+        if (meta && data.meta) meta.textContent = data.meta;
+        box.hidden = false;
+      }
+    }
+  } catch {
+    /* A blocked or full sessionStorage must not stop the page rendering. */
+  }
+
+  /*
+    The conversion. Fired here rather than on submit because this page only loads when a
+    lead was actually saved - a failed POST never gets here, so the number Meta reports
+    matches the number of leads in the CMS.
+
+    Guarded: the pixel is production-only, so `fbq` is undefined in dev and preview.
+  */
+  const w = window as unknown as { fbq?: (...args: unknown[]) => void };
+  if (typeof w.fbq === 'function') w.fbq('track', 'Lead');
+</script>
+
+<style>
+  .ty {
+    background: linear-gradient(180deg, var(--color-surface-2), var(--color-surface) 70%);
+    padding-block: clamp(3rem, 8vw, 5.5rem) clamp(3.5rem, 9vw, 6rem);
+  }
+  .ty-inner {
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .ty-tick {
+    display: inline-grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--color-accent-500);
+    margin-bottom: 1.25rem;
+  }
+  .ty-inner h1 {
+    margin: 0 0 0.6rem;
+  }
+  .ty-msg {
+    color: var(--color-ink-700);
+    margin: 0 auto 1.75rem;
+    max-width: 52ch;
+  }
+  .ty-estimate {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg, 14px);
+    background: var(--color-surface);
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.75rem;
+  }
+  .tye-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
+  }
+  .tye-amount {
+    display: block;
+    font-size: clamp(1.75rem, 5vw, 2.35rem);
+    line-height: 1.15;
+    color: var(--color-brand-600);
+    margin: 0.3rem 0 0.25rem;
+  }
+  .tye-meta {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--color-ink-500);
+  }
+  .tye-note {
+    font-size: 0.8125rem;
+    color: var(--color-ink-700);
+    margin: 0.9rem 0 0;
+    text-align: left;
+  }
+  .ty-steps {
+    list-style: none;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    display: grid;
+    gap: 0.55rem;
+    text-align: left;
+  }
+  .ty-steps li {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9375rem;
+  }
+  .ty-steps strong {
+    color: var(--color-brand-600);
+    margin-right: 0.35rem;
+  }
+  .ty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: center;
+  }
+  .ty-call {
+    margin: 1.1rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-ink-500);
+  }
+</style>

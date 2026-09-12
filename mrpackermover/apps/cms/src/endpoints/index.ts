@@ -5,6 +5,7 @@ import { trackEndpoint } from './track.js';
 import { applyEndpoint } from './apply.js';
 import { contactEndpoint } from './contact.js';
 import { routeDistanceEndpoint } from './route-distance.js';
+import { leadWebhookEndpoint } from './lead-webhook.js';
 
 /**
  * Public Node endpoints served by the origin (Payload/Next), mounted under `/api`:
@@ -13,6 +14,7 @@ import { routeDistanceEndpoint } from './route-distance.js';
  *   GET  /api/track    → shipment status (stub until ops source is wired)
  *   POST /api/apply    → capture a job application into Job Applications
  *   POST /api/contact  → capture a contact message into Contact Messages
+ *   POST /api/lead-webhook → inbound leads from Facebook/Zapier (shared secret)
  *
  * Plus one staff-only route, mounted here because it shares the same plumbing:
  *   GET  /api/route-distance → driving km between two places, for the proposal editor
@@ -27,4 +29,5 @@ export const publicEndpoints: Endpoint[] = [
   applyEndpoint,
   contactEndpoint,
   routeDistanceEndpoint,
+  leadWebhookEndpoint,
 ];

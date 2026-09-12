@@ -27,6 +27,7 @@ import { LeadStatusSelect as LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4 }
 import { LeadAutofill as LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec } from '../../../components/proposal/LeadAutofill'
 import { MeasureDistance as MeasureDistance_d707844cebb44f084064938405f1d175 } from '../../../components/proposal/MeasureDistance'
 import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../../../components/proposal/ProposalPdf'
+import { WebhookSetup as WebhookSetup_4589d205252be6016ff2846103214a98 } from '../../../components/settings/WebhookSetup'
 import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../../components/graphics/BrandIcon'
 import { BrandLogo as BrandLogo_6e77d0f41c8c9945031c97d73e95e085 } from '../../../components/graphics/BrandLogo'
 import { SidebarNav as SidebarNav_c69d985326c5da60afb675d56609efeb } from '../../../components/nav/SidebarNav'
@@ -65,6 +66,7 @@ export const importMap = {
   "/components/proposal/LeadAutofill#LeadAutofill": LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec,
   "/components/proposal/MeasureDistance#MeasureDistance": MeasureDistance_d707844cebb44f084064938405f1d175,
   "/components/proposal/ProposalPdf#ProposalPdf": ProposalPdf_96917c16d64f6b56cae496087e6af5a4,
+  "/components/settings/WebhookSetup#WebhookSetup": WebhookSetup_4589d205252be6016ff2846103214a98,
   "/components/graphics/BrandIcon#BrandIcon": BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f,
   "/components/graphics/BrandLogo#BrandLogo": BrandLogo_6e77d0f41c8c9945031c97d73e95e085,
   "/components/nav/SidebarNav#SidebarNav": SidebarNav_c69d985326c5da60afb675d56609efeb,

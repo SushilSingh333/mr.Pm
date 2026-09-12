@@ -291,6 +291,8 @@ export const Leads: CollectionConfig = {
       options: [
         { label: 'Quote form', value: 'quote-form' },
         { label: 'Price check', value: 'price-check' },
+        { label: 'Facebook ad', value: 'facebook-ad' },
+        { label: 'Webhook', value: 'webhook' },
       ],
     },
     {
@@ -367,6 +369,55 @@ export const Leads: CollectionConfig = {
         position: 'sidebar',
         description:
           'Set the first time the owner saves a change. Empty means they have not actioned it yet.',
+      },
+    },
+    {
+      name: 'sourceDetail',
+      label: 'Campaign / form',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        condition: (data) => Boolean(data?.sourceDetail),
+        description: 'Which ad or form this came from, as the sender described it.',
+      },
+    },
+    {
+      /**
+       * The sender's own id for this lead - Facebook's `leadgen_id`, say.
+       *
+       * Indexed and used to reject duplicates. Zapier retries a failed step, and
+       * Facebook re-delivers on its own schedule, so the same lead arrives more than
+       * once as a matter of course. Without this, two salespeople end up ringing the
+       * same person about the same enquiry.
+       */
+      name: 'externalId',
+      label: 'Sender reference',
+      type: 'text',
+      index: true,
+      unique: true,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        condition: (data) => Boolean(data?.externalId),
+      },
+    },
+    {
+      /**
+       * Everything the sender posted, verbatim.
+       *
+       * Ad platforms rename their fields without warning and Zapier mappings drift. When
+       * a lead arrives with a blank city, this is the difference between guessing and
+       * reading what was actually sent. Admin-only: it can contain whatever the form
+       * asked for, which is personal data nobody in the sales hierarchy needs.
+       */
+      name: 'rawPayload',
+      label: 'What the sender posted',
+      type: 'json',
+      access: { read: ({ req }) => (req.user as { role?: string } | null)?.role === 'admin' },
+      admin: {
+        readOnly: true,
+        condition: (data) => Boolean(data?.rawPayload),
+        description: 'Kept for diagnosing a mapping that has gone wrong.',
       },
     },
     { name: 'sourceIp', type: 'text', admin: { readOnly: true, position: 'sidebar' } },

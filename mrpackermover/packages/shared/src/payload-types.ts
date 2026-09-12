@@ -133,11 +133,13 @@ export interface Config {
     'org-profile': OrgProfile;
     'home-content': HomeContent;
     'seo-defaults': SeoDefault;
+    integrations: Integration;
   };
   globalsSelect: {
     'org-profile': OrgProfileSelect<false> | OrgProfileSelect<true>;
     'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
     'seo-defaults': SeoDefaultsSelect<false> | SeoDefaultsSelect<true>;
+    integrations: IntegrationsSelect<false> | IntegrationsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -879,6 +881,13 @@ export interface Lead {
   pickup?: string | null;
   dropLocation?: string | null;
   moveDate?: string | null;
+  quotedLow?: number | null;
+  quotedHigh?: number | null;
+  distanceKm?: number | null;
+  /**
+   * Truck size, route type and packing grade the estimate assumed.
+   */
+  quoteBasis?: string | null;
   /**
    * Straight from the quote form.
    */
@@ -890,6 +899,7 @@ export interface Lead {
     | {
         body: string;
         author?: (number | null) | User;
+        authorName?: string | null;
         at?: string | null;
         id?: string | null;
       }[]
@@ -901,7 +911,7 @@ export interface Lead {
   /**
    * How this lead came in.
    */
-  source?: ('quote-form' | 'price-check') | null;
+  source?: ('quote-form' | 'price-check' | 'facebook-ad' | 'webhook') | null;
   status: 'new' | 'assigned' | 'reassigned' | 'contacted' | 'call-not-picked' | 'quoted' | 'won' | 'lost';
   /**
    * Setting this moves the lead to Assigned, or Reassigned if it changes hands.
@@ -911,14 +921,32 @@ export interface Lead {
    * When this lead was handed to its current owner. Stamped automatically.
    */
   assignedAt?: string | null;
-  /**
-   * Who handed it over.
-   */
   assignedBy?: (number | null) | User;
+  /**
+   * Who handed this lead to its current owner.
+   */
+  assignedByName?: string | null;
   /**
    * Set the first time the owner saves a change. Empty means they have not actioned it yet.
    */
   acknowledgedAt?: string | null;
+  /**
+   * Which ad or form this came from, as the sender described it.
+   */
+  sourceDetail?: string | null;
+  externalId?: string | null;
+  /**
+   * Kept for diagnosing a mapping that has gone wrong.
+   */
+  rawPayload?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   sourceIp?: string | null;
   sourcePage?: string | null;
   updatedAt: string;
@@ -1555,12 +1583,17 @@ export interface LeadsSelect<T extends boolean = true> {
   pickup?: T;
   dropLocation?: T;
   moveDate?: T;
+  quotedLow?: T;
+  quotedHigh?: T;
+  distanceKm?: T;
+  quoteBasis?: T;
   customerNote?: T;
   noteLog?:
     | T
     | {
         body?: T;
         author?: T;
+        authorName?: T;
         at?: T;
         id?: T;
       };
@@ -1570,7 +1603,11 @@ export interface LeadsSelect<T extends boolean = true> {
   assignedTo?: T;
   assignedAt?: T;
   assignedBy?: T;
+  assignedByName?: T;
   acknowledgedAt?: T;
+  sourceDetail?: T;
+  externalId?: T;
+  rawPayload?: T;
   sourceIp?: T;
   sourcePage?: T;
   updatedAt?: T;
@@ -1920,6 +1957,34 @@ export interface SeoDefault {
   createdAt?: string | null;
 }
 /**
+ * Receive leads from Facebook Lead Ads, Google Ads or anywhere else, through Zapier or any tool that can send a webhook.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "integrations".
+ */
+export interface Integration {
+  id: number;
+  /**
+   * Turn off to stop accepting inbound leads without changing the secret. Anything sent while this is off is rejected, not queued.
+   */
+  leadWebhookEnabled?: boolean | null;
+  /**
+   * Send this as the header x-webhook-secret. Treat it like a password: anyone holding it can create leads. Clear the box and save to issue a new one, which immediately stops the old one working.
+   */
+  leadWebhookSecret?: string | null;
+  /**
+   * Blank means nothing has ever reached this endpoint.
+   */
+  leadWebhookLastAt?: string | null;
+  leadWebhookCount?: number | null;
+  /**
+   * Why the most recent request was turned away. Usually a wrong secret or a payload with no phone number in it.
+   */
+  leadWebhookLastError?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "org-profile_select".
  */
@@ -2018,6 +2083,20 @@ export interface SeoDefaultsSelect<T extends boolean = true> {
         titleTemplate?: T;
         descriptionTemplate?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "integrations_select".
+ */
+export interface IntegrationsSelect<T extends boolean = true> {
+  leadWebhookEnabled?: T;
+  leadWebhookSecret?: T;
+  leadWebhookLastAt?: T;
+  leadWebhookCount?: T;
+  leadWebhookLastError?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

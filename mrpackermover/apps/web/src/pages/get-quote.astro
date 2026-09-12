@@ -615,7 +615,14 @@ const assurances = [
     margin-inline: auto;
     align-items: start;
   }
-  .quote-main,
+  .quote-main {
+    /* The card's own breathing room. This shared a rule with the retired success card;
+       removing that rule orphaned this selector onto the next one, so the padding was
+       lost and the fields sat hard against the card's edge. */
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    grid-column: 1;
+    grid-row: 1;
+  }
   .qm-head {
     margin-bottom: 0.9rem;
   }

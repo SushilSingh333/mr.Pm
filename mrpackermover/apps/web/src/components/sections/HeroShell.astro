@@ -7,6 +7,7 @@
  * styled tagline); otherwise the plain <h1> is used.
  */
 import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
+import { heroAlt } from '../../lib/hero.js';
 
 interface Props {
   h1: string;
@@ -17,16 +18,71 @@ interface Props {
   /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence. */
   imageUrl?: string;
   align?: 'center' | 'left';
+  /** Overrides the description looked up from `image`. Needed for CMS uploads. */
+  imageAlt?: string;
 }
-const { h1, intro, badge, image = 'moving', imageUrl, align = 'center' } = Astro.props;
+const { h1, intro, badge, image = 'home', imageUrl, align = 'center', imageAlt } = Astro.props;
 // A CMS-uploaded (Cloudinary) image wins; `cldUrl` injects the delivery transform and
 // is a no-op for any non-Cloudinary URL. Otherwise fall back to the static file.
 const resolvedImage = imageUrl ? cldUrl(imageUrl, CLD_TRANSFORM.hero) : `/images/hero/${image}.jpg`;
-const heroStyle = `--hero-image: url('${resolvedImage}')`;
+
+/**
+ * The banner photograph, as sources for a <picture>.
+ *
+ * This was a CSS background driven by three custom properties. A background is
+ * invisible to a search engine and silent to a screen reader, so nine commissioned
+ * photographs could never appear in image search and a blind visitor reached the
+ * banner and heard nothing. A real <img> fixes both, and the rendering is identical:
+ * `object-fit: cover` with `object-position` reproduces `background-size: cover` with
+ * `background-position` exactly.
+ *
+ * It is also faster. The preload scanner finds <img>/<source> while the HTML is still
+ * parsing, whereas a background could not be discovered until the render-blocking CSS
+ * had arrived and been parsed. The two hand-written <link rel="preload"> hints that
+ * worked around that are no longer needed.
+ *
+ * A Cloudinary URL is transformed on delivery, so it is used unchanged at both sizes;
+ * only the committed files have WebP variants on disk.
+ */
+const heroSources = imageUrl
+  ? { fallback: resolvedImage, narrow: null, full: null }
+  : {
+      fallback: `/images/hero/${image}.jpg`,
+      narrow: `/images/hero/${image}-narrow.webp`,
+      full: `/images/hero/${image}-full.webp`,
+    };
+const alt = imageAlt ?? heroAlt(image);
 const hasHeadingSlot = Astro.slots.has('heading');
 ---
 
-<section class:list={['hero', `align-${align}`]} style={heroStyle}>
+<section class:list={['hero', `align-${align}`]}>
+  {
+    /*
+    Width and height are the artwork's real pixel size. They do not constrain the
+    rendered box - the CSS below stretches it to fill the banner - they give the
+    browser the aspect ratio up front so it reserves the right space and the heading
+    does not jump when the photo arrives.
+
+    fetchpriority="high" because this is the page's Largest Contentful Paint; without
+    it the browser treats an <img> as ordinary-priority and the banner lands late.
+  */
+  }
+  <picture class="hero-photo">
+    {
+      heroSources.full && (
+        <source type="image/webp" media="(min-width: 900px)" srcset={heroSources.full} />
+      )
+    }
+    {heroSources.narrow && <source type="image/webp" srcset={heroSources.narrow} />}
+    <img
+      src={heroSources.fallback}
+      alt={alt}
+      width="1920"
+      height="800"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </picture>
   <div class="container-page hero-inner">
     {badge && <span class="hero-badge">{badge}</span>}
     {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
@@ -42,30 +98,45 @@ const hasHeadingSlot = Astro.slots.has('heading');
   .hero {
     position: relative;
     overflow: hidden;
+    /* Still painted, so the banner is brand blue rather than white for the moment
+       before the photograph decodes - exactly as it was under the background. */
     background-color: #1d00b2;
-    background-image: var(--hero-image);
-    background-size: cover;
-    /* The banner is much wider than the photos (≈2.7:1 vs 1.75:1), so `cover` crops
-       heavily top+bottom. Bias the crop upward so subjects' heads / the top of the scene
-       stay visible; the extra bottom crop is hidden under the overlapping booking card. */
-    background-position: center 25%;
     color: #fff;
     min-height: clamp(330px, 30vw, 440px);
     padding: clamp(2.25rem, 4.5vw, 3.5rem) 0 clamp(3.5rem, 6vw, 4.75rem);
   }
   /* Light top-to-bottom overlay, matching porter.in exactly (0.65 → 0.15). Keeps
      the photo clearly visible; a text-shadow guarantees heading contrast. */
+  /* Reproduces what `background-size: cover` + `background-position` did.
+     `object-fit: cover` is the same algorithm, so the crop is unchanged.
+
+     The 25% vertical bias is kept from the background rule: the banner is far wider
+     than the photographs (~2.7:1 against ~2.4:1), so cover crops top and bottom.
+     Biasing upward keeps faces and the top of the scene visible, and the extra bottom
+     crop is hidden behind the booking card that overlaps this section. */
+  .hero-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+  }
   .hero::before {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.15));
-    z-index: 0;
+    z-index: 1;
     pointer-events: none;
   }
   .hero-inner {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;

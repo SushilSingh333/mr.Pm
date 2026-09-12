@@ -29,10 +29,13 @@ const cityArt = (slug: string): string | null =>
   fs.existsSync(path.resolve('public/images/hero/cities', `${slug}.jpg`))
     ? `/images/hero/cities/${slug}.jpg`
     : null;
+// A 240x240 crop of the brand photograph, not the 1920px hero. The card renders at
+// 72x72; pointing it at the full hero meant downloading ~216 KB on top of the hero's
+// own WebP to fill a thumbnail.
 const thumbFor = (c: ManifestLink): string =>
   c.image
     ? cldUrl(c.image, CLD_TRANSFORM.thumb)
-    : (cityArt(slugOf(c.path)) ?? '/images/hero/home.jpg');
+    : (cityArt(slugOf(c.path)) ?? '/images/hero/cities/_default.jpg');
 ---
 
 <div class="section-head">
@@ -50,6 +53,11 @@ const thumbFor = (c: ManifestLink): string =>
           hidden={hasMore && i >= VISIBLE_CITIES}
         >
           <span class="city-thumb">
+            {/*
+              alt="" on purpose. The link already reads "<city>, View areas & prices",
+              so describing the thumbnail too would make a screen reader announce the
+              same city twice. An empty alt marks it decorative and it is skipped.
+            */}
             <img src={thumbFor(c)} alt="" loading="lazy" width="72" height="72" />
           </span>
           <span class="city-body">

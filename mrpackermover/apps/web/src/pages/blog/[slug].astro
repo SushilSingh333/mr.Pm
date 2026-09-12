@@ -53,8 +53,10 @@ const extraJsonLd = [
   <div class="read-progress" aria-hidden="true"><span id="read-bar"></span></div>
 
   <article class="post">
-    <header class="post-head" style={`--post-cover: url('${post.cover}')`}>
-      <span class="ph-photo" aria-hidden="true"></span>
+    <header class="post-head">
+      <span class="ph-photo">
+        <img src={post.cover} alt={post.coverAlt} width="1920" height="800" decoding="async" />
+      </span>
       <div class="container-page post-head-inner">
         <div class="ph-text">
           <Breadcrumbs items={row.breadcrumbs} current={post.category} />
@@ -134,24 +136,37 @@ const extraJsonLd = [
     padding-block: clamp(2rem, 4vw, 3rem);
   }
   /* The cover keeps its own panel, bleeding off the right edge and dissolving into the
-     blue so there is no hard seam. Decorative: the article's real image is its content. */
+     blue so there is no hard seam. */
   .ph-photo {
     position: absolute;
     inset: 0 0 0 auto;
     width: clamp(300px, 47%, 780px);
     z-index: 0;
-    background-image:
-      linear-gradient(
-        90deg,
-        color-mix(in oklab, var(--color-navy-900) 62%, transparent) 0%,
-        color-mix(in oklab, var(--color-navy-900) 14%, transparent) 55%,
-        color-mix(in oklab, var(--color-navy-900) 26%, transparent) 100%
-      ),
-      var(--post-cover);
-    background-size: cover;
-    background-position: center;
+    overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
     mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
+  }
+  /* The photograph is a real <img> rather than a background so the article's cover can
+     be indexed and described. The panel keeps the mask; the blue wash that used to be
+     the first background layer is now ::after, which paints over the image and under
+     the type - the same order it had in the shorthand. */
+  .ph-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .ph-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-navy-900) 62%, transparent) 0%,
+      color-mix(in oklab, var(--color-navy-900) 14%, transparent) 55%,
+      color-mix(in oklab, var(--color-navy-900) 26%, transparent) 100%
+    );
   }
   .post-head :global(.breadcrumbs a),
   .post-head :global(.breadcrumbs [aria-current='page']) {
@@ -217,18 +232,20 @@ const extraJsonLd = [
       inset: 0;
       width: 100%;
       opacity: 0.55;
-      /* Vertical rather than horizontal here: the scrim has to be lightest at the top,
-         where nothing sits, and heaviest across the headline and lead. */
-      background-image:
-        linear-gradient(
-          180deg,
-          color-mix(in oklab, var(--color-navy-900) 18%, transparent) 0%,
-          color-mix(in oklab, var(--color-navy-900) 62%, transparent) 52%,
-          color-mix(in oklab, var(--color-navy-900) 88%, transparent) 100%
-        ),
-        var(--post-cover);
       -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 96%);
       mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 96%);
+    }
+    /* Vertical rather than horizontal here: the scrim has to be lightest at the top,
+       where nothing sits, and heaviest across the headline and lead. It overrides the
+       ::after wash rather than the old background layer - the photograph underneath is
+       an <img> now, so the gradient can no longer ride in the same shorthand. */
+    .ph-photo::after {
+      background: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--color-navy-900) 18%, transparent) 0%,
+        color-mix(in oklab, var(--color-navy-900) 62%, transparent) 52%,
+        color-mix(in oklab, var(--color-navy-900) 88%, transparent) 100%
+      );
     }
   }
 

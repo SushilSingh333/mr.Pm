@@ -26,6 +26,27 @@ export const Media: CollectionConfig = {
   },
   upload: {
     mimeTypes: ['image/*'],
+    /**
+     * Normalise every upload to a sensible web image.
+     *
+     * The delivery strategy above assumes Cloudinary transforms on the fly. When
+     * CLOUDINARY_* is not set, Media falls back to local disk and `cldUrl` becomes a
+     * no-op, so whatever was uploaded is what visitors download — and a 2.1 MB PNG
+     * straight out of an image generator became the home page's Largest Contentful
+     * Paint. Re-encoding it to WebP at the same dimensions cost 92% of the bytes and
+     * nothing visible.
+     *
+     * These two options transform the stored file only. They add no database columns
+     * (unlike `imageSizes`), so no migration is needed. Cloudinary, once configured,
+     * simply receives a smaller original.
+     */
+    resizeOptions: {
+      // Wider than any slot we render; the heroes crop with background-size: cover.
+      width: 1920,
+      fit: 'inside',
+      withoutEnlargement: true,
+    },
+    formatOptions: { format: 'webp', options: { quality: 80 } },
     adminThumbnail: ({ doc }) =>
       typeof doc?.url === 'string' ? cldUrl(doc.url, 'f_auto,q_auto,c_fill,w_120,h_120') : null,
   },

@@ -2,6 +2,7 @@
 import type { ManifestLink } from '@mpm/shared';
 import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
 import Breadcrumbs from '../nav/Breadcrumbs.astro';
+import { heroAlt } from '../../lib/hero.js';
 
 /**
  * Interior-page hero — centered, to match the rest of the site (Doc 01: pages read
@@ -21,6 +22,8 @@ interface Props {
    * the CMS has no upload for this page. Omit both and the hero stays a flat gradient.
    */
   image?: string;
+  /** Overrides the description looked up from `image`. Needed for CMS uploads. */
+  imageAlt?: string;
   /** CMS-uploaded hero background (Cloudinary) — takes precedence over `image`. */
   imageUrl?: string;
 }
@@ -33,6 +36,7 @@ const {
   current,
   image,
   imageUrl,
+  imageAlt,
 } = Astro.props;
 const hasCta = Astro.slots.has('default');
 // A photo forces the dark treatment - the light gradient has no scrim, so dark text
@@ -46,10 +50,44 @@ const resolvedImage = imageUrl
     : null;
 const hasImage = Boolean(resolvedImage);
 const isDark = dark || hasImage;
-const heroStyle = hasImage ? `--phero-image: url('${resolvedImage}')` : undefined;
+
+/**
+ * The banner photograph, as sources for a <picture> - same reasoning as HeroShell:
+ * a CSS background cannot be indexed by image search or described to a screen
+ * reader. A Cloudinary URL is transformed on delivery and has no local variants.
+ */
+const pheroSources =
+  imageUrl || !image
+    ? { fallback: resolvedImage, narrow: null, full: null }
+    : {
+        fallback: `/images/hero/${image}.jpg`,
+        narrow: `/images/hero/${image}-narrow.webp`,
+        full: `/images/hero/${image}-full.webp`,
+      };
+const alt = imageAlt ?? (image ? heroAlt(image) : '');
 ---
 
-<section class:list={['phero', { dark: isDark, 'has-image': hasImage }]} style={heroStyle}>
+<section class:list={['phero', { dark: isDark, 'has-image': hasImage }]}>
+  {
+    hasImage && (
+      <div class="phero-photo">
+        <picture>
+          {pheroSources.full && (
+            <source type="image/webp" media="(min-width: 900px)" srcset={pheroSources.full} />
+          )}
+          {pheroSources.narrow && <source type="image/webp" srcset={pheroSources.narrow} />}
+          <img
+            src={pheroSources.fallback}
+            alt={alt}
+            width="1920"
+            height="800"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+      </div>
+    )
+  }
   <span class="phero-glow" aria-hidden="true"></span>
   <div class="container-page phero-inner">
     {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} current={current ?? h1} />}
@@ -183,11 +221,37 @@ const heroStyle = hasImage ? `--phero-image: url('${resolvedImage}')` : undefine
   /* CMS photo. Sits under a dark scrim so the white heading keeps its contrast
      whatever the editor uploads - same approach as the home hero. */
   .phero.has-image {
+    /* Kept so the banner is navy, not white, for the moment before the photo
+       decodes - what the background-color did before. */
     background-color: var(--color-navy-700);
-    background-image: linear-gradient(rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.42)), var(--phero-image);
-    background-size: cover;
-    background-position: center;
     border-bottom: 0;
+  }
+  /* The photograph, and the scrim that used to ride along inside the same
+     `background-image` shorthand. `object-fit: cover` + `object-position: center`
+     reproduce `background-size: cover` + `background-position: center` exactly, so
+     the crop is unchanged.
+
+     The scrim is ::after on this wrapper rather than on .phero: as an absolutely
+     positioned pseudo-element of the wrapper it paints directly over the <img> and
+     under everything else, which is the same layer the gradient occupied when it was
+     the first background layer. */
+  .phero-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .phero-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .phero-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.62), rgba(0, 0, 0, 0.42));
   }
   .phero.has-image .phero-glow {
     display: none;

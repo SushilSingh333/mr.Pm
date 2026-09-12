@@ -441,7 +441,16 @@ const assurances = [
       const n = Number(el?.value);
       return Number.isFinite(n) ? n : fallback;
     };
-    async function estimate(): Promise<{ text: string; meta: string } | null> {
+    interface Estimate {
+      text: string;
+      meta: string;
+      /** The raw figures, so the lead can record what this customer was shown. */
+      distanceKm: number;
+      rangeLow: number;
+      rangeHigh: number;
+      basis: string;
+    }
+    async function estimate(): Promise<Estimate | null> {
       try {
         const from = (form!.elements.namedItem('from') as HTMLInputElement).value.trim();
         const to = (form!.elements.namedItem('to') as HTMLInputElement).value.trim();
@@ -486,6 +495,10 @@ const assurances = [
         return {
           text: `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`,
           meta: `${truckFt} ft truck · ${Math.round(km)} km · ${mode} · GST extra`,
+          distanceKm: Math.round(km),
+          rangeLow: r.rangeLow,
+          rangeHigh: r.rangeHigh,
+          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing`,
         };
       } catch {
         return null;
@@ -558,9 +571,31 @@ const assurances = [
         submitBtn.textContent = 'Sending…';
       }
 
+      /*
+        Price before sending, so the lead records the figure this customer is about to
+        see. It used to be computed after the POST purely for display, which left a
+        coordinator ringing someone who had a number in their head that nobody on our
+        side could see.
+
+        Bounded and non-fatal on purpose: it calls Google for the driving distance, and
+        a lead must never be lost or delayed because that was slow or down. Past the
+        timeout the lead is sent without the estimate, and the customer still sees one
+        if the lookup finishes later.
+      */
+      const est = await Promise.race([
+        estimate().catch(() => null),
+        new Promise<null>((r) => setTimeout(() => r(null), 4000)),
+      ]);
+
       // Only show the success card once the lead is actually saved in the CMS.
       try {
-        const data = Object.fromEntries(new FormData(form).entries());
+        const data: Record<string, unknown> = Object.fromEntries(new FormData(form).entries());
+        if (est) {
+          data.quotedLow = est.rangeLow;
+          data.quotedHigh = est.rangeHigh;
+          data.distanceKm = est.distanceKm;
+          data.quoteBasis = est.basis;
+        }
         const res = await fetch('/api/quote', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -588,7 +623,6 @@ const assurances = [
           `${phone} shortly to confirm the details and give you your fixed price in writing.`;
 
       // Priced after the lead is safely saved, so a pricing hiccup can never cost a lead.
-      const est = await estimate();
       const estBox = document.getElementById('qs-estimate');
       if (est && estBox) {
         const amount = document.getElementById('qs-amount');

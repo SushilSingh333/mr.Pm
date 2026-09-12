@@ -12,8 +12,6 @@ import LocalNotes from '../../components/sections/LocalNotes.astro';
 import ReviewList from '../../components/trust/ReviewList.astro';
 import RelatedLinks from '../../components/sections/RelatedLinks.astro';
 import Faq from '../../components/sections/Faq.astro';
-import fs from 'node:fs';
-import path from 'node:path';
 import { SITE_ORIGIN } from '../../lib/site.js';
 
 /** City hub. Every path comes from a manifest row — no arbitrary input (ADR-0003). */
@@ -26,11 +24,21 @@ export function getStaticPaths() {
 
 const { row } = Astro.props;
 const data = dataOf<CityHubData>(row);
-// Dedicated artwork ships for the original cities only. A city added later (the
-// north India import) falls back to the brand hero until its own photo is added,
-// instead of a broken background from a missing /images/hero/cities file.
-const cityArt = path.resolve('public/images/hero/cities', `${row.slug}.jpg`);
-const heroImage = fs.existsSync(cityArt) ? `cities/${row.slug}` : 'home';
+// City hero artwork.
+//
+// /images/hero/cities/<slug>.jpg was being used as this banner's background, but those
+// files are 240x240 square thumbnails built for the city cards on the home page. Used
+// full-bleed they were upscaled roughly six times and read as a blur on exactly the
+// pages that matter most - Delhi, Mumbai, Bengaluru and the rest.
+//
+// They also had no WebP variants, because the variant builder only walks the top level
+// of the hero folder, so every one of those pages requested a -narrow/-full file that
+// did not exist and preloaded two 404s.
+//
+// The branded montage is 1920 wide, sharp, and carries the current logo, so it is the
+// better banner until city-specific wide artwork exists. The square thumbnails keep
+// doing their real job on the city cards, untouched.
+const heroImage = 'home';
 const areas = data.areas ?? [];
 // Localities are shown in the Areas grid, so keep RelatedLinks to services + routes.
 const otherLinks = row.relatedLinks.filter((l) => l.group !== 'localities');

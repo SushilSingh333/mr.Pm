@@ -21,6 +21,7 @@
     "set-city-services": "tsx src/scripts/set-city-services.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
     "rebrand": "tsx src/scripts/rebrand.ts",
+    "optimize-media": "tsx src/scripts/optimize-media.ts",
     "seed": "tsx src/seed.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."

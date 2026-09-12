@@ -1,7 +1,5 @@
 ---
 import type { CityServiceData, LocalityData } from '@mpm/shared';
-import fs from 'node:fs';
-import path from 'node:path';
 import { jsonld } from '@mpm/seo';
 import { rowsOfType, dataOf } from '../../../data/manifest.js';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -65,11 +63,9 @@ const intro = isService
 // A CMS upload wins: the locality's own photo, else its city's (the manifest already
 // resolved that fallback). Without one, the static /images/hero/cities/<city>.jpg file.
 const heroImageUrl = cs?.heroImage?.url ?? loc?.heroImage?.url;
-const citySlugPart = row.slug.split('/')[0];
-// Same fallback as the city hub: a missing city art file must not leave the hero blank.
-const heroImage = fs.existsSync(path.resolve('public/images/hero/cities', `${citySlugPart}.jpg`))
-  ? `cities/${citySlugPart}`
-  : 'home';
+// Same banner choice as the city hub - see the note there on why the square city
+// thumbnails are not used full-bleed.
+const heroImage = 'home';
 ---
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>

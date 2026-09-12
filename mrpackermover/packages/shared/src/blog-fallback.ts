@@ -18,13 +18,13 @@ const AUTHOR = 'The MrMoverPacker Team';
  */
 export const COVER_BY_CATEGORY: Record<string, string> = {
   Guides: '/images/hero/home-shifting.jpg',
-  Pricing: '/images/hero/services.jpg',
+  Pricing: '/images/hero/loading-unloading.jpg',
   Safety: '/images/hero/home.jpg',
   Packing: '/images/hero/packing-unpacking.jpg',
   Business: '/images/hero/office-shifting.jpg',
 };
 export const coverForCategory = (category: string): string =>
-  COVER_BY_CATEGORY[category] ?? '/images/hero/moving.jpg';
+  COVER_BY_CATEGORY[category] ?? '/images/hero/home.jpg';
 
 export const FALLBACK_POSTS: BlogPost[] = [
   {
@@ -36,8 +36,8 @@ export const FALLBACK_POSTS: BlogPost[] = [
     author: AUTHOR,
     date: '2026-07-28T09:00:00.000Z',
     readMins: 8,
-    cover: '/images/hero/moving.jpg',
-    coverAlt: 'A packed home ready for shifting day',
+    cover: '/images/hero/home-shifting.jpg',
+    coverAlt: 'A MrMoverPacker crew member carrying a packed carton out of a home',
     featured: true,
     tags: ['home shifting', 'checklist', 'planning'],
     body: `
@@ -82,8 +82,8 @@ export const FALLBACK_POSTS: BlogPost[] = [
     author: AUTHOR,
     date: '2026-07-21T09:00:00.000Z',
     readMins: 6,
-    cover: '/images/hero/home.jpg',
-    coverAlt: 'A calculator and moving cartons representing a moving quote',
+    cover: '/images/hero/loading-unloading.jpg',
+    coverAlt: 'A MrMoverPacker crew loading labelled cartons into a truck',
     tags: ['pricing', 'quotes', 'budgeting'],
     body: `
 <p class="lead">Two quotes for the same move can differ by thousands, not because one company is cheaper, but because one of them left things out on purpose. Here’s how to compare honestly.</p>
@@ -125,8 +125,8 @@ export const FALLBACK_POSTS: BlogPost[] = [
     author: AUTHOR,
     date: '2026-07-14T09:00:00.000Z',
     readMins: 5,
-    cover: '/images/hero/route.jpg',
-    coverAlt: 'A moving truck on an intercity route',
+    cover: '/images/hero/home.jpg',
+    coverAlt: 'A branded MrMoverPacker truck and uniformed crew at a customer doorstep',
     tags: ['safety', 'fraud', 'verification'],
     body: `
 <p class="lead">Every moving season brings a wave of fraud, because the setup is easy: a slick listing, a low quote, and a customer under pressure. Knowing the playbook is most of the defence.</p>
@@ -162,8 +162,8 @@ export const FALLBACK_POSTS: BlogPost[] = [
     author: AUTHOR,
     date: '2026-07-07T09:00:00.000Z',
     readMins: 7,
-    cover: '/images/hero/storage.jpg',
-    coverAlt: 'Carefully packed and labelled moving boxes in storage',
+    cover: '/images/hero/packing-unpacking.jpg',
+    coverAlt: 'Fragile household items being wrapped and boxed by a packing crew',
     tags: ['packing', 'fragile', 'how-to'],
     body: `
 <p class="lead">Here’s the counter-intuitive truth of moving: whether your glassware arrives intact is mostly decided before the truck even starts. Good packing is the single biggest lever on damage.</p>
@@ -200,8 +200,8 @@ export const FALLBACK_POSTS: BlogPost[] = [
     author: AUTHOR,
     date: '2026-06-30T09:00:00.000Z',
     readMins: 6,
-    cover: '/images/hero/office.jpg',
-    coverAlt: 'An office set up after a smooth relocation',
+    cover: '/images/hero/office-shifting.jpg',
+    coverAlt: 'Office furniture and crates being moved out of a commercial building',
     tags: ['office shifting', 'business', 'planning'],
     body: `
 <p class="lead">A home move disrupts a family for a day. A botched office move can cost a company a week of productivity. The difference between the two outcomes is sequencing.</p>

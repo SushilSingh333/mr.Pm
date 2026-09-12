@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { proposalsRead, proposalsWrite, isRole } from '../access/index.js';
+import { DEFAULT_PROPOSAL_SERVICE, proposalServiceFor } from '../lib/proposal-service.js';
 
 /**
  * Moving proposals — a native CMS section. Click "Proposals" → the list of everything created;
@@ -47,10 +48,20 @@ const DEFAULT_CHARGES = [
   { name: 'Unpacking & basic rearrangement', amt: 4000 },
   { name: 'Toll, permits & state entry', amt: 3000 },
 ];
+/**
+ * What every new proposal starts with. Editable per proposal - this is the starting
+ * point, not a fixed list.
+ *
+ * The GPS/live-location line was removed: it appeared on every quote by default and
+ * promised tracking the business cannot yet deliver (/track is still a stub), which
+ * makes it a commitment on a document the customer holds us to. Packing reads 3-layer
+ * because that is what the crews actually wrap.
+ *
+ * Kept in step with `defaultServices` in components/proposal/proposal-pdf.ts.
+ */
 const DEFAULT_SERVICES = [
-  { line: 'Professional packing, Premium 5-layer materials, room-wise labelling' },
+  { line: 'Professional packing, Premium 3-layer materials, room-wise labelling' },
   { line: 'Trained & verified crew, Uniformed, background-checked movers' },
-  { line: 'GPS-tracked transport, Dedicated container, live location on request' },
   { line: 'Loading & unloading, Careful handling with floor & wall protection' },
   { line: 'Unpacking & rearrangement, Boxes opened and furniture placed' },
   { line: 'All-risk transit insurance, Optional cover on declared goods value' },
@@ -133,6 +144,62 @@ export const Proposals: CollectionConfig = {
       },
     ],
     beforeChange: [
+      /**
+       * Fill anything still blank from the linked lead.
+       *
+       * The admin does this in the browser as you pick the lead, so you can see and edit
+       * the values before saving. This is the backstop: form state is built
+       * asynchronously and a custom component racing it is not something to bet a
+       * customer's quote on. Whatever the UI managed, the saved document is right.
+       *
+       * Only fills EMPTY fields, so it can never overwrite what someone typed, and only
+       * on create - editing a proposal later must not silently pull values back.
+       */
+      async ({ data, req, operation }) => {
+        if (operation !== 'create' || !data) return data;
+        const leadId = typeof data.lead === 'object' ? data.lead?.id : data.lead;
+        if (!leadId) return data;
+        try {
+          // `req` keeps this inside the caller's transaction; a second connection here
+          // would deadlock against the insert that is waiting on this hook.
+          // The generated Lead type is used directly rather than cast to a loose record;
+          // that way a renamed field breaks here instead of silently filling nothing.
+          const lead = await req.payload.findByID({
+            collection: 'leads',
+            id: leadId as string,
+            depth: 0,
+            overrideAccess: true,
+            req,
+          });
+
+          const blank = (v: unknown): boolean => v == null || v === '';
+          data.customer = data.customer ?? {};
+          data.move = data.move ?? {};
+          const put = (obj: Record<string, unknown>, key: string, v: unknown): void => {
+            if (blank(obj[key]) && !blank(v)) obj[key] = v;
+          };
+          put(data.customer, 'name', lead.name);
+          put(data.customer, 'phone', lead.phone);
+          put(data.customer, 'email', lead.email);
+          put(data.move, 'from', lead.pickup);
+          put(data.move, 'to', lead.dropLocation);
+          put(data.move, 'date', lead.moveDate);
+          // `svc` always has a default, so it is never "blank" - overwrite it only when
+          // it is still untouched, and only when the lead maps to a known option.
+          const mapped = proposalServiceFor(lead.service);
+          if (mapped && (blank(data.move.svc) || data.move.svc === DEFAULT_PROPOSAL_SERVICE)) {
+            data.move.svc = mapped;
+          }
+          if (typeof lead.distanceKm === 'number' && lead.distanceKm > 0) {
+            put(data.move, 'dist', `${lead.distanceKm.toLocaleString('en-IN')} km`);
+          }
+          // The lead's estimate is deliberately not copied into charges - see the note
+          // in LeadAutofill on why a rate-card guess must not become a fixed price.
+        } catch (error) {
+          req.payload.logger.error({ err: error }, 'proposal: could not fill from lead');
+        }
+        return data;
+      },
       // Records the author so a proposal stays visible to whoever raised it, even
       // before a lead is attached. Set once, on create.
       ({ data, req, operation }) => {
@@ -164,6 +231,59 @@ export const Proposals: CollectionConfig = {
         );
         data.title = [cust, data.quoteNo].filter(Boolean).join(' · ') || data.quoteNo;
         return data;
+      },
+    ],
+    afterChange: [
+      /**
+       * Move the linked lead to "Quoted".
+       *
+       * A proposal existing and the lead still reading "Contacted" is how two people end
+       * up quoting the same customer different numbers. Rather than adding a column that
+       * only the list view shows, this uses the pipeline stage that already exists - so
+       * it shows up in the leads list, the dashboards, the sidebar badges and the date
+       * filters at once, with no new machinery.
+       *
+       * Only ever forwards. `won` and `lost` are decisions a human made after quoting,
+       * and re-saving a proposal must not drag a closed lead back into the pipeline.
+       *
+       * Both calls pass `req`. Without it Payload opens a SECOND database connection for
+       * each one, while the proposal's own transaction is still open and waiting on this
+       * hook - the two block each other until the pool times out. The first version of
+       * this hook hung for five minutes on a one-row update, which is the same deadlock
+       * the login audit hit (see Users.ts). Passing `req` joins the existing transaction.
+       */
+      async ({ doc, req, operation }) => {
+        const OPEN_BEFORE_QUOTED = [
+          'new',
+          'assigned',
+          'reassigned',
+          'contacted',
+          'call-not-picked',
+        ];
+        const leadId = typeof doc.lead === 'object' ? doc.lead?.id : doc.lead;
+        if (!leadId || (operation !== 'create' && operation !== 'update')) return doc;
+        try {
+          const lead = await req.payload.findByID({
+            collection: 'leads',
+            id: leadId as string,
+            depth: 0,
+            overrideAccess: true,
+            req,
+          });
+          if (!OPEN_BEFORE_QUOTED.includes(String(lead.status))) return doc;
+          await req.payload.update({
+            collection: 'leads',
+            id: leadId as string,
+            data: { status: 'quoted' } as never,
+            overrideAccess: true,
+            req,
+          });
+        } catch (error) {
+          // Never fail saving a proposal because the lead could not be advanced; the
+          // proposal is the thing being written, the stage is a convenience.
+          req.payload.logger.error({ err: error }, 'proposal: could not mark lead quoted');
+        }
+        return doc;
       },
     ],
   },
@@ -305,6 +425,17 @@ export const Proposals: CollectionConfig = {
                       admin: { width: '34%', placeholder: '≈ 1,180 km' },
                     },
                   ],
+                },
+                {
+                  // Fills Distance from the From/To above. A proposal made from a lead
+                  // already has it; this is for the ones taken over the phone.
+                  name: 'measureDistance',
+                  type: 'ui',
+                  admin: {
+                    components: {
+                      Field: '/components/proposal/MeasureDistance#MeasureDistance',
+                    },
+                  },
                 },
                 {
                   name: 'svc',

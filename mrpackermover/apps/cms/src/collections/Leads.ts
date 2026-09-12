@@ -136,6 +136,15 @@ export const Leads: CollectionConfig = {
   },
   fields: [
     {
+      // Opens a new proposal pre-pointed at this lead. See components/leads/CreateProposal.
+      name: 'createProposal',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/leads/CreateProposal#CreateProposal' },
+      },
+    },
+    {
       type: 'row',
       fields: [
         { name: 'name', type: 'text', required: true, admin: { width: '50%' } },
@@ -162,6 +171,57 @@ export const Leads: CollectionConfig = {
       ],
     },
     { name: 'moveDate', type: 'date' },
+    {
+      /**
+       * What the customer was actually shown.
+       *
+       * The quote form prices the move in the browser and displays a range, but that
+       * figure was never sent anywhere - so a coordinator rang a customer who had a
+       * number in their head, with no idea what it was. Anchoring is the whole problem:
+       * if they saw 38,000 and you open at 52,000 the call is over before it starts.
+       *
+       * Read-only, and deliberately labelled as what the CUSTOMER SAW rather than as a
+       * price we stand behind. It arrives from the browser, so it is informational; the
+       * binding number is the one on the proposal.
+       */
+      type: 'collapsible',
+      label: 'What the customer was shown',
+      admin: { initCollapsed: false, condition: (data) => Boolean(data?.quotedLow) },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'quotedLow',
+              label: 'Estimate shown (low)',
+              type: 'number',
+              admin: { readOnly: true, width: '33%' },
+            },
+            {
+              name: 'quotedHigh',
+              label: 'Estimate shown (high)',
+              type: 'number',
+              admin: { readOnly: true, width: '33%' },
+            },
+            {
+              name: 'distanceKm',
+              label: 'Distance (km)',
+              type: 'number',
+              admin: { readOnly: true, width: '34%' },
+            },
+          ],
+        },
+        {
+          name: 'quoteBasis',
+          label: 'Priced on',
+          type: 'text',
+          admin: {
+            readOnly: true,
+            description: 'Truck size, route type and packing grade the estimate assumed.',
+          },
+        },
+      ],
+    },
     {
       // What the customer typed into "Anything else we should know?". Read-only because
       // it is their words, not ours: staff notes belong in the log below. This was being

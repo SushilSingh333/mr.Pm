@@ -4,6 +4,7 @@ import { searchEndpoint } from './search.js';
 import { trackEndpoint } from './track.js';
 import { applyEndpoint } from './apply.js';
 import { contactEndpoint } from './contact.js';
+import { routeDistanceEndpoint } from './route-distance.js';
 
 /**
  * Public Node endpoints served by the origin (Payload/Next), mounted under `/api`:
@@ -12,6 +13,9 @@ import { contactEndpoint } from './contact.js';
  *   GET  /api/track    → shipment status (stub until ops source is wired)
  *   POST /api/apply    → capture a job application into Job Applications
  *   POST /api/contact  → capture a contact message into Contact Messages
+ *
+ * Plus one staff-only route, mounted here because it shares the same plumbing:
+ *   GET  /api/route-distance → driving km between two places, for the proposal editor
  *
  * These replace the former Cloudflare Pages Functions now that the origin is a
  * single DigitalOcean droplet — no Workers, no Hyperdrive.
@@ -22,4 +26,5 @@ export const publicEndpoints: Endpoint[] = [
   trackEndpoint,
   applyEndpoint,
   contactEndpoint,
+  routeDistanceEndpoint,
 ];

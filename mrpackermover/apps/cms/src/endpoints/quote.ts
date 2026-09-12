@@ -29,6 +29,25 @@ interface QuoteBody {
   /** 'price-check' when it comes from the booking-bar "Check Price" (no name). */
   source?: string;
   turnstileToken?: string;
+  /**
+   * The estimate the browser displayed to this customer. Typed as unknown because it
+   * comes off the wire: the guards below decide whether any of it is usable.
+   */
+  quotedLow?: unknown;
+  quotedHigh?: unknown;
+  distanceKm?: unknown;
+  quoteBasis?: unknown;
+}
+
+/** A rupee figure we are willing to store: a positive whole number under 1 crore. */
+const money = (v: unknown): number | undefined => whole(v, 1, 10_000_000);
+
+/** Finite, whole, and inside the band - otherwise undefined rather than a guess. */
+function whole(v: unknown, min: number, max: number): number | undefined {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return undefined;
+  const r = Math.round(n);
+  return r >= min && r <= max ? r : undefined;
 }
 
 export const quoteEndpoint: Endpoint = {
@@ -87,6 +106,15 @@ export const quoteEndpoint: Endpoint = {
           // dropping them meant a coordinator had to ask all over again.
           email: (body.email ?? '').trim() || undefined,
           customerNote: (body.notes ?? '').trim() || undefined,
+          // What the browser showed the customer. Untrusted input, so it is bounded
+          // rather than believed: anyone can POST this endpoint directly, and a lead
+          // claiming a 1-rupee estimate would mislead the coordinator reading it.
+          // Out-of-range or non-numeric values are dropped, not clamped, because a
+          // silently corrected number is worse than no number.
+          quotedLow: money(body.quotedLow),
+          quotedHigh: money(body.quotedHigh),
+          distanceKm: whole(body.distanceKm, 1, 5000),
+          quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 120) || undefined,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,
         } as never,

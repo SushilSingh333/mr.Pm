@@ -22,6 +22,13 @@
  * other profiles Google may check to confirm this business is real, so a link to a
  * profile we no longer publish is worse there than no link at all.
  *
+ * And retires the pre-rename home hero upload. That photograph has the old logo
+ * printed on the uniform, the carton and the truck, so it contradicts every other
+ * thing on the page. Clearing the override hands the home page back to the committed
+ * artwork at /images/hero/home.*, which carries the new logo and ships responsive
+ * WebP variants the upload path does not. The field stays available, so an editor can
+ * set a new hero from the CMS whenever they like.
+ *
  * Idempotent: every step matches on what it is replacing, so a second run is a no-op.
  *
  * Usage (from apps/cms):  npx tsx src/scripts/rebrand.ts [--dry]
@@ -96,6 +103,34 @@ if (keptProfiles.length !== sameAs.length) {
       data: { sameAs: keptProfiles },
       overrideAccess: true,
     });
+  }
+}
+
+// ── Retire the pre-rename home hero ────────────────────────────────────────────
+//
+// Pinned to the exact filename rather than "clear whatever is set". A later upload is
+// a deliberate editorial choice and must survive a re-run of this script; only this
+// one obsolete file is targeted.
+const OLD_HERO_FILENAME = 'ChatGPT Image Sep 6, 2026, 09_34_44 AM';
+const home = await payload.findGlobal({ slug: 'home-content', overrideAccess: true, depth: 1 });
+// depth: 1 resolves the relationship to the document; a bare id means it could not be
+// read, in which case there is nothing safe to match on and the step is skipped.
+const currentHero = typeof home.heroImage === 'object' ? home.heroImage : null;
+const heroFilename = typeof currentHero?.filename === 'string' ? currentHero.filename : null;
+if (currentHero && heroFilename && heroFilename.startsWith(OLD_HERO_FILENAME)) {
+  report('home-content.heroImage', heroFilename, '(cleared - falls back to /images/hero/home)');
+  if (!DRY) {
+    await payload.updateGlobal({
+      slug: 'home-content',
+      data: { heroImage: null },
+      overrideAccess: true,
+    });
+    // Nothing else references it, and it is the last artwork carrying the old logo.
+    await payload
+      .delete({ collection: 'media', id: currentHero.id, overrideAccess: true })
+      .catch(() => {
+        /* the override is what mattered; an orphan row is harmless */
+      });
   }
 }
 

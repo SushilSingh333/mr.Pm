@@ -20,11 +20,11 @@
 interface Props {
   light?: boolean;
   href?: string;
-  /** Rendered width in px. Height follows the 3.168:1 artwork ratio. */
+  /** Rendered width in px. Height follows the 3.033:1 artwork ratio. */
   width?: number;
 }
 const { light = false, href = '/', width = 165 } = Astro.props;
-const height = Math.round((width / 640) * 202);
+const height = Math.round((width / 640) * 211);
 const src = light ? '/logo-inverse.png' : '/logo.png';
 ---
 

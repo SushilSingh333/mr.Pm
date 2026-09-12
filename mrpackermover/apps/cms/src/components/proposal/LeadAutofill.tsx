@@ -33,6 +33,19 @@ function normTruck(s: unknown): string | null {
   return m ? TRUCK.find((t) => t === `${m[1]} ft`) || null : null;
 }
 
+/**
+ * A query string carries ids as text, but this collection's ids are integers.
+ *
+ * Handing a relationship "43" where it expects 43 breaks it twice: the option lookup
+ * fails, so it renders as "Untitled - ID: 43", and validation rejects it on save with
+ * "The following field is invalid: Lead". The fill still worked, which is what made it
+ * look like a display glitch rather than a type mismatch.
+ *
+ * Only all-digit ids are converted, so a UUID or Mongo ObjectId still passes through
+ * untouched if this ever runs against a different database.
+ */
+const coerceId = (raw: string): string | number => (/^\d+$/.test(raw) ? Number(raw) : raw);
+
 function leadIdOf(v: unknown): string | number | null {
   if (v == null) return null;
   if (typeof v === 'object') {
@@ -127,7 +140,7 @@ export function LeadAutofill(): React.JSX.Element | null {
     if (!fromUrl) return;
     adopted.current = true;
     if (leadId) return;
-    lead.setValue(fromUrl);
+    lead.setValue(coerceId(fromUrl));
     // Fill immediately rather than waiting for the change effect below, which would
     // otherwise need another render to notice.
     void fill(fromUrl);

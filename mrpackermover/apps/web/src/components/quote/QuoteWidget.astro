@@ -305,7 +305,15 @@ const service = prefillService ?? '';
       const o = readInputs();
       const phone = o.phone.trim();
       const name = o.name.trim();
-      if (name.length < 2 || !/^[+0-9 ()-]{8,}$/.test(phone) || phone === lastSentPhone) return;
+      // Same ten-digit rule as the full form; see get-quote.astro for why.
+      const pDigits = phone.replace(/\D/g, '');
+      const pCore =
+        pDigits.length === 12 && pDigits.startsWith('91')
+          ? pDigits.slice(2)
+          : pDigits.length === 11 && pDigits.startsWith('0')
+            ? pDigits.slice(1)
+            : pDigits;
+      if (name.length < 2 || !/^[6-9]\d{9}$/.test(pCore) || phone === lastSentPhone) return;
       lastSentPhone = phone;
       try {
         void fetch('/api/quote', {

@@ -1,4 +1,7 @@
 ---
+// The id lives in pixel.ts, because the thank-you page needs the same one to attach
+// advanced matching, and two copies would drift apart without ever erroring.
+import { PIXEL_ID } from './pixel.js';
 /**
  * Third-party measurement: Google Analytics 4 and the Meta pixel. Both sit at the top
  * of <head> on every page so they fire before the rest of the document parses. Both
@@ -24,9 +27,6 @@ const GA_ENV = (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined)?
 const GA_ID = GA_ENV || 'G-942TQ0Y8G5';
 const enabled = import.meta.env.PROD && Boolean(GA_ID);
 
-// Same treatment: a blank env line must count as unset, not as an empty id.
-const PIXEL_ENV = (import.meta.env.PUBLIC_META_PIXEL_ID as string | undefined)?.trim();
-const PIXEL_ID = PIXEL_ENV || '1093567959717564';
 const pixelEnabled = import.meta.env.PROD && Boolean(PIXEL_ID);
 ---
 

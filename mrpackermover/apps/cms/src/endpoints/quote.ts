@@ -62,9 +62,28 @@ export const quoteEndpoint: Endpoint = {
     const source = body.source === 'price-check' ? 'price-check' : 'quote-form';
     const phone = (body.phone ?? '').trim();
     const name = (body.name ?? '').trim() || (source === 'price-check' ? 'Price check' : '');
-    const phoneOk = /^[+0-9 ()-]{8,}$/.test(phone);
+    /**
+     * A real Indian mobile, or nothing. This is the gate that matters - the forms check
+     * the same rule, but a form check is a courtesy to the person typing, and anything
+     * can POST here.
+     *
+     * The old rule was eight-or-more of almost any character, which let "00000000" and
+     * "1234567890" through as leads worth ringing. Ten digits is the whole of an Indian
+     * mobile; +91, a leading zero and any spacing are accepted and stripped, because that
+     * is how people type it. The first digit must be 6-9, which is the range India
+     * allocates mobiles in - that is what rejects 1234567890 while accepting every real
+     * number.
+     */
+    const phoneDigits = phone.replace(/\D/g, '');
+    const phoneCore =
+      phoneDigits.length === 12 && phoneDigits.startsWith('91')
+        ? phoneDigits.slice(2)
+        : phoneDigits.length === 11 && phoneDigits.startsWith('0')
+          ? phoneDigits.slice(1)
+          : phoneDigits;
+    const phoneOk = /^[6-9]\d{9}$/.test(phoneCore);
     if (!phoneOk || (source === 'quote-form' && name.length < 2)) {
-      return json({ error: 'A name and a valid phone are required' }, 422);
+      return json({ error: 'A name and a valid 10-digit mobile number are required' }, 422);
     }
 
     // A move date in the past is never real — it is a mis-tap or a bot. The forms set

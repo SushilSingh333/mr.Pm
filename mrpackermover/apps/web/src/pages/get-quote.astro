@@ -108,9 +108,12 @@ const assurances = [
                 id="q-phone"
                 name="phone"
                 type="tel"
-                inputmode="tel"
+                inputmode="numeric"
                 autocomplete="tel"
                 required
+                maxlength="10"
+                pattern="[6-9][0-9]{9}"
+                title="10-digit mobile number"
                 placeholder="10-digit mobile"
               />
             </div>
@@ -484,7 +487,25 @@ const assurances = [
       if (!document.getElementById('q-tlift-field')?.hidden) out.push('dropLift');
       return out;
     };
-    const phoneOk = (v: string): boolean => /^[+0-9 ()-]{8,}$/.test(v.trim());
+    /**
+     * A real Indian mobile, or nothing.
+     *
+     * The old rule was `/^[+0-9 ()-]{8,}$/` - eight or more of almost any character - which
+     * accepted "00000000", "1234567890" and a phone number with a digit missing. Every one of
+     * those reaches a salesperson as a lead worth calling, and none of them can be rung.
+     *
+     * Ten digits is the whole of an Indian mobile number. `+91`, a leading 0 and any spaces,
+     * dashes or brackets are accepted and stripped, because that is how people type it. The
+     * first digit must be 6-9: India allocates mobile numbers only in that range, so this is
+     * what rejects 1234567890 while accepting every genuine number.
+     */
+    const phoneDigits = (v: string): string => {
+      const d = v.replace(/\D/g, '');
+      if (d.length === 12 && d.startsWith('91')) return d.slice(2);
+      if (d.length === 11 && d.startsWith('0')) return d.slice(1);
+      return d;
+    };
+    const phoneOk = (v: string): boolean => /^[6-9]\d{9}$/.test(phoneDigits(v));
 
     const clearError = (el: HTMLElement) => {
       el.removeAttribute('aria-invalid');
@@ -524,6 +545,10 @@ const assurances = [
 
       const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
       const phone = (form.elements.namedItem('phone') as HTMLInputElement).value.trim();
+      // Optional on the form. Travels to /thank-you for Meta advanced matching, where it
+      // is the strongest signal there is for matching this submission to a real person.
+      const email =
+        (form.elements.namedItem('email') as HTMLInputElement | null)?.value.trim() ?? '';
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -591,6 +616,9 @@ const assurances = [
           JSON.stringify({
             firstName: name.split(' ')[0],
             phone,
+            // Optional on the form, and the strongest signal Meta can match a person on,
+            // so it travels when it was given.
+            email,
             text: est?.text,
             meta: est?.meta,
           }),

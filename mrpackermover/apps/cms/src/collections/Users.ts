@@ -134,10 +134,21 @@ export const Users: CollectionConfig = {
       name: 'role',
       type: 'select',
       required: true,
-      defaultValue: 'editor',
+      /**
+       * What the form shows has to match what will actually be saved.
+       *
+       * The field is admin-only to write, so a handler gets it read-only - and it sat
+       * there reading "Editor", the static default, while `beforeValidate` below quietly
+       * forced every user they created to `sales`. The form said one thing and the
+       * database got another, which is why adding a salesperson looked broken when it
+       * had in fact worked every time.
+       */
+      defaultValue: ({ user }: { user?: { role?: string } | null }) =>
+        user?.role === 'handler' ? 'sales' : 'editor',
       access: { create: roleFieldAccess, update: roleFieldAccess },
       admin: {
-        description: 'Handler sees every lead and distributes them. Sales sees only their own.',
+        description:
+          'Handler sees every lead and distributes them. Sales sees only their own. Only an admin can change this; a handler always creates salespeople.',
       },
       options: [
         { label: 'Admin', value: 'admin' },

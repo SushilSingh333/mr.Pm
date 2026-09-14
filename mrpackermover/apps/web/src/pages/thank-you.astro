@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { staticRow } from '../lib/page.js';
 import { PHONE_TEL, PHONE_DISPLAY } from '../lib/site.js';
+import { PIXEL_ID } from '../components/seo/pixel.js';
 
 /**
  * Where the quote form lands once a lead is saved.
@@ -34,6 +35,66 @@ const row = staticRow({
 ---
 
 <BaseLayout row={row}>
+  {
+    /*
+    Meta conversion tracking, in <head> so it runs before the page renders and - more
+    importantly - so advanced matching is set BEFORE any event is tracked. An event fired
+    ahead of the matching data carries none of it.
+
+    `is:inline` because Astro would otherwise bundle this into a deferred module, which
+    would run after the body and lose that ordering.
+
+    Advanced matching sends the customer's own email, phone and first name. The pixel
+    hashes each one with SHA-256 in the browser before anything leaves the page - Meta
+    never receives the plain values - and it is what lets a submission be matched to a
+    real person, which is the difference between a reported conversion and a guess. The
+    values come from the handoff the form wrote; nothing is invented, and when a field was
+    left blank it is simply omitted.
+
+    Normalised first, because Meta hashes exactly what it is given: an untrimmed
+    "Ravi " and "ravi" hash to different strings and stop matching each other.
+  */
+  }
+  <script
+    slot="head"
+    is:inline
+    set:html={`(function () {
+  if (typeof fbq !== 'function') return;
+
+  var d = {};
+  try {
+    // Read without clearing - the body script below consumes it for the wording.
+    var raw = sessionStorage.getItem('mpm:quote-result');
+    if (raw) d = JSON.parse(raw) || {};
+  } catch (e) {
+    /* private mode: fall through with no matching data rather than failing */
+  }
+
+  var am = {};
+  if (d.email) am.em = String(d.email).trim().toLowerCase();
+  if (d.firstName) am.fn = String(d.firstName).trim().toLowerCase();
+  if (d.phone) {
+    // Meta wants digits only, with the country code and no punctuation.
+    // A character class, not the backslash-D shorthand. This whole script lives inside
+    // a template literal, which swallows the backslash of an unknown escape: the built
+    // page ended up with a regex matching the letter D, which strips no punctuation at
+    // all and leaves it in the number. Nothing here can contain a backslash.
+    var digits = String(d.phone).replace(/[^0-9]/g, '');
+    if (digits.length === 10) digits = '91' + digits;
+    else if (digits.length === 11 && digits.charAt(0) === '0') digits = '91' + digits.slice(1);
+    if (digits.length >= 11) am.ph = digits;
+  }
+
+  // Re-init the same pixel to attach the matching data. Only when there is some: an init
+  // carrying empty strings is worse than none, because Meta hashes them and tries to
+  // match on the result.
+  if (Object.keys(am).length > 0) fbq('init', '${PIXEL_ID}', am);
+
+  fbq('track', 'Lead');
+  fbq('track', 'CompleteRegistration');
+})();`}
+  />
+
   <section class="ty">
     <div class="container-page ty-inner">
       <span class="ty-tick" aria-hidden="true">
@@ -130,29 +191,10 @@ const row = staticRow({
   }
 
   /*
-    The conversion. Fired here rather than on submit because this page only loads when a
-    lead was actually saved - a failed POST never gets here, so the number Meta reports
-    matches the number of leads in the CMS.
-
-    Standard `Lead`, because Meta's optimisation works best against its own events.
-
-    This was briefly sent as a custom `QuoteRequest` alongside it. Pixel 2449888552206436
-    refused the standard event - nothing left the browser and the console said "You are
-    attempting to send a restricted event. The event was suppressed." - so a custom event
-    was the only thing that would transmit. Pixel 1093567959717564 accepts `Lead`
-    normally, verified on the live domain before the switch:
-
-      fbq('trackSingle','1093567959717564','Lead')
-        -> https://www.facebook.com/tr/?id=1093567959717564&ev=Lead  [200]
-
-    So the workaround is gone. Leaving both in place would have invited a Custom
-    Conversion on `QuoteRequest` next to a standard Lead conversion, which is two
-    conversions counted for one customer.
-
-    Guarded: the pixel is production-only, so `fbq` is undefined in dev and preview.
+    The conversion events used to fire from here. They are in <head> now, so that Meta
+    advanced matching is attached before anything is tracked - see the script above.
+    Firing here as well would send every conversion twice.
   */
-  const w = window as unknown as { fbq?: (...args: unknown[]) => void };
-  if (typeof w.fbq === 'function') w.fbq('track', 'Lead');
 </script>
 
 <style>

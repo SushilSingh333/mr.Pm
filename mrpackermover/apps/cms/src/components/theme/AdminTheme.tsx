@@ -258,18 +258,19 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
   transition:transform .12s ease, background .12s ease, border-color .12s ease;
 }
 .mpm-dial__btn:active{ transform:scale(.9); }
+/* Filled, with a white glyph. These were tinted outlines, which read as secondary next
+   to everything else on a lead card - and a call button is the one thing on that card
+   anybody is trying to press. Both are filled rather than only the call button: one solid
+   and one outlined would look like one of them had been missed. */
 .mpm-dial__btn--call{
-  color:var(--mpm-v-600);
-  border-color:color-mix(in srgb, var(--mpm-v-500) 34%, transparent);
-  background:color-mix(in srgb, var(--mpm-v-500) 10%, transparent);
+  color:#fff; border-color:transparent; background:var(--mpm-grad);
+  box-shadow:0 6px 14px -8px color-mix(in srgb, var(--mpm-v-700) 85%, transparent);
 }
 .mpm-dial__btn--wa{
-  color:#0E8F6B;
-  border-color:color-mix(in srgb, #25D366 40%, transparent);
-  background:color-mix(in srgb, #25D366 13%, transparent);
+  color:#fff; border-color:transparent; background:linear-gradient(140deg,#3DDC84,#1EA65C);
+  box-shadow:0 6px 14px -8px rgba(13,110,66,.8);
 }
-html[data-theme="dark"] .mpm-dial__btn--call{ color:var(--mpm-v-400); }
-html[data-theme="dark"] .mpm-dial__btn--wa{ color:#3DDC84; }
+.mpm-dial__btn--call:hover,.mpm-dial__btn--wa:hover{ filter:brightness(1.06); }
 .mpm-dial--field .mpm-dial__btn{ width:44px; height:44px; }
 .mpm-dial-field{ margin:-.35rem 0 1.1rem; }
 
@@ -450,6 +451,22 @@ html[data-theme="dark"] .mpm-dial__btn--wa{ color:#3DDC84; }
      .hamburger__open-icon white instead - that is an 18px box behind the glyph, so the
      result was a white square inside the violet tile with the default dark-grey bars
      still sitting on it, rather than white bars on violet. */
+  /* The bar was exactly as tall as the button inside it - 44.3px of header around a 44px
+     hamburger - so the tile sat at top:0, touching the edge of the screen, and on a
+     notched phone partly under the status bar.
+     Padding alone did nothing: the header has an explicit height and border-box sizing,
+     so the padding was absorbed and the tile still overflowed to the top. The height is
+     what has to change, and it comes from a variable Payload derives everything else
+     from, so raising it moves the logo and the avatar with it instead of leaving the
+     button floating on its own.
+     env() adds the notch inset where there is one and resolves to 0 everywhere else. */
+  html[data-theme="light"], html[data-theme="dark"]{
+    --app-header-height:calc(var(--base) * 3.4 + env(safe-area-inset-top, 0px));
+  }
+  .app-header__content{
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top, 0px);
+  }
   button.nav-toggler.app-header__mobile-nav-toggler{ width:44px; height:44px; border:0; padding:0; }
   button.nav-toggler.app-header__mobile-nav-toggler .hamburger{
     width:44px; height:44px; display:grid; place-items:center;

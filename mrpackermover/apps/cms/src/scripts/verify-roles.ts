@@ -102,6 +102,23 @@ try {
 
   const asUser = (u: unknown) => ({ overrideAccess: false, user: u as never });
 
+  /*
+   * Make sure the fixture starts with no owner.
+   *
+   * Round-robin routing hands a new lead to somebody the moment it is created, so with
+   * that switched on this lead was born assigned and the check below - which is about a
+   * FIRST assignment - saw "reassigned" and failed. The test was silently depending on a
+   * setting it never looked at. Reset rather than turning the feature off: this script
+   * can be pointed at a real database, and it has no business changing how that business
+   * shares out its leads.
+   */
+  await payload.update({
+    collection: 'leads',
+    id: lead.id,
+    overrideAccess: true,
+    data: { assignedTo: null, status: 'new' } as never,
+  });
+
   /* ── Assignment moves the status, and records who and when ─────────────── */
   const assigned = (await payload.update({
     collection: 'leads',

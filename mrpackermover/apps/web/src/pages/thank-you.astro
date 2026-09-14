@@ -134,6 +134,21 @@ const row = staticRow({
     lead was actually saved - a failed POST never gets here, so the number Meta reports
     matches the number of leads in the CMS.
 
+    Standard `Lead`, because Meta's optimisation works best against its own events.
+
+    This was briefly sent as a custom `QuoteRequest` alongside it. Pixel 2449888552206436
+    refused the standard event - nothing left the browser and the console said "You are
+    attempting to send a restricted event. The event was suppressed." - so a custom event
+    was the only thing that would transmit. Pixel 1093567959717564 accepts `Lead`
+    normally, verified on the live domain before the switch:
+
+      fbq('trackSingle','1093567959717564','Lead')
+        -> https://www.facebook.com/tr/?id=1093567959717564&ev=Lead  [200]
+
+    So the workaround is gone. Leaving both in place would have invited a Custom
+    Conversion on `QuoteRequest` next to a standard Lead conversion, which is two
+    conversions counted for one customer.
+
     Guarded: the pixel is production-only, so `fbq` is undefined in dev and preview.
   */
   const w = window as unknown as { fbq?: (...args: unknown[]) => void };

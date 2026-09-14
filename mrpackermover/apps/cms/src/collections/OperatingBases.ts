@@ -16,7 +16,13 @@ export const OperatingBases: CollectionConfig = {
   admin: {
     hidden: hideFromSalesRoles,
     useAsTitle: 'label',
-    group: 'Internal, never rendered',
+    // Grouped with the other geography. The old label, "Internal, never rendered",
+    // was a note to whoever maintains this collection - it means these bases never
+    // appear on the public site - and it read as one in the sidebar. Now that the
+    // nav groups start collapsed the whole list is on screen at once, and a
+    // developer's aside sat in it as a heading. The warning it carried is already
+    // in the description below, which is where it belongs.
+    group: 'Geography',
     description: 'Dispatch geography only. Feeds the publish gate. Never shown on the site.',
   },
   access: {

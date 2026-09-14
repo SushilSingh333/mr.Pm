@@ -613,7 +613,7 @@ export const Proposals: CollectionConfig = {
                       name: 'phone',
                       type: 'text',
                       label: 'Phone / WhatsApp',
-                      defaultValue: '+91 87960 92007',
+                      defaultValue: '+91 80903 43030',
                       admin: { width: '50%' },
                     },
                     {

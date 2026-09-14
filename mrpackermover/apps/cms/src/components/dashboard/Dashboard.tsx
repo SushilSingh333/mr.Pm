@@ -1,6 +1,9 @@
 import type { Payload } from 'payload';
 import Link from 'next/link';
 import { LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
+import { PhoneButtons } from '../leads/PhoneActions.js';
+import { loadRouting } from './lead-routing.js';
+import { RoundRobin } from './RoundRobin.js';
 import { SalesDashboard } from './SalesDashboard.js';
 
 /**
@@ -230,6 +233,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
     guides,
     faqs,
     jobStatsRaw,
+    routing,
   ] = await Promise.all([
     Promise.all(LEAD_STATUS.map((s) => count('leads', { status: { equals: s.value } }))),
     // Show only the 5 most recent here; the "open →" link goes to the full leads list.
@@ -246,6 +250,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
     count('guides'),
     count('faqs'),
     findDocs('jobs-stats', { limit: 500, depth: 0 }),
+    loadRouting(payload, user as { id?: string | number; role?: string }),
   ]);
 
   const leads = LEAD_STATUS.map((s, i) => ({ ...s, count: leadByStatus[i] ?? 0 }));
@@ -380,7 +385,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
         })}
       </div>
 
-      {/* Sales: pipeline + recent leads */}
+      {/* Sales: pipeline + how leads get shared out */}
       <div className="mpm-grid">
         <section className="mpm-card">
           <div className="mpm-card__head">
@@ -415,64 +420,72 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
           )}
         </section>
 
-        <section className="mpm-card">
-          <div className="mpm-card__head">
-            <h3>
-              <span className="mpm-card__ico" aria-hidden="true">
-                {ICONS.list}
-              </span>
-              Recent leads
-            </h3>
-            <Link href="/admin/collections/leads" className="mpm-muted mpm-link">
-              open →
-            </Link>
-          </div>
-          {recentLeads.length === 0 ? (
-            <p className="mpm-empty">Nothing yet.</p>
-          ) : (
-            <ul className="mpm-rows">
-              {recentLeads.map((l) => {
-                const meta = statusMeta(l.status);
-                return (
-                  <li key={String(l.id)} className="mpm-row">
-                    <span className="mpm-avatar" aria-hidden="true">
-                      {initial(l.name)}
-                    </span>
-                    <Link href={`/admin/collections/leads/${l.id}`} className="mpm-row__main">
-                      <span className="mpm-row__name">{l.name || 'Unnamed'}</span>
-                      <span className="mpm-row__meta">
-                        {[l.service, l.pickup].filter(Boolean).join(' · ') || l.phone || '—'}
-                      </span>
-                    </Link>
-                    <span className="mpm-badge" style={{ ['--c' as string]: meta.color }}>
-                      {meta.label}
-                    </span>
-                    {/* Arrival on top, hand-over underneath: an assigned lead is judged
-                        by how long its owner has had it, not by when it came in. */}
-                    <span className="mpm-row__time" title={`Received ${exactTime(l.createdAt)}`}>
-                      {timeAgo(l.createdAt)}
-                      {l.assignedAt && (
-                        <span
-                          className="mpm-row__sub"
-                          title={`Assigned ${exactTime(l.assignedAt)}${
-                            (l.assignedByName ?? ownerName(l.assignedBy))
-                              ? ` by ${l.assignedByName ?? ownerName(l.assignedBy)}`
-                              : ''
-                          }`}
-                        >
-                          {ownerName(l.assignedTo)
-                            ? `${ownerName(l.assignedTo)} · ${timeAgo(l.assignedAt)}`
-                            : `assigned ${timeAgo(l.assignedAt)}`}
-                        </span>
-                      )}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
+        {/* Admins get the same auto-assign control a handler has. */}
+        {routing && <RoundRobin {...routing} />}
       </div>
+
+      {/* The lead list is the widest thing here, so it gets the full width and runs in
+          two columns rather than leaving half the row empty beside the pipeline. */}
+      <section className="mpm-card mpm-span3">
+        <div className="mpm-card__head">
+          <h3>
+            <span className="mpm-card__ico" aria-hidden="true">
+              {ICONS.list}
+            </span>
+            Recent leads
+          </h3>
+          <Link href="/admin/collections/leads" className="mpm-muted mpm-link">
+            open →
+          </Link>
+        </div>
+        {recentLeads.length === 0 ? (
+          <p className="mpm-empty">Nothing yet.</p>
+        ) : (
+          <ul className="mpm-rows">
+            {recentLeads.map((l) => {
+              const meta = statusMeta(l.status);
+              return (
+                <li key={String(l.id)} className="mpm-row mpm-row--lead">
+                  <span className="mpm-avatar" aria-hidden="true">
+                    {initial(l.name)}
+                  </span>
+                  <Link href={`/admin/collections/leads/${l.id}`} className="mpm-row__main">
+                    <span className="mpm-row__name">{l.name || 'Unnamed'}</span>
+                    <span className="mpm-row__meta">
+                      {[l.service, l.pickup].filter(Boolean).join(' · ') || 'No details yet'}
+                    </span>
+                  </Link>
+                  <span className="mpm-row__dial">
+                    <PhoneButtons phone={l.phone} />
+                  </span>
+                  <span className="mpm-badge" style={{ ['--c' as string]: meta.color }}>
+                    {meta.label}
+                  </span>
+                  {/* Arrival on top, hand-over underneath: an assigned lead is judged
+                      by how long its owner has had it, not by when it came in. */}
+                  <span className="mpm-row__time" title={`Received ${exactTime(l.createdAt)}`}>
+                    {timeAgo(l.createdAt)}
+                    {l.assignedAt && (
+                      <span
+                        className="mpm-row__sub"
+                        title={`Assigned ${exactTime(l.assignedAt)}${
+                          (l.assignedByName ?? ownerName(l.assignedBy))
+                            ? ` by ${l.assignedByName ?? ownerName(l.assignedBy)}`
+                            : ''
+                        }`}
+                      >
+                        {ownerName(l.assignedTo)
+                          ? `${ownerName(l.assignedTo)} · ${timeAgo(l.assignedAt)}`
+                          : `assigned ${timeAgo(l.assignedAt)}`}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
       {/* Careers + Inbox */}
       <div className="mpm-grid">
@@ -620,31 +633,66 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
 export const CSS = `
 .mpm-dash {
   --v-100:#ECE8FB; --v-300:#A99BF0; --v-400:#8B7CF0; --v-500:#6D5AE6; --v-600:#5A46D6; --v-700:#4A38B5;
-  --ico-bg:#17162A; --ico-fg:#ffffff;
+  /* Surfaces and ink come from the admin theme, which sets them per theme with real
+     separation between layers. Payload's own elevation tokens sit within a few percent
+     of white in light mode - right for a dense table on a white page, and the reason
+     this dashboard read as washed out: pale labels on a white card on a near-white
+     background, with nothing to tell the three apart. The fallbacks keep the old
+     appearance if these rules are ever rendered without the theme provider. */
+  --ink:var(--mpm-ink, var(--theme-elevation-1000));
+  --ink-2:var(--mpm-ink-2, var(--theme-elevation-600));
+  --ink-3:var(--mpm-ink-3, var(--theme-elevation-500));
+  --line:var(--mpm-line, var(--theme-elevation-100));
+  --paper:var(--mpm-paper, var(--theme-elevation-0));
+  /* The brand gradient in BOTH modes. This used to be a near-black tile by default
+     with the gradient applied only under [data-theme=dark] - so light mode, which
+     is the default, got heavy black circles while dark mode got the brand. */
+  --ico-bg:linear-gradient(140deg,var(--v-400),var(--v-600)); --ico-fg:#ffffff;
   --card-radius:20px;
   --card-shadow:0 18px 40px -24px color-mix(in srgb, var(--v-700) 55%, transparent), 0 2px 6px -2px rgba(20,18,45,.05);
   padding: 1.9rem clamp(1rem, 4vw, 2.5rem) 3.5rem;
   max-width: 1240px; margin-inline: auto;
   background: radial-gradient(120% 340px at 78% -40px, color-mix(in srgb, var(--v-500) 16%, var(--theme-bg)) 0%, transparent 70%), var(--theme-bg);
 }
-[data-theme="dark"] .mpm-dash { --ico-bg:linear-gradient(140deg,var(--v-400),var(--v-600)); }
+/* Lifted a step in dark mode so the tile still separates from a dark card. */
+[data-theme="dark"] .mpm-dash { --ico-bg:linear-gradient(140deg,var(--v-300),var(--v-500)); }
 
 .mpm-dash__head { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
-.mpm-dash__title { margin:0; font-size:1.7rem; line-height:1.05; letter-spacing:-.02em; font-weight:800; color:var(--theme-elevation-1000); }
-.mpm-dash__sub { margin:.4rem 0 0; color:var(--theme-elevation-600); font-size:.85rem; }
+@media (max-width:520px){
+  .mpm-dash__head{ align-items:stretch; gap:.7rem; margin-bottom:1rem; }
+  .mpm-dash__cta{ justify-content:center; }
+  .mpm-dash__title{ font-size:1.5rem; }
+}
+.mpm-dash__title { margin:0; font-size:1.7rem; line-height:1.05; letter-spacing:-.02em; font-weight:800; color:var(--ink); }
+.mpm-dash__sub { margin:.4rem 0 0; color:var(--ink-2); font-size:.85rem; }
 .mpm-dash__cta { display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:600; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); padding:.62rem 1.05rem; border-radius:99px; text-decoration:none; white-space:nowrap; box-shadow:0 10px 22px -12px color-mix(in srgb, var(--v-600) 80%, transparent); transition:transform .12s, box-shadow .12s; }
 .mpm-dash__cta:hover { transform:translateY(-1px); box-shadow:0 14px 26px -12px color-mix(in srgb, var(--v-600) 90%, transparent); }
 .mpm-dash__cta svg { width:15px; height:15px; }
 
 .mpm-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.15rem; }
 @media (max-width:860px){ .mpm-kpis{ grid-template-columns:repeat(2,1fr); } }
-@media (max-width:520px){ .mpm-kpis{ grid-template-columns:1fr; } }
-.mpm-kpi { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; padding:1.15rem 1.2rem 1.25rem; background:var(--theme-elevation-0); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--theme-elevation-100)); border-radius:var(--card-radius); text-decoration:none; box-shadow:var(--card-shadow); transition:transform .14s, box-shadow .14s, border-color .14s; }
+/* Stay two-up on a phone, and shrink the card rather than the count.
+   One column meant six full-width cards of ~215px each - most of a screen per number,
+   and a long scroll before the pipeline or the recent leads came into view. Two-up with
+   tighter padding fits four figures above the fold, which is what the dashboard is for.
+   The hero keeps the full width: it is the one number that should dominate. */
+@media (max-width:520px){
+  .mpm-kpis{ grid-template-columns:repeat(2,1fr); gap:.6rem; }
+  .mpm-kpi{ padding:.85rem .8rem .9rem; gap:.2rem; border-radius:14px; }
+  .mpm-kpi--hero{ grid-column:1 / -1; }
+  .mpm-ico{ width:34px; height:34px; margin-bottom:.35rem; }
+  .mpm-ico svg{ width:16px; height:16px; }
+  .mpm-kpi__label{ font-size:.62rem; letter-spacing:.06em; }
+  .mpm-kpi__value{ font-size:1.65rem; }
+  .mpm-kpi--hero .mpm-kpi__value{ font-size:2rem; }
+  .mpm-kpi__hint{ font-size:.7rem; }
+}
+.mpm-kpi { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; padding:1.15rem 1.2rem 1.25rem; background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:var(--card-radius); text-decoration:none; box-shadow:var(--card-shadow); transition:transform .14s, box-shadow .14s, border-color .14s; }
 a.mpm-kpi:hover { transform:translateY(-3px); border-color:color-mix(in srgb, var(--v-500) 45%, transparent); box-shadow:0 22px 44px -22px color-mix(in srgb, var(--v-700) 70%, transparent); }
-.mpm-kpi--hot { background:color-mix(in srgb, var(--v-500) 6%, var(--theme-elevation-0)); border-color:color-mix(in srgb, var(--v-500) 26%, transparent); }
-.mpm-kpi__label { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; color:var(--theme-elevation-600); font-weight:600; }
-.mpm-kpi__value { font-size:2.15rem; font-weight:800; line-height:1; letter-spacing:-.02em; color:var(--theme-elevation-1000); }
-.mpm-kpi__hint { font-size:.74rem; color:var(--theme-elevation-500); }
+.mpm-kpi--hot { background:color-mix(in srgb, var(--v-500) 6%, var(--paper)); border-color:color-mix(in srgb, var(--v-500) 26%, transparent); }
+.mpm-kpi__label { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-2); font-weight:600; }
+.mpm-kpi__value { font-size:2.15rem; font-weight:800; line-height:1; letter-spacing:-.02em; color:var(--ink); }
+.mpm-kpi__hint { font-size:.74rem; color:var(--ink-3); }
 
 .mpm-ico { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; margin-bottom:.55rem; background:var(--ico-bg); color:var(--ico-fg); flex:none; }
 .mpm-ico svg { width:20px; height:20px; }
@@ -658,51 +706,182 @@ a.mpm-kpi--hero:hover { border:none; box-shadow:0 26px 52px -20px color-mix(in s
 .mpm-ico--ghost { background:rgba(255,255,255,.20); color:#fff; }
 .mpm-kpi__glow { position:absolute; right:-40px; top:-56px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.28), transparent 62%); pointer-events:none; }
 
-.mpm-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+/* align-items:start so a short card keeps its own height. Stretching left the pipeline
+   card with a third of its body empty, matched to whatever the queue beside it happened
+   to contain. */
+.mpm-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; align-items:start; }
 @media (max-width:1000px){ .mpm-grid{ grid-template-columns:1fr; } }
 
-.mpm-card { background:var(--theme-elevation-0); border:1px solid color-mix(in srgb, var(--v-500) 9%, var(--theme-elevation-100)); border-radius:var(--card-radius); padding:1.35rem 1.45rem 1.45rem; box-shadow:var(--card-shadow); }
+.mpm-card { background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 9%, var(--line)); border-radius:var(--card-radius); padding:1.35rem 1.45rem 1.45rem; box-shadow:var(--card-shadow); }
 .mpm-card__head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-bottom:1.05rem; }
-.mpm-card__head h3 { display:flex; align-items:center; gap:.55rem; margin:0; font-size:1.02rem; font-weight:700; letter-spacing:-.01em; color:var(--theme-elevation-1000); }
+.mpm-card__head h3 { display:flex; align-items:center; gap:.55rem; margin:0; font-size:1.02rem; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
 .mpm-card__ico { display:grid; place-items:center; width:30px; height:30px; border-radius:9px; background:color-mix(in srgb, var(--v-500) 13%, transparent); color:var(--v-500); flex:none; }
 .mpm-card__ico svg { width:17px; height:17px; }
 [data-theme="dark"] .mpm-card__ico { color:var(--v-300); background:color-mix(in srgb, var(--v-400) 22%, transparent); }
-.mpm-muted { color:var(--theme-elevation-500); font-size:.78rem; }
+.mpm-muted { color:var(--ink-3); font-size:.78rem; }
 .mpm-link { text-decoration:none; } .mpm-link:hover { color:var(--v-500); }
-.mpm-empty { color:var(--theme-elevation-500); font-size:.85rem; margin:.4rem 0 0; }
-.mpm-note { color:var(--theme-elevation-500); font-size:.78rem; margin:1rem 0 0; line-height:1.55; }
-.mpm-note strong { color:var(--theme-elevation-800); }
+.mpm-empty { color:var(--ink-3); font-size:.85rem; margin:.4rem 0 0; }
+.mpm-note { color:var(--ink-3); font-size:.78rem; margin:1rem 0 0; line-height:1.55; }
+.mpm-note strong { color:var(--ink-2); }
 
 .mpm-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin-bottom:1.1rem; }
-.mpm-mini__stat { display:flex; flex-direction:column; align-items:center; gap:.2rem; padding:.85rem .4rem; background:color-mix(in srgb, var(--v-500) 5%, var(--theme-elevation-0)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--theme-elevation-100)); border-radius:14px; text-decoration:none; transition:border-color .12s, transform .12s; }
+.mpm-mini__stat { display:flex; flex-direction:column; align-items:center; gap:.2rem; padding:.85rem .4rem; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; text-decoration:none; transition:border-color .12s, transform .12s; }
 a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, transparent); transform:translateY(-1px); }
-.mpm-mini__value { font-size:1.55rem; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--theme-elevation-1000); }
-.mpm-mini__label { font-size:.7rem; color:var(--theme-elevation-600); }
+.mpm-mini__value { font-size:1.55rem; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--ink); }
+.mpm-mini__label { font-size:.7rem; color:var(--ink-2); }
 
 .mpm-bars { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.75rem; }
 .mpm-bars--tight { gap:.55rem; }
 .mpm-bar { display:grid; grid-template-columns:104px 1fr 40px; align-items:center; gap:.65rem; }
-.mpm-bar__label { display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--theme-elevation-800); }
+.mpm-bar__label { display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--ink-2); }
 .mpm-bar__label i { width:9px; height:9px; border-radius:50%; flex:none; }
-.mpm-bar__track { height:9px; border-radius:99px; background:color-mix(in srgb, var(--v-500) 12%, var(--theme-elevation-100)); overflow:hidden; }
+.mpm-bar__track { height:9px; border-radius:99px; background:color-mix(in srgb, var(--v-500) 12%, var(--line)); overflow:hidden; }
 .mpm-bar__fill { display:block; height:100%; border-radius:99px; min-width:3px; }
-.mpm-bar__count { text-align:right; font-weight:700; font-size:.88rem; color:var(--theme-elevation-1000); }
+.mpm-bar__count { text-align:right; font-weight:700; font-size:.88rem; color:var(--ink); }
 
 .mpm-rows { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
-.mpm-rows--sep { margin-top:1.1rem; padding-top:.5rem; border-top:1px dashed var(--theme-elevation-150); }
-.mpm-row { display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:.7rem; padding:.55rem 0; border-top:1px solid var(--theme-elevation-100); }
+.mpm-rows--sep { margin-top:1.1rem; padding-top:.5rem; border-top:1px dashed var(--line); }
+/* Five columns now: avatar, who, dial, stage, age. A row that has nothing to dial
+   leaves the third column at zero width rather than needing a layout of its own. */
+.mpm-row { display:grid; grid-template-columns:auto 1fr auto auto auto; align-items:center; gap:.7rem; padding:.55rem 0; border-top:1px solid var(--line); }
+.mpm-row__dial { display:inline-flex; align-items:center; }
+/* Lead rows get fixed tracks for the trailing three columns. Each row is its own grid,
+   so with auto tracks the dial buttons landed at a different x on every line - a row
+   with NEW sat further right than the one above it with REASSIGNED. The stage column is
+   sized for the longest label there is ("Call not picked"). */
+.mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 6.6rem 6rem; }
+.mpm-row--lead .mpm-badge { justify-self:center; text-align:center; }
+.mpm-row--lead .mpm-row__time { justify-self:end; }
+.mpm-row__dial .mpm-dial__btn { width:30px; height:30px; }
+.mpm-row__dial .mpm-dial__btn svg { width:13px; height:13px; }
 .mpm-row:first-child { border-top:0; }
 .mpm-avatar { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; flex:none; font-size:.82rem; font-weight:700; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); }
 .mpm-row__main { display:flex; flex-direction:column; gap:.1rem; text-decoration:none; min-width:0; }
-.mpm-row__name { font-weight:600; font-size:.88rem; color:var(--theme-elevation-1000); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mpm-row__name { font-weight:600; font-size:.88rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mpm-row__main:hover .mpm-row__name { color:var(--v-500); }
-.mpm-row__meta { font-size:.74rem; color:var(--theme-elevation-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mpm-row__time { display:flex; flex-direction:column; align-items:flex-end; gap:.1rem; font-size:.72rem; color:var(--theme-elevation-450); white-space:nowrap; }
-.mpm-row__sub { font-size:.66rem; color:var(--v-500); font-weight:600; }
+.mpm-row__meta { font-size:.74rem; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mpm-row__time { display:flex; flex-direction:column; align-items:flex-end; gap:.1rem; font-size:.72rem; color:var(--ink-3); white-space:nowrap; }
+/* Wraps rather than running past the edge of the card: the time column is a fixed
+   track now, and "from Preeti Sharma · 5d ago" is wider than it. */
+.mpm-row__sub { font-size:.66rem; color:var(--v-500); font-weight:600; white-space:normal; text-align:right; line-height:1.3; }
 .mpm-badge { font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--c); background:color-mix(in srgb, var(--c) 14%, transparent); border:1px solid color-mix(in srgb, var(--c) 35%, transparent); padding:.15rem .5rem; border-radius:99px; white-space:nowrap; }
 
 .mpm-chips { display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:.75rem; }
-.mpm-chip { display:flex; flex-direction:column; align-items:center; gap:.25rem; padding:1rem .5rem; background:color-mix(in srgb, var(--v-500) 5%, var(--theme-elevation-0)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--theme-elevation-100)); border-radius:14px; }
-.mpm-chip__value { font-size:1.5rem; font-weight:800; letter-spacing:-.01em; color:var(--theme-elevation-1000); line-height:1; }
-.mpm-chip__label { font-size:.72rem; color:var(--theme-elevation-600); }
+.mpm-chip { display:flex; flex-direction:column; align-items:center; gap:.25rem; padding:1rem .5rem; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; }
+.mpm-chip__value { font-size:1.5rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); line-height:1; }
+.mpm-chip__label { font-size:.72rem; color:var(--ink-2); }
+
+/* ── A lead row on a phone ──────────────────────────────────────────────────
+   The fixed desktop tracks - 6.6rem of stage plus 6rem of age plus the dial buttons -
+   leave about 60px for the name at 390px, which rendered every customer as "SUS...".
+   Two lines instead: who and when on top, what to do underneath.
+
+   Named areas rather than the flex-wrap rules that used to live here. Those were written
+   when the row was a flex container; it has been a grid for a while, so flex-wrap and
+   flex-basis on its children had no effect at all and the row had quietly been
+   unresponsive. */
+@media (max-width:640px){
+  .mpm-row--lead{
+    grid-template-columns:auto minmax(0,1fr) auto;
+    grid-template-areas:
+      "av main time"
+      "av dial stage";
+    row-gap:.4rem; column-gap:.6rem; padding:.7rem 0;
+  }
+  .mpm-row--lead .mpm-avatar{ grid-area:av; align-self:start; }
+  .mpm-row--lead .mpm-row__main{ grid-area:main; }
+  .mpm-row--lead .mpm-row__time{ grid-area:time; justify-self:end; }
+  .mpm-row--lead .mpm-row__dial{ grid-area:dial; }
+  .mpm-row--lead .mpm-badge{ grid-area:stage; justify-self:end; align-self:center; }
+  .mpm-row--lead .mpm-row__name{ white-space:normal; }
+}
+
+.mpm-span3{grid-column:1/-1}
+/* The full-width card is wide enough for two columns of leads. One column left the
+   status chip and time stranded against the right edge with a large dead gap, and
+   showed half as many rows for the same height. Collapses back to one column when the
+   viewport cannot give each column a readable width. */
+.mpm-span3 .mpm-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:2.25rem}
+.mpm-span3 .mpm-row:nth-child(-n+2){border-top:0}
+@media (max-width:1100px){
+  .mpm-span3 .mpm-rows{grid-template-columns:1fr}
+  .mpm-span3 .mpm-row:nth-child(2){border-top:1px solid var(--line)}
+  .mpm-span3 .mpm-row:first-child{border-top:0}
+}
+
+/* ── Auto-assign card ──────────────────────────────────────────────────────
+   A switch and a set of names. It is a control rather than a chart, so it is the one
+   card here with an interactive element in its header. */
+.mpm-switch{
+  position:relative; flex:none; width:46px; height:26px; padding:0; cursor:pointer;
+  border:1px solid var(--line); border-radius:999px; background:var(--line);
+  transition:background .16s ease, border-color .16s ease;
+}
+.mpm-switch:disabled{ opacity:.6; cursor:progress; }
+.mpm-switch.is-on{ background:linear-gradient(140deg,var(--v-400),var(--v-600)); border-color:transparent; }
+.mpm-switch__knob{
+  position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 3px rgba(20,18,45,.35);
+  transition:transform .16s ease;
+}
+.mpm-switch.is-on .mpm-switch__knob{ transform:translateX(20px); }
+.mpm-switch:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
+
+.mpm-rr__lede{ margin:0 0 .85rem; font-size:.82rem; line-height:1.5; color:var(--ink-2); }
+/* The list stays on screen when the switch is off so the card keeps its height and you
+   can see who would receive leads before committing. Dimmed and inert, not hidden. */
+.mpm-rr__body{ transition:opacity .16s ease; }
+.mpm-rr__body.is-off{ opacity:.45; pointer-events:none; }
+.mpm-rr__list{ list-style:none; margin:0 0 .25rem; padding:0; display:flex; flex-direction:column; gap:.2rem; }
+.mpm-rr__row{
+  display:flex; align-items:center; gap:.6rem; min-height:38px;
+  padding:.3rem .5rem; border-radius:10px; cursor:pointer;
+  border:1px solid transparent; transition:background .12s ease, border-color .12s ease;
+}
+.mpm-rr__row:hover{ background:color-mix(in srgb, var(--v-500) 7%, transparent); }
+.mpm-rr__row.is-on{
+  background:color-mix(in srgb, var(--v-500) 9%, transparent);
+  border-color:color-mix(in srgb, var(--v-500) 22%, transparent);
+}
+.mpm-rr__row input{ width:17px; height:17px; accent-color:var(--v-500); flex:none; cursor:pointer; }
+.mpm-rr__name{ font-size:.88rem; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* Who the next lead goes to. The one thing on this card worth spotting at a glance. */
+.mpm-rr__next{
+  margin-left:auto; flex:none;
+  font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  padding:.16rem .45rem; border-radius:999px; color:#fff;
+  background:linear-gradient(140deg,var(--v-400),var(--v-600));
+}
+.mpm-rr__warn{ margin:.6rem 0 0; font-size:.78rem; line-height:1.5; color:var(--mpm-ember-ink,#C63F00); }
+.mpm-rr__note{ margin:.6rem 0 0; font-size:.75rem; line-height:1.5; color:var(--ink-3); }
+/* The footer carries the state of the card on the left and its commit on the right.
+   Nothing here writes until Done, so the buttons only exist while there is something
+   unsaved to write. */
+.mpm-rr__foot{
+  display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+  margin:.85rem 0 0; padding-top:.75rem; min-height:2.3rem;
+  border-top:1px solid var(--line);
+  font-size:.76rem; color:var(--ink-3);
+}
+.mpm-rr__status{ min-width:0; line-height:1.4; }
+.mpm-rr__saving{ display:inline-flex; align-items:center; gap:.35rem; color:var(--v-500); }
+.mpm-rr__error{ color:var(--mpm-ember-ink,#C63F00); }
+.mpm-rr__ok{ color:#1a9d5a; font-weight:600; }
+.mpm-rr__actions{ display:inline-flex; align-items:center; gap:.45rem; flex:none; }
+.mpm-rr__cancel{
+  border:1px solid var(--line); background:transparent; color:var(--ink-2);
+  font-size:.78rem; font-weight:600; padding:.4rem .75rem; border-radius:99px; cursor:pointer;
+  transition:border-color .12s ease, color .12s ease;
+}
+.mpm-rr__cancel:hover{ border-color:var(--v-500); color:var(--v-500); }
+.mpm-rr__done{
+  border:none; border-radius:99px; cursor:pointer;
+  background:linear-gradient(140deg,var(--v-400),var(--v-600)); color:#fff;
+  font-size:.78rem; font-weight:700; padding:.42rem 1.05rem;
+  box-shadow:0 8px 18px -10px color-mix(in srgb, var(--v-600) 90%, transparent);
+  transition:transform .12s ease, filter .12s ease;
+}
+.mpm-rr__done:hover:not(:disabled){ filter:brightness(1.07); transform:translateY(-1px); }
+.mpm-rr__done:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+.mpm-rr__cancel:focus-visible,.mpm-rr__done:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
 `;

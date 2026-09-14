@@ -105,8 +105,8 @@ export const CONTACT_LINK = {
 };
 
 /** Primary contact — click-to-call in the header + everywhere (user-provided). */
-export const PHONE_DISPLAY = '+91 87960 92007';
-export const PHONE_TEL = '+918796092007';
+export const PHONE_DISPLAY = '+91 80903 43030';
+export const PHONE_TEL = '+918090343030';
 export const EMAIL = 'shiftwith@mrmoverpacker.com';
 
 /** WhatsApp click-to-chat: same number, digits only (wa.me rejects "+" and spaces). */

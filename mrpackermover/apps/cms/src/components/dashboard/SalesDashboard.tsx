@@ -6,6 +6,9 @@ import Link from 'next/link';
 // lives in its own leaf module.
 import { CSS, ICONS, fmt, initial, safe, timeAgo } from './Dashboard.js';
 import { LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
+import { PhoneButtons } from '../leads/PhoneActions.js';
+import { loadRouting } from './lead-routing.js';
+import { RoundRobin } from './RoundRobin.js';
 
 /**
  * The dashboard the sales hierarchy sees, in two shapes.
@@ -51,6 +54,50 @@ const SALES_PIPELINE = [
     merge: [x.value],
   })),
 ];
+
+/**
+ * Where the leads came from. Values MUST match the `source` options on the Leads
+ * collection - a mismatch here shows as a permanent zero rather than an error, which is
+ * the failure mode that let the old dashboard label assigned leads "New" for weeks.
+ */
+const SOURCES = [
+  { value: 'quote-form', label: 'Quote form', color: '#6D5AE6' },
+  { value: 'price-check', label: 'Price check', color: '#8b6df0' },
+  { value: 'facebook-ad', label: 'Facebook ad', color: '#2f6df6' },
+  { value: 'webhook', label: 'Webhook', color: '#1a9d5a' },
+] as const;
+
+/** "18m", "2h 14m", "1d 3h" - the shape someone would say out loud. */
+function humanDuration(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) return '—';
+  const mins = Math.round(ms / 60000);
+  if (mins < 1) return 'under a minute';
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) {
+    const m = mins % 60;
+    return m ? `${hours}h ${m}m` : `${hours}h`;
+  }
+  const days = Math.floor(hours / 24);
+  const h = hours % 24;
+  return h ? `${days}d ${h}h` : `${days}d`;
+}
+
+/**
+ * Median, not mean.
+ *
+ * One lead that sat over a bank holiday weekend drags an average into uselessness, and
+ * the number is meant to answer "how long does a lead normally wait" - which is the
+ * middle of the distribution, not its centre of mass.
+ */
+function median(xs: number[]): number {
+  if (xs.length === 0) return NaN;
+  const sorted = [...xs].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2
+    ? (sorted[mid] ?? NaN)
+    : ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2;
+}
 
 /** Date windows offered on every leads view. `all` applies no constraint. */
 export const RANGES = [
@@ -120,11 +167,13 @@ interface UserRow {
  */
 function LeadRow({ lead, showOwner }: { lead: LeadDoc; showOwner: boolean }): React.JSX.Element {
   const meta = statusMeta(lead.status);
-  const detail = showOwner
-    ? [lead.service, ownerName(lead.assignedTo) || 'Unassigned'].filter(Boolean).join(' · ')
-    : [lead.service, lead.phone].filter(Boolean).join(' · ');
+  // The phone used to be printed into this line for salespeople. It is a dial button
+  // now, so the line is free to carry what the row was missing instead: who owns it.
+  const detail = [lead.service, showOwner ? ownerName(lead.assignedTo) || 'Unassigned' : '']
+    .filter(Boolean)
+    .join(' · ');
   return (
-    <li className="mpm-row">
+    <li className="mpm-row mpm-row--lead">
       <span className="mpm-avatar" aria-hidden="true">
         {initial(lead.name)}
       </span>
@@ -132,6 +181,9 @@ function LeadRow({ lead, showOwner }: { lead: LeadDoc; showOwner: boolean }): Re
         <span className="mpm-row__name">{lead.name || 'Unnamed'}</span>
         <span className="mpm-row__meta">{detail || 'No details yet'}</span>
       </Link>
+      <span className="mpm-row__dial">
+        <PhoneButtons phone={lead.phone} />
+      </span>
       <span className="mpm-badge" style={{ ['--c' as string]: meta.color }}>
         {meta.label}
       </span>
@@ -142,7 +194,10 @@ function LeadRow({ lead, showOwner }: { lead: LeadDoc; showOwner: boolean }): Re
         {lead.assignedAt && (
           <span className="mpm-row__sub" title={`Assigned ${exactTime(lead.assignedAt)}`}>
             {showOwner
-              ? `${ownerName(lead.assignedTo) || 'owner'} · ${timeAgo(lead.assignedAt)}`
+              ? // The owner's name is already on the meta line above for a handler, and
+                // repeating it here only overflowed a narrow column. When it was handed
+                // over is the part this line adds.
+                `assigned ${timeAgo(lead.assignedAt)}`
               : // Prefer the stored name: a salesperson cannot read the staff directory,
                 // so the relationship would not resolve for them.
                 (lead.assignedByName ?? ownerName(lead.assignedBy))
@@ -214,25 +269,75 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     ? { and: [{ assignedTo: { exists: false } }, ...(window ? [window] : [])] }
     : { and: [{ assignedTo: { equals: me } }, { acknowledgedAt: { exists: false } }] };
 
-  const [byStatus, queueRaw, recentRaw, proposalsRaw, teamRaw, totalInRange, queueTotal] =
-    await Promise.all([
-      Promise.all(PIPELINE.map((s) => count(scope({ status: { in: s.merge } })))),
-      // Handler: what still needs an owner. Sales: what they have not opened yet.
-      find('leads', {
-        limit: 8,
-        sort: 'createdAt',
-        depth: 1,
-        where: queueWhere,
-      }),
-      find('leads', { limit: 10, sort: '-createdAt', depth: 1, where: scope() }),
-      find('proposals', { limit: 5, sort: '-createdAt', depth: 0 }),
-      isHandler ? find('users', { limit: 50, depth: 0, where: { role: { equals: 'sales' } } }) : [],
-      count(scope()),
-      count(queueWhere),
-    ]);
+  const [
+    byStatus,
+    queueRaw,
+    oldestRaw,
+    recentRaw,
+    proposalsRaw,
+    teamRaw,
+    totalInRange,
+    queueTotal,
+    sourceCounts,
+    assignedRaw,
+    routing,
+    staleRaw,
+  ] = await Promise.all([
+    Promise.all(PIPELINE.map((s) => count(scope({ status: { in: s.merge } })))),
+    // Handler: what still needs an owner. Sales: what they have not opened yet.
+    //
+    // Newest first. This was oldest-first, on the reasoning that a queue should be
+    // FIFO so nothing is forgotten - but a moving enquiry is at its most winnable in
+    // the minutes after it arrives, while the customer is still on the comparison
+    // sites ringing our competitors. Burying today's leads under last week's is the
+    // expensive mistake; the cheap one is losing track of an old lead, and the
+    // "waiting longest" line below covers that without reordering the list.
+    find('leads', {
+      limit: 8,
+      sort: '-createdAt',
+      depth: 1,
+      where: queueWhere,
+    }),
+    // The single oldest thing still in the queue, so that turning the list around
+    // cannot quietly let one rot at the bottom.
+    find('leads', { limit: 1, sort: 'createdAt', depth: 0, where: queueWhere }),
+    find('leads', { limit: 10, sort: '-createdAt', depth: 1, where: scope() }),
+    find('proposals', { limit: 5, sort: '-createdAt', depth: 0 }),
+    isHandler ? find('users', { limit: 50, depth: 0, where: { role: { equals: 'sales' } } }) : [],
+    count(scope()),
+    count(queueWhere),
+    Promise.all(SOURCES.map((src) => count(scope({ source: { equals: src.value } })))),
+    // Enough to read a median from without pulling the whole table. Capped, and the
+    // card says so rather than implying it measured everything.
+    find('leads', {
+      limit: 200,
+      sort: '-createdAt',
+      depth: 0,
+      where: scope({ assignedAt: { exists: true } }),
+    }),
+    loadRouting(payload, user),
+    // Quoted and then nothing for three days. A salesperson's real backlog is not the
+    // leads they have not opened - it is the ones they priced and never chased, which
+    // no other card on this page would show them.
+    isHandler
+      ? []
+      : find('leads', {
+          limit: 5,
+          sort: 'updatedAt',
+          depth: 0,
+          where: {
+            and: [
+              { assignedTo: { equals: me } },
+              { status: { equals: 'quoted' } },
+              { updatedAt: { less_than: new Date(Date.now() - 3 * 86_400_000).toISOString() } },
+            ],
+          },
+        }),
+  ]);
 
   const pipeline = PIPELINE.map((s, i) => ({ ...s, count: byStatus[i] ?? 0 }));
   const queue = queueRaw as LeadDoc[];
+  const oldestWaiting = (oldestRaw as LeadDoc[])[0];
   const recent = recentRaw as LeadDoc[];
   const proposals = proposalsRaw as { id: string | number; title?: string; createdAt?: string }[];
   const team = teamRaw as UserRow[];
@@ -248,6 +353,29 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
       }),
     })),
   );
+
+  // How long a lead normally waits before it has an owner.
+  const waits = (assignedRaw as { createdAt?: string; assignedAt?: string | null }[])
+    .map((l) =>
+      l.createdAt && l.assignedAt
+        ? new Date(l.assignedAt).getTime() - new Date(l.createdAt).getTime()
+        : NaN,
+    )
+    .filter((n) => Number.isFinite(n) && n >= 0);
+  const medianWait = median(waits);
+
+  // Win rate over decided leads only. Counting wins against every lead in the pipeline
+  // reports a number that falls every time a new enquiry arrives, which is backwards.
+  const wonCount = pipeline.find((p) => p.value === 'won')?.count ?? 0;
+  const lostCount = pipeline.find((p) => p.value === 'lost')?.count ?? 0;
+  const decided = wonCount + lostCount;
+  const winRate = decided > 0 ? Math.round((wonCount / decided) * 100) : null;
+
+  const sources = sourceCounts as number[];
+  const maxSource = Math.max(1, ...sources);
+  const sourceTotal = sources.reduce((a, b) => a + b, 0);
+  const stale = staleRaw as (LeadDoc & { updatedAt?: string })[];
+  const rangeLabel = RANGES.find((r) => r.key === (range || 'all'))?.label ?? 'All time';
 
   const q = (key: string): string => `?range=${key}`;
 
@@ -267,7 +395,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           </h1>
           <p className="mpm-sub">
             {isHandler
-              ? 'Every lead lands here. Give each one an owner.'
+              ? 'Every lead lands here, newest first. Give each one an owner.'
               : 'Your leads, newest first.'}
           </p>
         </div>
@@ -290,9 +418,62 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
         </span>
       </nav>
 
+      {/* ── The four numbers worth knowing before anything else ───────────────
+          Volume, backlog, speed, outcome. Everything below is one of these four
+          broken down; this strip is what you read if you only read one thing. */}
+      <section className="mpm-kpis mpm-kpis--4">
+        <Link className="mpm-kpi mpm-kpi--hero" href="/admin/collections/leads">
+          <span className="mpm-kpi__glow" aria-hidden="true" />
+          <span className="mpm-ico mpm-ico--ghost" aria-hidden="true">
+            {ICONS.leads}
+          </span>
+          <span className="mpm-kpi__label">{isHandler ? 'Leads' : 'Your leads'}</span>
+          <span className="mpm-kpi__value">{fmt(totalInRange)}</span>
+          <span className="mpm-kpi__hint">{rangeLabel.toLowerCase()}</span>
+        </Link>
+
+        <Link
+          className={`mpm-kpi${queueTotal > 0 ? ' mpm-kpi--hot' : ''}`}
+          href="/admin/collections/leads"
+        >
+          <span className="mpm-ico" aria-hidden="true">
+            {ICONS.inbox}
+          </span>
+          <span className="mpm-kpi__label">{isHandler ? 'Needs an owner' : 'New to you'}</span>
+          <span className="mpm-kpi__value">{fmt(queueTotal)}</span>
+          <span className="mpm-kpi__hint">{queueTotal > 0 ? 'waiting now' : 'all clear'}</span>
+        </Link>
+
+        <div className="mpm-kpi">
+          <span className="mpm-ico" aria-hidden="true">
+            {ICONS.clock}
+          </span>
+          <span className="mpm-kpi__label">{isHandler ? 'Time to owner' : 'Time to you'}</span>
+          <span className="mpm-kpi__value mpm-kpi__value--text">
+            {Number.isFinite(medianWait) ? humanDuration(medianWait) : 'Not yet'}
+          </span>
+          <span className="mpm-kpi__hint">
+            {waits.length > 0 ? `median of ${fmt(waits.length)}` : 'nothing assigned yet'}
+          </span>
+        </div>
+
+        <div className="mpm-kpi">
+          <span className="mpm-ico" aria-hidden="true">
+            {ICONS.won}
+          </span>
+          <span className="mpm-kpi__label">Won</span>
+          <span className={`mpm-kpi__value${winRate === null ? ' mpm-kpi__value--text' : ''}`}>
+            {winRate === null ? 'Not yet' : `${winRate}%`}
+          </span>
+          <span className="mpm-kpi__hint">
+            {decided > 0 ? `of ${fmt(decided)} won or lost` : 'nothing won or lost yet'}
+          </span>
+        </div>
+      </section>
+
       <section className="mpm-grid">
         {/* ── Queue ─────────────────────────────────────────────────────────── */}
-        <article className="mpm-card mpm-span2">
+        <article className="mpm-card mpm-span3">
           <div className="mpm-card__head">
             <h3>
               <span className="mpm-card__ico" aria-hidden="true">
@@ -316,9 +497,26 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
                   <LeadRow key={String(l.id)} lead={l} showOwner={isHandler} />
                 ))}
               </ul>
-              {queueTotal > queue.length && (
+              {(queueTotal > queue.length || oldestWaiting) && (
                 <p className="mpm-more">
-                  Showing the {queue.length} oldest of {fmt(queueTotal)}.{' '}
+                  {queueTotal > queue.length && (
+                    <>
+                      Showing the {queue.length} newest of {fmt(queueTotal)}.{' '}
+                    </>
+                  )}
+                  {oldestWaiting?.createdAt && queueTotal > 1 && (
+                    <span className="mpm-more__wait">
+                      Waiting longest:{' '}
+                      <Link
+                        className="mpm-link mpm-more__waitlink"
+                        href={`/admin/collections/leads/${oldestWaiting.id}`}
+                        title={`Received ${exactTime(oldestWaiting.createdAt)}`}
+                      >
+                        {oldestWaiting.name || 'Unnamed'} · {timeAgo(oldestWaiting.createdAt)}
+                      </Link>
+                      .{' '}
+                    </span>
+                  )}
                   <Link className="mpm-link mpm-more__link" href="/admin/collections/leads">
                     see all →
                   </Link>
@@ -327,6 +525,12 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
             </>
           )}
         </article>
+
+        {/* ── Auto-assign ───────────────────────────────────────────────────
+            Handlers only here; admins get the same card on their own dashboard. The
+            loader swallows its own failures and returns null, so a dashboard render
+            never depends on the global being there. */}
+        {isHandler && routing && <RoundRobin {...routing} />}
 
         {/* ── Pipeline ──────────────────────────────────────────────────────── */}
         <article className="mpm-card">
@@ -432,6 +636,89 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           </article>
         )}
 
+        {/* ── Where the work came from ──────────────────────────────────────
+            Worth a card because it is the only place the ad spend shows up against
+            the form: if Facebook is half the board, the Zap is earning its keep. */}
+        <article className="mpm-card">
+          <div className="mpm-card__head">
+            <h3>
+              <span className="mpm-card__ico" aria-hidden="true">
+                {ICONS.funnel}
+              </span>
+              Where they came from
+            </h3>
+            <span className="mpm-muted">{rangeLabel.toLowerCase()}</span>
+          </div>
+          {sourceTotal === 0 ? (
+            <p className="mpm-empty">No leads in this period.</p>
+          ) : (
+            <ul className="mpm-bars">
+              {SOURCES.map((src, i) => (
+                <li key={src.value}>
+                  <span className="mpm-bar-label">{src.label}</span>
+                  <span className="mpm-bar-track">
+                    <span
+                      className="mpm-bar-fill"
+                      style={{
+                        width: `${Math.max((sources[i] ?? 0) > 0 ? 6 : 0, Math.round(((sources[i] ?? 0) / maxSource) * 100))}%`,
+                        background: src.color,
+                      }}
+                    />
+                  </span>
+                  <span className="mpm-bar-num">{fmt(sources[i] ?? 0)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
+
+        {/* ── Gone quiet (sales) ────────────────────────────────────────────
+            Priced, then nothing for three days. The queue card shows what has not been
+            opened; this shows what was opened, quoted, and then left - which is where
+            the money actually leaks. */}
+        {!isHandler && (
+          <article className="mpm-card">
+            <div className="mpm-card__head">
+              <h3>
+                <span className="mpm-card__ico" aria-hidden="true">
+                  {ICONS.clock}
+                </span>
+                Gone quiet
+                {stale.length > 0 && <span className="mpm-count">{fmt(stale.length)}</span>}
+              </h3>
+            </div>
+            {stale.length === 0 ? (
+              <p className="mpm-empty">Nothing quoted has been left sitting. Good.</p>
+            ) : (
+              <ul className="mpm-rows">
+                {stale.map((l) => (
+                  <li key={String(l.id)} className="mpm-row mpm-row--lead">
+                    <span className="mpm-avatar" aria-hidden="true">
+                      {initial(l.name)}
+                    </span>
+                    <Link href={`/admin/collections/leads/${l.id}`} className="mpm-row__main">
+                      <span className="mpm-row__name">{l.name || 'Unnamed'}</span>
+                      <span className="mpm-row__meta">{l.service || 'Quoted'}</span>
+                    </Link>
+                    <span className="mpm-row__dial">
+                      <PhoneButtons phone={l.phone} />
+                    </span>
+                    <span className="mpm-badge" style={{ ['--c' as string]: '#c98a00' }}>
+                      Quoted
+                    </span>
+                    <span
+                      className="mpm-row__time"
+                      title={l.updatedAt ? `Last touched ${exactTime(l.updatedAt)}` : undefined}
+                    >
+                      {l.updatedAt ? `quiet ${timeAgo(l.updatedAt)}` : ''}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </article>
+        )}
+
         {/* ── Leads by date ─────────────────────────────────────────────────── */}
         <article className="mpm-card mpm-span3">
           <div className="mpm-card__head">
@@ -465,12 +752,12 @@ const EXTRA_CSS = `
 .mpm-ranges{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;margin:0 0 1.35rem}
 .mpm-range{display:inline-flex;align-items:center;padding:.34rem .8rem;border-radius:999px;
   font-size:.78rem;font-weight:600;text-decoration:none;
-  border:1px solid var(--theme-elevation-150);color:var(--theme-elevation-600);
+  border:1px solid var(--line);color:var(--ink-2);
   transition:border-color .15s ease,color .15s ease,background .15s ease}
 .mpm-range:hover{border-color:var(--v-500);color:var(--v-500)}
 .mpm-range.is-on{background:var(--v-500);border-color:var(--v-500);color:#fff}
 .mpm-range.is-on:hover{color:#fff}
-.mpm-range-count{margin-left:auto;font-size:.78rem;color:var(--theme-elevation-500)}
+.mpm-range-count{margin-left:auto;font-size:.78rem;color:var(--ink-3)}
 /* The digit was sitting off-centre: without an explicit line-height the font's own
    metrics push it up inside the pill, and the pill was tight enough to make that
    obvious. Fixed height + line-height:1 centres it regardless of the face. */
@@ -481,26 +768,73 @@ const EXTRA_CSS = `
 .mpm-open{font-size:.78rem;font-weight:600;color:var(--v-500);white-space:nowrap}
 /* The truncation note. Its link is the way out of a partial list, so it is set at body
    size rather than the smaller caption size the note itself uses. */
-.mpm-more{margin:.85rem 0 0;padding-top:.75rem;border-top:1px solid var(--theme-elevation-100);
-  font-size:.8rem;color:var(--theme-elevation-500)}
+.mpm-more{margin:.85rem 0 0;padding-top:.75rem;border-top:1px solid var(--line);
+  font-size:.8rem;color:var(--ink-3)}
 .mpm-more__link{font-size:.95rem;font-weight:700;color:var(--v-500);white-space:nowrap}
 .mpm-more__link:hover{text-decoration:underline}
 .mpm-bars{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55rem}
 .mpm-bars li{display:grid;grid-template-columns:5.5rem 1fr 2rem;align-items:center;gap:.6rem}
-.mpm-bar-label{font-size:.78rem;color:var(--theme-elevation-600)}
-.mpm-bar-track{height:7px;border-radius:999px;background:var(--theme-elevation-100);overflow:hidden}
+.mpm-bar-label{font-size:.78rem;color:var(--ink-2)}
+.mpm-bar-track{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
 .mpm-bar-fill{display:block;height:100%;border-radius:999px}
-.mpm-bar-num{text-align:right;font-weight:700;font-size:.78rem;color:var(--theme-elevation-800)}
-.mpm-span3{grid-column:1/-1}
-/* The full-width card is wide enough for two columns of leads. One column left the
-   status chip and time stranded against the right edge with a large dead gap, and
-   showed half as many rows for the same height. Collapses back to one column when the
-   viewport cannot give each column a readable width. */
-.mpm-span3 .mpm-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:2.25rem}
-.mpm-span3 .mpm-row:nth-child(-n+2){border-top:0}
-@media (max-width:1100px){
-  .mpm-span3 .mpm-rows{grid-template-columns:1fr}
-  .mpm-span3 .mpm-row:nth-child(2){border-top:1px solid var(--theme-elevation-100)}
-  .mpm-span3 .mpm-row:first-child{border-top:0}
+.mpm-bar-num{text-align:right;font-weight:700;font-size:.78rem;color:var(--ink-2)}
+/* .mpm-span3 and its two-column rows now live in the shared sheet - the admin
+   dashboard needs them too. */
+
+/* ── Phone ──────────────────────────────────────────────────────────────────
+   This is the dashboard most likely to be read on a phone: a salesperson checking
+   their queue between calls, a handler distributing leads without opening a laptop.
+   The desktop layout is unchanged above 640px. */
+@media (max-width:640px){
+  /* The two-up card grid stacks - two cards side by side on a 390px screen leaves
+     neither wide enough for a customer name and a status chip. */
+  .mpm-grid{ grid-template-columns:1fr !important; gap:.75rem; }
+  .mpm-card{ padding:.9rem 1rem; border-radius:14px; }
+  .mpm-h1{ font-size:1.45rem; }
+  .mpm-head{ gap:.6rem; }
+
+  /* Date-range chips scroll sideways rather than wrapping into three ragged lines. */
+  .mpm-ranges{
+    display:flex; flex-wrap:nowrap; overflow-x:auto; gap:.4rem;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:.15rem;
+  }
+  .mpm-ranges::-webkit-scrollbar{ display:none; }
+  .mpm-range{ flex:none; }
+
+  /* Stage bars: the fixed 5.5rem label column is most of a phone's width, so the
+     label sits above its bar instead of beside it. */
+  .mpm-bars li{ grid-template-columns:1fr auto; gap:.25rem .5rem; }
+  .mpm-bar-label{ grid-column:1; font-size:.75rem; }
+  .mpm-bar-num{ grid-column:2; grid-row:1; }
+  .mpm-bar-track{ grid-column:1 / -1; }
+
+  /* The lead row's phone layout lives in the shared CSS with the rest of that row -
+     what used to be here set flex-wrap and flex-basis on the children of a grid, which
+     does nothing. */
 }
+
+/* The queue runs newest-first, so the lead that has waited longest is at the bottom of
+   it - or off the end entirely. This line is the safety net for that: one sentence
+   naming the worst case, linked, so nothing rots unseen. */
+.mpm-more__wait{color:var(--ink-2)}
+.mpm-more__waitlink{font-weight:700;color:var(--mpm-ember-ink,#C63F00)}
+.mpm-more__waitlink:hover{text-decoration:underline;color:var(--mpm-ember-ink,#C63F00)}
+
+/* ── The four-up KPI strip ──────────────────────────────────────────────────
+   The base dashboard's strip is three across. Four fits the shape of this one:
+   volume, backlog, speed, outcome. Steps down rather than shrinking the figures,
+   because a number too small to read is worse than a longer page. */
+.mpm-kpis--4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1100px){ .mpm-kpis--4{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:520px){
+  .mpm-kpis--4{grid-template-columns:repeat(2,1fr);gap:.6rem}
+  /* Two by two. The base strip gives its hero the full width, which is right for three
+     cards and wrong for four - it left the fourth alone on a row with half the screen
+     blank beside it. */
+  .mpm-kpis--4 .mpm-kpi--hero{grid-column:auto}
+  .mpm-kpis--4 .mpm-kpi--hero .mpm-kpi__value{font-size:1.9rem}
+}
+/* A duration is four or five characters wide where a count is two, so it is set a
+   size down - at the figure size "1d 3h" wrapped onto a second line. */
+.mpm-kpi__value--text{font-size:1.55rem !important;letter-spacing:-.01em}
 `;

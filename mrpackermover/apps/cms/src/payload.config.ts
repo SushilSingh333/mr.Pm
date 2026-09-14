@@ -32,6 +32,7 @@ import { OrgProfile } from './globals/OrgProfile.js';
 import { HomeContent } from './globals/HomeContent.js';
 import { SeoDefaults } from './globals/SeoDefaults.js';
 import { Integrations } from './globals/Integrations.js';
+import { LeadRouting } from './globals/LeadRouting.js';
 import { publicEndpoints } from './endpoints/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -114,7 +115,7 @@ export default buildConfig({
     // System
     Users,
   ],
-  globals: [OrgProfile, HomeContent, SeoDefaults, Integrations],
+  globals: [OrgProfile, HomeContent, SeoDefaults, Integrations, LeadRouting],
 
   // Public JSON endpoints served by the origin (mounted under /api): quote, search,
   // track. On the DigitalOcean origin these replace the old Cloudflare Functions.

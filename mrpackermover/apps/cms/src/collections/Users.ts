@@ -119,6 +119,7 @@ export const Users: CollectionConfig = {
     afterLogin: [
       ({ req, user }) => {
         scheduleAuthEvent(req, 'login', user as AuthUser);
+        scheduleNavCollapse(req, user as AuthUser);
       },
     ],
     afterLogout: [
@@ -199,5 +200,83 @@ function scheduleAuthEvent(req: PayloadRequest, event: 'login' | 'logout', user:
     });
   } catch {
     /* never block authentication on an audit write */
+  }
+}
+
+/**
+ * Start every new person with the nav groups closed.
+ *
+ * Payload opens all of them. `NavGroup` reads `isOpen` from the user's `nav` preference
+ * and, finding nothing there, defaults to expanded - so a first login lands on nine open
+ * sections and roughly forty links, and the three or four anyone actually uses are
+ * somewhere in the middle of it.
+ *
+ * Seeding the preference rather than replacing Payload's Nav keeps its own machinery
+ * intact: permissions filtering, the settings menu and logout are all still Payload's.
+ * The only thing changed is the starting position.
+ *
+ * It is written once and never again. Opening a group calls `setPreference` with merge
+ * on, which is a genuine deep merge (`deepMergeSimple`), so a person's own choices land
+ * on top of this and survive every later login. A group added to the config after this
+ * runs is not in the stored preference and so opens by default - which is the right
+ * behaviour for a section that has just appeared.
+ *
+ * Scheduled off the request for the same reason the audit row is: an `afterLogin` hook
+ * runs inside the login transaction, and awaiting a write in there once turned signing
+ * in into a 54-second hang. See scheduleAuthEvent.
+ */
+function scheduleNavCollapse(req: PayloadRequest, user: AuthUser): void {
+  try {
+    if (!user?.id) return;
+    const { payload } = req;
+    const userId = user.id;
+
+    // Read the labels off the config rather than listing them here - a hardcoded list
+    // silently stops covering a group the moment someone adds one.
+    const labels = new Set<string>();
+    for (const entity of [...payload.config.collections, ...payload.config.globals]) {
+      const group = (entity.admin as { group?: unknown } | undefined)?.group;
+      if (typeof group === 'string' && group) labels.add(group);
+    }
+    if (labels.size === 0) return;
+
+    const groups: Record<string, { open: boolean }> = {};
+    for (const label of labels) groups[label] = { open: false };
+
+    setImmediate(() => {
+      void (async () => {
+        const existing = await payload.find({
+          collection: 'payload-preferences',
+          depth: 0,
+          limit: 1,
+          pagination: false,
+          overrideAccess: true,
+          where: {
+            and: [
+              { key: { equals: 'nav' } },
+              { 'user.relationTo': { equals: 'users' } },
+              { 'user.value': { equals: userId } },
+            ],
+          } as never,
+        });
+        // Never overwrite: whatever is there is this person's own arrangement.
+        if (existing.docs.length > 0) return;
+        await payload.create({
+          collection: 'payload-preferences',
+          overrideAccess: true,
+          // The `user` field on payload-preferences carries a beforeValidate hook that
+          // discards whatever is in `data` and writes `req.user` instead, so the owner
+          // has to arrive on the request. Passing it in `data` fails validation with
+          // "The following field is invalid: User", because with no user on the request
+          // the hook returns null for a required field.
+          user: { ...(user as object), collection: 'users' } as never,
+          data: { key: 'nav', value: { groups } } as never,
+        });
+      })().catch(() => {
+        /* a tidier sidebar is never worth a failed login */
+      });
+    });
+  } catch {
+    /* never block authentication */
   }
 }

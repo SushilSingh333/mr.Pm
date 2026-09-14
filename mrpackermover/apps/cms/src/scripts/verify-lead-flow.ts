@@ -142,12 +142,52 @@ try {
       pickup?: string;
       dropLocation?: string;
       sourceIp?: string;
+      assignedTo?: unknown;
     }[];
     totalDocs: number;
   };
   check('it becomes a lead in the CMS', arrived.totalDocs === 1);
   const lead = arrived.docs[0]!;
-  check('status starts as New', lead.status === 'new', lead.status);
+
+  /*
+   * Which arrival is correct depends on a setting, so read it rather than assume.
+   *
+   * Round-robin routing gives a new lead an owner the moment it is created, so the
+   * "arrives unclaimed, handler hands it over" path this script was written around is
+   * only one of two real flows now. Asserting the old one unconditionally made the suite
+   * fail the day the business switched routing on - a true statement about the test, and
+   * a false one about the software.
+   *
+   * With routing on, the automatic assignment is asserted instead, and the lead is then
+   * returned to the queue so the manual hand-over below is still exercised. Deliberately
+   * NOT by switching routing off: this script can be pointed at a live database and has
+   * no business changing how that business shares out its work.
+   */
+  const routing = (await payload.findGlobal({
+    slug: 'lead-routing',
+    depth: 0,
+    overrideAccess: true,
+  })) as { autoAssign?: boolean; members?: unknown[] };
+  const autoRouting = Boolean(routing?.autoAssign) && (routing?.members ?? []).length > 0;
+
+  if (autoRouting) {
+    const ownerLabel =
+      lead.assignedTo && typeof lead.assignedTo === 'object'
+        ? ((lead.assignedTo as { name?: string; id?: unknown }).name ??
+          String((lead.assignedTo as { id?: unknown }).id))
+        : String(lead.assignedTo);
+    check('auto-assign gave the new lead an owner', Boolean(lead.assignedTo), ownerLabel);
+    check('auto-assign set it to Assigned', lead.status === 'assigned', lead.status);
+    await payload.update({
+      collection: 'leads',
+      id: lead.id,
+      overrideAccess: true,
+      data: { assignedTo: null, status: 'new' } as never,
+    });
+    lead.status = 'new';
+  } else {
+    check('status starts as New', lead.status === 'new', lead.status);
+  }
   check(
     'route captured',
     Boolean(lead.pickup?.includes('Lucknow') && lead.dropLocation?.includes('Pune')),

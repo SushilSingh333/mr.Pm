@@ -62,7 +62,10 @@ function toPdfData(doc: Json): Json {
     items: rows(doc.inventory).map((it) => ({
       name: text(it.name),
       qty: num(it.qty),
-      pack: text(it.pack, 'Standard Wrap'),
+      // No fallback. An empty packing field means "not specified", and the PDF drops the
+      // column entirely rather than printing a material the salesperson never chose -
+      // this is a quote a customer holds us to, not a form default.
+      pack: text(it.pack),
       rem: text(it.rem),
     })),
     charges,

@@ -34,7 +34,13 @@ const _proposalPdf = (function () {
 
   var PACKING=['Standard Wrap','Bubble Wrap','Wooden Crate','Original Box','Blanket Wrap'];
   var PACK_SHORT={'Standard Wrap':'Std','Bubble Wrap':'Bubble','Wooden Crate':'Crate','Original Box':'Box','Blanket Wrap':'Blanket'};
-  function shortPack(p){return PACK_SHORT[p]||p;}
+  function shortPack(p){return p?(PACK_SHORT[p]||p):'';}
+  /* Does ANY article name a packing material? Asked once, over the whole inventory, so
+     the two half-width columns agree - deciding per column would drop the header on the
+     left and keep it on the right. When nobody filled it in, the column does not appear
+     at all: a blank "PACK" strip down a customer-facing quote reads as an omission, and
+     the space is better spent on the article name. */
+  function anyPack(list){for(var i=0;i<list.length;i++){if(list[i]&&list[i].pack)return true;}return false;}
 
   var defaultItems=[
     {name:'Sofa Set (3-Seater)',qty:2,pack:'Bubble Wrap',rem:''},
@@ -96,7 +102,7 @@ const _proposalPdf = (function () {
   ];
 
   /* ---------- editor rows ---------- */
-  function itemRowHTML(it){it=it||{};var opts=PACKING.map(function(p){return '<option'+(p===it.pack?' selected':'')+'>'+p+'</option>';}).join('');
+  function itemRowHTML(it){it=it||{};var opts='<option value=""'+(it.pack?'':' selected')+'>Not specified</option>'+PACKING.map(function(p){return '<option'+(p===it.pack?' selected':'')+'>'+p+'</option>';}).join('');
     return '<div class="irow"><input class="fi i-name" value="'+esc(it.name)+'" placeholder="Article name"><input class="fi i-qty" type="number" min="0" value="'+(it.qty==null?1:it.qty)+'"><select class="fi i-pack">'+opts+'</select><input class="fi i-rem" value="'+esc(it.rem)+'" placeholder="Remarks (optional)"><button class="row-del" type="button" title="Remove" aria-label="Remove">✕</button></div>';}
   function chargeRowHTML(c){c=c||{};return '<div class="crow"><input class="fi c-name" value="'+esc(c.name)+'" placeholder="Charge description"><input class="fi c-amt" type="number" min="0" value="'+(c.amt==null?'':c.amt)+'"><button class="row-del" type="button" title="Remove" aria-label="Remove">✕</button></div>';}
   function initRows(){
@@ -159,11 +165,11 @@ const _proposalPdf = (function () {
     check:'<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
     clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
   };
-  function invTableHTML(list,offset){
+  function invTableHTML(list,offset,showPack){
     var rows=list.map(function(it,i){
-      return '<tr><td class="c-n">'+(offset+i+1)+'</td><td>'+esc(it.name)+(it.rem?'<span class="rmk">'+esc(it.rem)+'</span>':'')+'</td><td class="c-q">'+(it.qty||0)+'</td><td class="c-p">'+esc(shortPack(it.pack))+'</td></tr>';
+      return '<tr><td class="c-n">'+(offset+i+1)+'</td><td>'+esc(it.name)+(it.rem?'<span class="rmk">'+esc(it.rem)+'</span>':'')+'</td><td class="c-q">'+(it.qty||0)+'</td>'+(showPack?'<td class="c-p">'+esc(shortPack(it.pack))+'</td>':'')+'</tr>';
     }).join('');
-    return '<table class="inv"><thead><tr><th class="c-n">#</th><th>Article</th><th class="c-q">Qty</th><th class="c-p">Pack</th></tr></thead><tbody>'+rows+'</tbody></table>';
+    return '<table class="inv"><thead><tr><th class="c-n">#</th><th>Article</th><th class="c-q">Qty</th>'+(showPack?'<th class="c-p">Pack</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table>';
   }
   function render(d){
     var c=d.company,cu=d.customer,mv=d.move,t=d.totals;
@@ -171,7 +177,8 @@ const _proposalPdf = (function () {
     var items=list(d.items);
     var totalArticles=items.reduce(function(s,it){return s+(num(it.qty)||0);},0);
     var mid=Math.ceil(items.length/2);
-    var invLeft=invTableHTML(items.slice(0,mid),0), invRight=invTableHTML(items.slice(mid),mid);
+    var showPack=anyPack(items);
+    var invLeft=invTableHTML(items.slice(0,mid),0,showPack), invRight=invTableHTML(items.slice(mid),mid,showPack);
     var chargeRows=d.charges.map(function(c){return '<tr><td>'+esc(c.name)+'</td><td class="num">'+fmt(c.amt)+'</td></tr>';}).join('');
     var svc=d.services.map(function(s){var p=s.split(/, |–|\|/);var h=p[0].trim();var sub=(p.slice(1).join('—')).trim();return '<div class="svc"><span class="ck">'+IC.check+'</span><div><b>'+esc(h)+'</b>'+(sub?'<span>'+esc(sub)+'</span>':'')+'</div></div>';}).join('');
     var terms=d.terms.map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
@@ -306,10 +313,10 @@ const _proposalPdf = (function () {
 
   function secHead(O,title,meta,y){var w=txt(O,CM,y+2,title,12.5,1,CO.deep);var mw=meta?tw(san(meta),9,0):0;seg(O,CM+w+12,y-1,RX-(mw?mw+8:0),y-1,CO.onDeep,1.3);if(meta)txt(O,RX,y+2,meta,9,0,CO.soft,'r');}
   function party(O,x,y,w,h,eyebrow,name,lines){rrect(O,x,y,w,h,10,CO.line,true,1);txt(O,x+15,y+17,eyebrow,8,1,CO.brand);txt(O,x+15,y+35,trunc(name,14,1,w-26),14,1,CO.deep);for(var i=0;i<lines.length&&i<2;i++)txt(O,x+15,y+49+i*12,trunc(lines[i],9,0,w-26),9,0,CO.soft);}
-  function invCol(O,list,x,cw,yTop,off){
-    var y=yTop, qX=x+cw-50, pX=x+cw;
+  function invCol(O,list,x,cw,yTop,off,showPack){
+    var y=yTop, pX=x+cw, qX=showPack?x+cw-50:x+cw;
     fillRect(O,x,y,cw,15,CO.tint);
-    txt(O,x+8,y+10,'#',7.5,1,CO.soft);txt(O,x+20,y+10,'ARTICLE',7.5,1,CO.soft);txt(O,qX,y+10,'QTY',7.5,1,CO.soft,'r');txt(O,pX,y+10,'PACK',7.5,1,CO.soft,'r');
+    txt(O,x+8,y+10,'#',7.5,1,CO.soft);txt(O,x+20,y+10,'ARTICLE',7.5,1,CO.soft);txt(O,qX,y+10,'QTY',7.5,1,CO.soft,'r');if(showPack)txt(O,pX,y+10,'PACK',7.5,1,CO.soft,'r');
     y+=15;seg(O,x,y,x+cw,y,CO.onDeep,1.3);
     for(var i=0;i<list.length;i++){
       var it=list[i],hasR=it.rem&&it.rem.length,rh=hasR?18.5:15,nameMax=qX-(x+20)-14;
@@ -317,7 +324,7 @@ const _proposalPdf = (function () {
       txt(O,x+8,y+10.5,String(off+i+1),8,1,CO.brand);
       txt(O,x+20,y+10.5,trunc(it.name,9,0,nameMax),9,0,CO.ink);
       txt(O,qX,y+10.5,String(it.qty||0),9,1,CO.deep,'r');
-      txt(O,pX,y+10.5,shortPack(it.pack),8,0,CO.ember,'r');
+      if(showPack)txt(O,pX,y+10.5,shortPack(it.pack),8,0,CO.ember,'r');
       if(hasR)txt(O,x+20,y+17.5,trunc(it.rem,7.5,2,nameMax+30),7.5,2,CO.soft);
       y+=rh;seg(O,x,y,x+cw,y,CO.line,0.4);
     }
@@ -398,9 +405,9 @@ const _proposalPdf = (function () {
     var items=list(d.items);
     var totalArticles=items.reduce(function(s,it){return s+(num(it.qty)||0);},0);
     secHead(O,'Inventory of Articles',items.length+' items - '+totalArticles+' articles',y);y+=16;
-    var mid=Math.ceil(items.length/2),colW=(CW-24)/2;
-    var yL=invCol(O,items.slice(0,mid),CM,colW,y,0);
-    var yR=invCol(O,items.slice(mid),CM+colW+24,colW,y,mid);
+    var mid=Math.ceil(items.length/2),colW=(CW-24)/2,showPack=anyPack(items);
+    var yL=invCol(O,items.slice(0,mid),CM,colW,y,0,showPack);
+    var yR=invCol(O,items.slice(mid),CM+colW+24,colW,y,mid,showPack);
     y=Math.max(yL,yR)+18;
 
     secHead(O,'Cost Estimate','All figures in INR',y);y+=16;
@@ -555,7 +562,7 @@ const _proposalPdf = (function () {
   function bind(){
     $('editorView').addEventListener('input',recalc);
     $('editorView').addEventListener('click',function(e){var del=e.target.closest&&e.target.closest('.row-del');if(del){var row=del.closest('.irow,.crow');if(row){row.parentNode.removeChild(row);recalc();}}});
-    $('addItem').addEventListener('click',function(){$('itemRows').insertAdjacentHTML('beforeend',itemRowHTML({qty:1,pack:'Standard Wrap'}));var r=$('itemRows').querySelectorAll('.irow');r[r.length-1].querySelector('.i-name').focus();});
+    $('addItem').addEventListener('click',function(){$('itemRows').insertAdjacentHTML('beforeend',itemRowHTML({qty:1,pack:''}));var r=$('itemRows').querySelectorAll('.irow');r[r.length-1].querySelector('.i-name').focus();});
     $('addCharge').addEventListener('click',function(){$('chargeRows').insertAdjacentHTML('beforeend',chargeRowHTML({}));var r=$('chargeRows').querySelectorAll('.crow');r[r.length-1].querySelector('.c-name').focus();});
     $('createBtn').addEventListener('click',showPreview);
     $('backBtn').addEventListener('click',showEditor);

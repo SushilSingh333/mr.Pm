@@ -473,8 +473,12 @@ export const Proposals: CollectionConfig = {
                       name: 'pack',
                       type: 'select',
                       label: 'Packing',
-                      defaultValue: 'Standard Wrap',
+                      // No default. Every new row used to arrive pre-set to Standard Wrap,
+                      // so the quote promised a packing material whenever nobody thought
+                      // about it. Left empty, the PDF omits the packing column entirely.
                       options: PACK_OPTIONS,
+                      // Payload's select is clearable by default, so an existing row can be
+                      // put back to blank with the x in the control - no config needed here.
                       admin: { width: '40%' },
                     },
                   ],

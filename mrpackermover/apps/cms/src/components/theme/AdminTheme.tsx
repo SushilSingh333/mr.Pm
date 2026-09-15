@@ -247,6 +247,7 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 .cell-status > span.selected--quoted{ --chip:#c98a00; }
 .cell-status > span.selected--won{ --chip:#1a9d5a; }
 .cell-status > span.selected--lost{ --chip:#8a8f98; }
+.cell-status > span.selected--invalid{ --chip:#b23c17; }
 
 /* ---- The dial strip ----
    A number, a Call button and a WhatsApp button. Ringing the customer is what this screen

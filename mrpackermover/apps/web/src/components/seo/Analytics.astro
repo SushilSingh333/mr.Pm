@@ -24,7 +24,7 @@ import { PIXEL_ID } from './pixel.js';
 // file — an empty string is not null, so the site would ship with no tag at all and
 // no error. Trim first and treat empty as unset.
 const GA_ENV = (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined)?.trim();
-const GA_ID = GA_ENV || 'G-942TQ0Y8G5';
+const GA_ID = GA_ENV || 'G-B35EXJ95XY';
 const enabled = import.meta.env.PROD && Boolean(GA_ID);
 
 const pixelEnabled = import.meta.env.PROD && Boolean(PIXEL_ID);

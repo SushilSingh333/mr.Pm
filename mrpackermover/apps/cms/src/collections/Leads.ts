@@ -113,7 +113,7 @@ export const Leads: CollectionConfig = {
           data.status !== originalDoc?.status
         ) {
           throw new Error(
-            'Only a handler can assign or reassign a lead. Move it to Contacted, Call not picked, Quoted, Won or Lost.',
+            'Only a handler can assign or reassign a lead. Move it to Contacted, Call not picked, Quoted, Won, Lost or Invalid lead.',
           );
         }
 
@@ -433,6 +433,11 @@ export const Leads: CollectionConfig = {
         { label: 'Quoted', value: 'quoted' },
         { label: 'Won', value: 'won' },
         { label: 'Lost', value: 'lost' },
+        // Not a lost deal - a lead that was never real: a wrong number, a test
+        // submission, somebody's keyboard. Kept as its own stage rather than folded into
+        // Lost so the win rate is not quietly dragged down by junk, and so a coordinator
+        // can see how much of it is arriving.
+        { label: 'Invalid lead', value: 'invalid' },
       ],
     },
     {

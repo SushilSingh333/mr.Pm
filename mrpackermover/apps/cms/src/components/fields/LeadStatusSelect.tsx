@@ -15,18 +15,18 @@
  */
 import React from 'react';
 import { useAuth, useField } from '@payloadcms/ui';
+import { LEAD_STATUS } from '../dashboard/lead-status.js';
 
-/** Must mirror the `status` options on the Leads collection. */
-const ALL = [
-  { value: 'new', label: 'New' },
-  { value: 'assigned', label: 'Assigned' },
-  { value: 'reassigned', label: 'Reassigned' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'call-not-picked', label: 'Call not picked' },
-  { value: 'quoted', label: 'Quoted' },
-  { value: 'won', label: 'Won' },
-  { value: 'lost', label: 'Lost' },
-];
+/**
+ * Derived, not repeated.
+ *
+ * This used to keep its own copy of the stage list with a comment telling whoever came
+ * next to remember to update it. That is the same arrangement that once let the
+ * dashboards call an assigned lead "New" for weeks, and adding "Invalid lead" would have
+ * meant editing three lists and hoping. One definition, read by everything; verify-roles
+ * already asserts it matches the collection.
+ */
+const ALL = LEAD_STATUS.map((s) => ({ value: s.value, label: s.label }));
 
 /** Set by the assignment hook, never chosen by hand. */
 const ROUTING = ['new', 'assigned', 'reassigned'];
@@ -65,7 +65,7 @@ export function LeadStatusSelect({ path }: { path: string }): React.JSX.Element 
       {isSales && current && ROUTING.includes(current.value) && (
         <p className="field-description">
           This lead is waiting on you. Move it to Contacted, Call not picked or Quoted once you have
-          worked it.
+          worked it, or Invalid lead if the number is wrong.
         </p>
       )}
       <style>{`

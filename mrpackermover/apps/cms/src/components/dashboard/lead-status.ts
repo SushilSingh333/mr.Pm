@@ -31,7 +31,23 @@ export const LEAD_STATUS: LeadStage[] = [
   { value: 'quoted', label: 'Quoted', color: '#c98a00' },
   { value: 'won', label: 'Won', color: '#1a9d5a' },
   { value: 'lost', label: 'Lost', color: '#8a8f98' },
+  { value: 'invalid', label: 'Invalid lead', color: '#b23c17' },
 ];
+
+/**
+ * Stages that mean the lead is finished with, in one place.
+ *
+ * Three dashboard queries used to spell `['won', 'lost']` inline to mean "still open".
+ * Adding "Invalid lead" without touching them would have left every wrong number and
+ * spam entry sitting in somebody's open workload for good - counted on their dashboard,
+ * counted in the per-salesperson load a handler reads before distributing work. A stage
+ * added here now leaves the open queues by itself.
+ *
+ * Deliberately NOT the same set as the win-rate denominator. Win rate is won against
+ * decided, and an invalid lead was never an opportunity anyone could have won - folding
+ * it in would push the number down for reasons that have nothing to do with selling.
+ */
+export const CLOSED_STAGES = ['won', 'lost', 'invalid'];
 
 /**
  * Look up a stage for display. An unrecognised value shows itself rather than being

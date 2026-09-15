@@ -5,7 +5,7 @@ import Link from 'next/link';
 // they are read inside the component. The status list is NOT, which is exactly why it
 // lives in its own leaf module.
 import { CSS, ICONS, fmt, initial, safe, timeAgo } from './Dashboard.js';
-import { LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
+import { CLOSED_STAGES, LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
@@ -264,10 +264,30 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
       return res.docs;
     }, []);
 
-  /** What the queue card is really counting, independent of how many rows we show. */
+  /**
+   * What the queue card is really counting, independent of how many rows we show.
+   *
+   * Closed stages are excluded from both sides. Marking a lead invalid is how somebody
+   * clears a wrong number or a spam entry off this queue - if "needs owner" kept matching
+   * on ownership alone, that lead would sit in the count forever and the card would go on
+   * reporting work that nobody intends to do. Same for a salesperson's unopened list: a
+   * lead closed without ever being acknowledged is not still waiting to be read.
+   */
   const queueWhere = isHandler
-    ? { and: [{ assignedTo: { exists: false } }, ...(window ? [window] : [])] }
-    : { and: [{ assignedTo: { equals: me } }, { acknowledgedAt: { exists: false } }] };
+    ? {
+        and: [
+          { assignedTo: { exists: false } },
+          { status: { not_in: CLOSED_STAGES } },
+          ...(window ? [window] : []),
+        ],
+      }
+    : {
+        and: [
+          { assignedTo: { equals: me } },
+          { acknowledgedAt: { exists: false } },
+          { status: { not_in: CLOSED_STAGES } },
+        ],
+      };
 
   /**
    * A handler's own workload.
@@ -275,13 +295,13 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
    * Their dashboard used to lead with the unclaimed queue, which is a duty rather than a
    * workload - and with routing on, leads rarely sit unclaimed long enough to be the main
    * thing they look at. What they actually work is what has been given to them. Open only:
-   * a lead that is won or lost is history, not something to act on.
+   * a lead that is won, lost or marked invalid is history, not something to act on.
    *
    * Deliberately not date-windowed. The range chips narrow the analytics; a lead assigned
    * last month that nobody has closed is still on this person's desk today.
    */
   const mineWhere = {
-    and: [{ assignedTo: { equals: me } }, { status: { not_in: ['won', 'lost'] } }],
+    and: [{ assignedTo: { equals: me } }, { status: { not_in: CLOSED_STAGES } }],
   };
 
   const [
@@ -369,7 +389,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     team.map(async (t) => ({
       user: t,
       open: await count({
-        and: [{ assignedTo: { equals: t.id } }, { status: { not_in: ['won', 'lost'] } }],
+        and: [{ assignedTo: { equals: t.id } }, { status: { not_in: CLOSED_STAGES } }],
       }),
     })),
   );
@@ -386,6 +406,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
 
   // Win rate over decided leads only. Counting wins against every lead in the pipeline
   // reports a number that falls every time a new enquiry arrives, which is backwards.
+  // Invalid leads are not in the denominator either: a wrong number was never winnable.
   const wonCount = pipeline.find((p) => p.value === 'won')?.count ?? 0;
   const lostCount = pipeline.find((p) => p.value === 'lost')?.count ?? 0;
   const decided = wonCount + lostCount;
@@ -398,8 +419,13 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   const mine = mineRaw as LeadDoc[];
   const mineCount = mineTotal as number;
   /** Payload's list view reads its filters straight off the query string. */
-  const mineHref = `/admin/collections/leads?where[assignedTo][equals]=${String(me)}`;
-  const unclaimedHref = '/admin/collections/leads?where[assignedTo][exists]=false';
+  // These links must land on the same set the cards counted. A card saying 8 that opens a
+  // list of 11 reads as a broken number, so the closed stages come out of the query too.
+  const closedOut = CLOSED_STAGES.map((v, i) => `&where[and][1][status][not_in][${i}]=${v}`).join(
+    '',
+  );
+  const mineHref = `/admin/collections/leads?where[and][0][assignedTo][equals]=${String(me)}${closedOut}`;
+  const unclaimedHref = `/admin/collections/leads?where[and][0][assignedTo][exists]=false${closedOut}`;
   const rangeLabel = RANGES.find((r) => r.key === (range || 'all'))?.label ?? 'All time';
 
   const q = (key: string): string => `?range=${key}`;

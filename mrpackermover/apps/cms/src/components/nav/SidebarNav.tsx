@@ -146,10 +146,25 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 
       <div className="mpm-nav__quick">
         <span className="mpm-nav__quick-title">Quick access</span>
+        {/*
+          A plain anchor, not next/link, on purpose.
+
+          The alert above links to a FILTERED list - "New leads" is
+          ?where[status][equals]=new. Navigating from there to the unfiltered list with a
+          client-side Link leaves the old query string in the address bar: the rows update
+          correctly (19 of 19, measured), but Payload's list provider re-serialises its
+          own state into the URL and carries the stale `where` along with it. The page
+          looks right until you refresh, and then the filter comes back from the URL.
+
+          A real navigation rebuilds that provider from the address you actually clicked,
+          so what you see and what a refresh gives you are the same thing. It costs a
+          document load on a nav click, which is the right trade for a link whose whole
+          job is "show me everything".
+        */}
         {quickLinks.map((q) => (
-          <Link key={q.href} href={q.href} className="mpm-nav__quick-link">
+          <a key={q.href} href={q.href} className="mpm-nav__quick-link">
             {q.label}
-          </Link>
+          </a>
         ))}
       </div>
     </div>

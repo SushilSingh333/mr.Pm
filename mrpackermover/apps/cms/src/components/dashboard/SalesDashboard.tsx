@@ -269,6 +269,21 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     ? { and: [{ assignedTo: { exists: false } }, ...(window ? [window] : [])] }
     : { and: [{ assignedTo: { equals: me } }, { acknowledgedAt: { exists: false } }] };
 
+  /**
+   * A handler's own workload.
+   *
+   * Their dashboard used to lead with the unclaimed queue, which is a duty rather than a
+   * workload - and with routing on, leads rarely sit unclaimed long enough to be the main
+   * thing they look at. What they actually work is what has been given to them. Open only:
+   * a lead that is won or lost is history, not something to act on.
+   *
+   * Deliberately not date-windowed. The range chips narrow the analytics; a lead assigned
+   * last month that nobody has closed is still on this person's desk today.
+   */
+  const mineWhere = {
+    and: [{ assignedTo: { equals: me } }, { status: { not_in: ['won', 'lost'] } }],
+  };
+
   const [
     byStatus,
     queueRaw,
@@ -282,6 +297,8 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     assignedRaw,
     routing,
     staleRaw,
+    mineRaw,
+    mineTotal,
   ] = await Promise.all([
     Promise.all(PIPELINE.map((s) => count(scope({ status: { in: s.merge } })))),
     // Handler: what still needs an owner. Sales: what they have not opened yet.
@@ -333,6 +350,9 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
             ],
           },
         }),
+    // What this handler is personally holding, and how much of it there is.
+    isHandler ? find('leads', { limit: 10, sort: '-createdAt', depth: 1, where: mineWhere }) : [],
+    isHandler ? count(mineWhere) : 0,
   ]);
 
   const pipeline = PIPELINE.map((s, i) => ({ ...s, count: byStatus[i] ?? 0 }));
@@ -375,6 +395,11 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   const maxSource = Math.max(1, ...sources);
   const sourceTotal = sources.reduce((a, b) => a + b, 0);
   const stale = staleRaw as (LeadDoc & { updatedAt?: string })[];
+  const mine = mineRaw as LeadDoc[];
+  const mineCount = mineTotal as number;
+  /** Payload's list view reads its filters straight off the query string. */
+  const mineHref = `/admin/collections/leads?where[assignedTo][equals]=${String(me)}`;
+  const unclaimedHref = '/admin/collections/leads?where[assignedTo][exists]=false';
   const rangeLabel = RANGES.find((r) => r.key === (range || 'all'))?.label ?? 'All time';
 
   const q = (key: string): string => `?range=${key}`;
@@ -434,7 +459,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
 
         <Link
           className={`mpm-kpi${queueTotal > 0 ? ' mpm-kpi--hot' : ''}`}
-          href="/admin/collections/leads"
+          href={isHandler ? unclaimedHref : '/admin/collections/leads'}
         >
           <span className="mpm-ico" aria-hidden="true">
             {ICONS.inbox}
@@ -472,57 +497,84 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
       </section>
 
       <section className="mpm-grid">
-        {/* ── Queue ─────────────────────────────────────────────────────────── */}
+        {/* ── The list this person actually works ────────────────────────────
+            A handler had "needs an owner" twice: once as a figure in the strip above and
+            again as the whole of this card, while the leads on their own desk appeared
+            nowhere. The count stays in the strip, where a count belongs, and this card
+            carries their workload. The unclaimed queue is still their job, so it keeps a
+            line at the foot with the one fact that matters about it - how long the oldest
+            one has been sitting there - and a way through to the full list. */}
         <article className="mpm-card mpm-span3">
           <div className="mpm-card__head">
             <h3>
               <span className="mpm-card__ico" aria-hidden="true">
                 {ICONS.inbox}
               </span>
-              {isHandler ? 'Needs an owner' : 'New to you'}
-              {queueTotal > 0 && <span className="mpm-count">{fmt(queueTotal)}</span>}
+              {isHandler ? 'Assigned to you' : 'New to you'}
+              {(isHandler ? mineCount : queueTotal) > 0 && (
+                <span className="mpm-count">{fmt(isHandler ? mineCount : queueTotal)}</span>
+              )}
             </h3>
-            <Link className="mpm-link mpm-open" href="/admin/collections/leads">
+            <Link
+              className="mpm-link mpm-open"
+              href={isHandler ? mineHref : '/admin/collections/leads'}
+            >
               open →
             </Link>
           </div>
-          {queue.length === 0 ? (
+
+          {(isHandler ? mine : queue).length === 0 ? (
             <p className="mpm-empty">
-              {isHandler ? 'Every lead has an owner.' : 'Nothing new right now.'}
+              {isHandler ? 'Nothing is assigned to you right now.' : 'Nothing new right now.'}
             </p>
           ) : (
-            <>
-              <ul className="mpm-rows">
-                {queue.map((l) => (
-                  <LeadRow key={String(l.id)} lead={l} showOwner={isHandler} />
-                ))}
-              </ul>
-              {(queueTotal > queue.length || oldestWaiting) && (
-                <p className="mpm-more">
-                  {queueTotal > queue.length && (
-                    <>
-                      Showing the {queue.length} newest of {fmt(queueTotal)}.{' '}
-                    </>
-                  )}
-                  {oldestWaiting?.createdAt && queueTotal > 1 && (
-                    <span className="mpm-more__wait">
-                      Waiting longest:{' '}
-                      <Link
-                        className="mpm-link mpm-more__waitlink"
-                        href={`/admin/collections/leads/${oldestWaiting.id}`}
-                        title={`Received ${exactTime(oldestWaiting.createdAt)}`}
-                      >
-                        {oldestWaiting.name || 'Unnamed'} · {timeAgo(oldestWaiting.createdAt)}
-                      </Link>
-                      .{' '}
-                    </span>
-                  )}
-                  <Link className="mpm-link mpm-more__link" href="/admin/collections/leads">
-                    see all →
+            <ul className="mpm-rows">
+              {(isHandler ? mine : queue).map((l) => (
+                <LeadRow key={String(l.id)} lead={l} showOwner={false} />
+              ))}
+            </ul>
+          )}
+
+          {/* Only once there is more than a screenful - a button offering to show ten of
+              ten is noise. */}
+          {isHandler && mineCount > mine.length && (
+            <p className="mpm-more">
+              <Link className="mpm-showall" href={mineHref}>
+                Show all {fmt(mineCount)} →
+              </Link>
+            </p>
+          )}
+
+          {!isHandler && queueTotal > queue.length && (
+            <p className="mpm-more">
+              <Link className="mpm-showall" href="/admin/collections/leads">
+                Show all {fmt(queueTotal)} →
+              </Link>
+            </p>
+          )}
+
+          {/* The distribution duty, kept to one line. */}
+          {isHandler && queueTotal > 0 && (
+            <p className="mpm-more">
+              <strong className="mpm-more__wait">{fmt(queueTotal)}</strong>{' '}
+              {queueTotal === 1 ? 'lead still needs' : 'leads still need'} an owner.{' '}
+              {oldestWaiting?.createdAt && (
+                <span className="mpm-more__wait">
+                  Waiting longest:{' '}
+                  <Link
+                    className="mpm-link mpm-more__waitlink"
+                    href={`/admin/collections/leads/${oldestWaiting.id}`}
+                    title={`Received ${exactTime(oldestWaiting.createdAt)}`}
+                  >
+                    {oldestWaiting.name || 'Unnamed'} · {timeAgo(oldestWaiting.createdAt)}
                   </Link>
-                </p>
+                  .{' '}
+                </span>
               )}
-            </>
+              <Link className="mpm-link mpm-more__link" href={unclaimedHref}>
+                see them →
+              </Link>
+            </p>
           )}
         </article>
 
@@ -828,10 +880,8 @@ const EXTRA_CSS = `
 @media (max-width:1100px){ .mpm-kpis--4{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:520px){
   .mpm-kpis--4{grid-template-columns:repeat(2,1fr);gap:.6rem}
-  /* Two by two. The base strip gives its hero the full width, which is right for three
-     cards and wrong for four - it left the fourth alone on a row with half the screen
-     blank beside it. */
-  .mpm-kpis--4 .mpm-kpi--hero{grid-column:auto}
+  /* The base strip no longer spans its hero, so there is nothing to undo here - only the
+     figure size, which is tuned for a half-width card. */
   .mpm-kpis--4 .mpm-kpi--hero .mpm-kpi__value{font-size:1.9rem}
 }
 /* A duration is four or five characters wide where a count is two, so it is set a

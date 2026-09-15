@@ -47,7 +47,19 @@ const usersRead: Access = ({ req }) => {
   if (isRole(req, 'admin')) return true;
   const id = (req.user as { id?: string | number }).id;
   if (isRole(req, 'handler')) {
-    return { or: [{ role: { equals: 'sales' } }, { id: { equals: id } }] } as Where;
+    // Handlers can read each other as well as their salespeople.
+    //
+    // They used to see only `sales` plus themselves, which meant a lead owned by another
+    // handler rendered as "Untitled - ID: 32" everywhere it appeared - the lead's sidebar,
+    // the dashboard, the Assigned To column. Handlers are peers working one pipeline
+    // between them; being unable to tell who is holding a lead is not a boundary worth
+    // keeping, it just made the board unreadable.
+    //
+    // Still not the whole directory: admins, editors and ops stay invisible, and reading
+    // is not editing - `usersUpdate` below still lets a handler change salespeople only.
+    return {
+      or: [{ role: { in: ['handler', 'sales'] } }, { id: { equals: id } }],
+    } as Where;
   }
   return { id: { equals: id } } as Where;
 };

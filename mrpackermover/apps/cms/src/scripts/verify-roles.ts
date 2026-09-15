@@ -373,9 +373,11 @@ try {
     `sales sees ${salesCount.totalDocs} of ${everyLead.totalDocs}`,
   );
 
-  // The staff directory is not browsable by the sales hierarchy. A salesperson sees
-  // only themselves; a handler additionally sees salespeople, because they must pick
-  // one to assign work to.
+  // The staff directory is not browsable by the sales hierarchy. A salesperson sees only
+  // themselves; a handler sees the sales desk - salespeople and other handlers - because
+  // they pick someone to assign work to, and because a lead held by a colleague has to
+  // show that colleague's name rather than a row id. Admins, editors and ops stay hidden
+  // from both.
   const salesSeesUsers = (await payload.find({
     collection: 'users',
     limit: 100,
@@ -395,7 +397,7 @@ try {
   const handlerSawOnlySalesOrSelf = handlerSeesUsers.docs.every(
     (u) => u.role === 'sales' || u.role === 'handler',
   );
-  check('handler sees salespeople and themselves, nobody else', handlerSawOnlySalesOrSelf);
+  check('handler sees only the sales desk, nobody else', handlerSawOnlySalesOrSelf);
   check(
     'handler cannot see the admin account',
     !handlerSeesUsers.docs.some((u) => u.role === 'admin'),

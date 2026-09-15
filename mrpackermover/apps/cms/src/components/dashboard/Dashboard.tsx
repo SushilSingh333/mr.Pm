@@ -679,7 +679,12 @@ export const CSS = `
 @media (max-width:520px){
   .mpm-kpis{ grid-template-columns:repeat(2,1fr); gap:.6rem; }
   .mpm-kpi{ padding:.85rem .8rem .9rem; gap:.2rem; border-radius:14px; }
-  .mpm-kpi--hero{ grid-column:1 / -1; }
+  /* The hero takes one cell like everything else here.
+     Spanning it across both columns leaves the remaining five in a 2-up grid as 2 + 2 + 1,
+     and that last card sat alone with half a row of empty page beside it. Six cards in two
+     columns is three clean rows. It keeps the violet gradient, so it still reads as the
+     headline number without needing the extra width. */
+  .mpm-kpi--hero{ grid-column:auto; }
   .mpm-ico{ width:34px; height:34px; margin-bottom:.35rem; }
   .mpm-ico svg{ width:16px; height:16px; }
   .mpm-kpi__label{ font-size:.62rem; letter-spacing:.06em; }
@@ -752,7 +757,7 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 .mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 6.6rem 6rem; }
 .mpm-row--lead .mpm-badge { justify-self:center; text-align:center; }
 .mpm-row--lead .mpm-row__time { justify-self:end; }
-.mpm-row__dial .mpm-dial__btn { width:30px; height:30px; }
+.mpm-row__dial { --dial:30px; }
 .mpm-row__dial .mpm-dial__btn svg { width:13px; height:13px; }
 .mpm-row:first-child { border-top:0; }
 .mpm-avatar { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; flex:none; font-size:.82rem; font-weight:700; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); }
@@ -884,4 +889,20 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 .mpm-rr__done:hover:not(:disabled){ filter:brightness(1.07); transform:translateY(-1px); }
 .mpm-rr__done:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
 .mpm-rr__cancel:focus-visible,.mpm-rr__done:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
+
+/* "Show all" - an actual button, because it is the way out of a truncated list and a
+   quiet text link reads as a footnote rather than the next thing to press. */
+.mpm-showall{
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.45rem 1rem; border-radius:99px;
+  background:color-mix(in srgb, var(--v-500) 12%, transparent);
+  border:1px solid color-mix(in srgb, var(--v-500) 28%, transparent);
+  color:var(--v-500); font-size:.82rem; font-weight:700; text-decoration:none;
+  transition:background .12s ease, transform .12s ease;
+}
+.mpm-showall:hover{
+  background:color-mix(in srgb, var(--v-500) 20%, transparent);
+  transform:translateY(-1px); color:var(--v-500);
+}
+.mpm-showall:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
 `;

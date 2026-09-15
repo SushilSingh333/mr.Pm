@@ -132,7 +132,9 @@ html[data-theme="dark"]{
 }
 .nav .nav__link{
   display:flex; align-items:center; gap:.6rem;
-  font-size:.95rem; font-weight:500; line-height:1.25;
+  /* The admin's root font is 13px, not 16, so rem values here are smaller than they
+     look: .95rem was 12.35px. 1.1rem lands at ~14px, which is the readable step. */
+  font-size:1.1rem; font-weight:500; line-height:1.35;
   color:var(--theme-elevation-700);
   padding:.62rem .75rem; margin:2px .5rem; border-radius:12px;
   transition:background .13s, color .13s;
@@ -144,7 +146,7 @@ html[data-theme="dark"]{
 }
 .nav .nav__link.active svg,.nav .nav__link[aria-current="page"] svg{ color:#fff; }
 .nav .nav__link.active::after,.nav .nav__link[aria-current="page"]::after{ content:"\\203A"; margin-left:auto; font-size:1.3em; line-height:1; opacity:.9; }
-.nav .nav-group__label{ font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--mpm-ink-3); opacity:1; }
+.nav .nav-group__label{ font-size:.82rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--mpm-ink-3); opacity:1; }
 .nav__controls .btn:hover{ color:var(--mpm-v-500); }
 
 /* ---- Group headings ----
@@ -181,7 +183,7 @@ html[data-theme="dark"]{
 /* Our own quick-access heading is the same kind of thing, so it is set the same way -
    it used to be a size and colour of its own for no reason anyone could see. */
 .mpm-nav__quick-title{
-  font-size:.7rem !important; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  font-size:.82rem !important; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   color:var(--mpm-ink-3) !important;
 }
 .mpm-nav{ border-bottom-color:var(--mpm-line) !important; }
@@ -249,11 +251,27 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 /* ---- The dial strip ----
    A number, a Call button and a WhatsApp button. Ringing the customer is what this screen
    exists for, so it is the one thing in a row styled like a control rather than a field. */
-.mpm-dial{ display:inline-flex; align-items:center; gap:.55rem; }
+/* One variable drives the button size everywhere, so the reserved width below can be
+   derived from it rather than guessed at. */
+.mpm-dial{ --dial:34px; display:inline-flex; align-items:center; gap:.55rem; }
 .mpm-dial__num{ font-variant-numeric:tabular-nums; letter-spacing:.01em; color:var(--mpm-ink); }
-.mpm-dial__btns{ display:inline-flex; align-items:center; gap:.4rem; flex:none; }
+/* Two fixed slots, always, even when only one button is there.
+   Phone numbers are not all the same length - ten digits, a +91 prefix, the odd nine-digit
+   landline - and the buttons used to start wherever the text happened to end, so they
+   stepped left and right down the column. Worse, a number WhatsApp cannot take renders the
+   call button alone, which moved it again.
+   A first attempt reserved 4.7rem, which looked right and was not: the admin's root font
+   size is about 13px, not 16, so it resolved to 61px against a 73px pair and the
+   single-button rows still sat 12px out. Two slots sized from --dial cannot be wrong by
+   arithmetic - the second simply stays empty. */
+.mpm-dial__btns{
+  display:grid; grid-template-columns:repeat(2, var(--dial));
+  align-items:center; justify-items:start;
+  gap:.4rem; flex:none;
+}
 .mpm-dial__btn{
-  display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%;
+  display:inline-grid; place-items:center;
+  width:var(--dial); height:var(--dial); border-radius:50%;
   border:1px solid transparent; text-decoration:none; flex:none;
   transition:transform .12s ease, background .12s ease, border-color .12s ease;
 }
@@ -271,8 +289,17 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
   box-shadow:0 6px 14px -8px rgba(13,110,66,.8);
 }
 .mpm-dial__btn--call:hover,.mpm-dial__btn--wa:hover{ filter:brightness(1.06); }
-.mpm-dial--field .mpm-dial__btn{ width:44px; height:44px; }
+.mpm-dial--field{ --dial:44px; }
 .mpm-dial-field{ margin:-.35rem 0 1.1rem; }
+
+/* In a table, the cell is the same width on every row, so anchoring the buttons to its
+   right edge is what actually puts them in a straight line. Tabular figures stop the
+   numbers themselves jittering as digit widths change. */
+.table td.cell-phone .mpm-dial{
+  display:grid; grid-template-columns:minmax(0,1fr) auto;
+  align-items:center; width:100%; gap:.6rem;
+}
+.table td.cell-phone .mpm-dial__num{ font-variant-numeric:tabular-nums; }
 
 /* Owner and age. An unclaimed lead is the one thing in the list that needs a decision
    from whoever is reading it, so it is the one thing wearing the ember. */
@@ -489,12 +516,68 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
      drawer sliding over white cards has nothing to say where one ends and the other
      begins - in light mode it washed out completely. Dark also finishes the gesture the
      gradient hamburger starts: the control and the panel it opens read as one object. */
-  .nav--nav-open{
+  /* One column, in every nav state.
+     Payload lays this out as a two-column grid - the nav, then the page - and opens the
+     drawer by animating the first column from 0 to --nav-width, which is 100vw here. That
+     is a push drawer that shoves the page off the right of the screen.
+     Making the nav position:fixed for the slide took it out of flow, so it stopped being
+     a grid item: the page div became the FIRST in-flow child and landed in the 0px column,
+     collapsing to its min-content width. Measured at 18px on a 390px screen - the whole
+     dashboard squeezed into a sliver down the left.
+     With the drawer overlaying rather than pushing, the grid only ever has one thing to
+     lay out, so it gets one column and the page fills it. Every nav-state selector Payload
+     sets is covered, including its two-class one, or the more specific rule would win. */
+  .template-default,
+  .template-default--nav-hydrated,
+  .template-default--nav-open,
+  .template-default--nav-hydrated.template-default--nav-open{ grid-template-columns:1fr; }
+
+  /* One element in two states, which is what makes it animatable at all.
+     It used to be sticky when closed and fixed when open: two different layouts with
+     nothing to tween between, so it jumped into place while Payload's 150ms opacity fade
+     ran underneath. Now it is always fixed and always the same size, and only the
+     transform changes - the one property a browser can animate on the compositor without
+     touching layout, which is what keeps it smooth on a mid-range phone.
+
+     The curve is a decelerating ease-out: quick to leave the edge, slow to settle. A
+     linear slide reads as mechanical, and the default ease is too soft at this distance. */
+  .nav{
     position:fixed; top:0; left:0; bottom:0; height:100dvh; z-index:120;
     width:min(86vw,320px);
     background:linear-gradient(168deg,var(--mpm-drawer),var(--mpm-drawer-2));
     border-right:0;
-    box-shadow:0 0 0 100vmax var(--mpm-scrim), 22px 0 60px -30px rgba(9,7,24,.95);
+    /* Payload fades 0 to 1 over --nav-trans-time. We slide instead, so the panel has to
+       stay opaque or it would fade in halfway through the movement. */
+    opacity:1;
+    transform:translateX(-100%);
+    visibility:hidden;
+    box-shadow:22px 0 60px -30px rgba(9,7,24,0);
+    transition:
+      transform .32s cubic-bezier(.32,.72,0,1),
+      box-shadow .32s ease,
+      visibility .32s;
+    will-change:transform;
+  }
+  .nav--nav-open{
+    transform:translateX(0);
+    visibility:visible;
+    box-shadow:22px 0 60px -30px rgba(9,7,24,.95);
+  }
+
+  /* The scrim.
+     Payload already renders one - .template-default__wrap::before, absolutely positioned
+     over the content and permanently invisible, because the rule that would show it
+     targets a .template-default__nav-overlay element the template never renders. Reusing
+     it puts the dimming on the page rather than painting it from the drawer, so it can
+     fade on its own timing while the panel slides, and it cannot end up covering the
+     screen when the panel is off it. */
+  .template-default__wrap::before{
+    background-color:var(--mpm-scrim);
+    z-index:110;
+    transition:opacity .32s ease, visibility .32s;
+  }
+  .template-default--nav-open .template-default__wrap::before{
+    opacity:1; visibility:visible;
   }
   .nav--nav-open .nav__scroll{
     display:flex; flex-direction:column; height:100%;
@@ -509,7 +592,16 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
      The flex goes on .nav__header-content, not on .nav__header: the content div is
      display:block at full width, so justifying its parent moved nothing at all and the
      button stayed jammed against the left edge, on top of the New proposal card. */
-  .nav--nav-open .nav__wrap{ order:2; padding-top:.9rem; }
+  /* The contents ease in just behind the panel. Without it the whole drawer arrives as
+     one flat slab; a few frames of delay makes it read as a surface with things ON it. */
+  .nav--nav-open .nav__wrap{
+    order:2; padding-top:.9rem;
+    animation:mpm-drawer-in .34s cubic-bezier(.32,.72,0,1) .06s both;
+  }
+  @keyframes mpm-drawer-in{
+    from{ opacity:0; transform:translateX(-10px); }
+    to{ opacity:1; transform:none; }
+  }
   .nav--nav-open .nav__header{
     order:1; position:sticky; top:0; z-index:3;
     /* Something outside this file gives the header an explicit width - measured at
@@ -549,7 +641,7 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
   .nav--nav-open .nav__link,.nav--nav-open .mpm-nav__quick-link{
     display:flex; align-items:center; min-height:44px;
     margin:1px 0; padding:.55rem .7rem; border-radius:10px;
-    font-size:.93rem; font-weight:500; color:var(--mpm-drawer-ink);
+    font-size:1.08rem; font-weight:500; color:var(--mpm-drawer-ink);
   }
   .nav--nav-open .nav__link:hover,.nav--nav-open .mpm-nav__quick-link:hover{
     background:var(--mpm-drawer-hover); color:#fff;
@@ -566,7 +658,7 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
   .nav--nav-open .nav-group__label,.nav--nav-open .nav__label,
   .nav--nav-open .mpm-nav__quick-title{
     color:var(--mpm-drawer-ink-2); opacity:1;
-    font-size:.68rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+    font-size:.8rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
   }
   /* A group heading and its collapse chevron share one flex row, aligned to its top.
      Spacing the label on its own pushed the words down and left the chevron behind at the
@@ -630,5 +722,10 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 
 @media (prefers-reduced-motion:reduce){
   .btn,.card,.mpm-dial__btn,.nav__link,.hamburger{ transition:none !important; }
+  /* The drawer still has to appear and disappear - it just does it at once. Visibility
+     keeps its transition so the panel is not torn off the screen mid-close. */
+  .nav{ transition:visibility .01s !important; }
+  .nav--nav-open .nav__wrap{ animation:none !important; }
+  .template-default__wrap::before{ transition:none !important; }
 }
 `;

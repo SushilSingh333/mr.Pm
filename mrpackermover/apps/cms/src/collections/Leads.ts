@@ -25,6 +25,10 @@ export const Leads: CollectionConfig = {
     useAsTitle: 'name',
     group: 'Inbox',
     defaultColumns: ['name', 'phone', 'service', 'status', 'assignedTo', 'createdAt'],
+    // Sits directly above the table, next to the tick boxes it acts on. Routing a
+    // selection in one go is the difference between covering for someone's leave in a
+    // minute and doing it twenty times by hand.
+    components: { beforeListTable: ['/components/leads/BulkAssign#BulkAssign'] },
     description:
       'Every quote form and price check lands here. Newest first. Filter by date, status, owner or source.',
   },

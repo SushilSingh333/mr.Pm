@@ -239,6 +239,48 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 /* The "span" is load-bearing. Without it these are one class less specific than the
    attribute selector above, so the fallback grey won every cascade and the whole pipeline
    rendered in one colour - a Quoted lead looked exactly like a New one. */
+/* ── bulk assign bar ──────────────────────────────────────────────────────── */
+/* Appears only with rows ticked, so it must read as a consequence of the selection
+   rather than another permanent toolbar: tinted, one line, sitting right on top of
+   the table it acts on. */
+.mpm-bulk{
+  display:flex; align-items:center; flex-wrap:wrap; gap:.6rem;
+  margin:0 0 .75rem; padding:.6rem .8rem;
+  border:1px solid var(--mpm-line); border-radius:12px;
+  background:var(--mpm-tint); color:var(--mpm-ink);
+  font-size:.9rem;
+}
+.mpm-bulk__count{ color:var(--mpm-soft); }
+.mpm-bulk__count strong{ color:var(--mpm-ink); font-size:1rem; }
+.mpm-bulk__who{
+  min-width:12rem; max-width:100%;
+  padding:.4rem .55rem; border-radius:8px;
+  border:1px solid var(--mpm-line);
+  background:var(--theme-input-bg,var(--theme-elevation-0));
+  color:var(--mpm-ink); font-size:.9rem;
+}
+.mpm-bulk__go,.mpm-bulk__cancel{
+  padding:.42rem .85rem; border-radius:8px; font-size:.88rem; font-weight:600;
+  border:1px solid transparent; cursor:pointer;
+}
+.mpm-bulk__go{ background:var(--mpm-grad); color:#fff; }
+.mpm-bulk__go:disabled{ opacity:.5; cursor:not-allowed; }
+.mpm-bulk__cancel{ background:transparent; border-color:var(--mpm-line); color:var(--mpm-soft); }
+/* The confirm step keeps the bar's shape and swaps its contents, so the row does not
+   jump as it changes - the button you are about to press stays where your eye is. */
+.mpm-bulk__confirm{ display:flex; align-items:center; flex-wrap:wrap; gap:.6rem; }
+.mpm-bulk__ask{ color:var(--mpm-ink); }
+.mpm-bulk__ok{ color:#1a9d5a; font-weight:600; }
+.mpm-bulk__error{ color:#b23c17; font-weight:600; }
+@media (max-width:640px){
+  /* Thumbs, not pointers: the control and its button each take the full width rather
+     than crowding onto one line where the wrong one gets hit. */
+  .mpm-bulk{ flex-direction:column; align-items:stretch; }
+  .mpm-bulk__confirm{ flex-direction:column; align-items:stretch; }
+  .mpm-bulk__who,.mpm-bulk__go,.mpm-bulk__cancel{ width:100%; }
+  .mpm-bulk__go,.mpm-bulk__cancel{ min-height:40px; }
+}
+
 .cell-status > span.selected--new{ --chip:#8a8f98; }
 .cell-status > span.selected--assigned{ --chip:#6D5AE6; }
 .cell-status > span.selected--reassigned{ --chip:#8b6df0; }
@@ -365,7 +407,10 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
   /* The header row has nowhere to go once cells stack, and sorting is reachable from
      the controls above. */
   .table thead{ display:none; }
-  /* Bulk-select is a desktop habit; it costs a whole column here. */
+  /* Hidden by default: on a card it would be a full-width block of its own, and most
+     collections have nothing worth selecting in bulk. Leads bring it back below, where
+     the grid gives it a real place - routing a batch of leads to cover someone's leave
+     is not a desktop-only need, and it is the phone that tends to be to hand. */
   .table td.cell-_select{ display:none; }
 
   .table tbody tr{
@@ -401,19 +446,29 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
      mattering: the chip sits beside the name however Payload chooses to emit it. */
   .collection-list--leads .table tbody tr{
     display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
+    /* Three columns now: the tick box, the body, and the right-hand gutter the status
+       chip and date sit in. */
+    grid-template-columns:auto minmax(0,1fr) auto;
     column-gap:.75rem;
     align-items:start;
   }
   /* A column someone adds from the Columns menu has no named place, so it falls to the
      full width on a row of its own rather than landing somewhere arbitrary. */
   .collection-list--leads .table tbody td{ grid-column:1 / -1; }
-  .collection-list--leads .table td.cell-name{ grid-area:1 / 1 / 2 / 2; }
-  .collection-list--leads .table td.cell-status{ grid-area:1 / 2 / 2 / 3; justify-self:end; }
-  .collection-list--leads .table td.cell-service{ grid-area:2 / 1 / 3 / 3; }
-  .collection-list--leads .table td.cell-phone{ grid-area:3 / 1 / 4 / 3; }
-  .collection-list--leads .table td.cell-assignedTo{ grid-area:4 / 1 / 5 / 2; align-self:center; }
-  .collection-list--leads .table td.cell-createdAt{ grid-area:4 / 2 / 5 / 3; justify-self:end; align-self:center; }
+  /* The tick box leads the card, level with the name it belongs to. Given a 40px live
+     area so it is a target rather than a speck - the box Payload draws is much smaller
+     than the area worth tapping. */
+  .collection-list--leads .table td.cell-_select{
+    display:flex; align-items:center; justify-content:center;
+    grid-area:1 / 1 / 2 / 2;
+    min-width:34px; min-height:34px; margin-left:-.25rem;
+  }
+  .collection-list--leads .table td.cell-name{ grid-area:1 / 2 / 2 / 3; align-self:center; }
+  .collection-list--leads .table td.cell-status{ grid-area:1 / 3 / 2 / 4; justify-self:end; }
+  .collection-list--leads .table td.cell-service{ grid-area:2 / 2 / 3 / 4; }
+  .collection-list--leads .table td.cell-phone{ grid-area:3 / 1 / 4 / 4; }
+  .collection-list--leads .table td.cell-assignedTo{ grid-area:4 / 1 / 5 / 3; align-self:center; }
+  .collection-list--leads .table td.cell-createdAt{ grid-area:4 / 3 / 5 / 4; justify-self:end; align-self:center; }
 
   /* The dial strip spans the card, so it reads as the button it is. */
   .collection-list--leads .table td.cell-phone{

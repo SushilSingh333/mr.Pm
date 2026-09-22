@@ -29,6 +29,7 @@ import { ServiceCell as ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../
 import { LeadStatusSelect as LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4 } from '../../../components/fields/LeadStatusSelect'
 import { OwnerCell as OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { AgeCell as AgeCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
+import { BulkAssign as BulkAssign_c9d8058b31c86f5fc313b99e4f970e83 } from '../../../components/leads/BulkAssign'
 import { LeadAutofill as LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec } from '../../../components/proposal/LeadAutofill'
 import { MeasureDistance as MeasureDistance_d707844cebb44f084064938405f1d175 } from '../../../components/proposal/MeasureDistance'
 import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../../../components/proposal/ProposalPdf'
@@ -73,6 +74,7 @@ export const importMap = {
   "/components/fields/LeadStatusSelect#LeadStatusSelect": LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4,
   "/components/leads/Cells#OwnerCell": OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/Cells#AgeCell": AgeCell_f3ff0d3eb06f60f8f116db056ab62b80,
+  "/components/leads/BulkAssign#BulkAssign": BulkAssign_c9d8058b31c86f5fc313b99e4f970e83,
   "/components/proposal/LeadAutofill#LeadAutofill": LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec,
   "/components/proposal/MeasureDistance#MeasureDistance": MeasureDistance_d707844cebb44f084064938405f1d175,
   "/components/proposal/ProposalPdf#ProposalPdf": ProposalPdf_96917c16d64f6b56cae496087e6af5a4,

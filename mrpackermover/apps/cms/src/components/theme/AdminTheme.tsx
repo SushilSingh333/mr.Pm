@@ -244,6 +244,8 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
 .cell-status > span.selected--reassigned{ --chip:#8b6df0; }
 .cell-status > span.selected--contacted{ --chip:#2f6df6; }
 .cell-status > span.selected--call-not-picked{ --chip:#d16a5a; }
+.cell-status > span.selected--call-later{ --chip:#0f8b9e; }
+.cell-status > span.selected--follow-up{ --chip:#c2478f; }
 .cell-status > span.selected--quoted{ --chip:#c98a00; }
 .cell-status > span.selected--won{ --chip:#1a9d5a; }
 .cell-status > span.selected--lost{ --chip:#8a8f98; }
@@ -425,6 +427,17 @@ svg[aria-label="MrMoverPacker"]{ flex:none; overflow:visible; }
     display:flex; width:100%; align-items:center; justify-content:space-between;
   }
   .collection-list--leads .table td.cell-phone .mpm-dial__num{ font-size:.9rem; font-weight:600; }
+
+  /* Touch targets, phone-sized.
+     These two sit side by side under a thumb. At 34px with a .4rem gap - which is 5px,
+     not 6.4px, because the admin's root font is 13px - the live areas are close enough
+     that aiming for WhatsApp catches Call. Ringing a customer by accident is a worse
+     mistake than a tap that does nothing, so the gap has to clear a fingertip rather
+     than just look separated: 40px targets with 14px of dead space between them.
+     The field variant keeps its own larger size. */
+  .mpm-dial{ --dial:40px; }
+  .mpm-dial--field{ --dial:44px; }
+  .mpm-dial__btns{ gap:14px; }
   .collection-list--leads .table td.cell-assignedTo,
   .collection-list--leads .table td.cell-createdAt{ font-size:.76rem; }
 

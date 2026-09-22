@@ -64,8 +64,8 @@ export function LeadStatusSelect({ path }: { path: string }): React.JSX.Element 
       </select>
       {isSales && current && ROUTING.includes(current.value) && (
         <p className="field-description">
-          This lead is waiting on you. Move it to Contacted, Call not picked or Quoted once you have
-          worked it, or Invalid lead if the number is wrong.
+          This lead is waiting on you. Move it on once you have worked it, or to Invalid lead if the
+          number is wrong.
         </p>
       )}
       <style>{`

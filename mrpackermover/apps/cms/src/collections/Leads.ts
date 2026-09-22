@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 import { leadsRead, leadsUpdate, leadsDelete, isRole } from '../access/index.js';
+import { ROUTING_STAGES, SALES_SETTABLE, humanList } from '../components/dashboard/lead-status.js';
 
 /**
  * Quote-form submissions. Created by the public `/quote` endpoint (create access is
@@ -104,7 +105,7 @@ export const Leads: CollectionConfig = {
         // carries, but may not select one: it would be meaningless coming from them and
         // would misreport how the lead was routed. Hiding them in the UI is not enough,
         // because the REST API would still accept the value.
-        const ROUTING_STAGES = ['new', 'assigned', 'reassigned'];
+
         if (
           operation === 'update' &&
           isRole(req, 'sales') &&
@@ -112,8 +113,13 @@ export const Leads: CollectionConfig = {
           ROUTING_STAGES.includes(data.status) &&
           data.status !== originalDoc?.status
         ) {
+          // Built from the stage list, not typed out. The hand-written version had to be
+          // edited every time a stage was added, and a message naming the wrong options is
+          // worse than none - it sends someone looking for a status that is not there.
           throw new Error(
-            'Only a handler can assign or reassign a lead. Move it to Contacted, Call not picked, Quoted, Won, Lost or Invalid lead.',
+            'Only a handler can assign or reassign a lead. Move it to ' +
+              humanList(SALES_SETTABLE.map((x) => x.label)) +
+              '.',
           );
         }
 
@@ -430,6 +436,10 @@ export const Leads: CollectionConfig = {
         { label: 'Reassigned', value: 'reassigned' },
         { label: 'Contacted', value: 'contacted' },
         { label: 'Call not picked', value: 'call-not-picked' },
+        // Answered, but asked to be rung back later - not the same as nobody picking up.
+        { label: 'Call later', value: 'call-later' },
+        // Spoken to and still deciding: warm, and owed another contact.
+        { label: 'Follow up', value: 'follow-up' },
         { label: 'Quoted', value: 'quoted' },
         { label: 'Won', value: 'won' },
         { label: 'Lost', value: 'lost' },

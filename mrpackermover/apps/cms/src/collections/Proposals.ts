@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload';
 import { proposalsRead, proposalsWrite, isRole } from '../access/index.js';
 import { DEFAULT_PROPOSAL_SERVICE, proposalServiceFor } from '../lib/proposal-service.js';
+import { PRE_QUOTE_STAGES } from '../components/dashboard/lead-status.js';
 
 /**
  * Moving proposals — a native CMS section. Click "Proposals" → the list of everything created;
@@ -253,13 +254,8 @@ export const Proposals: CollectionConfig = {
        * the login audit hit (see Users.ts). Passing `req` joins the existing transaction.
        */
       async ({ doc, req, operation }) => {
-        const OPEN_BEFORE_QUOTED = [
-          'new',
-          'assigned',
-          'reassigned',
-          'contacted',
-          'call-not-picked',
-        ];
+        // Derived from the stage list - see PRE_QUOTE_STAGES for why this is not typed out.
+        const OPEN_BEFORE_QUOTED = PRE_QUOTE_STAGES;
         const leadId = typeof doc.lead === 'object' ? doc.lead?.id : doc.lead;
         if (!leadId || (operation !== 'create' && operation !== 'update')) return doc;
         try {

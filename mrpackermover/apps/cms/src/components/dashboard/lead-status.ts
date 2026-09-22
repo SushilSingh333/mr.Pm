@@ -28,11 +28,23 @@ export const LEAD_STATUS: LeadStage[] = [
   { value: 'reassigned', label: 'Reassigned', color: '#8b6df0' },
   { value: 'contacted', label: 'Contacted', color: '#2f6df6' },
   { value: 'call-not-picked', label: 'Call not picked', color: '#d16a5a' },
+  // The customer answered but asked for another time. Distinct from Call not picked,
+  // which is nobody answering - one is a promise to ring back, the other is a retry.
+  { value: 'call-later', label: 'Call later', color: '#0f8b9e' },
+  // Spoken to, still deciding. The lead is warm and owed another contact.
+  { value: 'follow-up', label: 'Follow up', color: '#c2478f' },
   { value: 'quoted', label: 'Quoted', color: '#c98a00' },
   { value: 'won', label: 'Won', color: '#1a9d5a' },
   { value: 'lost', label: 'Lost', color: '#8a8f98' },
   { value: 'invalid', label: 'Invalid lead', color: '#b23c17' },
 ];
+
+/**
+ * Set by the assignment hook when a handler routes work, never chosen by a salesperson.
+ * Defined here with the stages themselves so the collection, the select and any future
+ * caller all read one list.
+ */
+export const ROUTING_STAGES = ['new', 'assigned', 'reassigned'];
 
 /**
  * Stages that mean the lead is finished with, in one place.
@@ -48,6 +60,31 @@ export const LEAD_STATUS: LeadStage[] = [
  * it in would push the number down for reasons that have nothing to do with selling.
  */
 export const CLOSED_STAGES = ['won', 'lost', 'invalid'];
+
+/**
+ * Everything a lead can be BEFORE it has been quoted.
+ *
+ * Proposals.ts used to spell this list out by hand to decide whether sending a proposal
+ * should advance the lead to Quoted. Adding "Call later" and "Follow up" without touching
+ * that copy would have meant a salesperson sending a proposal from either stage and
+ * watching the lead sit there un-advanced - the silent kind of wrong, where nothing errors
+ * and the pipeline is simply understated. Derived, so a new working stage joins by itself.
+ */
+export const PRE_QUOTE_STAGES = LEAD_STATUS.filter(
+  (s) => s.value !== 'quoted' && !CLOSED_STAGES.includes(s.value),
+).map((s) => s.value);
+
+/** The stages a salesperson may move a lead into by hand. */
+export const SALES_SETTABLE = LEAD_STATUS.filter((s) => !ROUTING_STAGES.includes(s.value));
+
+/**
+ * "A, B or C" - for telling someone what they may choose. Built from the stage list so the
+ * sentence cannot name a stage that no longer exists, or omit one that was just added.
+ */
+export const humanList = (labels: string[]): string =>
+  labels.length <= 1
+    ? (labels[0] ?? '')
+    : labels.slice(0, -1).join(', ') + ' or ' + labels[labels.length - 1];
 
 /**
  * Look up a stage for display. An unrecognised value shows itself rather than being

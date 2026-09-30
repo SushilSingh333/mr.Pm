@@ -1,24 +1,16 @@
 import type { Payload, ServerProps } from 'payload';
 import Link from 'next/link';
+import { CLOSED_STAGES } from '../dashboard/lead-status.js';
+import { BrandIcon } from '../graphics/BrandIcon.js';
+import { MIcon } from '../icons/MIcon.js';
+import { NavRow } from './NavRow.js';
 
 /**
  * Sidebar header (admin.components.beforeNavLinks): a live "Needs attention" panel —
  * new leads, new job applications and unread contact messages, each a one-tap link to
- * the filtered collection — plus a compact quick-access list. Server component so the
- * counts are always current. Payload theme variables + the violet admin accent
- * (matches the redesigned dashboard and global admin theme).
+ * the filtered collection — plus Create and the schedule shortcuts. Server component so
+ * the counts are always current. Styled as Google's side navigation.
  */
-const V = '#6D5AE6';
-
-const QUICK = [
-  { href: '/admin/collections/leads', label: 'Leads', sales: true },
-  { href: '/admin/collections/proposals', label: 'Proposals', sales: true },
-  { href: '/admin/collections/locations', label: 'Locations' },
-  { href: '/admin/collections/reviews', label: 'Reviews' },
-  { href: '/admin/collections/pages', label: 'Editorial pages' },
-  { href: '/admin/collections/jobs', label: 'Job openings' },
-  { href: '/admin/globals/home-content', label: 'Home page' },
-];
 
 /**
  * Count rows this person is actually allowed to see.
@@ -61,27 +53,59 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
   const isSales = role === 'sales';
   const isHandler = role === 'handler';
 
+  // The same predicate the dashboard card uses, closed stages and all. Without the
+  // `not_in`, one unassigned lead marked "Invalid lead" inflates this badge forever while
+  // the card three inches to the right stays right - and the two are meant to be the same
+  // number, because they are meant to be the same queue.
   const leadBadgeWhere: Record<string, unknown> = isSales
-    ? { and: [{ assignedTo: { equals: userId } }, { acknowledgedAt: { exists: false } }] }
+    ? {
+        and: [
+          { assignedTo: { equals: userId } },
+          { acknowledgedAt: { exists: false } },
+          { status: { not_in: CLOSED_STAGES } },
+        ],
+      }
     : isHandler
-      ? { assignedTo: { exists: false } }
+      ? { and: [{ assignedTo: { exists: false } }, { status: { not_in: CLOSED_STAGES } }] }
       : { status: { equals: 'new' } };
-  const leadBadgeLabel = isSales ? 'New to you' : isHandler ? 'Needs an owner' : 'New leads';
-  const leadBadgeHref = isHandler
-    ? '/admin/collections/leads?where[assignedTo][exists]=false'
+  const leadBadgeLabel = isSales ? 'New to you' : isHandler ? 'Unassigned leads' : 'New leads';
+  // Both sales roles land on their own dashboard with that queue already filtered, which
+  // is the only screen where the badge's number and the list underneath it are the same
+  // query. The sales link used to be ?where[status][equals]=new - and a salesperson's
+  // leads are never `new`, as the note below already says, so the badge read 4 and opened
+  // an empty list. Content staff keep the list link: they have no lead board.
+  const leadBadgeHref = salesOnly
+    ? '/admin?range=all&filter=queue#leads'
     : '/admin/collections/leads?where[status][equals]=new';
-  const [leads, apps, messages] = await Promise.all([
+  /**
+   * Every booked move, which is exactly what the button opens.
+   *
+   * The count and the destination run the SAME condition on purpose. An earlier version
+   * counted everything promised inside the notice window and then opened a list of
+   * booked moves - a badge reading 6 above a page showing 4, which is the kind of small
+   * lie that stops people trusting the number. One query, one meaning.
+   *
+   * The two-days-early warning has not gone anywhere; it lives on the dashboard strip,
+   * which is where urgency belongs. This is a destination, not an alarm.
+   */
+  const scheduleWhere = { status: { equals: 'scheduled' } };
+
+  const [leads, scheduled, apps, messages] = await Promise.all([
     // "Needs attention" means something different in each chair, and the badge has to
     // match what that person's dashboard puts in front of them:
     //
     //   sales   — leads handed to them that they have not acted on ("New to you").
     //             Their own leads are never status `new`; they become `assigned` the
     //             moment they are handed over, so counting `new` would always show 0.
-    //   handler — leads with nobody on them yet ("Needs an owner"). A handler routes
+    //   handler — leads with nobody on them yet ("Unassigned leads"). A handler routes
     //             work rather than receiving it, so counting leads assigned TO them
     //             would sit at 0 while the queue filled up behind them.
     //   others  — leads nobody has touched at all.
     tally(payload, 'leads', user, leadBadgeWhere),
+    // Content staff have no moves to keep track of.
+    role === 'editor' || role === 'ops'
+      ? Promise.resolve(0)
+      : tally(payload, 'leads', user, scheduleWhere),
     salesOnly
       ? Promise.resolve(0)
       : tally(payload, 'job-applications', user, { status: { equals: 'new' } }),
@@ -95,6 +119,7 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
       label: leadBadgeLabel,
       count: leads,
       href: leadBadgeHref,
+      icon: (isHandler ? 'person_add' : 'inbox') as 'person_add' | 'inbox' | 'assignment' | 'mail',
     },
     // Careers and the contact inbox belong to content staff, not the sales desk.
     ...(salesOnly
@@ -103,68 +128,82 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
           {
             label: 'New applications',
             count: apps,
+            icon: 'assignment' as const,
             href: '/admin/collections/job-applications?where[status][equals]=new',
           },
           {
             label: 'Unread messages',
             count: messages,
+            icon: 'mail' as const,
             href: '/admin/collections/contact-messages?where[status][equals]=new',
           },
         ]),
   ];
 
-  const quickLinks = QUICK.filter((q) => !salesOnly || q.sales);
-  const totalOpen = leads + apps + messages;
+  const showSchedule = role !== 'editor' && role !== 'ops';
 
   return (
     <div className="mpm-nav">
       <style>{CSS}</style>
 
-      <Link href="/admin/collections/proposals/create" className="mpm-nav__studio">
-        <span className="mpm-nav__studio-title">＋ New proposal</span>
-        <span className="mpm-nav__studio-sub">Create &amp; download a PDF quote</span>
+      {/* The logo, for the top-left corner beside the menu button while the sidebar is
+          open (placed there by AdminTheme, laptop widths only) - where Google Calendar
+          and Gmail keep theirs. The header drops its own copy meanwhile. */}
+      <Link href="/admin" className="mpm-nav__brand" title="Dashboard" prefetch={false}>
+        <BrandIcon />
       </Link>
 
-      <div className="mpm-nav__panel">
-        <div className="mpm-nav__panel-head">
-          <span className="mpm-nav__panel-title">Needs attention</span>
-          {totalOpen > 0 && <span className="mpm-nav__panel-dot" aria-hidden="true" />}
-        </div>
-        <div className="mpm-nav__alerts">
-          {alerts.map((a) => (
-            <Link
-              key={a.label}
-              href={a.href}
-              className={`mpm-nav__alert${a.count > 0 ? ' is-hot' : ''}`}
-            >
-              <span className="mpm-nav__alert-label">{a.label}</span>
-              <span className="mpm-nav__alert-count">{a.count}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* Google Calendar's "Create": the one thing in the sidebar that makes something,
+          so it is the one raised object - a white button with a soft lift, above the
+          plain navigation rows. */}
+      <Link
+        href="/admin/collections/proposals/create"
+        className="mpm-nav__create"
+        title="Create and download a PDF quote"
+        prefetch={false}
+      >
+        <MIcon name="add" size={24} className="mpm-nav__create-ico" />
+        <span>New proposal</span>
+      </Link>
 
-      <div className="mpm-nav__quick">
-        <span className="mpm-nav__quick-title">Quick access</span>
-        {/*
-          A plain anchor, not next/link, on purpose.
+      {/* The way into the schedule, from anywhere in the admin: the Leads list filtered to
+          Scheduled (so the list's own tools - dial strip, owner, bulk assign - come with
+          it) and the same moves on the calendar. Only the filter rides in the link:
+          Payload saves sort and column choices as preferences the moment a URL carries
+          them, and the soonest-first order comes from the collection instead (Leads'
+          beforeOperation hook). */}
+      {showSchedule && (
+        <>
+          <NavRow
+            href="/admin/collections/leads?where%5Bstatus%5D%5Bequals%5D=scheduled"
+            icon="format_list_bulleted"
+            label="Schedule"
+            count={scheduled}
+            title="Every booked move, on the Leads list"
+          />
+          <NavRow
+            href="/admin/calendar"
+            icon="calendar_month"
+            label="Calendar"
+            activeOn="/admin/calendar"
+            title="Booked moves by day"
+          />
+        </>
+      )}
 
-          The alert above links to a FILTERED list - "New leads" is
-          ?where[status][equals]=new. Navigating from there to the unfiltered list with a
-          client-side Link leaves the old query string in the address bar: the rows update
-          correctly (19 of 19, measured), but Payload's list provider re-serialises its
-          own state into the URL and carries the stale `where` along with it. The page
-          looks right until you refresh, and then the filter comes back from the URL.
-
-          A real navigation rebuilds that provider from the address you actually clicked,
-          so what you see and what a refresh gives you are the same thing. It costs a
-          document load on a nav click, which is the right trade for a link whose whole
-          job is "show me everything".
-        */}
-        {quickLinks.map((q) => (
-          <a key={q.href} href={q.href} className="mpm-nav__quick-link">
-            {q.label}
-          </a>
+      {/* Things waiting on somebody. Gmail's unread treatment: a row goes bold, count and
+          all, while there is something in it. */}
+      <div className="mpm-nav__section" role="group" aria-label="Needs attention">
+        <div className="mpm-nav__section-title">Needs attention</div>
+        {alerts.map((a) => (
+          <NavRow
+            key={a.label}
+            href={a.href}
+            icon={a.icon}
+            label={a.label}
+            count={a.count}
+            strong={a.count > 0}
+          />
         ))}
       </div>
     </div>
@@ -172,26 +211,42 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 }
 
 const CSS = `
-.mpm-nav { padding: 0 .25rem .7rem; margin-bottom: .7rem; border-bottom: 1px solid var(--theme-elevation-100); }
-.mpm-nav__studio { display:flex; flex-direction:column; gap:.05rem; text-decoration:none; padding:.6rem .75rem; margin-bottom:.85rem; border-radius:12px; background:linear-gradient(140deg,#8B7CF0,#5A46D6); box-shadow:0 6px 16px color-mix(in srgb, ${V} 35%, transparent); transition:transform .12s, box-shadow .12s; }
-.mpm-nav__studio:hover { transform:translateY(-1px); box-shadow:0 10px 22px color-mix(in srgb, ${V} 45%, transparent); }
-.mpm-nav__studio-title { color:#fff; font-weight:700; font-size:1.1rem; }
-.mpm-nav__studio-sub { color:rgba(255,255,255,.82); font-size:.85rem; }
-.mpm-nav__panel { background:color-mix(in srgb, ${V} 6%, var(--theme-elevation-50)); border:1px solid color-mix(in srgb, ${V} 12%, var(--theme-elevation-100)); border-radius:14px; padding:.65rem .7rem .55rem; margin-bottom:.85rem; }
-.mpm-nav__panel-head { display:flex; align-items:center; gap:.4rem; margin:0 .1rem .55rem; }
-.mpm-nav__panel-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--theme-elevation-600); }
-.mpm-nav__panel-dot { width:7px; height:7px; border-radius:50%; background:${V}; box-shadow:0 0 0 3px color-mix(in srgb, ${V} 24%, transparent); }
-.mpm-nav__alerts { display:flex; flex-direction:column; gap:.28rem; }
-.mpm-nav__alert { display:flex; align-items:center; justify-content:space-between; gap:.5rem; text-decoration:none; padding:.42rem .55rem; border-radius:9px; border:1px solid transparent; transition:background .12s,border-color .12s; }
-.mpm-nav__alert:hover { background:var(--theme-elevation-100); }
-.mpm-nav__alert-label { font-size:1.05rem; color:var(--theme-elevation-800); }
-.mpm-nav__alert-count { font-weight:700; font-size:.85rem; color:var(--theme-elevation-600); background:var(--theme-elevation-100); min-width:1.5rem; text-align:center; padding:.1rem .4rem; border-radius:99px; }
-.mpm-nav__alert.is-hot { background:color-mix(in srgb, ${V} 11%, var(--theme-elevation-50)); border-color:color-mix(in srgb, ${V} 28%, transparent); }
-.mpm-nav__alert.is-hot .mpm-nav__alert-label { color:var(--theme-elevation-1000); font-weight:600; }
-.mpm-nav__alert.is-hot .mpm-nav__alert-count { color:#fff; background:linear-gradient(140deg,#8B7CF0,#5A46D6); }
+/* Google's side navigation (Calendar, Gmail): a raised Create button, then flat rows -
+   a full pill each, a 20px icon, the text in ink, pale blue under the page you are on. */
+.mpm-nav { padding: 6px 0 10px; margin-bottom: 6px; border-bottom: 0; }
+.mpm-nav__create {
+  display:inline-flex; align-items:center; gap:12px; height:56px; padding:0 24px 0 16px;
+  margin:2px 0 14px 6px; border-radius:16px; text-decoration:none;
+  /* Gmail's Compose: a tonal blue block. The sidebar is a white panel now, where a white
+     button with a lift would vanish into it. */
+  background:var(--mpm-sel-2); color:var(--mpm-on-sel-2);
+  font-family:var(--mpm-font-display); font-size:14px; font-weight:500; letter-spacing:.01em;
+  transition:box-shadow .15s; }
+.mpm-nav__create:hover { box-shadow:0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15); }
+html[data-theme="dark"] .mpm-nav__create:hover { box-shadow:0 1px 3px rgba(0,0,0,.6); }
+.mpm-nav__create-ico { color:inherit; }
 
-.mpm-nav__quick { display:flex; flex-direction:column; gap:.1rem; }
-.mpm-nav__quick-title { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--theme-elevation-500); padding:.15rem .4rem .35rem; }
-.mpm-nav__quick-link { font-size:1.1rem; color:var(--theme-elevation-800); text-decoration:none; padding:.44rem .55rem; border-radius:9px; transition:background .12s,color .12s; }
-.mpm-nav__quick-link:hover { background:color-mix(in srgb, ${V} 10%, transparent); color:${V}; }
+.mpm-nav__row {
+  display:flex; align-items:center; gap:16px; min-height:36px;
+  padding:0 16px 0 14px; margin:1px 10px 1px 6px; border-radius:999px;
+  text-decoration:none; color:var(--mpm-ink);
+  font-size:14px; font-weight:400; letter-spacing:.01em;
+  transition:background .12s; }
+.mpm-nav__row:hover { background:var(--mpm-hover); }
+.mpm-nav__row-ico { flex:none; color:var(--mpm-ink-2); }
+.mpm-nav__row-label { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mpm-nav__row-n { flex:none; font-size:12px; font-weight:500; font-variant-numeric:tabular-nums; color:var(--mpm-ink-2); }
+.mpm-nav__row.is-strong .mpm-nav__row-label,
+.mpm-nav__row.is-strong .mpm-nav__row-n { font-weight:700; color:var(--mpm-ink); }
+.mpm-nav__row.is-active { background:var(--mpm-sel); color:var(--mpm-on-sel); font-weight:700; }
+.mpm-nav__row.is-active .mpm-nav__row-ico,
+.mpm-nav__row.is-active .mpm-nav__row-n { color:inherit; }
+.mpm-nav__row:focus-visible { outline:2px solid var(--mpm-v-400); outline-offset:-2px; }
+
+.mpm-nav__section { margin-top:14px; }
+.mpm-nav__section-title { padding:6px 16px 6px 20px; font-size:14px; font-weight:500; color:var(--mpm-ink); }
+
+/* The phone drawer: the same rows, sized for a thumb. */
+.nav--nav-open .mpm-nav__row { min-height:48px; margin:1px 0; }
+.nav--nav-open .mpm-nav__create { margin-left:0; }
 `;

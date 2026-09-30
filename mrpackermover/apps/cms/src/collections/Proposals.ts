@@ -290,13 +290,37 @@ export const Proposals: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'draft',
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        components: { Cell: '/components/proposal/Cells#ProposalStatusCell' },
+      },
       options: [
         { label: 'Draft', value: 'draft' },
         { label: 'Sent', value: 'sent' },
         { label: 'Accepted', value: 'accepted' },
         { label: 'Lost', value: 'lost' },
       ],
+    },
+    {
+      /**
+       * Declared only to give the column a cell. Payload merges a hand-declared timestamp
+       * with the one it maintains - the same trick the Leads list uses for `createdAt` -
+       * so nothing about how the value is written changes; it just stops printing
+       * "September 12th 2026, 2:19 PM" where "12 Sep, 2:19 pm" says the same thing in a
+       * third of the width and does not wrap onto a second line.
+       *
+       * `index: true` restates what Payload's own timestamp carries. A hand-declared field
+       * replaces it wholesale, so without this the migration drops
+       * `proposals_updated_at_idx` - a schema change nobody asked for.
+       */
+      name: 'updatedAt',
+      type: 'date',
+      index: true,
+      admin: {
+        disableBulkEdit: true,
+        hidden: true,
+        components: { Cell: '/components/proposal/Cells#WhenCell' },
+      },
     },
     {
       name: 'quoteNo',
@@ -328,19 +352,47 @@ export const Proposals: CollectionConfig = {
         components: { Field: '/components/proposal/LeadAutofill#LeadAutofill' },
       },
     },
-    { name: 'title', type: 'text', admin: { position: 'sidebar', readOnly: true, hidden: true } },
+    {
+      name: 'title',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        hidden: true,
+        // In the list this column is the link to the document, so it stays - but it
+        // renders as the quote number alone. The stored title is "CUSTOMER · MPM-…",
+        // and Customer is the very next column, so the row said the name twice.
+        components: { Cell: '/components/proposal/Cells#QuoteNoCell' },
+      },
+    },
     {
       name: 'clientName',
       type: 'text',
       label: 'Customer',
-      admin: { position: 'sidebar', readOnly: true },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        components: { Cell: '/components/proposal/Cells#ClientCell' },
+      },
     },
-    { name: 'route', type: 'text', admin: { position: 'sidebar', readOnly: true } },
+    {
+      name: 'route',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        components: { Cell: '/components/proposal/Cells#RouteCell' },
+      },
+    },
     {
       name: 'amount',
       type: 'number',
       label: 'Quoted (base ₹)',
-      admin: { position: 'sidebar', readOnly: true },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        components: { Cell: '/components/proposal/Cells#AmountCell' },
+      },
     },
 
     // ---- main form: tabs ----

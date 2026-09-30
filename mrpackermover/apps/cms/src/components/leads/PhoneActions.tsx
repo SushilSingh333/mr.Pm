@@ -1,6 +1,7 @@
 'use client';
-import { useField } from '@payloadcms/ui';
+import { useField, useFormFields } from '@payloadcms/ui';
 import { contactLinks } from '../../lib/contact-links.js';
+import { type LeadContext, useWhatsappMessage } from './whatsapp-message.js';
 
 /**
  * Call and WhatsApp buttons for a lead's phone number - the "dial strip".
@@ -57,12 +58,18 @@ function Actions({
   value,
   showNumber,
   variant,
+  lead,
 }: {
   value: unknown;
   showNumber: boolean;
   variant: 'cell' | 'field';
+  lead?: LeadContext | null;
 }): React.JSX.Element | null {
-  const { tel, whatsapp, e164 } = contactLinks(value);
+  // Before the wording arrives this is '', and `contactLinks` then returns the plain
+  // wa.me link - so the button works from the first paint and gains its opener a moment
+  // later, rather than being dead while a fetch is in flight.
+  const message = useWhatsappMessage(lead);
+  const { tel, whatsapp, e164 } = contactLinks(value, message);
   const text = typeof value === 'string' ? value : '';
   if (!text) return null;
 
@@ -108,22 +115,56 @@ function Actions({
  * exists so somebody rings the customer, and making them open the record first to find a
  * dialable link put two taps in front of the only action that matters.
  */
-export function PhoneButtons({ phone }: { phone?: string | null }): React.JSX.Element | null {
-  return <Actions value={phone} showNumber={false} variant="cell" />;
+export function PhoneButtons({
+  phone,
+  lead,
+}: {
+  phone?: string | null;
+  lead?: LeadContext | null;
+}): React.JSX.Element | null {
+  return <Actions value={phone} showNumber={false} variant="cell" lead={lead} />;
 }
 
-/** Phone column in the Leads list. Payload passes the column's value as `cellData`. */
-export function PhoneCell({ cellData }: { cellData?: unknown }): React.JSX.Element | null {
-  return <Actions value={cellData} showNumber variant="cell" />;
+/**
+ * Phone column in the Leads list. Payload passes the column's value as `cellData` and the
+ * whole row as `rowData`.
+ *
+ * `rowData` carries only the columns the list actually selected, so a board with the
+ * route columns switched off yields a message without the route in it. That is the
+ * template's own behaviour - an unfillable line is dropped - so it degrades to a shorter
+ * message rather than a broken one.
+ */
+export function PhoneCell({
+  cellData,
+  rowData,
+}: {
+  cellData?: unknown;
+  rowData?: LeadContext;
+}): React.JSX.Element | null {
+  return <Actions value={cellData} showNumber variant="cell" lead={rowData} />;
 }
 
-/** `ui` field on the lead itself, reading the phone straight from form state. */
+/**
+ * `ui` field on the lead itself, reading the phone straight from form state.
+ *
+ * The rest of the message comes from form state too, not from the saved document, so an
+ * opener composed while someone is mid-edit uses what is on screen. Correcting a
+ * misspelled name and then messaging the customer should not send the old spelling.
+ */
 export function PhoneField(): React.JSX.Element | null {
   const { value } = useField<string>({ path: 'phone' });
+  const lead = useFormFields(([fields]) => ({
+    name: (fields?.name?.value as string) ?? '',
+    service: (fields?.service?.value as string) ?? '',
+    moveSize: (fields?.moveSize?.value as string) ?? '',
+    pickup: (fields?.pickup?.value as string) ?? '',
+    dropLocation: (fields?.dropLocation?.value as string) ?? '',
+    status: (fields?.status?.value as string) ?? '',
+  }));
   if (!value) return null;
   return (
     <div className="mpm-dial-field">
-      <Actions value={value} showNumber={false} variant="field" />
+      <Actions value={value} showNumber={false} variant="field" lead={lead} />
     </div>
   );
 }

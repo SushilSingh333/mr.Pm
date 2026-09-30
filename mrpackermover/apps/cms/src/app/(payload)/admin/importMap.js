@@ -23,22 +23,33 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { CreateProposal as CreateProposal_4b3e26dd13427489eed77a57bc2956d1 } from '../../../components/leads/CreateProposal'
+import { NameCell as NameCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { PhoneCell as PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
 import { PhoneField as PhoneField_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
 import { ServiceCell as ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
+import { LeadTimeline as LeadTimeline_f938f3965088211dbb6411ebb92a410f } from '../../../components/leads/LeadTimeline'
 import { LeadStatusSelect as LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4 } from '../../../components/fields/LeadStatusSelect'
 import { OwnerCell as OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { AgeCell as AgeCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
+import { LeadFilters as LeadFilters_51609792908264dbc9232729914f07ee } from '../../../components/leads/LeadFilters'
 import { BulkAssign as BulkAssign_c9d8058b31c86f5fc313b99e4f970e83 } from '../../../components/leads/BulkAssign'
+import { ProposalStatusCell as ProposalStatusCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
+import { WhenCell as WhenCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { LeadAutofill as LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec } from '../../../components/proposal/LeadAutofill'
+import { QuoteNoCell as QuoteNoCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
+import { ClientCell as ClientCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
+import { RouteCell as RouteCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
+import { AmountCell as AmountCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { MeasureDistance as MeasureDistance_d707844cebb44f084064938405f1d175 } from '../../../components/proposal/MeasureDistance'
 import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../../../components/proposal/ProposalPdf'
 import { WebhookSetup as WebhookSetup_4589d205252be6016ff2846103214a98 } from '../../../components/settings/WebhookSetup'
+import { AccountAvatar as AccountAvatar_0d0b17769902b4ad4d21ac072cf97555 } from '../../../components/nav/AccountAvatar'
 import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../../components/graphics/BrandIcon'
 import { BrandLogo as BrandLogo_6e77d0f41c8c9945031c97d73e95e085 } from '../../../components/graphics/BrandLogo'
 import { SidebarNav as SidebarNav_c69d985326c5da60afb675d56609efeb } from '../../../components/nav/SidebarNav'
 import { AdminTheme as AdminTheme_219a1cb542fda7a3252be3f39ef7ac65 } from '../../../components/theme/AdminTheme'
 import { Dashboard as Dashboard_7924645a622bedd19f62843d924c0df8 } from '../../../components/dashboard/Dashboard'
+import { CalendarView as CalendarView_410806472acaaade49f6caef67712714 } from '../../../components/calendar/CalendarView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -68,21 +79,32 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/leads/CreateProposal#CreateProposal": CreateProposal_4b3e26dd13427489eed77a57bc2956d1,
+  "/components/leads/Cells#NameCell": NameCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/PhoneActions#PhoneCell": PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1,
   "/components/leads/PhoneActions#PhoneField": PhoneField_d45560ec092cb2c7a304c318d0d1bdc1,
   "/components/leads/Cells#ServiceCell": ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80,
+  "/components/leads/LeadTimeline#LeadTimeline": LeadTimeline_f938f3965088211dbb6411ebb92a410f,
   "/components/fields/LeadStatusSelect#LeadStatusSelect": LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4,
   "/components/leads/Cells#OwnerCell": OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/Cells#AgeCell": AgeCell_f3ff0d3eb06f60f8f116db056ab62b80,
+  "/components/leads/LeadFilters#LeadFilters": LeadFilters_51609792908264dbc9232729914f07ee,
   "/components/leads/BulkAssign#BulkAssign": BulkAssign_c9d8058b31c86f5fc313b99e4f970e83,
+  "/components/proposal/Cells#ProposalStatusCell": ProposalStatusCell_85f975e0671011bc92ac00c61ca8a749,
+  "/components/proposal/Cells#WhenCell": WhenCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/LeadAutofill#LeadAutofill": LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec,
+  "/components/proposal/Cells#QuoteNoCell": QuoteNoCell_85f975e0671011bc92ac00c61ca8a749,
+  "/components/proposal/Cells#ClientCell": ClientCell_85f975e0671011bc92ac00c61ca8a749,
+  "/components/proposal/Cells#RouteCell": RouteCell_85f975e0671011bc92ac00c61ca8a749,
+  "/components/proposal/Cells#AmountCell": AmountCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/MeasureDistance#MeasureDistance": MeasureDistance_d707844cebb44f084064938405f1d175,
   "/components/proposal/ProposalPdf#ProposalPdf": ProposalPdf_96917c16d64f6b56cae496087e6af5a4,
   "/components/settings/WebhookSetup#WebhookSetup": WebhookSetup_4589d205252be6016ff2846103214a98,
+  "/components/nav/AccountAvatar#AccountAvatar": AccountAvatar_0d0b17769902b4ad4d21ac072cf97555,
   "/components/graphics/BrandIcon#BrandIcon": BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f,
   "/components/graphics/BrandLogo#BrandLogo": BrandLogo_6e77d0f41c8c9945031c97d73e95e085,
   "/components/nav/SidebarNav#SidebarNav": SidebarNav_c69d985326c5da60afb675d56609efeb,
   "/components/theme/AdminTheme#AdminTheme": AdminTheme_219a1cb542fda7a3252be3f39ef7ac65,
   "/components/dashboard/Dashboard#Dashboard": Dashboard_7924645a622bedd19f62843d924c0df8,
+  "/components/calendar/CalendarView#CalendarView": CalendarView_410806472acaaade49f6caef67712714,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

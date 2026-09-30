@@ -23,6 +23,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useSelection } from '@payloadcms/ui';
+import { personCase } from '../dashboard/lead-status.js';
 
 interface Person {
   id: number | string;
@@ -42,7 +43,7 @@ interface UpdatedDoc {
  */
 const coerceId = (raw: string): string | number => (/^\d+$/.test(raw) ? Number(raw) : raw);
 
-const label = (p: Person): string => p.name ?? p.email ?? `#${String(p.id)}`;
+const label = (p: Person): string => personCase(p.name ?? p.email ?? '') || `#${String(p.id)}`;
 
 export function BulkAssign(): React.JSX.Element | null {
   const { user } = useAuth();

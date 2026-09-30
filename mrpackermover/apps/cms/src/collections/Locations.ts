@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload';
-import { hideFromSalesRoles, isContentStaff, publishedOrStaff } from '../access/index.js';
+import {
+  hideFromSalesRoles,
+  isContentStaff,
+  publishedOrStaff,
+  contentReadVersions,
+} from '../access/index.js';
 import { seoOverrideFields, cityServiceSeoField } from '../fields/seo.js';
 import { slugField } from '../fields/slug.js';
 import { latLngFields } from '../fields/geo.js';
@@ -28,6 +33,8 @@ export const Locations: CollectionConfig = {
   versions: { drafts: true },
   access: {
     read: publishedOrStaff,
+    // Version history is a second door onto the same rows; Payload leaves it open.
+    readVersions: contentReadVersions,
     create: isContentStaff,
     update: isContentStaff,
     delete: isContentStaff,

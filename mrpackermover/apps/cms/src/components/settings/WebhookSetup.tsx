@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormFields } from '@payloadcms/ui';
 
 /**
@@ -37,7 +37,21 @@ export function WebhookSetup(): React.JSX.Element {
   const secret = useFormFields(([fields]) => fields?.leadWebhookSecret?.value);
   const [copied, setCopied] = useState<string | null>(null);
 
-  const origin = typeof window === 'undefined' ? '' : window.location.origin;
+  /**
+   * The origin is read AFTER mounting, never during render.
+   *
+   * `typeof window === 'undefined' ? '' : window.location.origin` looks like the safe
+   * way to do this and is the opposite: the server renders "/api/lead-webhook" and the
+   * client's first render produces "http://…/api/lead-webhook", React finds two
+   * different strings in the same text node, and the whole Integrations form is thrown
+   * away and re-rendered on the client. It logged a hydration error on every visit.
+   * Reading it in an effect means both first renders agree on the relative path, and the
+   * absolute one arrives on the pass after - which is also the only pass that could ever
+   * have known the domain. */
+  const [origin, setOrigin] = useState('');
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
   const url = `${origin}/api/lead-webhook`;
   const hasSecret = typeof secret === 'string' && secret.length > 0;
 

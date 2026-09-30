@@ -33,6 +33,8 @@ import { HomeContent } from './globals/HomeContent.js';
 import { SeoDefaults } from './globals/SeoDefaults.js';
 import { Integrations } from './globals/Integrations.js';
 import { LeadRouting } from './globals/LeadRouting.js';
+import { SalesMessages } from './globals/SalesMessages.js';
+import { ScheduleSettings } from './globals/ScheduleSettings.js';
 import { publicEndpoints } from './endpoints/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,6 +55,8 @@ export default buildConfig({
     // Paths are resolved from `src` (importMap.baseDir); run `generate:importmap` after
     // adding/renaming any of these so Payload can bundle them.
     importMap: { baseDir: dirname },
+    // Initials and name instead of Payload's grey silhouette - see AccountAvatar.
+    avatar: { Component: '/components/nav/AccountAvatar#AccountAvatar' },
     components: {
       graphics: {
         Logo: '/components/graphics/BrandLogo#BrandLogo',
@@ -63,6 +67,13 @@ export default buildConfig({
       views: {
         dashboard: {
           Component: '/components/dashboard/Dashboard#Dashboard',
+        },
+        // The move calendar: every scheduled lead on its day. Its own admin page rather
+        // than a mode of the Leads list, because a month grid is not a table.
+        calendar: {
+          Component: '/components/calendar/CalendarView#CalendarView',
+          path: '/calendar',
+          meta: { title: 'Calendar' },
         },
       },
       beforeNavLinks: ['/components/nav/SidebarNav#SidebarNav'],
@@ -115,7 +126,15 @@ export default buildConfig({
     // System
     Users,
   ],
-  globals: [OrgProfile, HomeContent, SeoDefaults, Integrations, LeadRouting],
+  globals: [
+    OrgProfile,
+    HomeContent,
+    SeoDefaults,
+    Integrations,
+    LeadRouting,
+    SalesMessages,
+    ScheduleSettings,
+  ],
 
   // Public JSON endpoints served by the origin (mounted under /api): quote, search,
   // track. On the DigitalOcean origin these replace the old Cloudflare Functions.

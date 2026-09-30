@@ -1,6 +1,37 @@
 import type { CollectionConfig } from 'payload';
-import { leadsRead, leadsUpdate, leadsDelete, isRole } from '../access/index.js';
-import { ROUTING_STAGES, SALES_SETTABLE, humanList } from '../components/dashboard/lead-status.js';
+import { leadsRead, leadsUpdate, leadsDelete, isRole, leadsReadVersions } from '../access/index.js';
+import {
+  DATED_STAGES,
+  FRESH_STAGES,
+  LEAD_SOURCES,
+  LEAD_STATUS,
+  ROUTING_STAGES,
+  SALES_SETTABLE,
+  humanList,
+} from '../components/dashboard/lead-status.js';
+
+/**
+ * Whether a where clause only lets dated stages through - see the `beforeOperation` hook.
+ *
+ * Only the AND side of the tree narrows a result, so only it is walked: a status
+ * condition inside an OR is one alternative among others and restricts nothing. Any
+ * single AND-ed condition that allows dated stages alone is enough, because everything
+ * else is intersected with it.
+ */
+function onlyDatedStages(where: unknown): boolean {
+  if (!where || typeof where !== 'object') return false;
+  const node = where as Record<string, unknown>;
+  const status = node.status as { equals?: unknown; in?: unknown } | undefined;
+  if (status && typeof status === 'object') {
+    const raw = status.in ?? status.equals;
+    // `in` arrives as an array from the admin, and as "a,b" from a hand-typed URL.
+    const values = (Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(',') : [])
+      .map((v) => String(v).trim())
+      .filter(Boolean);
+    if (values.length && values.every((v) => DATED_STAGES.includes(v))) return true;
+  }
+  return Array.isArray(node.and) && node.and.some(onlyDatedStages);
+}
 
 /**
  * Quote-form submissions. Created by the public `/quote` endpoint (create access is
@@ -24,11 +55,21 @@ export const Leads: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     group: 'Inbox',
-    defaultColumns: ['name', 'phone', 'service', 'status', 'assignedTo', 'createdAt'],
+    // `dueAt` earns its column now that moves are booked on it: the Schedule button
+    // lands here, and a schedule you cannot read the date off is not one. It is empty on
+    // a lead with nothing promised, which is the honest answer rather than a gap.
+    defaultColumns: ['name', 'dueAt', 'phone', 'service', 'status', 'assignedTo', 'createdAt'],
     // Sits directly above the table, next to the tick boxes it acts on. Routing a
     // selection in one go is the difference between covering for someone's leave in a
     // minute and doing it twenty times by hand.
-    components: { beforeListTable: ['/components/leads/BulkAssign#BulkAssign'] },
+    components: {
+      beforeListTable: [
+        // Filters first, then the bulk bar: you narrow the list, then act on what is
+        // left, and that is the order they should appear in.
+        '/components/leads/LeadFilters#LeadFilters',
+        '/components/leads/BulkAssign#BulkAssign',
+      ],
+    },
     description:
       'Every quote form and price check lands here. Newest first. Filter by date, status, owner or source.',
   },
@@ -37,10 +78,39 @@ export const Leads: CollectionConfig = {
     // The public form must be able to create a lead; everything else is role-scoped.
     create: () => true,
     read: leadsRead,
+    // Version history is a second door onto the same rows; Payload leaves it open.
+    readVersions: leadsReadVersions,
     update: leadsUpdate,
     delete: leadsDelete,
   },
   hooks: {
+    /**
+     * A list of promises reads in the order they come due.
+     *
+     * Filter the Leads list to Scheduled - which is exactly what the sidebar's Schedule
+     * button does - and the rows used to arrive newest-first, so Thursday's move could
+     * sit under next month's because it was booked earlier. Nobody reading a schedule
+     * wants it in the order it was written.
+     *
+     * WHY HERE AND NOT IN THE LINK. A `sort` in the URL is saved as the reader's list
+     * preference the moment the page renders, so a link that ordered by the move date
+     * left the plain Leads list ordered that way for good. This runs only when NOBODY
+     * asked for an order - no sort in the URL, none saved, none passed by the caller -
+     * so a header somebody clicked still wins, the dashboard (which always names its
+     * sort) is untouched, and the unfiltered list stays newest first.
+     *
+     * "Dated" means every status the query allows is a dated one. A mix of Scheduled and
+     * Quoted is not a schedule - half of it has no date - so it keeps the normal order.
+     */
+    beforeOperation: [
+      ({ args, operation }) => {
+        if (operation !== 'read') return args;
+        const a = args as { where?: unknown; sort?: unknown };
+        if (a.sort || !a.where) return args;
+        if (!onlyDatedStages(a.where)) return args;
+        return { ...args, sort: ['dueAt', '-createdAt'] };
+      },
+    ],
     beforeChange: [
       ({ data, originalDoc, req, operation }) => {
         if (!data) return data;
@@ -127,6 +197,43 @@ export const Leads: CollectionConfig = {
           );
         }
 
+        /**
+         * A stage change writes itself into the trail.
+         *
+         * This is what makes "What has happened" fill itself instead of depending on
+         * somebody remembering to type. Moving a lead to "Call not picked" IS the record
+         * that a call was not picked; asking for a note as well would get one of the two
+         * done and leave the history lying by omission.
+         *
+         * THE APPEND MUST MERGE. `data` here is the INCOMING write, not the merged
+         * document - true for the admin form, which submits every field, but false for
+         * `payload.update({ data: { status: 'quoted' } })`, which Proposals already does.
+         * And @payloadcms/drizzle deletes every child row of an array present in a write
+         * before re-inserting what was supplied, so assigning a one-element array would
+         * delete every earlier note on the lead. Falling back to `originalDoc.noteLog` is
+         * the whole safety of this block.
+         *
+         * Skipped when the same save already carries a typed entry for the move, so
+         * pressing a button that sets a stage AND writes its own note does not produce
+         * two lines saying the same thing.
+         */
+        if (operation === 'update' && data.status && originalDoc?.status !== data.status) {
+          const rows = (
+            Array.isArray(data.noteLog) ? data.noteLog : (originalDoc?.noteLog ?? [])
+          ) as Record<string, unknown>[];
+          const explained = rows.some(
+            (n) => n && !n.at && typeof n.kind === 'string' && n.kind !== 'note',
+          );
+          // Assignment already writes its own line from `assignedAt`, so the routing
+          // stages would only repeat it.
+          const routing = ROUTING_STAGES.includes(String(data.status));
+          if (!explained && !routing) {
+            const label =
+              SALES_SETTABLE.find((x) => x.value === data.status)?.label ?? String(data.status);
+            data.noteLog = [...rows, { kind: 'stage', body: label }];
+          }
+        }
+
         // Stamp author and time on any note that arrived without them.
         if (Array.isArray(data.noteLog)) {
           const now = new Date().toISOString();
@@ -140,6 +247,64 @@ export const Leads: CollectionConfig = {
               : n,
           );
         }
+
+        /**
+         * The waiting clock, stamped last in this hook.
+         *
+         * Last on purpose: the hand-over branch above moves the stage to `assigned` or
+         * `reassigned`, and reading it before that ran would stamp the clock against a
+         * stage the lead is about to leave.
+         *
+         * The routing hook that runs AFTER this one can also set a stage, but only ever
+         * `new` -> `assigned` on a create. Both are stages where nobody has called yet,
+         * so they take the same branch here and the stamp is unaffected either way.
+         *
+         * See the `waitingSince` field for why this is stored rather than derived. The
+         * rule is the whole of it: a lead nobody has called yet is measured from when it
+         * arrived, anything further along from this moment.
+         */
+        const stage = String(data.status ?? originalDoc?.status ?? 'new');
+
+        /**
+         * A date outlives its promise, so it is cleared when the promise ends.
+         *
+         * Left behind, a won lead keeps the date of the move it already completed, and
+         * every "what is due" query on the board has to remember to exclude won, lost and
+         * invalid leads forever. Clearing it once here means the date's presence IS the
+         * promise, and nothing downstream needs to know the stage list.
+         */
+        /**
+         * Except for a move's own day, which is history worth keeping.
+         *
+         * A move marked Won or Lost keeps its date, because the calendar shows what
+         * happened on a day as well as what is still to happen: a Tuesday that ran three
+         * moves should not go blank the moment all three are marked Won. Nothing that
+         * asks "what is due" is affected - every such query already leaves out closed
+         * leads.
+         *
+         * What IS still cleared is a callback's date. "Ring me Thursday" means nothing
+         * once the lead is closed, and kept, it would put a phone call on the calendar
+         * as though it were a move. So the date goes when a lead closes FROM Call later
+         * or Follow up, and whenever a lead goes back into an open, undated stage.
+         *
+         * The first version kept the date only on the way out of Scheduled and dropped
+         * it on every other save of a closed lead - so a Won lead that had lost its date
+         * could never be given it back, not even by typing it in.
+         */
+        const was = String(originalDoc?.status ?? '');
+        const closing = stage === 'won' || stage === 'lost';
+        const fromCallback = (was === 'call-later' || was === 'follow-up') && was !== stage;
+        if (!DATED_STAGES.includes(stage) && (!closing || fromCallback)) data.dueAt = null;
+
+        if (FRESH_STAGES.includes(stage)) {
+          // `createdAt` is absent on create - the row does not exist yet - and on create
+          // "now" and "arrived" are the same instant anyway.
+          const arrived = (originalDoc?.createdAt ?? data.createdAt) as string | undefined;
+          data.waitingSince = arrived ?? new Date().toISOString();
+        } else {
+          data.waitingSince = new Date().toISOString();
+        }
+
         return data;
       },
       /**
@@ -253,7 +418,17 @@ export const Leads: CollectionConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'name', type: 'text', required: true, admin: { width: '50%' } },
+        {
+          name: 'name',
+          type: 'text',
+          required: true,
+          admin: {
+            width: '50%',
+            // On the mobile card this is the heading, and quote forms very often arrive
+            // in capitals - which wraps onto two lines and reads as shouting.
+            components: { Cell: '/components/leads/Cells#NameCell' },
+          },
+        },
         {
           name: 'phone',
           type: 'text',
@@ -375,6 +550,42 @@ export const Leads: CollectionConfig = {
       fields: [
         { name: 'body', type: 'textarea', required: true },
         {
+          /**
+           * What KIND of thing happened, so the trail can be read at a glance instead of
+           * as a wall of sentences. Written by the app, never chosen by hand: a plain
+           * note defaults to `note`, and the hooks below stamp the rest.
+           *
+           * On the existing array rather than in a second one - `noteLog` already carries
+           * author, name and time, already has its stamping hook, and already renders and
+           * validates inside the native form. A parallel "events" array would have to
+           * re-earn all four, and the two would drift.
+           */
+          name: 'kind',
+          type: 'select',
+          defaultValue: 'note',
+          admin: {
+            readOnly: true,
+            description: 'Typed entries are written by the app.',
+          },
+          options: [
+            { label: 'Note', value: 'note' },
+            { label: 'Call — answered', value: 'call-answered' },
+            { label: 'Call — no answer', value: 'call-no-answer' },
+            { label: 'Call — ring back later', value: 'call-later' },
+            { label: 'Quote sent', value: 'quote-sent' },
+            { label: 'Competitor quote', value: 'competitor' },
+            { label: 'Final price', value: 'price' },
+            { label: 'Stage change', value: 'stage' },
+            { label: 'Handover', value: 'handover' },
+          ],
+        },
+        {
+          name: 'amount',
+          type: 'number',
+          label: 'Amount (₹)',
+          admin: { readOnly: true, description: 'The figure this entry is about, if any.' },
+        },
+        {
           type: 'row',
           fields: [
             {
@@ -398,6 +609,26 @@ export const Leads: CollectionConfig = {
       ],
     },
     {
+      /**
+       * "What has happened" - the lead's history, directly under the notes that feed it.
+       *
+       * A `ui` field, so it renders inside Payload's own form and nothing about saving,
+       * validation, access or the Versions tab changes. The component is a CLIENT
+       * component by necessity: Payload renders a server `ui` field once and never again
+       * (renderField.js stamps `lastRenderedPath` and skips re-renders), which would
+       * freeze a widget whose entire job is showing what just happened.
+       *
+       * It reads three sources and stores none of them twice: the typed entries on
+       * `noteLog` above, the proposals raised against this lead, and the lead's own
+       * arrival and hand-over read straight off `createdAt` / `source` / `assignedAt`.
+       * That last part is why every lead that already exists has a history today, with
+       * no backfill.
+       */
+      name: 'leadTimeline',
+      type: 'ui',
+      admin: { components: { Field: '/components/leads/LeadTimeline#LeadTimeline' } },
+    },
+    {
       // The original free-text notes field, kept rather than migrated away. Dropping it
       // would mean a destructive column change that Postgres cannot distinguish from a
       // rename, and would put existing notes at risk on a live database for no real
@@ -416,12 +647,10 @@ export const Leads: CollectionConfig = {
       type: 'select',
       defaultValue: 'quote-form',
       admin: { position: 'sidebar', description: 'How this lead came in.' },
-      options: [
-        { label: 'Quote form', value: 'quote-form' },
-        { label: 'Price check', value: 'price-check' },
-        { label: 'Facebook ad', value: 'facebook-ad' },
-        { label: 'Webhook', value: 'webhook' },
-      ],
+      // Derived, for the same reason the status options are: the dashboard and the
+      // filter bar both read this list, and a hand-written copy here is a fourth place
+      // for it to drift.
+      options: LEAD_SOURCES.map((s) => ({ label: s.label, value: s.value })),
     },
     {
       name: 'status',
@@ -434,25 +663,20 @@ export const Leads: CollectionConfig = {
         // enforced in beforeChange above.
         components: { Field: '/components/fields/LeadStatusSelect#LeadStatusSelect' },
       },
-      options: [
-        { label: 'New', value: 'new' },
-        { label: 'Assigned', value: 'assigned' },
-        { label: 'Reassigned', value: 'reassigned' },
-        { label: 'Contacted', value: 'contacted' },
-        { label: 'Call not picked', value: 'call-not-picked' },
-        // Answered, but asked to be rung back later - not the same as nobody picking up.
-        { label: 'Call later', value: 'call-later' },
-        // Spoken to and still deciding: warm, and owed another contact.
-        { label: 'Follow up', value: 'follow-up' },
-        { label: 'Quoted', value: 'quoted' },
-        { label: 'Won', value: 'won' },
-        { label: 'Lost', value: 'lost' },
-        // Not a lost deal - a lead that was never real: a wrong number, a test
-        // submission, somebody's keyboard. Kept as its own stage rather than folded into
-        // Lost so the win rate is not quietly dragged down by junk, and so a coordinator
-        // can see how much of it is arriving.
-        { label: 'Invalid lead', value: 'invalid' },
-      ],
+      /**
+       * Derived from the stage list, not typed out beside it.
+       *
+       * This was a hand-written copy of `LEAD_STATUS`, kept in step by a check in
+       * verify-roles that failed loudly whenever the two drifted - which is a test
+       * guarding a duplication rather than a reason to have one. Adding "Scheduled" was
+       * the moment it stopped being free: the list, the select, the dashboard pills, the
+       * next-step table and the WhatsApp templates all needed the same new value, and
+       * eleven of those twelve lines existed only to be kept identical to another file.
+       *
+       * The stage list carries its own commentary on what each value means; this is now
+       * just the shape Payload wants it in.
+       */
+      options: LEAD_STATUS.map((s) => ({ label: s.label, value: s.value })),
     },
     {
       name: 'assignedTo',
@@ -469,6 +693,81 @@ export const Leads: CollectionConfig = {
         // field name in angle brackets. An unclaimed lead is the most actionable thing
         // in the list, so it deserves a word a coordinator would use.
         components: { Cell: '/components/leads/Cells#OwnerCell' },
+      },
+    },
+    {
+      /**
+       * The date this lead is promised for.
+       *
+       * One field, three meanings, decided by the stage: a callback time, a day to chase
+       * a quote, or the day of the move itself. See `DATED_STAGES` for why it is not
+       * three fields - the promise is already written in the stage, and a second field
+       * asking what the date is for would be asking a question the screen can answer.
+       *
+       * Its whole point is that the lead goes QUIET until then. Without it a customer who
+       * said "ring me Thursday" bled ember on the board all week, so the board was loudest
+       * about the one lead where the right thing to do was nothing.
+       */
+      name: 'dueAt',
+      type: 'date',
+      index: true,
+      // Spelled out rather than left to Payload's auto-label, so the heading reads the
+      // same word the dashboard, the filter and the reminder all use for it.
+      label: 'Due At',
+      admin: {
+        position: 'sidebar',
+        date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, h:mm a' },
+        // Shown where it means something: the dated stages, and a Won or Lost lead that
+        // has a move day - so the date the calendar shows it on is visible, and fixable,
+        // on the lead itself. Hidden on a closed lead with no date, where it is noise.
+        condition: (data) => {
+          const s = String(data?.status ?? '');
+          return (
+            DATED_STAGES.includes(s) || ((s === 'won' || s === 'lost') && Boolean(data?.dueAt))
+          );
+        },
+        description:
+          'When this is due. A callback time, the day to chase a quote, or the day of the move. The lead stays quiet on the board until then. On a Won or Lost lead it is the day of the move, and puts it on the calendar.',
+      },
+      validate: (value: unknown, { data }: { data?: { status?: string } }) => {
+        // Required for a booked move and nothing else. "Scheduled" with no date is a
+        // contradiction - it is the date that makes it scheduled - while a callback with
+        // no time is just today's work, which is how the board already treats it.
+        if (String(data?.status ?? '') === 'scheduled' && !value) {
+          return 'Give the move a date — that is what Scheduled means.';
+        }
+        return true;
+      },
+    },
+    {
+      /**
+       * When this lead started waiting for someone. The board sorts on it.
+       *
+       * The waiting column used to be derived at render time - `createdAt` for a lead
+       * nobody has called yet, `updatedAt` for one already in conversation - which is the
+       * right rule and could not be sorted on. "Waiting longest" could only ask the
+       * database for `updatedAt`, so a lead that had been assigned showed the time since
+       * it ARRIVED and sorted on the time it was ASSIGNED: a lead waiting 48 days sat at
+       * the bottom of the list, under rows showing 43.
+       *
+       * One stored field now answers both. It is a pure function of the stage and the
+       * moment of the write, so it cannot drift from the number on screen:
+       *
+       *   still waiting for a first call  ->  when the enquiry arrived
+       *   anything further along          ->  when a person last touched it
+       *
+       * Which is why re-stamping on every save is correct rather than sloppy: for a lead
+       * in conversation, "last touched" IS the thing being measured.
+       */
+      name: 'waitingSince',
+      type: 'date',
+      index: true,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, h:mm a' },
+        description:
+          'When the clock in the dashboard’s Waiting column started. Stamped automatically.',
       },
     },
     {

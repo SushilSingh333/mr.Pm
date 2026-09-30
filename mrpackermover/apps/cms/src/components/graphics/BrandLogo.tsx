@@ -1,25 +1,39 @@
+import lockup from './brand/logo-lockup.png';
+import lockupInverse from './brand/logo-lockup-inverse.png';
+
 /**
- * Brand logo for the admin nav header + login screen (admin.components.graphics.Logo).
- * Reuses the site favicon's location-pin for a consistent identity.
+ * The brand on the login screen and the other full-page admin screens
+ * (admin.components.graphics.Logo) - the approved lockup with its tagline, "No surprises.
+ * Just safe moves.", from the same files the website serves.
  *
- * The wordmark was split as `Mr` + `PackerMover` across two elements, so the
- * case-sensitive MrPackerMover -> MrMoverPacker rename never matched it and the CMS
- * login carried the old name long after the site had changed. Written to match the real
- * lockup: the orange sits on "Mover", as it does in the logo artwork.
+ * It used to be a pin tile beside the name typed out in the admin's font, which is the
+ * one thing the brand guideline rules out: the logo is artwork, not a font. The lockup
+ * carries the tagline, and the guideline sets its minimum width at 240px so the tagline
+ * stays legible - the stylesheet holds it there (see ".mpm-brand--lockup").
+ *
+ * Blue wordmark on the light theme, white on the dark one; the theme picks.
  */
 export function BrandLogo(): React.JSX.Element {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
-      <svg width="34" height="34" viewBox="0 0 32 32" role="img" aria-label="MrMoverPacker">
-        <rect width="32" height="32" rx="8" fill="#1d00b2" />
-        <path
-          fill="#fff"
-          d="M16 6a6.5 6.5 0 00-6.5 6.5C9.5 17.3 16 26 16 26s6.5-8.7 6.5-13.5A6.5 6.5 0 0016 6zm0 9a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"
-        />
-      </svg>
-      <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--theme-elevation-1000)' }}>
-        Mr<span style={{ fontWeight: 800, color: '#ff5500' }}>Mover</span>packer
-      </span>
-    </div>
+    <span
+      className="mpm-brand mpm-brand--lockup"
+      role="img"
+      aria-label="MrMoverPacker - No surprises. Just safe moves."
+    >
+      <img
+        className="mpm-brand__light"
+        src={lockup.src}
+        width={lockup.width}
+        height={lockup.height}
+        alt=""
+      />
+      <img
+        className="mpm-brand__dark"
+        src={lockupInverse.src}
+        width={lockupInverse.width}
+        height={lockupInverse.height}
+        alt=""
+      />
+    </span>
   );
 }

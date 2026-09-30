@@ -33,9 +33,27 @@ const ROLES = ['admin', 'editor', 'ops', 'handler', 'sales', null] as const;
 const label = (r: (typeof ROLES)[number]): string => r ?? 'anon';
 const VERBS = ['create', 'read', 'update', 'delete'] as const;
 
+/**
+ * Version history is a fifth door, and it is the one that was standing open.
+ *
+ * Payload's collection defaults cover create, delete, read, unlock and update - and NOT
+ * `readVersions`. A collection that leaves it unset gets `executeAccess`'s no-function
+ * branch, which is "any signed-in user", whatever its `read` rule says. This audit ran
+ * for months over four verbs and reported a clean sheet while every versioned collection
+ * answered GET /api/<slug>/versions for anybody with a login: a salesperson with no leads
+ * assigned could read 0 leads and 70 full version snapshots of everyone else's.
+ *
+ * Audited only where versions are enabled, because that is the only place the endpoint
+ * exists.
+ */
+const VERSION_VERB = 'readVersions';
+
 /** '.' allowed, 'x' denied, '~' allowed but filtered to a subset. */
 async function evaluate(fn: unknown, role: (typeof ROLES)[number]): Promise<string> {
-  if (typeof fn !== 'function') return '.'; // Payload's default is "authenticated"
+  // No rule at all is not "allowed" - it is `executeAccess`'s fallback, which grants any
+  // signed-in user and refuses anonymous. Reporting a flat '.' for both hid the anonymous
+  // half of that answer and made a missing rule look like a deliberate public one.
+  if (typeof fn !== 'function') return role ? '.' : 'x';
   const user = role ? { id: 1, role, email: `${role}@x.test`, canCreateSalesUsers: true } : null;
   try {
     const out = await (fn as (a: unknown) => unknown)({
@@ -53,7 +71,7 @@ async function evaluate(fn: unknown, role: (typeof ROLES)[number]): Promise<stri
 
 // Read the resolved config off the running instance: the module export is a promise.
 const resolved = payload.config as unknown as {
-  collections: { slug: string; access?: unknown }[];
+  collections: { slug: string; access?: unknown; versions?: unknown }[];
   globals?: { slug: string; access?: unknown }[];
 };
 const collections = resolved.collections ?? [];
@@ -64,7 +82,8 @@ console.info('  ' + '-'.repeat(20 + ROLES.length * 8));
 
 const rows: { slug: string; verb: string; cells: string[] }[] = [];
 for (const c of collections) {
-  for (const verb of VERBS) {
+  const verbs = c.versions ? [...VERBS, VERSION_VERB] : VERBS;
+  for (const verb of verbs) {
     const fn = (c.access as Record<string, unknown> | undefined)?.[verb];
     const cells: string[] = [];
     for (const role of ROLES) cells.push(await evaluate(fn, role));

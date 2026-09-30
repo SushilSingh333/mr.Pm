@@ -26,7 +26,16 @@ export interface ContactLinks {
   e164: string | null;
 }
 
-export function contactLinks(raw: unknown): ContactLinks {
+/**
+ * @param message Optional opener to put in WhatsApp's input box. It is not sent - the
+ *   salesperson still presses send - so this is a head start, not an automated blast.
+ *   Encoded with `encodeURIComponent`, which is what `wa.me` expects: the newlines and
+ *   asterisks the template relies on survive it, and a customer name with an `&` in it
+ *   does not truncate the message.
+ */
+export function contactLinks(raw: unknown, message?: string): ContactLinks {
+  // Built once, appended wherever a wa.me link is returned below.
+  const suffix = message && message.trim() ? `?text=${encodeURIComponent(message)}` : '';
   const text = typeof raw === 'string' ? raw.trim() : '';
   if (!text) return { tel: null, whatsapp: null, e164: null };
 
@@ -59,7 +68,7 @@ export function contactLinks(raw: unknown): ContactLinks {
 
   return {
     tel: `tel:+${e164}`,
-    whatsapp: `https://wa.me/${e164}`,
+    whatsapp: `https://wa.me/${e164}${suffix}`,
     e164,
   };
 }

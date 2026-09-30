@@ -1,7 +1,9 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useRef } from 'react';
-import { useListRelationships } from '@payloadcms/ui';
-import { exactTime } from '../dashboard/lead-status.js';
+import { useAuth, useListRelationships } from '@payloadcms/ui';
+import { exactTime, personCase } from '../dashboard/lead-status.js';
+import { useBrowserClock } from '../../lib/use-browser-clock.js';
 
 /**
  * Three list columns that Payload's defaults render in developer language.
@@ -34,6 +36,7 @@ import { exactTime } from '../dashboard/lead-status.js';
  */
 export function OwnerCell({ cellData }: { cellData?: unknown }): React.JSX.Element {
   const { documents, getRelationships } = useListRelationships();
+  const { user: me } = useAuth();
 
   // Depending on where the cell is rendered this arrives either populated or as an id.
   const populated =
@@ -60,14 +63,26 @@ export function OwnerCell({ cellData }: { cellData?: unknown }): React.JSX.Eleme
     return <span className="mpm-owner mpm-owner--none">Unassigned</span>;
   }
 
+  // Cased like every other name on the board: "sushil" as typed at sign-up reads as a
+  // typo in a column of "Preeti Sharma"s.
+  const show = (n: string): React.JSX.Element => <span className="mpm-owner">{personCase(n)}</span>;
+
   const name = populated?.name ?? populated?.email;
-  if (name) return <span className="mpm-owner">{name}</span>;
+  if (name) return show(name);
+
+  // The commonest owner on a salesperson's list is the salesperson - it is the only
+  // owner they can see. Their own name is already in the session, so it shows at once
+  // instead of reading "Assigned" until a lookup for a record they are logged in as lands.
+  const self = me as { id?: number | string; name?: string; email?: string } | null;
+  if (self && String(self.id) === String(id) && (self.name || self.email)) {
+    return show((self.name || self.email) as string);
+  }
 
   const doc = documents?.users?.[id];
   if (doc && typeof doc === 'object') {
     const user = doc as { name?: string; email?: string };
     const resolved = user.name ?? user.email;
-    if (resolved) return <span className="mpm-owner">{resolved}</span>;
+    if (resolved) return show(resolved);
   }
   return <span className="mpm-owner">Assigned</span>;
 }
@@ -96,11 +111,12 @@ function age(iso: string): string {
 }
 
 export function AgeCell({ cellData }: { cellData?: unknown }): React.JSX.Element | null {
+  useBrowserClock();
   if (typeof cellData !== 'string' || !cellData) return null;
   const text = age(cellData);
   if (!text) return null;
   return (
-    <span className="mpm-age" title={exactTime(cellData)}>
+    <span className="mpm-age" title={exactTime(cellData)} suppressHydrationWarning>
       {text}
     </span>
   );
@@ -114,6 +130,51 @@ export function AgeCell({ cellData }: { cellData?: unknown }): React.JSX.Element
  * "<No Service>", which on a card reads as something having gone wrong. Rendering nothing
  * lets the row collapse and the card close up around it.
  */
+/**
+ * The customer's name, as a person would write it.
+ *
+ * Quote forms arrive in whatever case the customer typed, and on a phone that is very
+ * often SHOUTED IN CAPITALS. On the mobile card that name is the heading, and in caps it
+ * both wraps onto a second line and reads as an alarm - caps remove the word-shape the
+ * eye uses to recognise a name at a glance.
+ *
+ * Only rewritten when it is ALREADY all caps, so a name somebody typed properly is left
+ * exactly as they typed it and "McKenzie" is never re-cased.
+ */
+export function NameCell({
+  cellData,
+  rowData,
+  collectionSlug,
+  linkURL,
+}: {
+  cellData?: unknown;
+  rowData?: { id?: number | string };
+  collectionSlug?: string;
+  linkURL?: string;
+}): React.JSX.Element {
+  const raw = typeof cellData === 'string' ? cellData.trim() : '';
+  const label = personCase(raw) || 'Unnamed';
+  /**
+   * THE LINK IS THE POINT OF THIS COLUMN.
+   *
+   * Payload wraps the first column in a Link inside its own `DefaultCell`. Supplying
+   * `admin.components.Cell` REPLACES that component, links and all - so this cell has to
+   * render its own anchor or the entire list becomes dead text that cannot be opened.
+   */
+  const href =
+    linkURL ??
+    (rowData?.id != null && collectionSlug
+      ? `/admin/collections/${collectionSlug}/${String(rowData.id)}`
+      : undefined);
+  const body = raw ? <span>{label}</span> : <span className="mpm-cell-empty">{label}</span>;
+  if (!href) return body;
+  return (
+    <Link href={href} className="mpm-cell-link" prefetch={false}>
+      {body}
+    </Link>
+  );
+}
+
 export function ServiceCell({ cellData }: { cellData?: unknown }): React.JSX.Element | null {
   const text = typeof cellData === 'string' ? cellData.trim() : '';
   if (!text) return null;

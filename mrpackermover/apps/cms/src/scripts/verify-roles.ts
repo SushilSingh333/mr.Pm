@@ -373,6 +373,59 @@ try {
     `sales sees ${salesCount.totalDocs} of ${everyLead.totalDocs}`,
   );
 
+  // ── The versions door ──────────────────────────────────────────────────────
+  // Version history reads the same rows through a different endpoint, and Payload has no
+  // default rule for it: leave `readVersions` unset and `executeAccess` falls through to
+  // "any signed-in user". Measured before the fix, a salesperson with no leads at all
+  // read 0 documents and 70 full version snapshots - names, phone numbers, the lot.
+  //
+  // Both directions are asserted. A rule that returns nothing to everybody would also
+  // make the first check pass while quietly breaking the Versions tab for the people who
+  // are supposed to have it.
+  const sneak = (await payload.findVersions({
+    collection: 'leads',
+    limit: 100,
+    depth: 0,
+    overrideAccess: false,
+    user: salesB as never,
+  })) as { docs: { parent?: unknown }[]; totalDocs: number };
+  const foreign = sneak.docs.filter((d) => String(d.parent) !== String(lead.id));
+  check(
+    'a salesperson cannot read version history of a lead that is not theirs',
+    foreign.length === 0,
+    `${foreign.length} foreign snapshots reachable`,
+  );
+
+  const ownVersions = (await payload.findVersions({
+    collection: 'leads',
+    limit: 100,
+    depth: 0,
+    overrideAccess: false,
+    user: salesA as never,
+  })) as { docs: { parent?: unknown }[]; totalDocs: number };
+  check(
+    'a salesperson still reads version history of their own lead',
+    ownVersions.docs.length > 0 &&
+      ownVersions.docs.every((d) => String(d.parent) === String(lead.id)),
+    `${ownVersions.docs.length} snapshots, all for lead ${String(lead.id)}`,
+  );
+
+  // The same door on site content. `publishedOrStaff` refuses the sales hierarchy
+  // outright, and its version history was handing them unpublished drafts.
+  let draftsDenied = false;
+  try {
+    await payload.findVersions({
+      collection: 'pages',
+      limit: 1,
+      depth: 0,
+      overrideAccess: false,
+      user: salesA as never,
+    });
+  } catch {
+    draftsDenied = true;
+  }
+  check('a salesperson cannot read page drafts through version history', draftsDenied);
+
   // The staff directory is not browsable by the sales hierarchy. A salesperson sees only
   // themselves; a handler sees the sales desk - salespeople and other handlers - because
   // they pick someone to assign work to, and because a lead held by a colleague has to
@@ -498,6 +551,23 @@ try {
     'dashboard status list matches the Leads collection',
     JSON.stringify(collectionValues) === JSON.stringify(dashboardValues),
     `collection=[${collectionValues.join(',')}] dashboard=[${dashboardValues.join(',')}]`,
+  );
+
+  // The lead board's coarse buttons are sums of these stages. A stage in two groups is
+  // counted twice and the buttons stop adding up to the board; a group naming a stage
+  // that no longer exists is a button that can only ever read zero. Both are silent.
+  const { LEAD_GROUPS } = await import('../components/dashboard/lead-status.js');
+  const grouped = LEAD_GROUPS.flatMap((g: { statuses: string[] }) => g.statuses);
+  const known = new Set(dashboardValues);
+  check(
+    'no lead stage is in two board groups',
+    new Set(grouped).size === grouped.length,
+    `grouped=[${grouped.join(',')}]`,
+  );
+  check(
+    'every board group names a real lead stage',
+    grouped.every((v: string) => known.has(v)),
+    `grouped=[${grouped.join(',')}] stages=[${dashboardValues.join(',')}]`,
   );
 
   // Globals were the gap the collection sweep missed: all three shipped with

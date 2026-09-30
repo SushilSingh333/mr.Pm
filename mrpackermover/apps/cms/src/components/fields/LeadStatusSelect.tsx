@@ -81,8 +81,8 @@ export function LeadStatusSelect({ path }: { path: string }): React.JSX.Element 
         }
         .lead-status-select:focus{
           outline:none;
-          border-color:var(--theme-success-500,#6D5AE6);
-          box-shadow:0 0 0 1px var(--theme-success-500,#6D5AE6);
+          border-color:var(--mpm-v-500,#2558E6);
+          box-shadow:0 0 0 1px var(--mpm-v-500,#2558E6);
         }
       `}</style>
     </div>

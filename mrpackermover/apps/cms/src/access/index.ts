@@ -105,6 +105,53 @@ export const leadsRead: Access = ({ req }) => {
 /** Same shape for writes: a salesperson can only work their own leads. */
 export const leadsUpdate: Access = leadsRead;
 
+/**
+ * Version history is a SECOND DOOR onto the same documents, and Payload does not lock it.
+ *
+ * `payload/dist/collections/config/defaults.js` supplies defaults for create, delete,
+ * read, unlock and update - and nothing for `readVersions`. When a collection leaves it
+ * unset, `executeAccess` takes its no-access-function branch, which is `if (req.user)
+ * return true`. So every versioned collection here was answering
+ * `GET /api/<slug>/versions` for ANY signed-in user, whatever its `read` rule said.
+ *
+ * Measured, not inferred: a salesperson with no leads assigned read 0 documents through
+ * `find` and 70 full version snapshots through `findVersions`, names and phone numbers
+ * included. The rule that scopes a salesperson to their own leads was one URL away from
+ * being decoration.
+ *
+ * THE FIELD PATH IS NOT THE SAME as it is on the collection. A version row keeps the
+ * document under a `version` group and the lead it belongs to under `parent`, so plain
+ * `{ assignedTo: ... }` names a column that does not exist on `_leads_v`.
+ *
+ * Scoped through `parent`, not through `version`. Both filter correctly and both refuse
+ * other people's leads; the difference is what the owner sees of their OWN lead. Measured
+ * on a lead with seventeen saves: `version.assignedTo` returned 1 snapshot and
+ * `parent.assignedTo` returned all 17. The first matches only the snapshots taken while
+ * this person happened to be the owner, so a lead that changed hands opens its Versions
+ * tab showing a history that begins in the middle, with no sign that anything is missing.
+ *
+ * The second is also the honest one: `read` already gives this person the whole current
+ * document, notes from previous owners included, so the history of that same document is
+ * not a wider grant - it is the same grant, told in order. It is the idiom `proposalsRead`
+ * already uses to reach through a relationship.
+ */
+export const leadsReadVersions: Access = ({ req }) => {
+  if (!req.user) return false;
+  if (isRole(req, 'admin', 'handler')) return true;
+  if (isRole(req, 'sales')) return { 'parent.assignedTo': { equals: userId(req) } } as Where;
+  return false;
+};
+
+/**
+ * The same door on the content collections. Their `read` is `publishedOrStaff`, which
+ * refuses the sales hierarchy outright and gives anonymous callers published rows only -
+ * and their version history was handing unpublished drafts to any handler or salesperson
+ * who asked for it. Content staff only, matching the intent of the rule beside it.
+ *
+ * Anonymous callers were never affected: with no user at all, `executeAccess` refuses.
+ */
+export const contentReadVersions: Access = ({ req }) => CONTENT_ROLES.includes(roleOf(req) as Role);
+
 /** Only admins and handlers remove leads. A salesperson never deletes one. */
 export const leadsDelete: Access = ({ req }) => isRole(req, 'admin', 'handler');
 

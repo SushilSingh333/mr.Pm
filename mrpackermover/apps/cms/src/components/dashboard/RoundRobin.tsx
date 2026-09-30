@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import type { RoutingView } from './lead-routing.js';
+import { personCase } from './lead-status.js';
 
 /**
  * The auto-assign card on the handler and admin dashboards.
@@ -55,6 +56,14 @@ const Spinner = (): React.JSX.Element => (
   </svg>
 );
 
+/**
+ * `load` is how much open work each person is already holding, keyed by id.
+ *
+ * It arrives as a prop rather than being fetched here because this is a client component
+ * and the count is an access-scoped server query. It used to live in a "Team load" card
+ * of its own, a screenful below this one - two lists of the same people, and the one you
+ * were reading while deciding who to tick was the one without the numbers.
+ */
 export function RoundRobin({
   enabled,
   memberIds,
@@ -62,7 +71,8 @@ export function RoundRobin({
   people,
   lastAssignedId,
   routed,
-}: RoutingView) {
+  load,
+}: RoutingView & { load?: Record<string, number> }) {
   /**
    * Members are always kept in the order they appear on screen, so the rotation and the
    * list are the same thing. Normalising on every change means the stored order can never
@@ -204,7 +214,15 @@ export function RoundRobin({
                     disabled={saving || !draft.on}
                     onChange={() => toggleMember(id)}
                   />
-                  <span className="mpm-rr__name">{p.name}</span>
+                  <span className="mpm-rr__name">{personCase(p.name)}</span>
+                  {load && (
+                    <span
+                      className="mpm-rr__load"
+                      title={(load[id] ?? 0) === 1 ? '1 open lead' : `${load[id] ?? 0} open leads`}
+                    >
+                      {(load[id] ?? 0) === 0 ? 'free' : load[id]}
+                    </span>
+                  )}
                   {draft.on && nextUp && String(nextUp.id) === id && (
                     <span className="mpm-rr__next">next</span>
                   )}

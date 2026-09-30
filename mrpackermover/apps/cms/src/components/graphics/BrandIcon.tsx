@@ -1,15 +1,36 @@
+import logo from './brand/logo.png';
+import logoInverse from './brand/logo-inverse.png';
+
 /**
- * Brand icon for compact admin contexts (admin.components.graphics.Icon).
- * The brand-blue location-pin tile, matching the favicon and the nav logo.
+ * The brand mark in the admin header (admin.components.graphics.Icon) - the real
+ * MrMoverPacker wordmark, the same file the website's header uses.
+ *
+ * It replaces a blue location-pin tile that was drawn for the admin and matched nothing
+ * a customer or a new hire has ever seen. The brand guideline forbids rebuilding the
+ * logo in another typeface, so this is the approved artwork itself, copied byte for byte
+ * from apps/web/public - not a redrawing.
+ *
+ * Both colourways ship and the theme picks one (see AdminTheme, ".mpm-brand"): the
+ * blue wordmark on light, the white one on dark, as the website does on its header and
+ * footer. The orange is the same in both.
  */
 export function BrandIcon(): React.JSX.Element {
   return (
-    <svg width="26" height="26" viewBox="0 0 32 32" role="img" aria-label="MrMoverPacker">
-      <rect width="32" height="32" rx="8" fill="#1d00b2" />
-      <path
-        fill="#fff"
-        d="M16 6a6.5 6.5 0 00-6.5 6.5C9.5 17.3 16 26 16 26s6.5-8.7 6.5-13.5A6.5 6.5 0 0016 6zm0 9a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"
+    <span className="mpm-brand mpm-brand--mark" role="img" aria-label="MrMoverPacker">
+      <img
+        className="mpm-brand__light"
+        src={logo.src}
+        width={logo.width}
+        height={logo.height}
+        alt=""
       />
-    </svg>
+      <img
+        className="mpm-brand__dark"
+        src={logoInverse.src}
+        width={logoInverse.width}
+        height={logoInverse.height}
+        alt=""
+      />
+    </span>
   );
 }

@@ -1,6 +1,6 @@
 import type { Payload } from 'payload';
 import Link from 'next/link';
-import { LEAD_STATUS, exactTime, ownerName, statusMeta } from './lead-status.js';
+import { LEAD_STATUS, exactTime, ownerName, personCase, statusMeta } from './lead-status.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
@@ -20,7 +20,7 @@ import { SalesDashboard } from './SalesDashboard.js';
  */
 
 const APP_STATUS = [
-  { value: 'new', label: 'New', color: '#6D5AE6' },
+  { value: 'new', label: 'New', color: 'var(--mpm-v-500,#2558E6)' },
   { value: 'reviewing', label: 'Reviewing', color: '#2f6df6' },
   { value: 'shortlisted', label: 'Shortlisted', color: '#c98a00' },
   { value: 'hired', label: 'Hired', color: '#1a9d5a' },
@@ -192,6 +192,15 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
         range={one('range') ?? 'month'}
         from={one('from')}
         to={one('to')}
+        // The lead board's state: which stage button is pressed, what was typed into
+        // the search box, and which page of the table is showing. All of it travels in
+        // the URL so a filtered view can be bookmarked or sent to a colleague.
+        filter={one('filter')}
+        q={one('q')}
+        owner={one('owner')}
+        source={one('source')}
+        page={one('page')}
+        sort={one('sort')}
       />
     );
   }
@@ -276,7 +285,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
 
   const recentLeads = recentLeadsRaw as LeadDoc[];
   const recentApps = recentAppsRaw as AppDoc[];
-  const firstName = (user?.name || user?.email || '').split(/[@\s]/)[0];
+  const firstName = personCase((user?.name || user?.email || '').split(/[@\s]/)[0] ?? '');
 
   const kpis: {
     label: string;
@@ -450,7 +459,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
                     {initial(l.name)}
                   </span>
                   <Link href={`/admin/collections/leads/${l.id}`} className="mpm-row__main">
-                    <span className="mpm-row__name">{l.name || 'Unnamed'}</span>
+                    <span className="mpm-row__name">{personCase(l.name ?? '') || 'Unnamed'}</span>
                     <span className="mpm-row__meta">
                       {[l.service, l.pickup].filter(Boolean).join(' · ') || 'No details yet'}
                     </span>
@@ -554,7 +563,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
                       href={`/admin/collections/job-applications/${a.id}`}
                       className="mpm-row__main"
                     >
-                      <span className="mpm-row__name">{a.name || 'Unnamed'}</span>
+                      <span className="mpm-row__name">{personCase(a.name ?? '') || 'Unnamed'}</span>
                       <span className="mpm-row__meta">{a.position || a.email || '—'}</span>
                     </Link>
                     <span className="mpm-badge" style={{ ['--c' as string]: meta.color }}>
@@ -585,7 +594,7 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
               href="/admin/collections/contact-messages?where[status][equals]=new"
               className="mpm-mini__stat"
             >
-              <span className="mpm-mini__value" style={{ color: '#6D5AE6' }}>
+              <span className="mpm-mini__value" style={{ color: 'var(--mpm-v-500,#2558E6)' }}>
                 {fmt(msgNew)}
               </span>
               <span className="mpm-mini__label">Unread</span>
@@ -632,7 +641,14 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
 
 export const CSS = `
 .mpm-dash {
-  --v-100:#ECE8FB; --v-300:#A99BF0; --v-400:#8B7CF0; --v-500:#6D5AE6; --v-600:#5A46D6; --v-700:#4A38B5;
+  /* ALIASES, NOT VALUES. These six used to be hard-coded violet hexes, which is why
+     re-pointing the admin's palette re-skinned every screen in the CMS except the two
+     that matter most - the dashboards carried their own copy. One palette, defined once
+     in AdminTheme, read everywhere. The fallbacks only apply if these rules are ever
+     rendered without the theme provider. */
+  --v-100:var(--mpm-tint,#EEF2FE); --v-300:var(--mpm-v-400,#4A7BF7);
+  --v-400:var(--mpm-v-400,#4A7BF7); --v-500:var(--mpm-v-500,#2558E6);
+  --v-600:var(--mpm-v-600,#1A45C4); --v-700:var(--mpm-v-700,#13348F);
   /* Surfaces and ink come from the admin theme, which sets them per theme with real
      separation between layers. Payload's own elevation tokens sit within a few percent
      of white in light mode - right for a dense table on a white page, and the reason
@@ -649,27 +665,36 @@ export const CSS = `
      is the default, got heavy black circles while dark mode got the brand. */
   --ico-bg:linear-gradient(140deg,var(--v-400),var(--v-600)); --ico-fg:#ffffff;
   --card-radius:20px;
-  --card-shadow:0 18px 40px -24px color-mix(in srgb, var(--v-700) 55%, transparent), 0 2px 6px -2px rgba(20,18,45,.05);
-  padding: 1.9rem clamp(1rem, 4vw, 2.5rem) 3.5rem;
+  /* Neutral, not tinted. A coloured shadow under every card is what made the old page
+     feel washed in violet even where no violet was drawn. */
+  --card-shadow:0 1px 2px color-mix(in srgb, var(--mpm-shadow,rgba(15,21,35,.13)) 45%, transparent),
+                0 14px 30px -18px var(--mpm-shadow,rgba(15,21,35,.13));
+  /* 8px on top: the header already sits 10px above, and the greeting should start right
+     under it the way Google's home pages do, not a band of empty page lower. */
+  padding: 8px clamp(16px, 4vw, 40px) 56px;
   max-width: 1240px; margin-inline: auto;
-  background: radial-gradient(120% 340px at 78% -40px, color-mix(in srgb, var(--v-500) 16%, var(--theme-bg)) 0%, transparent 70%), var(--theme-bg);
+  /* A flat, neutral ground. There used to be a violet glow bled across the top of the
+     page; on a coloured canvas it was invisible, and on this neutral one it read as a
+     stain. A working tool does not glow - the cards are the objects, the page is the
+     table they sit on. */
+  background: var(--theme-bg);
 }
 /* Lifted a step in dark mode so the tile still separates from a dark card. */
 [data-theme="dark"] .mpm-dash { --ico-bg:linear-gradient(140deg,var(--v-300),var(--v-500)); }
 
-.mpm-dash__head { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+.mpm-dash__head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
 @media (max-width:520px){
-  .mpm-dash__head{ align-items:stretch; gap:.7rem; margin-bottom:1rem; }
+  .mpm-dash__head{ align-items:stretch; gap:11px; margin-bottom:16px; }
   .mpm-dash__cta{ justify-content:center; }
-  .mpm-dash__title{ font-size:1.5rem; }
+  .mpm-dash__title{ font-size:24px; }
 }
-.mpm-dash__title { margin:0; font-size:1.7rem; line-height:1.05; letter-spacing:-.02em; font-weight:800; color:var(--ink); }
-.mpm-dash__sub { margin:.4rem 0 0; color:var(--ink-2); font-size:.85rem; }
-.mpm-dash__cta { display:inline-flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:600; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); padding:.62rem 1.05rem; border-radius:99px; text-decoration:none; white-space:nowrap; box-shadow:0 10px 22px -12px color-mix(in srgb, var(--v-600) 80%, transparent); transition:transform .12s, box-shadow .12s; }
+.mpm-dash__title { margin:0; font-size:27px; line-height:1.05; letter-spacing:-.02em; font-weight:800; color:var(--ink); }
+.mpm-dash__sub { margin:6px 0 0; color:var(--ink-2); font-size:14px; }
+.mpm-dash__cta { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); padding:10px 17px; border-radius:99px; text-decoration:none; white-space:nowrap; box-shadow:0 10px 22px -12px color-mix(in srgb, var(--v-600) 80%, transparent); transition:transform .12s, box-shadow .12s; }
 .mpm-dash__cta:hover { transform:translateY(-1px); box-shadow:0 14px 26px -12px color-mix(in srgb, var(--v-600) 90%, transparent); }
 .mpm-dash__cta svg { width:15px; height:15px; }
 
-.mpm-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.15rem; }
+.mpm-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:18px; }
 @media (max-width:860px){ .mpm-kpis{ grid-template-columns:repeat(2,1fr); } }
 /* Stay two-up on a phone, and shrink the card rather than the count.
    One column meant six full-width cards of ~215px each - most of a screen per number,
@@ -677,35 +702,41 @@ export const CSS = `
    tighter padding fits four figures above the fold, which is what the dashboard is for.
    The hero keeps the full width: it is the one number that should dominate. */
 @media (max-width:520px){
-  .mpm-kpis{ grid-template-columns:repeat(2,1fr); gap:.6rem; }
-  .mpm-kpi{ padding:.85rem .8rem .9rem; gap:.2rem; border-radius:14px; }
+  .mpm-kpis{ grid-template-columns:repeat(2,1fr); gap:10px; }
+  .mpm-kpi{ padding:14px 13px 14px; gap:3px; border-radius:14px; }
   /* The hero takes one cell like everything else here.
      Spanning it across both columns leaves the remaining five in a 2-up grid as 2 + 2 + 1,
      and that last card sat alone with half a row of empty page beside it. Six cards in two
      columns is three clean rows. It keeps the violet gradient, so it still reads as the
      headline number without needing the extra width. */
   .mpm-kpi--hero{ grid-column:auto; }
-  .mpm-ico{ width:34px; height:34px; margin-bottom:.35rem; }
+  .mpm-ico{ width:34px; height:34px; margin-bottom:6px; }
   .mpm-ico svg{ width:16px; height:16px; }
-  .mpm-kpi__label{ font-size:.62rem; letter-spacing:.06em; }
-  .mpm-kpi__value{ font-size:1.65rem; }
-  .mpm-kpi--hero .mpm-kpi__value{ font-size:2rem; }
-  .mpm-kpi__hint{ font-size:.7rem; }
+  .mpm-kpi__label{ font-size:10px; letter-spacing:.06em; }
+  .mpm-kpi__value{ font-size:26px; }
+  .mpm-kpi--hero .mpm-kpi__value{ font-size:32px; }
+  .mpm-kpi__hint{ font-size:11px; }
 }
-.mpm-kpi { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; padding:1.15rem 1.2rem 1.25rem; background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:var(--card-radius); text-decoration:none; box-shadow:var(--card-shadow); transition:transform .14s, box-shadow .14s, border-color .14s; }
+.mpm-kpi { position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:18px 19px 20px; background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:var(--card-radius); text-decoration:none; box-shadow:var(--card-shadow); transition:transform .14s, box-shadow .14s, border-color .14s; }
 a.mpm-kpi:hover { transform:translateY(-3px); border-color:color-mix(in srgb, var(--v-500) 45%, transparent); box-shadow:0 22px 44px -22px color-mix(in srgb, var(--v-700) 70%, transparent); }
 .mpm-kpi--hot { background:color-mix(in srgb, var(--v-500) 6%, var(--paper)); border-color:color-mix(in srgb, var(--v-500) 26%, transparent); }
-.mpm-kpi__label { font-size:.74rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-2); font-weight:600; }
-.mpm-kpi__value { font-size:2.15rem; font-weight:800; line-height:1; letter-spacing:-.02em; color:var(--ink); }
-.mpm-kpi__hint { font-size:.74rem; color:var(--ink-3); }
+.mpm-kpi__label { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-2); font-weight:600; }
+.mpm-kpi__value { font-size:34px; font-weight:800; line-height:1; letter-spacing:-.02em; color:var(--ink); }
+.mpm-kpi__hint { font-size:12px; color:var(--ink-3); }
 
-.mpm-ico { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; margin-bottom:.55rem; background:var(--ico-bg); color:var(--ico-fg); flex:none; }
+.mpm-ico { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; margin-bottom:9px; background:var(--ico-bg); color:var(--ico-fg); flex:none; }
 .mpm-ico svg { width:20px; height:20px; }
 
 /* Hero KPI — the one bold, violet-gradient card (echoes the reference's purple order card). */
-.mpm-kpi--hero { color:#fff; border:none; background:linear-gradient(140deg,#8B7CF0 0%,#6D5AE6 52%,#5A46D6 100%); box-shadow:0 22px 46px -20px color-mix(in srgb, var(--v-600) 85%, transparent); }
+.mpm-kpi--hero { color:#fff; border:none;
+  /* Reads the ramp rather than restating it. These were three hard-coded violet stops,
+     which is why the one card everybody looks at first stayed violet after the palette
+     moved. */
+  background:linear-gradient(140deg,var(--v-400) 0%,var(--v-500) 52%,var(--v-600) 100%);
+  box-shadow:0 1px 2px rgba(15,21,35,.12),
+             0 20px 40px -22px color-mix(in srgb, var(--v-600) 85%, transparent); }
 .mpm-kpi--hero .mpm-kpi__label { color:rgba(255,255,255,.82); }
-.mpm-kpi--hero .mpm-kpi__value { color:#fff; font-size:2.5rem; }
+.mpm-kpi--hero .mpm-kpi__value { color:#fff; font-size:40px; }
 .mpm-kpi--hero .mpm-kpi__hint { color:rgba(255,255,255,.78); }
 a.mpm-kpi--hero:hover { border:none; box-shadow:0 26px 52px -20px color-mix(in srgb, var(--v-600) 95%, transparent); }
 .mpm-ico--ghost { background:rgba(255,255,255,.20); color:#fff; }
@@ -714,70 +745,70 @@ a.mpm-kpi--hero:hover { border:none; box-shadow:0 26px 52px -20px color-mix(in s
 /* align-items:start so a short card keeps its own height. Stretching left the pipeline
    card with a third of its body empty, matched to whatever the queue beside it happened
    to contain. */
-.mpm-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; align-items:start; }
+.mpm-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:start; }
 @media (max-width:1000px){ .mpm-grid{ grid-template-columns:1fr; } }
 
-.mpm-card { background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 9%, var(--line)); border-radius:var(--card-radius); padding:1.35rem 1.45rem 1.45rem; box-shadow:var(--card-shadow); }
-.mpm-card__head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-bottom:1.05rem; }
-.mpm-card__head h3 { display:flex; align-items:center; gap:.55rem; margin:0; font-size:1.02rem; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+.mpm-card { background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 9%, var(--line)); border-radius:var(--card-radius); padding:22px 23px 23px; box-shadow:var(--card-shadow); }
+.mpm-card__head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:17px; }
+.mpm-card__head h3 { display:flex; align-items:center; gap:9px; margin:0; font-size:16px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
 .mpm-card__ico { display:grid; place-items:center; width:30px; height:30px; border-radius:9px; background:color-mix(in srgb, var(--v-500) 13%, transparent); color:var(--v-500); flex:none; }
 .mpm-card__ico svg { width:17px; height:17px; }
 [data-theme="dark"] .mpm-card__ico { color:var(--v-300); background:color-mix(in srgb, var(--v-400) 22%, transparent); }
-.mpm-muted { color:var(--ink-3); font-size:.78rem; }
+.mpm-muted { color:var(--ink-3); font-size:12px; }
 .mpm-link { text-decoration:none; } .mpm-link:hover { color:var(--v-500); }
-.mpm-empty { color:var(--ink-3); font-size:.85rem; margin:.4rem 0 0; }
-.mpm-note { color:var(--ink-3); font-size:.78rem; margin:1rem 0 0; line-height:1.55; }
+.mpm-empty { color:var(--ink-3); font-size:14px; margin:6px 0 0; }
+.mpm-note { color:var(--ink-3); font-size:12px; margin:16px 0 0; line-height:1.55; }
 .mpm-note strong { color:var(--ink-2); }
 
-.mpm-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin-bottom:1.1rem; }
-.mpm-mini__stat { display:flex; flex-direction:column; align-items:center; gap:.2rem; padding:.85rem .4rem; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; text-decoration:none; transition:border-color .12s, transform .12s; }
+.mpm-mini { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+.mpm-mini__stat { display:flex; flex-direction:column; align-items:center; gap:3px; padding:14px 6px; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; text-decoration:none; transition:border-color .12s, transform .12s; }
 a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, transparent); transform:translateY(-1px); }
-.mpm-mini__value { font-size:1.55rem; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--ink); }
-.mpm-mini__label { font-size:.7rem; color:var(--ink-2); }
+.mpm-mini__value { font-size:25px; font-weight:800; line-height:1; letter-spacing:-.01em; color:var(--ink); }
+.mpm-mini__label { font-size:11px; color:var(--ink-2); }
 
-.mpm-bars { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.75rem; }
-.mpm-bars--tight { gap:.55rem; }
-.mpm-bar { display:grid; grid-template-columns:104px 1fr 40px; align-items:center; gap:.65rem; }
-.mpm-bar__label { display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:var(--ink-2); }
+.mpm-bars { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.mpm-bars--tight { gap:9px; }
+.mpm-bar { display:grid; grid-template-columns:104px 1fr 40px; align-items:center; gap:10px; }
+.mpm-bar__label { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2); }
 .mpm-bar__label i { width:9px; height:9px; border-radius:50%; flex:none; }
 .mpm-bar__track { height:9px; border-radius:99px; background:color-mix(in srgb, var(--v-500) 12%, var(--line)); overflow:hidden; }
 .mpm-bar__fill { display:block; height:100%; border-radius:99px; min-width:3px; }
-.mpm-bar__count { text-align:right; font-weight:700; font-size:.88rem; color:var(--ink); }
+.mpm-bar__count { text-align:right; font-weight:700; font-size:14px; color:var(--ink); }
 
 .mpm-rows { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
-.mpm-rows--sep { margin-top:1.1rem; padding-top:.5rem; border-top:1px dashed var(--line); }
+.mpm-rows--sep { margin-top:18px; padding-top:8px; border-top:1px dashed var(--line); }
 /* Five columns now: avatar, who, dial, stage, age. A row that has nothing to dial
    leaves the third column at zero width rather than needing a layout of its own. */
-.mpm-row { display:grid; grid-template-columns:auto 1fr auto auto auto; align-items:center; gap:.7rem; padding:.55rem 0; border-top:1px solid var(--line); }
+.mpm-row { display:grid; grid-template-columns:auto 1fr auto auto auto; align-items:center; gap:11px; padding:9px 0; border-top:1px solid var(--line); }
 .mpm-row__dial { display:inline-flex; align-items:center; }
 /* Lead rows get fixed tracks for the trailing three columns. Each row is its own grid,
    so with auto tracks the dial buttons landed at a different x on every line - a row
    with NEW sat further right than the one above it with REASSIGNED. The stage column is
    sized for the longest label there is ("Call not picked"). */
-.mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 6.6rem 6rem; }
+.mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 106px 96px; }
 .mpm-row--lead .mpm-badge { justify-self:center; text-align:center; }
 .mpm-row--lead .mpm-row__time { justify-self:end; }
 .mpm-row__dial { --dial:30px; }
 .mpm-row__dial .mpm-dial__btn svg { width:13px; height:13px; }
 .mpm-row:first-child { border-top:0; }
-.mpm-avatar { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; flex:none; font-size:.82rem; font-weight:700; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); }
-.mpm-row__main { display:flex; flex-direction:column; gap:.1rem; text-decoration:none; min-width:0; }
-.mpm-row__name { font-weight:600; font-size:.88rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mpm-avatar { display:grid; place-items:center; width:34px; height:34px; border-radius:50%; flex:none; font-size:13px; font-weight:700; color:#fff; background:linear-gradient(140deg,var(--v-400),var(--v-600)); }
+.mpm-row__main { display:flex; flex-direction:column; gap:2px; text-decoration:none; min-width:0; }
+.mpm-row__name { font-weight:600; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mpm-row__main:hover .mpm-row__name { color:var(--v-500); }
-.mpm-row__meta { font-size:.74rem; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.mpm-row__time { display:flex; flex-direction:column; align-items:flex-end; gap:.1rem; font-size:.72rem; color:var(--ink-3); white-space:nowrap; }
+.mpm-row__meta { font-size:12px; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mpm-row__time { display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:12px; color:var(--ink-3); white-space:nowrap; }
 /* Wraps rather than running past the edge of the card: the time column is a fixed
    track now, and "from Preeti Sharma · 5d ago" is wider than it. */
-.mpm-row__sub { font-size:.66rem; color:var(--v-500); font-weight:600; white-space:normal; text-align:right; line-height:1.3; }
-.mpm-badge { font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--c); background:color-mix(in srgb, var(--c) 14%, transparent); border:1px solid color-mix(in srgb, var(--c) 35%, transparent); padding:.15rem .5rem; border-radius:99px; white-space:nowrap; }
+.mpm-row__sub { font-size:11px; color:var(--v-500); font-weight:600; white-space:normal; text-align:right; line-height:1.3; }
+.mpm-badge { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--c); background:color-mix(in srgb, var(--c) 14%, transparent); border:1px solid color-mix(in srgb, var(--c) 35%, transparent); padding:2px 8px; border-radius:99px; white-space:nowrap; }
 
-.mpm-chips { display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:.75rem; }
-.mpm-chip { display:flex; flex-direction:column; align-items:center; gap:.25rem; padding:1rem .5rem; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; }
-.mpm-chip__value { font-size:1.5rem; font-weight:800; letter-spacing:-.01em; color:var(--ink); line-height:1; }
-.mpm-chip__label { font-size:.72rem; color:var(--ink-2); }
+.mpm-chips { display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:12px; }
+.mpm-chip { display:flex; flex-direction:column; align-items:center; gap:4px; padding:16px 8px; background:color-mix(in srgb, var(--v-500) 5%, var(--paper)); border:1px solid color-mix(in srgb, var(--v-500) 10%, var(--line)); border-radius:14px; }
+.mpm-chip__value { font-size:24px; font-weight:800; letter-spacing:-.01em; color:var(--ink); line-height:1; }
+.mpm-chip__label { font-size:12px; color:var(--ink-2); }
 
 /* ── A lead row on a phone ──────────────────────────────────────────────────
-   The fixed desktop tracks - 6.6rem of stage plus 6rem of age plus the dial buttons -
+   The fixed desktop tracks - 106px of stage plus 96px of age plus the dial buttons -
    leave about 60px for the name at 390px, which rendered every customer as "SUS...".
    Two lines instead: who and when on top, what to do underneath.
 
@@ -791,7 +822,7 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
     grid-template-areas:
       "av main time"
       "av dial stage";
-    row-gap:.4rem; column-gap:.6rem; padding:.7rem 0;
+    row-gap:6px; column-gap:10px; padding:11px 0;
   }
   .mpm-row--lead .mpm-avatar{ grid-area:av; align-self:start; }
   .mpm-row--lead .mpm-row__main{ grid-area:main; }
@@ -806,7 +837,7 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
    status chip and time stranded against the right edge with a large dead gap, and
    showed half as many rows for the same height. Collapses back to one column when the
    viewport cannot give each column a readable width. */
-.mpm-span3 .mpm-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:2.25rem}
+.mpm-span3 .mpm-rows{display:grid;grid-template-columns:1fr 1fr;column-gap:36px}
 .mpm-span3 .mpm-row:nth-child(-n+2){border-top:0}
 @media (max-width:1100px){
   .mpm-span3 .mpm-rows{grid-template-columns:1fr}
@@ -832,15 +863,15 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 .mpm-switch.is-on .mpm-switch__knob{ transform:translateX(20px); }
 .mpm-switch:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
 
-.mpm-rr__lede{ margin:0 0 .85rem; font-size:.82rem; line-height:1.5; color:var(--ink-2); }
+.mpm-rr__lede{ margin:0 0 14px; font-size:13px; line-height:1.5; color:var(--ink-2); }
 /* The list stays on screen when the switch is off so the card keeps its height and you
    can see who would receive leads before committing. Dimmed and inert, not hidden. */
 .mpm-rr__body{ transition:opacity .16s ease; }
 .mpm-rr__body.is-off{ opacity:.45; pointer-events:none; }
-.mpm-rr__list{ list-style:none; margin:0 0 .25rem; padding:0; display:flex; flex-direction:column; gap:.2rem; }
+.mpm-rr__list{ list-style:none; margin:0 0 4px; padding:0; display:flex; flex-direction:column; gap:3px; }
 .mpm-rr__row{
-  display:flex; align-items:center; gap:.6rem; min-height:38px;
-  padding:.3rem .5rem; border-radius:10px; cursor:pointer;
+  display:flex; align-items:center; gap:10px; min-height:38px;
+  padding:5px 8px; border-radius:10px; cursor:pointer;
   border:1px solid transparent; transition:background .12s ease, border-color .12s ease;
 }
 .mpm-rr__row:hover{ background:color-mix(in srgb, var(--v-500) 7%, transparent); }
@@ -849,40 +880,40 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
   border-color:color-mix(in srgb, var(--v-500) 22%, transparent);
 }
 .mpm-rr__row input{ width:17px; height:17px; accent-color:var(--v-500); flex:none; cursor:pointer; }
-.mpm-rr__name{ font-size:.88rem; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mpm-rr__name{ font-size:14px; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* Who the next lead goes to. The one thing on this card worth spotting at a glance. */
 .mpm-rr__next{
   margin-left:auto; flex:none;
-  font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  padding:.16rem .45rem; border-radius:999px; color:#fff;
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  padding:3px 7px; border-radius:999px; color:#fff;
   background:linear-gradient(140deg,var(--v-400),var(--v-600));
 }
-.mpm-rr__warn{ margin:.6rem 0 0; font-size:.78rem; line-height:1.5; color:var(--mpm-ember-ink,#C63F00); }
-.mpm-rr__note{ margin:.6rem 0 0; font-size:.75rem; line-height:1.5; color:var(--ink-3); }
+.mpm-rr__warn{ margin:10px 0 0; font-size:12px; line-height:1.5; color:var(--mpm-ember-ink,#C63F00); }
+.mpm-rr__note{ margin:10px 0 0; font-size:12px; line-height:1.5; color:var(--ink-3); }
 /* The footer carries the state of the card on the left and its commit on the right.
    Nothing here writes until Done, so the buttons only exist while there is something
    unsaved to write. */
 .mpm-rr__foot{
-  display:flex; align-items:center; justify-content:space-between; gap:.75rem;
-  margin:.85rem 0 0; padding-top:.75rem; min-height:2.3rem;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin:14px 0 0; padding-top:12px; min-height:37px;
   border-top:1px solid var(--line);
-  font-size:.76rem; color:var(--ink-3);
+  font-size:12px; color:var(--ink-3);
 }
 .mpm-rr__status{ min-width:0; line-height:1.4; }
-.mpm-rr__saving{ display:inline-flex; align-items:center; gap:.35rem; color:var(--v-500); }
+.mpm-rr__saving{ display:inline-flex; align-items:center; gap:6px; color:var(--v-500); }
 .mpm-rr__error{ color:var(--mpm-ember-ink,#C63F00); }
 .mpm-rr__ok{ color:#1a9d5a; font-weight:600; }
-.mpm-rr__actions{ display:inline-flex; align-items:center; gap:.45rem; flex:none; }
+.mpm-rr__actions{ display:inline-flex; align-items:center; gap:7px; flex:none; }
 .mpm-rr__cancel{
   border:1px solid var(--line); background:transparent; color:var(--ink-2);
-  font-size:.78rem; font-weight:600; padding:.4rem .75rem; border-radius:99px; cursor:pointer;
+  font-size:12px; font-weight:600; padding:6px 12px; border-radius:99px; cursor:pointer;
   transition:border-color .12s ease, color .12s ease;
 }
 .mpm-rr__cancel:hover{ border-color:var(--v-500); color:var(--v-500); }
 .mpm-rr__done{
   border:none; border-radius:99px; cursor:pointer;
   background:linear-gradient(140deg,var(--v-400),var(--v-600)); color:#fff;
-  font-size:.78rem; font-weight:700; padding:.42rem 1.05rem;
+  font-size:12px; font-weight:700; padding:7px 17px;
   box-shadow:0 8px 18px -10px color-mix(in srgb, var(--v-600) 90%, transparent);
   transition:transform .12s ease, filter .12s ease;
 }
@@ -893,11 +924,11 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 /* "Show all" - an actual button, because it is the way out of a truncated list and a
    quiet text link reads as a footnote rather than the next thing to press. */
 .mpm-showall{
-  display:inline-flex; align-items:center; gap:.35rem;
-  padding:.45rem 1rem; border-radius:99px;
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 16px; border-radius:99px;
   background:color-mix(in srgb, var(--v-500) 12%, transparent);
   border:1px solid color-mix(in srgb, var(--v-500) 28%, transparent);
-  color:var(--v-500); font-size:.82rem; font-weight:700; text-decoration:none;
+  color:var(--v-500); font-size:13px; font-weight:700; text-decoration:none;
   transition:background .12s ease, transform .12s ease;
 }
 .mpm-showall:hover{
@@ -905,4 +936,31 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
   transform:translateY(-1px); color:var(--v-500);
 }
 .mpm-showall:focus-visible{ outline:2px solid var(--v-400); outline-offset:2px; }
+
+/* ══ Google look ════════════════════════════════════════════════════════════
+   Google's own apps, not a marketing page: outlined white cards and no gradients, a
+   tonal pale-blue circle behind each icon, regular-weight Google Sans for headings and
+   figures, sentence-case labels, flat blue buttons. One block at the end, overriding
+   the rules above at the same specificity. */
+.mpm-dash { --ico-bg:var(--mpm-sel); --ico-fg:var(--mpm-on-sel); --card-radius:16px; --card-shadow:none; }
+[data-theme="dark"] .mpm-dash { --ico-bg:var(--mpm-sel); }
+.mpm-dash__title { font-family:var(--mpm-font-display); font-size:28px; font-weight:400; letter-spacing:0; }
+.mpm-dash__cta,.mpm-rr__done { background:var(--mpm-grad); box-shadow:none; font-family:var(--mpm-font-display); font-weight:500; font-size:14px; }
+.mpm-dash__cta:hover,.mpm-rr__done:hover { transform:none; filter:brightness(1.06); box-shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15); }
+.mpm-kpi,.mpm-card { border:1px solid var(--line); box-shadow:none; }
+a.mpm-kpi:hover { transform:none; border-color:var(--line); box-shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15); }
+.mpm-kpi__label { font-size:14px; font-weight:500; letter-spacing:.01em; text-transform:none; }
+.mpm-kpi__value,.mpm-mini__value,.mpm-chip__value { font-family:var(--mpm-font-display); font-weight:400; letter-spacing:0; }
+/* The hero card loses its gradient: Google marks the important card with a tonal fill. */
+.mpm-kpi--hero { background:var(--mpm-sel); color:var(--mpm-on-sel); box-shadow:none; border:0; }
+.mpm-kpi--hero .mpm-kpi__label,.mpm-kpi--hero .mpm-kpi__value,.mpm-kpi--hero .mpm-kpi__hint { color:var(--mpm-on-sel); }
+a.mpm-kpi--hero:hover { box-shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15); }
+.mpm-kpi__glow { display:none; }
+.mpm-card__head h3 { font-family:var(--mpm-font-display); font-size:18px; font-weight:400; letter-spacing:0; }
+.mpm-avatar { background:var(--mpm-v-500); font-weight:500; }
+.mpm-badge { border:0; border-radius:8px; font-weight:500; text-transform:none; letter-spacing:.01em; font-size:12px; }
+.mpm-bar__count { font-weight:500; }
+.mpm-switch.is-on { background:var(--mpm-v-500); }
+.mpm-rr__next { background:var(--mpm-sel); color:var(--mpm-on-sel); font-size:12px; font-weight:500; letter-spacing:.01em; text-transform:none; border-radius:8px; }
+
 `;

@@ -23,20 +23,28 @@ export interface LeadStage {
 }
 
 export const LEAD_STATUS: LeadStage[] = [
-  { value: 'new', label: 'New', color: '#8a8f98' },
-  { value: 'assigned', label: 'Assigned', color: '#6D5AE6' },
-  { value: 'reassigned', label: 'Reassigned', color: '#8b6df0' },
-  { value: 'contacted', label: 'Contacted', color: '#2f6df6' },
-  { value: 'call-not-picked', label: 'Call not picked', color: '#d16a5a' },
+  // Google's palette, and few of it: blue for a lead nobody has worked yet, teal for a
+  // promised call, amber for waiting on the customer, calendar blue for a booked move,
+  // green for won, grey for contacted and lost, red for the two that went wrong. Stages
+  // that ask the same thing of the reader share a colour; the label tells them apart.
+  { value: 'new', label: 'New', color: '#0B57D0' },
+  { value: 'assigned', label: 'Assigned', color: '#0B57D0' },
+  { value: 'reassigned', label: 'Reassigned', color: '#0B57D0' },
+  { value: 'contacted', label: 'Contacted', color: '#5F6368' },
+  { value: 'call-not-picked', label: 'Call not picked', color: '#D93025' },
   // The customer answered but asked for another time. Distinct from Call not picked,
   // which is nobody answering - one is a promise to ring back, the other is a retry.
-  { value: 'call-later', label: 'Call later', color: '#0f8b9e' },
+  { value: 'call-later', label: 'Call later', color: '#007B83' },
   // Spoken to, still deciding. The lead is warm and owed another contact.
-  { value: 'follow-up', label: 'Follow up', color: '#c2478f' },
-  { value: 'quoted', label: 'Quoted', color: '#c98a00' },
-  { value: 'won', label: 'Won', color: '#1a9d5a' },
-  { value: 'lost', label: 'Lost', color: '#8a8f98' },
-  { value: 'invalid', label: 'Invalid lead', color: '#b23c17' },
+  { value: 'follow-up', label: 'Follow up', color: '#007B83' },
+  { value: 'quoted', label: 'Quoted', color: '#E37400' },
+  // Said yes, and the move has a date. The stage that was missing: until it existed a
+  // booked customer sat in "Quoted", where the board chased them daily for a decision
+  // they had already made.
+  { value: 'scheduled', label: 'Scheduled', color: '#039BE5' },
+  { value: 'won', label: 'Won', color: '#188038' },
+  { value: 'lost', label: 'Lost', color: '#80868B' },
+  { value: 'invalid', label: 'Invalid lead', color: '#B3261E' },
 ];
 
 /**
@@ -97,7 +105,7 @@ export const statusMeta = (v?: string): { label: string; color: string } =>
 /** A relationship arrives as an id until populated; show a name only when we have one. */
 export const ownerName = (
   v: { name?: string; email?: string } | string | number | null | undefined,
-): string => (v && typeof v === 'object' ? (v.name ?? v.email ?? '') : '');
+): string => (v && typeof v === 'object' ? personCase(v.name ?? v.email ?? '') : '');
 
 /**
  * The exact moment, for the tooltip behind a relative time. "6m ago" is what you scan;
@@ -105,3 +113,342 @@ export const ownerName = (
  */
 export const exactTime = (iso?: string | null): string =>
   iso ? new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+
+/**
+ * The pipeline, grouped the way somebody working it would say it out loud.
+ *
+ * Eleven stages is the right vocabulary for a lead record and far too many things to
+ * offer as a first filter: nobody opens a dashboard thinking "show me reassigned". They
+ * think in five buckets - fresh, owed a call, warm, priced, decided - so those are the
+ * buttons, and the eleven exact stages sit behind them for when the coarse answer is not
+ * enough.
+ *
+ * Every status belongs to at most ONE group, so the group counts add up to the whole
+ * board rather than double-counting a lead into two buttons. `invalid` deliberately
+ * belongs to none: a wrong number is not a stage of selling, and folding it into
+ * "Won / Lost" would make that button disagree with the win rate beside it. It stays
+ * reachable from the exact-status row, which renders every entry in LEAD_STATUS.
+ *
+ * `verify-roles` asserts the "at most one, and all real" part, so a stage added to the
+ * collection cannot quietly end up counted twice or pointed at nothing.
+ */
+export interface LeadGroup {
+  key: string;
+  label: string;
+  statuses: string[];
+  color: string;
+  /** What the button means, shown on hover so nobody has to guess the mapping. */
+  hint: string;
+}
+
+export const LEAD_GROUPS: LeadGroup[] = [
+  {
+    key: 'fresh',
+    label: 'Fresh',
+    statuses: ['new', 'assigned', 'reassigned'],
+    color: '#2558E6',
+    hint: 'Arrived and nobody has spoken to them yet',
+  },
+  {
+    key: 'follow-up',
+    label: 'Follow-up',
+    statuses: ['call-not-picked', 'call-later'],
+    color: '#0f8b9e',
+    hint: 'Owed another attempt: nobody picked up, or they asked us to ring back',
+  },
+  {
+    key: 'interested',
+    label: 'Interested',
+    statuses: ['contacted', 'follow-up'],
+    color: '#c2478f',
+    hint: 'Spoken to, still deciding',
+  },
+  {
+    key: 'quoted',
+    label: 'Quote sent',
+    statuses: ['quoted'],
+    color: '#c98a00',
+    hint: 'Priced and waiting on the customer',
+  },
+  {
+    key: 'scheduled',
+    label: 'Scheduled',
+    statuses: ['scheduled'],
+    color: '#0d8a7a',
+    hint: 'Booked in, with a move date - waiting for the day rather than for the customer',
+  },
+  {
+    key: 'closed',
+    label: 'Won / Lost',
+    statuses: ['won', 'lost'],
+    color: '#1a9d5a',
+    hint: 'Decided, either way',
+  },
+];
+
+/**
+ * The stages where a lead has arrived but nobody has spoken to the customer yet.
+ *
+ * Derived from the group above rather than typed out again, because three places need
+ * this set and they must agree: the board's waiting rail, the `waitingSince` stamp on
+ * the collection, and the sort that orders by it. A hand-written copy is how the board
+ * once called an assigned lead "New" for weeks.
+ */
+export const FRESH_STAGES: string[] = LEAD_GROUPS.find((g) => g.key === 'fresh')?.statuses ?? [];
+
+/**
+ * Where a lead came from.
+ *
+ * Here rather than on the collection because three screens need it and they have to
+ * agree: the collection's own select, the dashboard's source filter, and the multi-select
+ * filter bar above the Leads list. It was written out twice before, and a fourth caller
+ * would have made three.
+ */
+export interface LeadSource {
+  value: string;
+  label: string;
+}
+
+export const LEAD_SOURCES: LeadSource[] = [
+  { value: 'quote-form', label: 'Quote form' },
+  { value: 'price-check', label: 'Price check' },
+  { value: 'facebook-ad', label: 'Facebook ad' },
+  { value: 'webhook', label: 'Webhook' },
+];
+
+/** The label for a stored source value, or the value itself if it is one we retired. */
+export const sourceLabel = (value?: string): string =>
+  LEAD_SOURCES.find((s) => s.value === value)?.label ?? value ?? '';
+
+/**
+ * The stages that carry a date, and what that date means.
+ *
+ * One field on the lead (`dueAt`) serves three different promises, because the promise
+ * is already written in the stage - and asking somebody to pick both a date AND what the
+ * date is for would be asking a question the screen can answer:
+ *
+ *   call-later  the customer asked us to ring back at a time
+ *   follow-up   we owe them a chase on the quote
+ *   scheduled   the move itself is booked for that day
+ *
+ * The difference matters at exactly one moment - when the date arrives and somebody is
+ * asked whether it happened - so the wording of that question lives here beside the list
+ * rather than being rebuilt at the point of use.
+ */
+export const DATED_STAGES: string[] = ['call-later', 'follow-up', 'scheduled'];
+
+export interface DuePrompt {
+  /** What the date meant, in a word, for a column heading or a chip. */
+  noun: string;
+  /** The question asked on the day. */
+  question: string;
+  /** The answer that moves the lead on, and where it moves it to. */
+  yes: { label: string; status: string };
+  /** The answer that says it did not happen. Absent when there is nothing to fail. */
+  no?: { label: string; status: string };
+}
+
+/**
+ * Where a promised date sits relative to now, in the words a person would use.
+ *
+ * "in 1d" is what a duration function produces and not what anybody says. Near dates get
+ * named - today, tomorrow - because that is how the promise was made in the first place
+ * ("I'll call you tomorrow"), and only once a date is far enough away to be uncountable
+ * does a duration become the clearer answer.
+ *
+ * The tone is the whole point of separating this out: `late` and `today` mean somebody
+ * acts now, `tomorrow` means somebody should know, and `later` means nothing at all yet.
+ * The board paints those three differently, and ember - which means "act" everywhere on
+ * this page - is reserved for the first two.
+ */
+export type DueTone = 'late' | 'today' | 'tomorrow' | 'soon' | 'later';
+
+/**
+ * How far ahead a promise is announced: two days, not one.
+ *
+ * A move booked for the 26th surfaces on the 24th. The extra day is the difference
+ * between being told and being able to do anything about it - confirming a truck,
+ * chasing a society gate pass or finding a replacement packer are all next-morning jobs,
+ * and a notice that arrives the evening before leaves no morning to use.
+ *
+ * One constant, read by the board, the counts and the sidebar, so all three agree about
+ * what "coming up" means.
+ */
+export const NOTICE_DAYS = 2;
+
+export interface DueState {
+  tone: DueTone;
+  /** Short enough for a 74px column. */
+  text: string;
+  /** The full stamp, for a tooltip - the column can only ever be an approximation. */
+  exact: string;
+}
+
+export function dueState(dueAt: string, nowMs: number = Date.now()): DueState | null {
+  const due = new Date(dueAt);
+  if (Number.isNaN(due.getTime())) return null;
+
+  const now = new Date(nowMs);
+  // Calendar days, not 24-hour blocks. A move booked for 9am tomorrow is "tomorrow" at
+  // 6pm tonight even though it is fifteen hours away, and it is still "tomorrow" at
+  // 8am tomorrow-minus-one-minute. Anything measured in elapsed hours gets both wrong.
+  const startOfDay = (d: Date): number =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOfDay(due) - startOfDay(now)) / 86400000);
+
+  const time = due.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  const exact = due.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+
+  if (due.getTime() <= nowMs) {
+    const lateFor = nowMs - due.getTime();
+    return { tone: 'late', text: `${humanDuration(lateFor)} late`, exact };
+  }
+  if (days === 0) return { tone: 'today', text: time, exact };
+  if (days === 1) return { tone: 'tomorrow', text: 'tomorrow', exact };
+  // Named rather than measured, for the same reason tomorrow is: "in 1d 7h" is a
+  // subtraction somebody has to do in their head to find out which morning it lands on.
+  if (days === NOTICE_DAYS) return { tone: 'soon', text: `in ${days} days`, exact };
+  return { tone: 'later', text: `in ${humanDuration(due.getTime() - nowMs)}`, exact };
+}
+
+export const duePrompt = (status?: string): DuePrompt =>
+  status === 'scheduled'
+    ? {
+        noun: 'Move',
+        question: 'Did the move happen?',
+        // Short enough to sit beside its siblings in a 175px column, and still naming
+        // the consequence: a bare "Yes" that silently marks a deal won is a surprise.
+        yes: { label: 'Yes, won', status: 'won' },
+        no: { label: 'No, lost', status: 'lost' },
+      }
+    : status === 'follow-up'
+      ? {
+          noun: 'Chase',
+          question: 'Chased them?',
+          // A chase that lands does not close anything - the customer now has the quote
+          // in hand, which is what `quoted` means.
+          yes: { label: 'Quoted', status: 'quoted' },
+        }
+      : {
+          noun: 'Callback',
+          question: 'Did you reach them?',
+          yes: { label: 'Reached', status: 'contacted' },
+          no: { label: 'No answer', status: 'call-not-picked' },
+        };
+
+/**
+ * What to do next with a lead in this stage, and whether leaving it is a problem.
+ *
+ * A status says where a lead got to; it does not say what the person reading the row is
+ * supposed to do about it, which is the only reason they opened the dashboard. `chase`
+ * marks the stages where nothing is happening unless somebody rings - those rows earn
+ * the ember treatment once they have been sitting.
+ */
+export const NEXT_STEP: Record<string, { label: string; chase: boolean }> = {
+  new: { label: 'Make first call', chase: true },
+  assigned: { label: 'Make first call', chase: true },
+  reassigned: { label: 'Make first call', chase: true },
+  contacted: { label: 'Call again', chase: true },
+  'call-not-picked': { label: 'Try again', chase: true },
+  'call-later': { label: 'Call back', chase: true },
+  'follow-up': { label: 'Send the quote', chase: true },
+  quoted: { label: 'Follow up on quote', chase: true },
+  // `chase: false` because nothing is owed until the date arrives. The board reads this
+  // to decide whether a lead is late, and a booked move is not late - it is waiting.
+  // Instructions, not second names for the stage. "Move booked" and "Move done" sat
+  // beside badges reading Scheduled and Won, so the same lead had two names in one row.
+  scheduled: { label: 'Prepare for the move', chase: false },
+  won: { label: 'Closed', chase: false },
+  lost: { label: 'Closed', chase: false },
+  invalid: { label: 'Closed', chase: false },
+};
+
+/** The next step for a stage, never undefined - an unmapped stage just says "Open it". */
+export const nextStep = (status?: string): { label: string; chase: boolean } =>
+  NEXT_STEP[status ?? ''] ?? { label: 'Open it', chase: false };
+
+/**
+ * "18m", "2h 14m", "1d 3h" - the shape someone would say out loud.
+ *
+ * Here rather than in a dashboard file because a client component cannot import from
+ * SalesDashboard.tsx: that module pulls in `next/link` and Payload server types, so
+ * importing it from a "use client" file drags a server module into the browser bundle.
+ * This module has no imports at all, which is what makes it safe for both sides.
+ */
+export function humanDuration(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) return '—';
+  const mins = Math.round(ms / 60000);
+  if (mins < 1) return 'under a minute';
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) {
+    const m = mins % 60;
+    return m ? `${hours}h ${m}m` : `${hours}h`;
+  }
+  const days = Math.floor(hours / 24);
+  const h = hours % 24;
+  return h ? `${days}d ${h}h` : `${days}d`;
+}
+
+/**
+ * Rupees the way the team says them: ₹32,000 under a lakh, ₹4.6L above it, ₹1.2Cr above
+ * a crore. A column of full figures is unreadable at a glance, and "4.6 lakh" is exactly
+ * how a quote gets described on the phone.
+ */
+export function money(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  if (n >= 1e7) return `₹${(n / 1e7).toFixed(n >= 1e8 ? 0 : 1)}Cr`;
+  if (n >= 1e5) return `₹${(n / 1e5).toFixed(n >= 1e6 ? 0 : 1)}L`;
+  return `₹${Math.round(n).toLocaleString('en-IN')}`;
+}
+
+/**
+ * The day and time an entry happened, as a person would write it: "Today, 11:20 AM" for
+ * something from this morning, "21 Sep, 5:17 PM" for anything older. The relative half
+ * is what you scan; the date is what you need when a customer asks.
+ */
+export const whenLabel = (iso?: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const time = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  if (sameDay) return `Today, ${time}`;
+  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`;
+  return `${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}, ${time}`;
+};
+
+/**
+ * A name as a person would write it.
+ *
+ * Two things arrive wrong and both are fixed here, in one place, because a name that
+ * reads one way in the greeting and another way in the table is worse than either.
+ *
+ * SHOUTED IN CAPITALS. Quote forms take the name in whatever case the customer typed,
+ * and on a phone that is very often all caps. Forty rows of caps are harder to read -
+ * caps remove the word-shape the eye uses - and read as an alarm.
+ *
+ * typed in lower case. Somebody who signed up as "sushil" was greeted as "Hello, sushil"
+ * and owned leads as "sushil", which reads as a username rather than a person.
+ *
+ * The decision is made on the WHOLE name, never word by word. A name carrying a capital
+ * anywhere inside it was cased deliberately and is returned untouched - which is what
+ * keeps "McKenzie", "van Rijn" and "d'Artagnan" intact. Word-by-word would capitalise
+ * that "van".
+ *
+ * An email address is not a name and passes through as it is. Staff without a name on
+ * their account fall back to their email, and "Sushil.aajneeti@gmail.com" would be
+ * neither a name nor the address they typed.
+ */
+export function personCase(name: string): string {
+  if (!name || name.includes('@')) return name;
+  const allLower = name === name.toLowerCase();
+  const allUpper = name === name.toUpperCase();
+  if (!allLower && !allUpper) return name;
+  return name
+    .toLowerCase()
+    .replace(/(^|[\s'-])(\p{Ll})/gu, (_m, lead: string, ch: string) => lead + ch.toUpperCase());
+}

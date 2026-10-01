@@ -294,7 +294,15 @@ export const Leads: CollectionConfig = {
         const was = String(originalDoc?.status ?? '');
         const closing = stage === 'won' || stage === 'lost';
         const fromCallback = (was === 'call-later' || was === 'follow-up') && was !== stage;
-        if (!DATED_STAGES.includes(stage) && (!closing || fromCallback)) data.dueAt = null;
+        // Only the callback time carried over is dropped. A date typed in the same save
+        // that closes the lead is the move day, and is kept - otherwise "Won, moving on
+        // the 12th" from a callback lost the 12th. Absent from the save = unchanged.
+        const asTime = (v: unknown): number | null => (v ? new Date(String(v)).getTime() : null);
+        const carriedOver =
+          data.dueAt === undefined || asTime(data.dueAt) === asTime(originalDoc?.dueAt);
+        if (!DATED_STAGES.includes(stage) && (!closing || (fromCallback && carriedOver))) {
+          data.dueAt = null;
+        }
 
         if (FRESH_STAGES.includes(stage)) {
           // `createdAt` is absent on create - the row does not exist yet - and on create
@@ -717,14 +725,14 @@ export const Leads: CollectionConfig = {
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, h:mm a' },
-        // Shown where it means something: the dated stages, and a Won or Lost lead that
-        // has a move day - so the date the calendar shows it on is visible, and fixable,
-        // on the lead itself. Hidden on a closed lead with no date, where it is noise.
+        // Shown where it means something: the dated stages, every Won lead, and a Lost
+        // lead that has a move day. Won always, because a Won lead is a booked move and
+        // the date is what puts it on the calendar: hiding the empty field on a lead won
+        // straight from Quoted (or from a callback, whose time is dropped) left it with
+        // no way ever to get one - counted Won on the dashboard, absent from the calendar.
         condition: (data) => {
           const s = String(data?.status ?? '');
-          return (
-            DATED_STAGES.includes(s) || ((s === 'won' || s === 'lost') && Boolean(data?.dueAt))
-          );
+          return DATED_STAGES.includes(s) || s === 'won' || (s === 'lost' && Boolean(data?.dueAt));
         },
         description:
           'When this is due. A callback time, the day to chase a quote, or the day of the move. The lead stays quiet on the board until then. On a Won or Lost lead it is the day of the move, and puts it on the calendar.',

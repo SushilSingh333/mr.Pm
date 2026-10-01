@@ -31,9 +31,25 @@ const ALL = LEAD_STATUS.map((s) => ({ value: s.value, label: s.label }));
 /** Set by the assignment hook, never chosen by hand. */
 const ROUTING = ['new', 'assigned', 'reassigned'];
 
+/** Stages whose date is a phone call, not a move. */
+const CALLBACK = ['call-later', 'follow-up'];
+
 export function LeadStatusSelect({ path }: { path: string }): React.JSX.Element {
   const { user } = useAuth();
-  const { value, setValue } = useField<string>({ path });
+  const { value, setValue, initialValue } = useField<string>({ path });
+  // The date field beside it. Closing a callback lead leaves its "ring me Thursday" time
+  // in that field, where on a Won lead it reads as the move day; the server drops it on
+  // save (Leads.ts), but the form should not show it as one meanwhile. So the time is
+  // cleared the moment the stage closes - leaving the field empty for the real move
+  // date - and put back if the stage goes back to a callback before saving.
+  const due = useField<string | null>({ path: 'dueAt' });
+  const changeStage = (next: string): void => {
+    setValue(next);
+    if (!CALLBACK.includes(String(initialValue ?? '')) || !due.initialValue) return;
+    const closing = next === 'won' || next === 'lost';
+    if (closing && due.value === due.initialValue) due.setValue(null);
+    if (!closing && !due.value) due.setValue(due.initialValue);
+  };
   const isSales = (user as { role?: string } | null)?.role === 'sales';
 
   // A salesperson gets the working stages only — plus whatever the lead currently is,
@@ -53,7 +69,7 @@ export function LeadStatusSelect({ path }: { path: string }): React.JSX.Element 
         id={`field-${path}`}
         className="lead-status-select"
         value={value ?? ''}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => changeStage(e.target.value)}
       >
         {!current && <option value="">Select a status</option>}
         {options.map((o) => (

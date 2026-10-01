@@ -64,6 +64,8 @@ interface Props {
   /** Company-wide moves per day, for the colours - see the server file. */
   dayLoad: Record<DayKey, number>;
   capacity: number;
+  /** Won leads with no move date - they exist, but nothing can place them on a day. */
+  undatedWon: number;
   canReschedule: boolean;
   canSeeTeam: boolean;
   meId: string;
@@ -892,6 +894,22 @@ export function CalendarApp(props: Props): React.JSX.Element {
         </div>
       </div>
 
+      {props.undatedWon > 0 && (
+        <p className="cal-note" role="status">
+          <MIcon name="event" size={20} className="cal-note__ico" />
+          <span>
+            {props.undatedWon} Won {props.undatedWon === 1 ? 'lead has' : 'leads have'} no move
+            date, so {props.undatedWon === 1 ? 'it is' : 'they are'} not on the calendar.
+          </span>
+          <Link
+            className="cal-note__link"
+            href="/admin/collections/leads?where%5Band%5D%5B0%5D%5Bstatus%5D%5Bequals%5D=won&where%5Band%5D%5B1%5D%5BdueAt%5D%5Bexists%5D=false"
+          >
+            Add {props.undatedWon === 1 ? 'its date' : 'their dates'}
+          </Link>
+        </p>
+      )}
+
       <div className={`cal-body cal-body--${view}${drag ? ' is-dragging' : ''}`}>
         {view === 'month' ? monthView : view === 'week' ? weekView : dayView}
       </div>
@@ -1192,6 +1210,13 @@ const CSS = `
 .cal-empty span{font-size:13px;color:var(--ink-3)}
 
 /* ── Footer key ── */
+/* Google's inline notice: a quiet tonal strip, an icon, one sentence and the fix. */
+.cal-note{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;margin:0 0 12px;
+  padding:10px 16px;border-radius:12px;background:var(--mpm-sel,#D3E3FD);color:var(--mpm-on-sel,#041E49);
+  font-size:14px;line-height:1.4}
+.cal-note__ico{flex:none}
+.cal-note__link{margin-left:auto;font-weight:500;color:inherit;text-decoration:underline;text-underline-offset:3px}
+.cal-note__link:hover{text-decoration-thickness:2px}
 .cal-foot{display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap;margin-top:12px}
 .cal-key{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
 .cal-key__title{font-weight:700;color:var(--ink-2)}

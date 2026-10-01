@@ -140,7 +140,7 @@ export async function CalendarView({
     ],
   };
 
-  const [visible, totals, settings] = await Promise.all([
+  const [visible, totals, settings, undatedWon] = await Promise.all([
     payload
       .find({
         collection: 'leads',
@@ -184,6 +184,18 @@ export async function CalendarView({
     payload
       .findGlobal({ slug: 'schedule-settings' as never, overrideAccess: true, depth: 0 })
       .catch(() => null),
+    // Won leads with no move date. The calendar places a lead by its date, so these can
+    // never appear on it - which is why the dashboard can count two Won and the calendar
+    // none. Counted with the viewer's own access, so a salesperson hears only about theirs.
+    payload
+      .count({
+        collection: 'leads',
+        where: { and: [{ status: { equals: 'won' } }, { dueAt: { exists: false } }] } as never,
+        overrideAccess: false,
+        user: user as never,
+      })
+      .then((r) => r.totalDocs)
+      .catch(() => 0),
   ]);
 
   const capacity = Math.max(
@@ -264,6 +276,7 @@ export async function CalendarView({
       items={items}
       dayLoad={dayLoad}
       capacity={capacity}
+      undatedWon={undatedWon}
       canReschedule={role === 'admin' || role === 'handler'}
       canSeeTeam={role === 'admin' || role === 'handler'}
       meId={String(user.id)}

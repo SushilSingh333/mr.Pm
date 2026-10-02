@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_ONLY } from '../lib/date-display.js';
 import {
   hideFromSalesRoles,
   isContentStaff,
@@ -41,7 +42,7 @@ export const Reviews: CollectionConfig = {
     { name: 'authorName', type: 'text', required: true },
     { name: 'rating', type: 'number', required: true, min: 1, max: 5 },
     { name: 'text', type: 'textarea', required: true },
-    { name: 'date', type: 'date', required: true },
+    { name: 'date', type: 'date', required: true, admin: { date: DAY_ONLY } },
     { name: 'location', type: 'relationship', relationTo: 'locations' },
     { name: 'service', type: 'relationship', relationTo: 'services' },
     { name: 'verifiedBy', type: 'text', admin: { description: 'Who verified the job/review.' } },

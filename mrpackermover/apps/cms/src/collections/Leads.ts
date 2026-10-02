@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_AND_TIME, DAY_ONLY, checkYear } from '../lib/date-display.js';
 import { leadsRead, leadsUpdate, leadsDelete, isRole, leadsReadVersions } from '../access/index.js';
 import {
   DATED_STAGES,
@@ -481,7 +482,7 @@ export const Leads: CollectionConfig = {
         { name: 'dropLocation', type: 'text', label: 'Drop location', admin: { width: '50%' } },
       ],
     },
-    { name: 'moveDate', type: 'date' },
+    { name: 'moveDate', type: 'date', admin: { date: DAY_ONLY }, validate: checkYear },
     {
       /**
        * What the customer was actually shown.
@@ -725,19 +726,22 @@ export const Leads: CollectionConfig = {
       admin: {
         position: 'sidebar',
         date: { pickerAppearance: 'dayAndTime', displayFormat: 'd MMM yyyy, h:mm a' },
-        // Shown where it means something: the dated stages, every Won lead, and a Lost
-        // lead that has a move day. Won always, because a Won lead is a booked move and
-        // the date is what puts it on the calendar: hiding the empty field on a lead won
-        // straight from Quoted (or from a callback, whose time is dropped) left it with
-        // no way ever to get one - counted Won on the dashboard, absent from the calendar.
+        // Shown on the dated stages and on every closed deal. On Won and Lost it is the
+        // move day: the day the job ran, or the day it would have. Always shown there -
+        // never only when already filled - because a lead closed straight from Quoted, or
+        // from a callback (whose time is dropped), arrives with no date, and hiding the
+        // empty field left it no way ever to get one: counted on the dashboard, absent
+        // from the calendar.
         condition: (data) => {
           const s = String(data?.status ?? '');
-          return DATED_STAGES.includes(s) || s === 'won' || (s === 'lost' && Boolean(data?.dueAt));
+          return DATED_STAGES.includes(s) || s === 'won' || s === 'lost';
         },
         description:
           'When this is due. A callback time, the day to chase a quote, or the day of the move. The lead stays quiet on the board until then. On a Won or Lost lead it is the day of the move, and puts it on the calendar.',
       },
       validate: (value: unknown, { data }: { data?: { status?: string } }) => {
+        const year = checkYear(value);
+        if (year !== true) return year;
         // Required for a booked move and nothing else. "Scheduled" with no date is a
         // contradiction - it is the date that makes it scheduled - while a callback with
         // no time is just today's work, which is how the board already treats it.
@@ -814,6 +818,7 @@ export const Leads: CollectionConfig = {
       type: 'date',
       admin: {
         readOnly: true,
+        date: DAY_AND_TIME,
         position: 'sidebar',
         description:
           'Set the first time the owner saves a change. Empty means they have not actioned it yet.',

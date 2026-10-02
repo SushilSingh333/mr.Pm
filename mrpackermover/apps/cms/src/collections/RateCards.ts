@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_ONLY } from '../lib/date-display.js';
 import {
   hideFromSalesRoles,
   isContentStaff,
@@ -63,6 +64,6 @@ export const RateCards: CollectionConfig = {
         },
       ],
     },
-    { name: 'validFrom', type: 'date', required: true },
+    { name: 'validFrom', type: 'date', required: true, admin: { date: DAY_ONLY } },
   ],
 };

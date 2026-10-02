@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload';
+import { DAY_AND_TIME } from '../lib/date-display.js';
 import { isAdmin } from '../access/index.js';
 import { randomBytes } from 'node:crypto';
 
@@ -73,7 +74,7 @@ export const Integrations: GlobalConfig = {
           admin: {
             readOnly: true,
             width: '50%',
-            date: { pickerAppearance: 'dayAndTime' },
+            date: DAY_AND_TIME,
             description: 'Blank means nothing has ever reached this endpoint.',
           },
         },

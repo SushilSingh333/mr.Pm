@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_ONLY } from '../lib/date-display.js';
 import {
   hideFromSalesRoles,
   isContentStaff,
@@ -70,7 +71,10 @@ export const Blog: CollectionConfig = {
       name: 'publishedDate',
       type: 'date',
       required: true,
-      admin: { description: 'Shown on the article and used to sort newest-first.' },
+      admin: {
+        date: DAY_ONLY,
+        description: 'Shown on the article and used to sort newest-first.',
+      },
     },
     {
       name: 'cover',

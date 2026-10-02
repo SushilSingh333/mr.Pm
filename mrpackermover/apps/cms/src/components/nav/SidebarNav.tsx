@@ -4,6 +4,7 @@ import { CLOSED_STAGES } from '../dashboard/lead-status.js';
 import { BrandIcon } from '../graphics/BrandIcon.js';
 import { MIcon } from '../icons/MIcon.js';
 import { NavRow } from './NavRow.js';
+import { NavDismiss } from './NavDismiss.js';
 
 /**
  * Sidebar header (admin.components.beforeNavLinks): a live "Needs attention" panel —
@@ -145,6 +146,8 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
   return (
     <div className="mpm-nav">
       <style>{CSS}</style>
+      {/* Phone/tablet drawer: a tap outside it, or Esc, closes it. */}
+      <NavDismiss />
 
       {/* The logo, for the top-left corner beside the menu button while the sidebar is
           open (placed there by AdminTheme, laptop widths only) - where Google Calendar

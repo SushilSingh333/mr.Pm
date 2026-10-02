@@ -5,6 +5,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage';
 import { getDatabaseUrl } from '@mpm/db/env';
+import { LIST_DATE_FORMAT } from './lib/date-display.js';
 import { cloudinaryStorageAdapter } from './storage/cloudinary.js';
 
 import { LoginEvents } from './collections/LoginEvents.js';
@@ -50,6 +51,9 @@ const cloudinaryEnabled = Boolean(
 export default buildConfig({
   admin: {
     user: Users.slug,
+    // Day first wherever Payload prints a date itself (lists, version history) - its
+    // default reads "October 3rd 2026". See lib/date-display.ts.
+    dateFormat: LIST_DATE_FORMAT,
     meta: { titleSuffix: '· MrMoverPacker CMS' },
     // Custom admin UI: analytics dashboard, branded sidebar quick-access, and brand logo.
     // Paths are resolved from `src` (importMap.baseDir); run `generate:importmap` after

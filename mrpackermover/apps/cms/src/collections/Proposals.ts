@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_ONLY } from '../lib/date-display.js';
 import { proposalsRead, proposalsWrite, isRole } from '../access/index.js';
 import { DEFAULT_PROPOSAL_SERVICE, proposalServiceFor } from '../lib/proposal-service.js';
 import { PRE_QUOTE_STAGES } from '../components/dashboard/lead-status.js';
@@ -456,7 +457,7 @@ export const Proposals: CollectionConfig = {
                       name: 'date',
                       type: 'date',
                       label: 'Move date',
-                      admin: { width: '33%', date: { pickerAppearance: 'dayOnly' } },
+                      admin: { width: '33%', date: DAY_ONLY },
                     },
                     {
                       name: 'house',

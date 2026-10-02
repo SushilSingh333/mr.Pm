@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { DAY_ONLY } from '../lib/date-display.js';
 import { cldUrl } from '@mpm/shared';
 import { hideFromSalesRoles, isContentStaff, publicRead } from '../access/index.js';
 
@@ -61,6 +62,6 @@ export const Media: CollectionConfig = {
       },
     },
     { name: 'location', type: 'relationship', relationTo: 'locations' },
-    { name: 'capturedOn', type: 'date' },
+    { name: 'capturedOn', type: 'date', admin: { date: DAY_ONLY } },
   ],
 };

@@ -1,26 +1,48 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
+import { serviceCopy } from '@mpm/shared';
 import { iconSvg } from '../../lib/icons.js';
+import { heroAlt, heroForService } from '../../lib/hero.js';
+import cardPhotos from '../../data/card-photos.json';
 
-/** "Our services" — a premium grid of service cards (our services only). */
+/**
+ * The service cards (our services only), on the home page and on /services.
+ *
+ * The words come from packages/shared/src/service-copy.ts, the same copy each service's
+ * own page uses. `detail="full"` adds the two-line description and "Best for" (the
+ * /services hub); the default is the home page's one line.
+ *
+ * Each card is an <article> whose link text names the service ("Home shifting services
+ * →"), never "Learn more": that text is what search engines read as the description of
+ * the page it points to. The link is stretched over the whole card, so the card still
+ * clicks anywhere, as it did when the card itself was the link.
+ */
 interface ServiceItem {
   slug: string;
   name: string;
+  /** Card text set on the service in the CMS ("Heading and cards"); wins over the built-in. */
+  card?: { lines?: string; bestFor?: string; homeLine?: string; anchor?: string };
 }
 interface Props {
   services: ServiceItem[];
   heading?: string;
   intro?: string;
+  detail?: 'line' | 'full';
 }
-const { services, heading = 'What we move', intro } = Astro.props;
-const blurb: Record<string, string> = {
-  'home-shifting': 'Full house shifts, packed, moved and reassembled with care.',
-  'office-shifting': 'Offices and IT assets relocated with minimal downtime.',
-  'car-transport': 'Enclosed & open carriers, fully insured, live status.',
-  'bike-transport': 'Foam-wrapped, crated two-wheelers, door to door.',
-  'loading-unloading': 'Trained labour when you already have a vehicle.',
-  'packing-unpacking': 'Professional materials, unpacked at destination.',
-  'international-relocation': 'Door-to-door moves, customs handled end to end.',
-};
+const { services, heading = 'What we move', intro, detail = 'line' } = Astro.props;
+
+/**
+ * Each card leads with a real photo of that job, carrying our mark - a 600x375 crop
+ * (~20 KB) built with its alt text by scripts/build-card-photos.mjs. A service added
+ * later with no photo yet simply shows its card without one.
+ */
+const photoFor = (slug: string): string | null =>
+  fs.existsSync(path.resolve('public/images/cards', `${slug}.webp`))
+    ? `/images/cards/${slug}.webp`
+    : null;
+const altFor = (slug: string): string =>
+  (cardPhotos as Record<string, { alt: string }>)[slug]?.alt ?? heroAlt(heroForService(slug));
 ---
 
 <div class="section-head">
@@ -30,41 +52,64 @@ const blurb: Record<string, string> = {
 
 <div class="services-grid">
   {
-    services.map((s) => (
-      <a class="service-card" href={`/services/${s.slug}`}>
-        <span class="card-glow" aria-hidden="true" />
-        <span class="service-icon">
-          <svg
-            viewBox="0 0 24 24"
-            width="28"
-            height="28"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            set:html={iconSvg(s.slug)}
-          />
-        </span>
-        <span class="service-name">{s.name}</span>
-        <span class="service-blurb">{blurb[s.slug]}</span>
-        <span class="service-more">
-          Learn more
-          <svg
-            class="more-arrow"
-            viewBox="0 0 24 24"
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            aria-hidden="true"
-          >
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
-        </span>
-      </a>
-    ))
+    services.map((s) => {
+      const builtIn = serviceCopy(s.slug);
+      const copy = builtIn || s.card ? { ...builtIn, ...s.card } : undefined;
+      return (
+        <article class:list={['service-card', { 'has-photo': photoFor(s.slug) }]}>
+          {photoFor(s.slug) && (
+            <span class="service-photo">
+              <img
+                src={photoFor(s.slug)}
+                alt={altFor(s.slug)}
+                width="600"
+                height="375"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+          )}
+          <span class="card-glow" aria-hidden="true" />
+          <span class="service-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="28"
+              height="28"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              set:html={iconSvg(s.slug)}
+            />
+          </span>
+          <h3 class="service-name">{copy?.name ?? s.name}</h3>
+          <p class="service-blurb">
+            {detail === 'full' ? (copy?.lines ?? '') : (copy?.homeLine ?? '')}
+          </p>
+          {detail === 'full' && copy?.bestFor && (
+            <p class="service-for">
+              <span>Best for</span> {copy.bestFor}
+            </p>
+          )}
+          <a class="service-more" href={`/services/${s.slug}`}>
+            {copy?.anchor ?? `${s.name} services`}
+            <svg
+              class="more-arrow"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+        </article>
+      );
+    })
   }
 </div>
 
@@ -100,7 +145,8 @@ const blurb: Record<string, string> = {
       box-shadow var(--dur-base) var(--ease-out),
       border-color var(--dur-base) var(--ease-out);
   }
-  .service-card:hover {
+  .service-card:hover,
+  .service-card:focus-within {
     transform: translateY(-5px);
     border-color: var(--color-brand-300);
     box-shadow: var(--shadow-pop);
@@ -144,18 +190,69 @@ const blurb: Record<string, string> = {
     color: #fff;
     transform: scale(1.05) rotate(-3deg);
   }
+  /* With a photo the card runs edge to edge: the picture fills the top, the icon sits
+     on its lower edge, and the text keeps the card's usual padding below. */
+  .service-card.has-photo {
+    padding-top: 0;
+  }
+  .service-photo {
+    display: block;
+    margin: 0 -1.6rem 0;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--color-surface-3);
+  }
+  .service-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .service-card:hover .service-photo img {
+    transform: scale(1.05);
+  }
+  .service-card.has-photo .service-icon {
+    margin-top: -2rem;
+    position: relative;
+    z-index: 1;
+    border: 3px solid var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  .service-card.has-photo .card-glow {
+    display: none;
+  }
   .service-name {
+    margin: 0;
     font-family: var(--font-display);
     font-weight: 700;
     font-size: var(--text-lg);
+    line-height: 1.25;
   }
   .service-blurb {
+    margin: 0;
     color: var(--color-ink-500);
     font-size: var(--text-sm);
     flex: 1;
   }
+  .service-for {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--color-ink-700);
+  }
+  .service-for span {
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
+  }
   .service-more {
-    display: inline-flex;
+    text-decoration: none;
+    /* Inline, not inline-flex: when the name wraps ("Loading and unloading / services")
+       the arrow follows the last word instead of floating at the far right. */
+    display: inline;
     align-items: center;
     gap: 0.35rem;
     margin-top: 0.5rem;
@@ -164,10 +261,28 @@ const blurb: Record<string, string> = {
     color: var(--color-brand-600);
   }
   .more-arrow {
+    display: inline-block;
+    vertical-align: -3px;
+    margin-left: 0.3rem;
     transition: transform var(--dur-base) var(--ease-out);
   }
   .service-card:hover .more-arrow {
     transform: translateX(4px);
+  }
+  /* The link covers the whole card, so the card clicks anywhere. */
+  .service-more::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .service-more:focus-visible {
+    outline: none;
+  }
+  .service-card:focus-within {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
   }
   @media (max-width: 600px) {
     .service-card {

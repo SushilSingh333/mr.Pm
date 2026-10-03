@@ -36,6 +36,7 @@ import { Integrations } from './globals/Integrations.js';
 import { LeadRouting } from './globals/LeadRouting.js';
 import { SalesMessages } from './globals/SalesMessages.js';
 import { ScheduleSettings } from './globals/ScheduleSettings.js';
+import { ServicesPage } from './globals/ServicesPage.js';
 import { publicEndpoints } from './endpoints/index.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -133,6 +134,7 @@ export default buildConfig({
   globals: [
     OrgProfile,
     HomeContent,
+    ServicesPage,
     SeoDefaults,
     Integrations,
     LeadRouting,

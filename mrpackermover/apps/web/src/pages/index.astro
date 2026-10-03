@@ -1,169 +1,827 @@
 ---
-import type { HomeData, CityHubData, ServiceHubData, FaqItem } from '@mpm/shared';
+import type { HomeData, CityHubData, ServiceHubData } from '@mpm/shared';
+import { HOME_COPY, withCount, withOverrides } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
 import { rowsOfType, rowByPath, dataOf } from '../data/manifest.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroShell from '../components/sections/HeroShell.astro';
-import ServiceSelector from '../components/home/ServiceSelector.astro';
 import ServicesGrid from '../components/sections/ServicesGrid.astro';
 import CitiesGrid from '../components/sections/CitiesGrid.astro';
-import CoverageBand from '../components/sections/CoverageBand.astro';
-import ValueProps from '../components/sections/ValueProps.astro';
 import Faq from '../components/sections/Faq.astro';
 import Band from '../components/ui/Band.astro';
+import QuoteWidget from '../components/quote/QuoteWidget.astro';
+import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER } from '../lib/site.js';
+import { heroAlt } from '../lib/hero.js';
 
+/**
+ * The home page, built from the Home Page brief (3 Oct 2026).
+ *
+ * Every piece of text is editable in the CMS (Content → Home page content → "Home page
+ * sections"). Those fields start blank; anything left blank shows the brief's text,
+ * which lives once in packages/shared/src/page-copy.ts. The title, description and H1
+ * come from the manifest (apps/cms/src/lib/manifest.ts), which applies the same rule.
+ *
+ * Left out until the details are real (see the brief's "Before going live"):
+ *  - the founder note: shows once FOUNDER in lib/site.ts is filled in;
+ *  - customer reviews: only with at least three real Google reviews;
+ *  - "live tracking": /track is not live yet, so the steps do not promise it.
+ */
 const row = rowByPath('/')!;
 const data = dataOf<HomeData>(row);
-const faqs = (row.data.faqs as FaqItem[] | undefined) ?? [];
-
-// Editable marketing copy from the CMS (`home-content` global), with built-in
-// fallbacks so the page renders identically if a field is left blank.
-const c = data.content;
-const tagline1 = c?.taglineLine1 || 'Shifting Aapki,';
-const tagline2 = c?.taglineLine2 || 'Zimmedari Hamari.';
-const heroSubtext = c?.heroSubtext;
-const servicesHeading = c?.servicesHeading || 'What we move';
-const servicesIntro =
-  c?.servicesIntro || 'One operation, verified crews, and a written fixed quote for every service.';
-const trustHeading = c?.trustHeading || 'House Shifting you can actually verify';
-const trustIntro =
-  c?.trustIntro ||
-  'Everything below is backed by real job data, no vanity counters, no stock photos.';
-const statsHeading = c?.statsHeading || 'By the numbers';
-const statsIntro = c?.statsIntro || "Unflattering when it needs to be. That's the point.";
-const citiesHeading = c?.citiesHeading || 'Cities we pick up from';
-const citiesIntro =
-  c?.citiesIntro ||
-  'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews, delivery goes anywhere in India.';
-const faqHeading = c?.faqHeading || 'Questions people ask';
-const pillars = c?.pillars ?? [];
 
 const serviceRows = rowsOfType('service-hub').filter((r) => r.path.startsWith('/services/'));
-const services = serviceRows.map((r) => ({
-  slug: r.slug,
-  name: dataOf<ServiceHubData>(r).serviceName,
-}));
+const services = serviceRows.map((r) => {
+  const d = dataOf<ServiceHubData>(r) as ServiceHubData & { card?: Record<string, string> };
+  return { slug: r.slug, name: d.serviceName, card: d.card };
+});
 
+// Cities: in the order Sushil set (3 Oct 2026), then any other published city as the
+// manifest lists it. Every link comes from a published city page, so none can 404.
+const FIRST_CITIES = [
+  'delhi',
+  'gurgaon',
+  'noida',
+  'greater-noida',
+  'faridabad',
+  'ghaziabad',
+  'meerut',
+];
 const cityRows = rowsOfType('city-hub');
-const cities = cityRows.map((r) => {
-  const d = dataOf<CityHubData>(r);
-  return { slug: r.slug, name: d.cityName, image: d.heroImage?.url };
-});
-const cityLinks = cityRows.map((r) => {
-  const d = dataOf<CityHubData>(r);
-  return { path: r.path, anchor: d.cityName, image: d.heroImage?.url };
-});
+const rank = (slug: string): number => {
+  const i = FIRST_CITIES.indexOf(slug);
+  return i === -1 ? FIRST_CITIES.length : i;
+};
+const cityLinks = [...cityRows]
+  .sort((a, b) => rank(a.slug) - rank(b.slug))
+  .map((r) => {
+    const d = dataOf<CityHubData>(r);
+    return { path: r.path, anchor: `Packers and movers in ${d.cityName}`, image: d.heroImage?.url };
+  });
+const cityCount = cityRows.length;
+
+/** The brief's text with anything filled in on the CMS laid over it. */
+const C = withOverrides(HOME_COPY, data.content?.page as Partial<typeof HOME_COPY> | undefined);
+/** `{count}` -> the number of live cities. */
+const fill = (text: string): string => withCount(text, cityCount);
+
+const whatsapp = (text: string): string =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+const videoHref = whatsapp(
+  "Hi MrMoverPacker, I'd like a fixed quote. I'll send you a short video of my home.",
+);
+
+/** One icon per promise card, in order; more cards than icons repeat them. */
+const PROMISE_ICONS = [
+  '<path d="M4 7h16M4 12h10M4 17h7"/><path d="M17 14l2 2 3-4"/>',
+  '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/>',
+  '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/><path d="M15.5 4.5l1.5 1.5 3-3"/>',
+];
+const promises = C.promises.map((p, i) => ({
+  ...p,
+  icon: PROMISE_ICONS[i % PROMISE_ICONS.length],
+}));
+const steps = C.steps;
+const faqs = C.faqs.map((f) => ({ ...f, answer: fill(f.answer) }));
+
+// Schema on top of the Organization + WebSite that Seo adds for the home page: the
+// FAQs as shown, and the founder once real. No MovingCompany/LocalBusiness (ADR-0004,
+// enforced by the banned-entities gate) and no AggregateRating.
+const extraJsonLd = [
+  jsonld.faqPage(faqs),
+  FOUNDER
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: FOUNDER.name,
+        jobTitle: 'Founder',
+        image: FOUNDER.photo,
+        worksFor: { '@type': 'Organization', name: 'MrMoverPacker' },
+      }
+    : null,
+];
 ---
 
-<BaseLayout row={row}>
-  <HeroShell align="left" h1={row.h1} image="home" imageUrl={c?.heroImage?.url} intro={heroSubtext}>
-    <h1 slot="heading" class="home-tagline">
-      <span class="t-line1">{tagline1}</span>
-      <span class="t-line2">{tagline2}</span>
-    </h1>
-    <ServiceSelector cities={cities} services={services} />
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+  <HeroShell
+    align="left"
+    h1={row.h1}
+    image="home"
+    imageUrl={data.content?.heroImage?.url}
+    intro={C.subhead}
+  >
+    <Fragment slot="heading">
+      <p class="home-tagline">{C.tagline}</p>
+      <h1 class="home-h1">{row.h1}</h1>
+    </Fragment>
+    {
+      /* One white card under the banner: the same price bar the city and service pages
+        use (Check Price shows the estimate on the spot and saves the price check as a
+        lead), then the trust strip beneath it. The hero's card row lays its children
+        side by side, so they share one wrapper. */
+    }
+    <div class="home-hero-box">
+      <QuoteWidget eager />
+      <p class="home-hero-note">
+        <a href={videoHref} target="_blank" rel="noopener noreferrer"
+          >Or WhatsApp us a video of your home</a
+        >
+      </p>
+      <ul class="home-trust" aria-label="Why people book us">
+        {C.trust.map((t) => <li>{fill(t)}</li>)}
+      </ul>
+    </div>
   </HeroShell>
 
-  <Band label="Services">
-    <ServicesGrid services={services} heading={servicesHeading} intro={servicesIntro} />
+  <Band label="Our promises">
+    <div class="section-head">
+      <h2>{C.promisesHeading}</h2>
+    </div>
+    <div class="home-promises">
+      {
+        promises.map((p) => (
+          <article class="card home-promise">
+            <span class="home-promise-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="26"
+                height="26"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                set:html={p.icon}
+              />
+            </span>
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+            {p.link && <a href={p.link.href}>{p.link.label} →</a>}
+          </article>
+        ))
+      }
+    </div>
   </Band>
 
-  <Band alt label="Why us">
-    <ValueProps heading={trustHeading} intro={trustIntro} pillars={pillars} />
+  <Band alt label="How it works">
+    <div class="home-split">
+      <figure class="home-split-photo">
+        <img
+          src="/images/sections/steps-home.webp"
+          alt="A MrMoverPacker crew carrying a wrapped sofa out of a family home while the family watches from the doorway."
+          width="840"
+          height="630"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+      <div>
+        <h2 class="home-split-h2">{C.stepsHeading}</h2>
+        <ol class="home-steps home-steps--split">
+          {
+            steps.map((s, i) => (
+              <li class="card home-step">
+                <span class="home-step-n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </Band>
+
+  <Band label="Why us">
+    <div class="section-head">
+      <h2>{C.compareHeading}</h2>
+    </div>
+    <div class="home-table-wrap">
+      <table class="home-table home-compare">
+        <thead>
+          <tr>
+            <td></td>
+            <th scope="col">Typical local mover</th>
+            <th scope="col" class="is-us">MrMoverPacker</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            C.compare.map((r) => (
+              <tr>
+                <th scope="row">{r.label}</th>
+                <td>{r.them}</td>
+                <td class="is-us">{r.us}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
   </Band>
 
   {
-    (data.totalJobs12m > 0 || data.medianSettlementDays != null) && (
-      <Band label="By the numbers">
-        <div class="section-head">
-          <h2>{statsHeading}</h2>
-          <p>{statsIntro}</p>
+    /* A full-width photo band rather than a card: the one moment in the page that is
+      pure picture, under a black shade so the white text reads at any width. */
+  }
+  <section class="home-night-band" aria-label="Overnight moves">
+    <picture class="home-night-photo">
+      <source
+        type="image/webp"
+        media="(min-width: 900px)"
+        srcset="/images/hero/loading-unloading-full.webp"
+      />
+      <source type="image/webp" srcset="/images/hero/loading-unloading-narrow.webp" />
+      <img
+        src="/images/hero/loading-unloading.jpg"
+        alt={heroAlt('loading-unloading')}
+        width="1920"
+        height="800"
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+    <div class="container-page home-night-inner">
+      <span class="home-night-icon" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          width="30"
+          height="30"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path>
+        </svg>
+      </span>
+      <h2>{C.nightHeading}</h2>
+      <p>{C.nightText}</p>
+      <a class="btn btn-lg home-night-cta" href="/get-quote">Get my fixed quote</a>
+    </div>
+  </section>
+
+  {
+    FOUNDER && (
+      <Band label="From the founder">
+        <div class="home-founder card">
+          <img
+            src={FOUNDER.photo}
+            alt={`${FOUNDER.name}, founder of MrMoverPacker`}
+            width="160"
+            height="160"
+            loading="lazy"
+          />
+          <div>
+            <h2>15 years of shifting homes. Here's why I started MrMoverPacker.</h2>
+            <p>
+              I started loading trucks in {FOUNDER.firstCity} in {FOUNDER.yearStarted}. In 15 years
+              I have packed kitchens at midnight, carried almirahs down four floors with no lift,
+              and argued with society guards at 7 AM over entry timings.
+            </p>
+            <blockquote>
+              "I have seen a ₹8,000 phone quote turn into a ₹14,000 bill at the door. I have seen
+              sofas scratched by labour hired that morning. MrMoverPacker runs on three rules: a
+              written price, a photo of every item, and a crew that works for us. If we ever break
+              one, call me on <a href={`tel:${FOUNDER.phoneTel}`}>{FOUNDER.phoneDisplay}</a>. I
+              still take those calls myself."
+            </blockquote>
+            <p class="home-founder-sign">
+              {FOUNDER.name}, Founder · <a href="/company/about">Read my story →</a>
+            </p>
+          </div>
         </div>
-        <dl class="home-stats">
-          {data.totalJobs12m > 0 && (
-            <div class="card stat">
-              <dt>{data.totalJobs12m.toLocaleString('en-IN')}</dt>
-              <dd>moves completed in the last 12 months</dd>
-            </div>
-          )}
-          {data.onTimePct != null && (
-            <div class="card stat">
-              <dt>{data.onTimePct}%</dt>
-              <dd>arrived on time</dd>
-            </div>
-          )}
-          {data.medianSettlementDays != null && (
-            <div class="card stat">
-              <dt>{data.medianSettlementDays} days</dt>
-              <dd>median claim settlement, published, not hidden</dd>
-            </div>
-          )}
-        </dl>
       </Band>
     )
   }
+
+  <Band label="How we pack">
+    <div class="section-head">
+      <h2>{C.packingHeading}</h2>
+    </div>
+    <div class="home-split home-split--pack">
+      <div>
+        <div class="home-table-wrap">
+          <table class="home-table home-pack">
+            <thead>
+              <tr><th scope="col">Item</th><th scope="col">How we pack it</th></tr>
+            </thead>
+            <tbody>
+              {
+                C.packing.map((r) => (
+                  <tr>
+                    <th scope="row">{r.item}</th>
+                    <td>{r.how}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="home-more">
+          <a href="/services/packing-unpacking">Packing and unpacking services →</a>
+        </p>
+      </div>
+      <figure class="home-split-photo">
+        <img
+          src="/images/sections/packing-detail.webp"
+          alt="MrMoverPacker crew wrapping a sofa in stretch film and packing crockery into branded cartons."
+          width="840"
+          height="630"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </Band>
+
+  <Band alt label="Charges">
+    <div class="section-head">
+      <h2>{C.chargesHeading}</h2>
+      <p>{C.chargesIntro}</p>
+    </div>
+    <ul class="home-factors">
+      {
+        C.chargesFactors.map((f) => (
+          <li class="card">
+            <strong>{f.title}</strong>
+            <span>{f.text}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="home-included">
+      <p><strong>Always included:</strong> {C.chargesIncluded}</p>
+      <p class="home-promise-line">{C.chargesPromise}</p>
+      <p class="home-more">
+        <a href="/pricing">Full pricing details →</a> · Local rate bands are on each city page.
+      </p>
+    </div>
+  </Band>
+
+  <Band label="Services">
+    <ServicesGrid services={services} heading={C.servicesHeading} />
+  </Band>
 
   {
     cityLinks.length > 0 && (
-      <Band alt label="Coverage">
-        <CoverageBand />
-        <div class="home-cities">
-          <CitiesGrid cities={cityLinks} heading={citiesHeading} intro={citiesIntro} />
-        </div>
+      <Band alt label="Cities" id="cities">
+        <CitiesGrid
+          cities={cityLinks}
+          heading={fill(C.citiesHeading)}
+          intro={fill(C.citiesIntro)}
+          visible={8}
+        />
       </Band>
     )
   }
 
-  {
-    faqs.length > 0 && (
-      <Band label="FAQ">
-        <Faq faqs={faqs} heading={faqHeading} />
-      </Band>
-    )
-  }
+  <Band label="FAQ">
+    <Faq faqs={faqs} heading={C.faqHeading} />
+  </Band>
+
+  <Band alt label="Get a quote">
+    <div class="section-head">
+      <h2>{C.closingHeading}</h2>
+      <p>{C.closingText}</p>
+    </div>
+    {
+      /* The same price bar again, for people who read to the bottom. Its own id prefix
+        keeps its fields apart from the hero's. */
+    }
+    <div class="home-close card">
+      <QuoteWidget idPrefix="qc" />
+      <p class="home-contact">
+        Call <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> · <a
+          href={videoHref}
+          target="_blank"
+          rel="noopener noreferrer">WhatsApp</a
+        > · 8 AM to 10 PM, every day
+      </p>
+    </div>
+  </Band>
 </BaseLayout>
 
 <style>
+  /* ── Hero ── */
   .home-tagline {
-    display: flex;
-    flex-direction: column;
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: rgb(255 255 255 / 0.92);
+  }
+  /* Scoped under .hero to outrank HeroShell's own `.hero.align-left h1`, which is
+     sized for a two-to-three-word tagline, not this sentence-length heading. */
+  :global(.hero.align-left) .home-h1 {
     margin: 0;
-  }
-  .home-tagline .t-line1 {
-    font-weight: 500;
-    font-size: 0.64em;
-    opacity: 0.94;
-  }
-  .home-tagline .t-line2 {
-    font-weight: 800;
+    max-width: 21ch;
+    font-size: clamp(1.85rem, 3.4vw, 2.9rem);
+    line-height: 1.1;
     letter-spacing: -0.015em;
   }
-  .home-cities {
-    margin-top: clamp(2rem, 4vw, 3rem);
+  /* The heading and subhead are a full sentence now, set over the busiest part of the
+     photograph (the logo on the carton). A wash that is darkest behind the text and
+     fades to the right keeps them readable and leaves the crew and the truck clear.
+     Page CSS, so only the home hero gets it. */
+  :global(.hero.align-left)::before {
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.62) 36%, rgb(0 0 0 / 0.12) 68%),
+      linear-gradient(rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.05));
   }
-  .home-stats {
+  @media (max-width: 700px) {
+    /* On a phone the text spans the full width, so the wash does too. */
+    :global(.hero.align-left)::before {
+      background: linear-gradient(rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.55));
+    }
+  }
+  .home-hero-box {
+    width: 100%;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-bar);
+    padding: clamp(1rem, 2.5vw, 1.5rem);
+  }
+  /* The bar is its own floating card on the city pages; here it sits inside this one,
+     so it drops its shadow and the space it keeps for the city tab. */
+  .home-hero-box :global(.booking-shell) {
+    padding-top: 0;
+  }
+  .home-hero-box :global(.booking-bar) {
+    box-shadow: none;
+  }
+  .home-hero-note {
+    margin: 0.75rem 0 0;
+    font-size: var(--text-sm);
+  }
+  .home-hero-note a {
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+  .home-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.4rem;
+    margin: 1rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-line);
+    list-style: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-ink-700);
+  }
+  .home-trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .home-trust li::before {
+    content: '';
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-50)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d00b2' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 62% no-repeat;
+  }
+
+  /* ── Promises ── */
+  .home-promises {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
+    max-width: 1080px;
+    margin-inline: auto;
+  }
+  .home-promise {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.6rem;
+  }
+  .home-promise h3 {
+    margin: 0.35rem 0 0;
+    font-size: var(--text-xl);
+  }
+  .home-promise p {
+    margin: 0;
+    flex: 1;
+    color: var(--color-ink-700);
+  }
+  .home-promise a,
+  .home-more a,
+  .home-contact a,
+  .home-founder a {
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+  .home-promise-icon {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(140deg, var(--color-brand-50), var(--color-brand-100));
+    color: var(--color-brand-600);
+  }
+
+  /* ── Steps ── */
+  .home-steps {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.25rem;
-    margin: 0;
-    max-width: 900px;
-    margin-inline: auto;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
   }
-  .stat {
-    padding: 1.75rem;
+  .home-step {
+    position: relative;
+    padding: 1.5rem;
+  }
+  .home-step-n {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-600);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+  .home-step h3 {
+    margin: 0.85rem 0 0.35rem;
+    font-size: var(--text-lg);
+  }
+  .home-step p {
+    margin: 0;
+    color: var(--color-ink-700);
+  }
+
+  /* ── Tables ── */
+  .home-table-wrap {
+    max-width: 960px;
+    margin-inline: auto;
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  .home-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .home-table th,
+  .home-table td {
+    padding: 0.9rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .home-table tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .home-table thead th {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
+    background: var(--color-surface-2);
+  }
+  .home-table thead td {
+    background: var(--color-surface-2);
+  }
+  .home-table tbody th {
+    font-weight: 700;
+    color: var(--color-ink-900);
+    white-space: nowrap;
+  }
+  .home-table td {
+    color: var(--color-ink-700);
+  }
+  .home-compare thead th.is-us {
+    color: var(--color-brand-700);
+  }
+  .home-compare td.is-us {
+    color: var(--color-ink-900);
+    font-weight: 600;
+    background: color-mix(in oklab, var(--color-brand-50) 55%, white);
+  }
+  .home-more {
+    margin: 1.1rem 0 0;
     text-align: center;
   }
-  .stat dt {
-    font-family: var(--font-display);
-    font-size: var(--text-4xl);
-    font-weight: 700;
-    /* Safety Orange. Legal here because these are 40px bold — WCAG counts that
-       as large text (3:1), which #FF5500 clears at 3.2:1. Do not reuse this
-       colour for body-size text. */
-    color: var(--color-orange-500);
-    line-height: 1;
+
+  /* ── Photo + content splits ── */
+  .home-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+    max-width: 1120px;
+    margin-inline: auto;
   }
-  .stat dd {
-    margin: 0.6rem 0 0;
-    color: var(--color-ink-500);
+  .home-split--pack {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .home-split-photo {
+    margin: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-pop);
+    aspect-ratio: 4 / 3;
+    background: var(--color-surface-3);
+  }
+  .home-split-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .home-split-h2 {
+    margin: 0 0 1.25rem;
+    font-size: clamp(1.5rem, 3vw, var(--text-3xl));
+  }
+  .home-steps--split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  /* ── Night move: full-width photo band ── */
+  .home-night-band {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    padding-block: clamp(3.5rem, 8vw, 6rem);
+    background: #0b0b0d;
+  }
+  .home-night-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .home-night-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 35%;
+  }
+  .home-night-band::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      90deg,
+      rgb(0 0 0 / 0.92) 0%,
+      rgb(0 0 0 / 0.78) 45%,
+      rgb(0 0 0 / 0.35) 100%
+    );
+  }
+  .home-night-inner > * {
+    max-width: 34rem;
+  }
+  .home-night-band h2 {
+    margin: 1rem 0 0.75rem;
+    color: #fff;
+    font-size: clamp(1.6rem, 3.4vw, var(--text-3xl));
+    line-height: 1.15;
+  }
+  .home-night-band p {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-lg);
+    color: rgb(255 255 255 / 0.88);
+  }
+  .home-night-icon {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: var(--radius-md);
+    background: rgb(255 255 255 / 0.14);
+    color: #fff;
+  }
+  .home-night-cta {
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .home-night-cta:hover {
+    background: var(--color-surface-3);
+    text-decoration: none;
+  }
+
+  /* ── Founder ── */
+  .home-founder {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    max-width: 920px;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .home-founder img {
+    flex: none;
+    width: 160px;
+    height: 160px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+  }
+  .home-founder blockquote {
+    margin: 1rem 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-brand-600);
+    color: var(--color-ink-900);
+    font-size: var(--text-lg);
+  }
+
+  /* ── Charges ── */
+  .home-factors {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .home-factors li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.25rem;
+  }
+  .home-factors strong {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--color-ink-900);
+  }
+  .home-factors span {
+    color: var(--color-ink-700);
+  }
+  .home-included {
+    max-width: 760px;
+    margin: 1.5rem auto 0;
+    text-align: center;
+    color: var(--color-ink-700);
+  }
+  .home-included p {
+    margin: 0 0 0.6rem;
+  }
+  .home-promise-line {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+
+  /* ── Closing ── */
+  .home-close {
+    max-width: 1080px;
+    margin-inline: auto;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+  .home-contact {
+    margin: 1rem 0 0;
+    text-align: center;
+    color: var(--color-ink-700);
+  }
+  /* Inside this card the bar needs neither its own shadow nor the city-tab space. */
+  .home-close :global(.booking-shell) {
+    padding-top: 0;
+  }
+  .home-close :global(.booking-bar) {
+    box-shadow: none;
+  }
+
+  @media (max-width: 860px) {
+    .home-split,
+    .home-split--pack {
+      grid-template-columns: 1fr;
+    }
+    /* On a phone the picture leads the section, above its text. */
+    .home-split--pack .home-split-photo {
+      order: -1;
+    }
+  }
+  @media (max-width: 520px) {
+    .home-steps--split {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .home-founder {
+      flex-direction: column;
+    }
+    .home-table tbody th {
+      white-space: normal;
+    }
   }
 </style>

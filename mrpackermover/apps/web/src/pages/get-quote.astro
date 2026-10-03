@@ -357,6 +357,12 @@ const assurances = [
     prefill('to', params.get('to'));
     prefill('service', params.get('service'));
     prefill('phone', params.get('phone'));
+    // The price bar's "Get a fixed quote" link also passes the truck size and the move
+    // date the customer priced with.
+    prefill('size', params.get('size'));
+    prefill('date', params.get('date'));
+    // A date carried over must obey the same no-past-dates rule as a typed one.
+    if (dateEl?.value && dateEl.min && dateEl.value < dateEl.min) dateEl.value = dateEl.min;
 
     // Google Places suggestions on the two address fields, so people give us a real
     // address rather than just a city name. Silently no-ops without

@@ -1,0 +1,23 @@
+{
+  "home-shifting": {
+    "alt": "Packed and taped cartons, a suitcase and a sheet-covered armchair in a bright living room on moving day"
+  },
+  "office-shifting": {
+    "alt": "An office carton packed with files, folders, notebooks and scissors, carried out for the move"
+  },
+  "car-transport": {
+    "alt": "Two cars loaded on the upper and lower decks of a closed car carrier, ramp down, ready for transport"
+  },
+  "bike-transport": {
+    "alt": "A motorcycle fully wrapped in cardboard and stretch film, sealed with MrMoverPacker tape, ready for transport"
+  },
+  "packing-unpacking": {
+    "alt": "Plates wrapped in bubble wrap being packed into a carton"
+  },
+  "loading-unloading": {
+    "alt": "Taped cartons stacked inside an open van, loaded and ready to go"
+  },
+  "international-relocation": {
+    "alt": "A container ship being loaded by cranes at a port, seen from above"
+  }
+}

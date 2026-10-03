@@ -151,6 +151,11 @@ export const manifestSchema = z.object({
   hiddenPages: z.array(z.string()).default([]),
   /** Blog posts (from the CMS `posts` collection), newest-first ordering applied by the site. */
   blog: z.array(blogPostSchema).default([]),
+  /**
+   * CMS overrides for the /services page (the `services-page` global); blank fields are
+   * absent and the page falls back to its built-in copy (page-copy.ts).
+   */
+  servicesPage: z.record(z.string(), z.unknown()).default({}),
   pages: z.array(manifestRowSchema),
 });
 export type Manifest = z.infer<typeof manifestSchema>;

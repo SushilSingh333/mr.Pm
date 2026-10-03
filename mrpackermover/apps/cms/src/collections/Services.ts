@@ -51,6 +51,55 @@ export const Services: CollectionConfig = {
     { name: 'exclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
     { name: 'typicalDuration', type: 'text' },
     { name: 'insuranceTerms', type: 'textarea' },
+    {
+      /**
+       * The service's heading and the words on its card (home page and /services), so a
+       * service reads the same everywhere. Blank = the built-in text from the Services
+       * brief (packages/shared/src/service-copy.ts). The meta description is in SEO below.
+       */
+      name: 'card',
+      type: 'group',
+      label: 'Heading and cards',
+      admin: {
+        description:
+          'Leave any field blank to keep the current text (see the live page). The meta description is in the SEO section below.',
+      },
+      fields: [
+        {
+          name: 'h1',
+          type: 'text',
+          label: 'Page heading (H1)',
+          admin: { placeholder: 'e.g. Home shifting services with one fixed, written price' },
+        },
+        {
+          name: 'lines',
+          type: 'textarea',
+          label: 'Card text on /services (two lines)',
+          admin: { rows: 2 },
+        },
+        {
+          type: 'row',
+          fields: [
+            { name: 'bestFor', type: 'text', label: 'Best for', admin: { width: '50%' } },
+            {
+              name: 'homeLine',
+              type: 'text',
+              label: 'Card text on the home page (one line)',
+              admin: { width: '50%' },
+            },
+          ],
+        },
+        {
+          name: 'linkText',
+          type: 'text',
+          label: 'Card link text',
+          admin: {
+            placeholder: 'e.g. Home shifting services',
+            description: 'Name the service - never "Learn more" (search engines read this).',
+          },
+        },
+      ],
+    },
     seoOverrideFields('this service page'),
   ],
 };

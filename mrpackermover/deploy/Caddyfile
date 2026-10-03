@@ -51,11 +51,23 @@
 		# `build.format: 'file'` emits /foo.html — try the exact file, then .html.
 		# `{path}/index.html` is required for directory-style requests: the homepage
 		# `/` has no `.html` sibling (`/.html`), so without it the site root 404s.
-		try_files {path} {path}.html {path}/index.html /404.html
+		#
+		# No `/404.html` at the end of this list. It used to be the last fallback,
+		# which served the not-found page with status 200 for ANY address - a
+		# "soft 404" to Google, so every typo and dead link looked like a real page.
+		# Now a missing file makes file_server answer 404, and handle_errors below
+		# shows the not-found page with that 404 status.
+		try_files {path} {path}.html {path}/index.html
 		file_server
 	}
 
+	# The not-found page, keeping the error's real status (404) - Caddy's file_server
+	# inside handle_errors serves the rewritten file with the original error code.
 	handle_errors {
+		# A 404 is cached briefly, not for the day an HTML page gets: a page published
+		# later must not sit behind a cached "not found" at Cloudflare.
+		header Cache-Control "public, max-age=0, s-maxage=600"
+		root * /var/www/mrpackermover
 		rewrite * /404.html
 		file_server
 	}

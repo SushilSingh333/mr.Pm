@@ -37,6 +37,9 @@ const cityLinks = rowsOfType('city-hub').map((r) => ({
   path: r.path,
   name: (r.data as unknown as CityHubData).cityName,
 }));
+// Collapse only when it hides a real number of cities. With seven cities, "Show all 7"
+// revealed a single link - a button costing more than the line it saved.
+const collapseCities = cityLinks.length > VISIBLE_CITIES + 2;
 const year = new Date().getFullYear();
 
 const ICONS: Record<string, string> = {
@@ -182,14 +185,14 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
           {cityLinks.map((c, i) => (
             <li
               class:list={{
-                'city-extra': cityLinks.length > VISIBLE_CITIES && i >= VISIBLE_CITIES,
+                'city-extra': collapseCities && i >= VISIBLE_CITIES,
               }}
-              hidden={cityLinks.length > VISIBLE_CITIES && i >= VISIBLE_CITIES}
+              hidden={collapseCities && i >= VISIBLE_CITIES}
             >
               <a href={c.path}>{c.name}</a>
             </li>
           ))}
-          {cityLinks.length > VISIBLE_CITIES && (
+          {collapseCities && (
             <li class="cities-more-item">
               <button type="button" class="cities-more-btn" data-show-cities>
                 Show all {cityLinks.length} cities

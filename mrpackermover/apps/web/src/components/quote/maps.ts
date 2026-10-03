@@ -57,9 +57,31 @@ export async function attachAutocomplete(input: HTMLInputElement | null): Promis
       if (p?.formatted_address) input.value = p.formatted_address;
       input.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    // The script loads on first focus, so on a slow connection the visitor has often
+    // finished typing ("Saket") before the widget exists - and the widget only reacts to
+    // input that arrives after it, so no list opened until another key was pressed. If
+    // there is text in the field and the visitor is still in it, ask for that text now:
+    // `input` makes the widget fetch suggestions for it, and the widget's own focus
+    // handler (via Google's event API, not a faked keypress) opens the list once they
+    // arrive. Measured on a cold load: the list now opens with no further typing.
+    if (document.activeElement === input && input.value.trim()) {
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      window.setTimeout(() => g.maps.event.trigger(input, 'focus', {}), 400);
+    }
   };
 
   input.addEventListener('focus', () => void bind(), { once: true });
+
+  // Enter picks the highlighted suggestion. Without this it ALSO submitted the field's
+  // form, so choosing an address from the list with the keyboard sent a half-filled form
+  // (the quick-quote forms jumped to /get-quote; /get-quote itself flagged empty fields).
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const open = Array.from(document.querySelectorAll<HTMLElement>('.pac-container')).some(
+      (c) => c.offsetParent !== null && c.querySelector('.pac-item') !== null,
+    );
+    if (open) e.preventDefault();
+  });
 }
 
 /** The state (e.g. "Delhi", "Haryana") for a typed address. null when unavailable. */

@@ -114,6 +114,22 @@ export const WHATSAPP_NUMBER = PHONE_TEL.replace(/\D/g, '');
 export const WHATSAPP_MESSAGE = 'Hi MrMoverPacker, I would like a fixed quote for my move.';
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
+/**
+ * The founder note on the home page (Home Page brief, section 6). Left null until every
+ * detail is real - the section, and the founder's Person schema, render only once this
+ * is filled in, so no "[Founder Name]" placeholder can ever reach the live site.
+ */
+export const FOUNDER: {
+  name: string;
+  /** Path under /public, e.g. /images/founder.webp. */
+  photo: string;
+  firstCity: string;
+  yearStarted: string;
+  /** Shown in the note: "call me on ...". */
+  phoneDisplay: string;
+  phoneTel: string;
+} | null = null;
+
 /** Social profiles (user-provided). */
 export const SOCIALS = [
   {

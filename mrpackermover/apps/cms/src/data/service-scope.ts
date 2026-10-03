@@ -22,7 +22,7 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Civil, electrical or carpentry work',
       'Storage beyond the quoted period',
       'Third-party appliance servicing',
-      'Octroi / entry taxes where applicable',
+      // No "Octroi / entry taxes" line: octroi was abolished with GST in 2017.
     ],
   },
   'office-shifting': {

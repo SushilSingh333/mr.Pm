@@ -13,13 +13,17 @@ interface Props {
   cities: ManifestLink[];
   heading?: string;
   intro?: string;
+  /** How many tiles show before "Show all"; the rest are in the HTML, just hidden. */
+  visible?: number;
 }
-const { cities, heading = 'Cities we serve', intro } = Astro.props;
+const { cities, heading = 'Cities we serve', intro, visible = 6 } = Astro.props;
 // Keep the section compact as the city list grows: the first six render
 // visible, the rest ship in the HTML (crawlable) but hidden until the visitor
 // asks. With six or fewer cities no button renders.
-const VISIBLE_CITIES = 6;
-const hasMore = cities.length > VISIBLE_CITIES;
+const VISIBLE_CITIES = visible;
+// Collapse only when it hides at least three cities - a "Show all" that reveals one or
+// two is a click for a line of text.
+const hasMore = cities.length > VISIBLE_CITIES + 2;
 const slugOf = (path: string): string => path.split('/').filter(Boolean).pop() ?? '';
 // Prefer the city's uploaded (Cloudinary) thumbnail; fall back to the static file.
 // Dedicated city artwork exists only for the original cities. A city added later

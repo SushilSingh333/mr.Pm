@@ -7,8 +7,10 @@ import type { FaqItem } from '@mpm/shared';
  * accordion enhancement: opening one closes the others in the same block.
  * FAQPage JSON-LD is emitted by the page only when this block is actually shown.
  */
+/** An answer may end with one link to the page that says more (e.g. "Details → /insurance"). */
+type FaqWithLink = FaqItem & { link?: { href: string; label: string } };
 interface Props {
-  faqs: FaqItem[];
+  faqs: FaqWithLink[];
   heading?: string;
 }
 const { faqs, heading = 'Questions people ask' } = Astro.props;
@@ -22,7 +24,17 @@ const { faqs, heading = 'Questions people ask' } = Astro.props;
         {faqs.map((f) => (
           <details class="faq">
             <summary>{f.question}</summary>
-            <p>{f.answer}</p>
+            <p>
+              {f.answer}
+              {f.link && (
+                <>
+                  {' '}
+                  <a class="faq-link" href={f.link.href}>
+                    {f.link.label}
+                  </a>
+                </>
+              )}
+            </p>
           </details>
         ))}
       </div>
@@ -46,6 +58,11 @@ const { faqs, heading = 'Questions people ask' } = Astro.props;
 </script>
 
 <style>
+  .faq-link {
+    font-weight: 600;
+    color: var(--color-brand-600);
+    white-space: nowrap;
+  }
   .faqs h2 {
     font-size: clamp(1.5rem, 3vw, var(--text-3xl));
     margin-bottom: 1.25rem;

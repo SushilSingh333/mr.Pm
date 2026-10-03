@@ -1,59 +1,488 @@
 ---
-import type { ServiceHubData } from '@mpm/shared';
-import { rowsOfType, dataOf } from '../../data/manifest.js';
+import type { ServiceHubData, ServicesPageCopy } from '@mpm/shared';
+import { SERVICES_PAGE_COPY, serviceCopy, withCount, withOverrides } from '@mpm/shared';
+import { jsonld } from '@mpm/seo';
+import { manifest, rowsOfType, dataOf } from '../../data/manifest.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import ServicesGrid from '../../components/sections/ServicesGrid.astro';
-import CtaBand from '../../components/page/CtaBand.astro';
+import Faq from '../../components/sections/Faq.astro';
+import QuoteWidget from '../../components/quote/QuoteWidget.astro';
 import { staticRow, editorialFor } from '../../lib/page.js';
+import { heroAlt } from '../../lib/hero.js';
+import { PHONE_DISPLAY, PHONE_TEL, SITE_ORIGIN, WHATSAPP_NUMBER } from '../../lib/site.js';
 
-/** Services landing page — lists every service, each card linking to its own hub. */
-const services = rowsOfType('service-hub')
-  .filter((r) => r.path.startsWith('/services/'))
-  .map((r) => ({ slug: r.slug, name: dataOf<ServiceHubData>(r).serviceName }));
+/**
+ * /services - the hub that sends people to the seven service pages.
+ *
+ * Built from the Services Page brief (3 Oct 2026). It targets the broad "services"
+ * searches only (packers and movers services, relocation services), so it never
+ * competes with the home page or with a service's own page.
+ *
+ * Every piece of text is editable in the CMS (Content → Services page). Blank fields
+ * show the brief's text, which lives once in packages/shared/src/page-copy.ts. Each
+ * card's words come from its service (Services → a service → "Heading and cards"),
+ * falling back to packages/shared/src/service-copy.ts.
+ */
+const serviceRows = rowsOfType('service-hub').filter((r) => r.path.startsWith('/services/'));
+const services = serviceRows.map((r) => {
+  const d = dataOf<ServiceHubData>(r) as ServiceHubData & { card?: Record<string, string> };
+  return { slug: r.slug, name: d.serviceName, card: d.card };
+});
+const cityCount = rowsOfType('city-hub').length;
+const live = new Set(services.map((s) => s.slug));
+const nameOf = (slug: string): string =>
+  serviceCopy(slug)?.name ?? services.find((s) => s.slug === slug)?.name ?? slug;
 
+/** What an editor filled in on the Services page global (blank fields are absent). */
+const O = manifest().servicesPage as Partial<ServicesPageCopy>;
+const S = withOverrides(SERVICES_PAGE_COPY, O);
+const fill = (text: string): string => withCount(text, cityCount);
+
+// The older per-page editorial entry (Content → Pages → "Services index") still works
+// for the title, description and hero photo, behind the Services page global.
 const ed = editorialFor('services-index');
 const row = staticRow({
   path: '/services',
   pageType: 'core',
-  title: ed.metaTitle ?? 'Our Services – Packers & Movers | MrMoverPacker',
-  h1: 'Everything we move, done properly',
-  metaDescription:
-    ed.seoDescription ??
-    'Every MrMoverPacker service, home & office shifting, car & bike transport, packing, storage, loading and international relocation, each with a fixed written quote.',
+  title: O.metaTitle || ed.metaTitle || SERVICES_PAGE_COPY.metaTitle,
+  h1: S.h1,
+  metaDescription: O.metaDescription || ed.seoDescription || SERVICES_PAGE_COPY.metaDescription,
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
+
+const whatsapp = (text: string): string =>
+  `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+
+/** "If you are... / You need": each answer links to a live service; others are dropped. */
+const chooser = S.chooser
+  .map((c) => ({ ...c, need: c.need.filter((slug) => live.has(slug)) }))
+  .filter((c) => c.need.length > 0);
+/**
+ * "Home shifting + Car transport, one quote" as one string. Written as markup, the line
+ * break before ", one quote" rendered as a space ("Car transport , one quote").
+ * Names are escaped: an editor's text never becomes markup.
+ */
+const esc = (t: string): string =>
+  t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const needCell = (need: string[]): string =>
+  need.map((slug) => `<a href="/services/${esc(slug)}">${esc(nameOf(slug))}</a>`).join(' + ') +
+  (need.length > 1 ? ', one quote' : '');
+const standards = S.standards;
+const faqs = S.faqs.map((f) => ({ ...f, answer: fill(f.answer) }));
+
+// Schema: the services as an ItemList (each a Service provided by the Organization),
+// and the FAQs as they appear on the page. BreadcrumbList comes from Seo.
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'MrMoverPacker relocation services',
+  itemListElement: services.map((s, i) => {
+    const { '@context': _ctx, ...svc } = jsonld.service({
+      siteOrigin: SITE_ORIGIN,
+      name: nameOf(s.slug),
+      areaServed: 'India',
+      description: s.card?.lines ?? serviceCopy(s.slug)?.lines,
+    });
+    return {
+      '@type': 'ListItem',
+      position: i + 1,
+      item: { ...svc, url: `${SITE_ORIGIN}/services/${s.slug}` },
+    };
+  }),
+};
+const extraJsonLd = [itemList, jsonld.faqPage(faqs)];
 ---
 
-<BaseLayout row={row}>
+<BaseLayout row={row} extraJsonLd={extraJsonLd}>
   <PageHero
     dark
     eyebrow="Services"
     h1={row.h1}
-    intro="One operation, our own trained crews, and a fixed written quote for every service, from a single-room shift to a full international relocation."
+    intro={S.intro}
     breadcrumbs={row.breadcrumbs}
     current="Services"
     image="home"
     imageUrl={ed.heroImage?.url}
   >
-    <a class="btn btn-primary btn-lg" href="/get-quote">Get a fixed quote</a>
+    <a class="btn btn-primary btn-lg" href="/get-quote">Get my fixed quote</a>
+    <a class="btn btn-lg svc-hero-alt" href="/company/contact">Talk to us</a>
+    <ul class="svc-trust" aria-label="What you get">
+      {S.trust.map((t) => <li>{fill(t)}</li>)}
+    </ul>
   </PageHero>
 
-  <Band label="All services">
-    <ServicesGrid
-      services={services}
-      heading="Choose a service"
-      intro="Tap any service to see what's included, indicative pricing, and the cities we cover."
-    />
+  <Band label="Our relocation services">
+    <ServicesGrid services={services} heading={S.cardsHeading} detail="full" />
   </Band>
 
-  <CtaBand
-    heading="Not sure which service you need?"
-    text="Tell us what you're moving and we'll build the right plan, packing, transport, storage or all of it, with one fixed, itemised price."
-    primaryLabel="Get a fixed quote"
-    primaryHref="/get-quote"
-    secondaryLabel="Talk to us"
-    secondaryHref="/company/contact"
-  />
+  <Band alt label="Which service">
+    <div class="section-head">
+      <h2>{S.chooserHeading}</h2>
+    </div>
+    <div class="svc-table-wrap">
+      <table class="svc-table">
+        <thead>
+          <tr><th scope="col">If you are…</th><th scope="col">You need</th></tr>
+        </thead>
+        <tbody>
+          {
+            chooser.map((c) => (
+              <tr>
+                <td>{c.situation}</td>
+                <td set:html={needCell(c.need)} />
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="svc-note">
+      {S.chooserNoteLead}{' '}
+      <a
+        href={whatsapp(
+          "Hi MrMoverPacker, I'm not sure which service I need. I'll send a short video of what I'm moving.",
+        )}
+        target="_blank"
+        rel="noopener noreferrer">{S.chooserNoteLink}</a
+      >{' '}
+      {S.chooserNoteTail}
+    </p>
+  </Band>
+
+  <Band label="Included on every job">
+    <div class="section-head">
+      <h2>{S.standardsHeading}</h2>
+      <p>{S.standardsIntro}</p>
+    </div>
+    <div class="svc-split">
+      <figure class="svc-split-photo">
+        <img
+          src="/images/sections/crew-at-work.webp"
+          alt="MrMoverPacker crew packing books, crockery and a computer into branded cartons in a living room."
+          width="840"
+          height="630"
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+      <ul class="svc-standards">
+        {
+          standards.map((s) => (
+            <li class="card">
+              <span class="svc-tick" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </span>
+              <span>
+                <strong>{s.lead}</strong> {s.rest}
+                {s.link && (
+                  <>
+                    {' '}
+                    <a href={s.link.href}>{s.link.label}</a>
+                  </>
+                )}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Band>
+
+  {
+    /* A photo band: the three-panel montage (a rider, the crew, the truck) is the one
+      picture that shows several services at once, which is this section's point. */
+  }
+  <section class="svc-combine-band" aria-label="Combine services">
+    <picture class="svc-combine-photo">
+      <source type="image/webp" media="(min-width: 900px)" srcset="/images/hero/home-full.webp" />
+      <source type="image/webp" srcset="/images/hero/home-narrow.webp" />
+      <img
+        src="/images/hero/home.jpg"
+        alt={heroAlt('home')}
+        width="1920"
+        height="800"
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+    <div class="container-page svc-combine">
+      <h2>{S.combineHeading}</h2>
+      <p>{S.combineText}</p>
+      <a class="btn btn-lg svc-combine-cta" href="/get-quote">{S.combineButton}</a>
+    </div>
+  </section>
+
+  <Band label="FAQ">
+    <Faq faqs={faqs} heading={S.faqHeading} />
+  </Band>
+
+  <Band alt label="Get a quote">
+    <div class="section-head">
+      <h2>{S.closingHeading}</h2>
+      <p>{S.closingText}</p>
+    </div>
+    {
+      /* The same price bar as the city and service pages: Check Price shows the estimate
+        here and saves the price check as a lead. */
+    }
+    <div class="svc-close card">
+      <QuoteWidget />
+      <p class="svc-contact">
+        Call <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> · <a
+          href={whatsapp('Hi MrMoverPacker, I would like a fixed quote for my move.')}
+          target="_blank"
+          rel="noopener noreferrer">WhatsApp</a
+        > · 8 AM to 10 PM, every day
+      </p>
+    </div>
+  </Band>
 </BaseLayout>
+
+<style>
+  /* This hero carries a three-line subhead and a trust strip over the photograph; the
+     shared page-hero shade is set for a one-line intro. Deeper here, this page only. */
+  :global(.phero .phero-photo.phero-photo)::after {
+    background: linear-gradient(rgb(0 0 0 / 0.74), rgb(0 0 0 / 0.6));
+  }
+  /* The hero's primary button is a white plate; the secondary is an outline, so the
+     two read as first and second choice rather than a matching pair. */
+  .svc-hero-alt {
+    background: transparent;
+    color: #fff;
+    border-color: rgb(255 255 255 / 0.7);
+  }
+  .svc-hero-alt:hover {
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    text-decoration: none;
+  }
+  .svc-trust {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.25rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--text-sm);
+    color: rgb(255 255 255 / 0.88);
+  }
+  .svc-trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .svc-trust li::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-orange-500);
+  }
+
+  .svc-table-wrap {
+    max-width: 760px;
+    margin-inline: auto;
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  .svc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-base);
+  }
+  .svc-table th,
+  .svc-table td {
+    padding: 0.9rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .svc-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .svc-table th {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-ink-500);
+    background: var(--color-surface-2);
+  }
+  .svc-table td:first-child {
+    color: var(--color-ink-700);
+  }
+  /* :global - the links are written into the cell as a string (needCell), so they
+     carry no scoped-style attribute. */
+  .svc-table td :global(a) {
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+  .svc-note {
+    max-width: 760px;
+    margin: 1rem auto 0;
+    text-align: center;
+    color: var(--color-ink-700);
+  }
+  .svc-note a {
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+
+  .svc-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+  .svc-split-photo {
+    margin: 0;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-pop);
+    aspect-ratio: 4 / 3;
+    background: var(--color-surface-3);
+  }
+  .svc-split-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .svc-standards {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .svc-standards li {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    color: var(--color-ink-700);
+  }
+  .svc-standards strong {
+    color: var(--color-ink-900);
+  }
+  .svc-standards a {
+    font-weight: 600;
+    color: var(--color-brand-600);
+    white-space: nowrap;
+  }
+  .svc-tick {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+
+  .svc-combine-band {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    text-align: center;
+    padding-block: clamp(3.5rem, 8vw, 6rem);
+    background: #0b0b0d;
+  }
+  .svc-combine-photo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .svc-combine-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The band is wider than the photo, so cover crops top and bottom; anchoring near
+       the top keeps the faces in frame (centred, the crop took the middle man's head). */
+    object-position: center 12%;
+  }
+  .svc-combine-band::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(rgb(0 0 0 / 0.78), rgb(0 0 0 / 0.7));
+  }
+  .svc-combine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .svc-combine > * {
+    max-width: 62ch;
+  }
+  .svc-combine h2 {
+    margin: 0 0 0.85rem;
+    color: #fff;
+    font-size: clamp(1.6rem, 3.4vw, var(--text-3xl));
+    line-height: 1.15;
+  }
+  .svc-combine p {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-lg);
+    color: rgb(255 255 255 / 0.9);
+  }
+  .svc-combine-cta {
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .svc-combine-cta:hover {
+    background: var(--color-surface-3);
+    text-decoration: none;
+  }
+  @media (max-width: 860px) {
+    .svc-split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .svc-close {
+    max-width: 1040px;
+    margin-inline: auto;
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+  /* Inside this card the bar needs neither its own shadow nor the city-tab space. */
+  .svc-close :global(.booking-shell) {
+    padding-top: 0;
+  }
+  .svc-close :global(.booking-bar) {
+    box-shadow: none;
+  }
+  .svc-contact {
+    margin: 1rem 0 0;
+    text-align: center;
+    color: var(--color-ink-700);
+  }
+  .svc-contact a {
+    font-weight: 600;
+    color: var(--color-brand-600);
+  }
+</style>

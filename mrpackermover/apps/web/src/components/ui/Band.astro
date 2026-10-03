@@ -3,11 +3,13 @@
 interface Props {
   alt?: boolean;
   label?: string;
+  /** An anchor other pages can link to, e.g. /#cities. */
+  id?: string;
 }
-const { alt = false, label } = Astro.props;
+const { alt = false, label, id } = Astro.props;
 ---
 
-<section class:list={['section', { 'section-alt': alt }]} aria-label={label}>
+<section class:list={['section', { 'section-alt': alt }]} aria-label={label} id={id}>
   <div class="container-page">
     <slot />
   </div>

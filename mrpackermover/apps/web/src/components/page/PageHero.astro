@@ -221,9 +221,9 @@ const alt = imageAlt ?? (image ? heroAlt(image) : '');
   /* CMS photo. Sits under a dark scrim so the white heading keeps its contrast
      whatever the editor uploads - same approach as the home hero. */
   .phero.has-image {
-    /* Kept so the banner is navy, not white, for the moment before the photo
-       decodes - what the background-color did before. */
-    background-color: var(--color-navy-700);
+    /* Near-black, not white, for the moment before the photo decodes - the same tone
+       as the black scrim that then sits over it. */
+    background-color: #0b0b0d;
     border-bottom: 0;
   }
   /* The photograph, and the scrim that used to ride along inside the same

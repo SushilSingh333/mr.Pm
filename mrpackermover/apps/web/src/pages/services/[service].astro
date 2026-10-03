@@ -22,6 +22,9 @@ export function getStaticPaths() {
 
 const { row } = Astro.props;
 const data = dataOf<ServiceHubData>(row);
+// A manifest without the service's own prose - the committed sample that CI builds from
+// has none - must still render, not crash on `.length` of nothing.
+const editorial = data.editorial ?? [];
 
 // "Cities we serve" shows only the cities that actually offer this service (group
 // 'cities'); sibling-service links live in relatedLinks for the link graph but aren't
@@ -46,7 +49,7 @@ const extraJsonLd = [
     badge={data.serviceName}
     h1={row.h1}
     intro={data.summary ??
-      `${data.serviceName} handled by our own trained crews, with a fixed written quote and transit insurance.`}
+      `${data.serviceName} handled by our own trained crews, with a fixed written quote and optional transit insurance.`}
     image={heroForService(row.slug)}
     prefillService={data.serviceName}
   />
@@ -54,10 +57,10 @@ const extraJsonLd = [
   {
     /* The service's own prose sits above the generic trust band: it is the only part
        of this page written for this service, so it should not be below boilerplate. */
-    data.editorial.length > 0 && (
+    editorial.length > 0 && (
       <Band alt label="About this service">
         <LocalNotes
-          paragraphs={data.editorial}
+          paragraphs={editorial}
           heading={`What ${data.serviceName.toLowerCase()} actually involves`}
           eyebrow="How it works"
         />

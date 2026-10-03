@@ -139,6 +139,8 @@ export interface HomeContent {
   citiesHeading: string;
   citiesIntro?: string;
   faqHeading: string;
+  /** Overrides for the home page sections (page-copy.ts); absent fields use the built-in copy. */
+  page?: Record<string, unknown>;
 }
 
 export interface HomeData {

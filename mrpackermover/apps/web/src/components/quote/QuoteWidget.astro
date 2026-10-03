@@ -18,24 +18,35 @@ interface Props {
   roadKm?: number;
   turnstileSiteKey?: string;
   eager?: boolean;
+  /**
+   * Prefix for the field ids. A page that shows the bar twice (the home page: in the hero
+   * and again at the bottom) gives the second one its own prefix so the ids stay unique.
+   */
+  idPrefix?: string;
 }
-const { prefillCity, prefillService, prefillOrigin, prefillDestination } = Astro.props;
+const {
+  prefillCity,
+  prefillService,
+  prefillOrigin,
+  prefillDestination,
+  idPrefix = 'q',
+} = Astro.props;
 const pickupValue = prefillOrigin ?? prefillCity ?? '';
 const dropValue = prefillDestination ?? '';
 const service = prefillService ?? '';
 ---
 
-<div class="booking-shell" data-service={service}>
+<div class="booking-shell" data-service={service} data-prefix={idPrefix}>
   <div class="booking-bar" role="group" aria-label="Get a fixed quote">
     <div class="bar-fields">
       <label class="bar-field">
         <span class="bar-label">Full Name <b>*</b></span>
-        <input id="q-name" type="text" autocomplete="name" placeholder="Your name" />
+        <input id={`${idPrefix}-name`} type="text" autocomplete="name" placeholder="Your name" />
       </label>
       <label class="bar-field">
         <span class="bar-label">Pickup Location <b>*</b></span>
         <input
-          id="q-pickup"
+          id={`${idPrefix}-pickup`}
           type="text"
           value={pickupValue}
           placeholder="Sending from"
@@ -45,7 +56,7 @@ const service = prefillService ?? '';
       <label class="bar-field">
         <span class="bar-label">Drop Location <b>*</b></span>
         <input
-          id="q-drop"
+          id={`${idPrefix}-drop`}
           type="text"
           value={dropValue}
           placeholder="Sending to"
@@ -55,7 +66,7 @@ const service = prefillService ?? '';
       <label class="bar-field">
         <span class="bar-label">Phone Number <b>*</b></span>
         <input
-          id="q-phone"
+          id={`${idPrefix}-phone`}
           type="tel"
           inputmode="tel"
           autocomplete="tel"
@@ -64,10 +75,10 @@ const service = prefillService ?? '';
       </label>
       <label class="bar-field">
         <span class="bar-label">Shifting Date <b>*</b></span>
-        <input id="q-date" type="date" />
+        <input id={`${idPrefix}-date`} type="date" />
       </label>
     </div>
-    <button type="button" class="btn btn-primary bar-cta" id="q-go">
+    <button type="button" class="btn btn-primary bar-cta" id={`${idPrefix}-go`}>
       Check Price
       <svg
         aria-hidden="true"
@@ -82,16 +93,16 @@ const service = prefillService ?? '';
   </div>
 
   <!-- Estimator (revealed on Check Price) -->
-  <div class="est" id="q-est" hidden>
+  <div class="est" id={`${idPrefix}-est`} hidden>
     <div class="est-top">
       <div>
         <div class="est-amt-row">
-          <span class="est-amt" id="q-amt">₹0</span>
+          <span class="est-amt" id={`${idPrefix}-amt`}>₹0</span>
           <span class="est-gst">+ GST</span>
         </div>
-        <div class="est-lane" id="q-lane"></div>
+        <div class="est-lane" id={`${idPrefix}-lane`}></div>
       </div>
-      <a class="btn btn-primary" id="q-cta" href="/get-quote">Get a fixed quote</a>
+      <a class="btn btn-primary" id={`${idPrefix}-cta`} href="/get-quote">Get a fixed quote</a>
     </div>
 
     <div class="est-body">
@@ -100,7 +111,7 @@ const service = prefillService ?? '';
         <div class="est-row">
           <label class="est-ctrl">
             <span>Truck size</span>
-            <select id="q-size">
+            <select id={`${idPrefix}-size`}>
               <option value="10">10 ft</option>
               <option value="12">12 ft</option>
               <option value="14" selected>14 ft</option>
@@ -112,7 +123,7 @@ const service = prefillService ?? '';
           </label>
           <label class="est-ctrl">
             <span>Packing</span>
-            <select id="q-pack">
+            <select id={`${idPrefix}-pack`}>
               <option value="basic" selected>Basic, cartons + wrap</option>
               <option value="standard">Standard, 3-layer + crates</option>
             </select>
@@ -124,7 +135,7 @@ const service = prefillService ?? '';
         <div class="est-row">
           <label class="est-ctrl">
             <span>Pickup floor</span>
-            <select id="q-ffloor"
+            <select id={`${idPrefix}-ffloor`}
               ><option value="0" selected>Ground</option><option value="1">1st</option><option
                 value="2">2nd</option
               ><option value="3">3rd</option><option value="4">4th</option><option value="5"
@@ -132,14 +143,15 @@ const service = prefillService ?? '';
               ></select
             >
           </label>
-          <label class="est-ctrl" id="q-flift-ctrl" hidden>
+          <label class="est-ctrl" id={`${idPrefix}-flift-ctrl`} hidden>
             <span>Lift at pickup</span>
-            <select id="q-flift"><option value="1">Yes</option><option value="0">No</option></select
+            <select id={`${idPrefix}-flift`}
+              ><option value="1">Yes</option><option value="0">No</option></select
             >
           </label>
           <label class="est-ctrl">
             <span>Drop floor</span>
-            <select id="q-tfloor"
+            <select id={`${idPrefix}-tfloor`}
               ><option value="0" selected>Ground</option><option value="1">1st</option><option
                 value="2">2nd</option
               ><option value="3">3rd</option><option value="4">4th</option><option value="5"
@@ -147,9 +159,10 @@ const service = prefillService ?? '';
               ></select
             >
           </label>
-          <label class="est-ctrl" id="q-tlift-ctrl" hidden>
+          <label class="est-ctrl" id={`${idPrefix}-tlift-ctrl`} hidden>
             <span>Lift at drop</span>
-            <select id="q-tlift"><option value="1">Yes</option><option value="0">No</option></select
+            <select id={`${idPrefix}-tlift`}
+              ><option value="1">Yes</option><option value="0">No</option></select
             >
           </label>
         </div>
@@ -171,11 +184,13 @@ const service = prefillService ?? '';
   import { terrainFor } from './terrain';
   import { PLACES, resolvePlace, routeDistanceKm } from './pricing';
 
-  const byId = <T extends HTMLElement = HTMLElement>(id: string): T =>
-    document.getElementById(id) as T;
-  const root = document.querySelector<HTMLElement>('.booking-shell');
+  // Every bar on the page runs on its own. The ids are written here as `q-…`; byId maps
+  // them onto this bar's own prefix (see the idPrefix prop).
+  document.querySelectorAll<HTMLElement>('.booking-shell').forEach((root) => {
+    const prefix = root.dataset.prefix ?? 'q';
+    const byId = <T extends HTMLElement = HTMLElement>(id: string): T =>
+      document.getElementById(id.replace(/^q-/, `${prefix}-`)) as T;
 
-  if (root) {
     const DROP_DEFAULT = PLACES.find((p) => p.name === 'Sector 62') ?? PLACES[0];
     const service = root.dataset.service ?? '';
     const est = byId('q-est');
@@ -284,6 +299,8 @@ const service = prefillService ?? '';
         `/get-quote?from=${encodeURIComponent(o.pickup)}&to=${encodeURIComponent(o.drop)}` +
         (o.name ? `&name=${encodeURIComponent(o.name)}` : '') +
         (o.phone ? `&phone=${encodeURIComponent(o.phone)}` : '') +
+        `&size=${o.truck}` +
+        (o.date ? `&date=${encodeURIComponent(o.date)}` : '') +
         (service ? `&service=${encodeURIComponent(service)}` : '');
       est.hidden = false;
     }
@@ -355,7 +372,7 @@ const service = prefillService ?? '';
     // noise. It appears the moment a floor above ground is chosen. The row keeps its
     // two columns throughout so the floor select never resizes as this toggles.
     const syncLift = (floorId: string, ctrlId: string): void => {
-      const ctrl = document.getElementById(ctrlId);
+      const ctrl = byId(ctrlId);
       if (ctrl) ctrl.hidden = byId<HTMLSelectElement>(floorId).value === '0';
     };
     const syncLifts = (): void => {
@@ -370,5 +387,5 @@ const service = prefillService ?? '';
         if (!est.hidden) render(lastKm);
       }),
     );
-  }
+  });
 </script>

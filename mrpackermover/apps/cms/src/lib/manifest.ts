@@ -20,10 +20,17 @@ import {
   cldUrl,
   CLD_TRANSFORM,
   SERVICES,
+  serviceCopy,
 } from '@mpm/shared';
 import { coverForCategory } from '@mpm/shared/blog-fallback';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { resolveSeo, type SeoOverride, type SeoTemplate } from '@mpm/seo/resolve';
+import {
+  homePageOverrides,
+  idOf,
+  serviceCardOverrides,
+  servicesPageOverrides,
+} from './page-copy-cms.js';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
 import { countWords, richTextToPlain, richTextToHtml } from './rich-text.js';
 
@@ -86,6 +93,8 @@ interface ServiceDoc {
   /** Per-record SEO override; blank falls back to Settings → SEO defaults. */
   metaTitle?: string | null;
   metaDescription?: string | null;
+  /** "Heading and cards": the service's H1 and its card text (page-copy-cms.ts). */
+  card?: unknown;
   updatedAt: string;
 }
 interface LaneDoc {
@@ -145,6 +154,8 @@ type HomeContentDoc = Omit<Partial<HomeContent>, 'heroImage'> &
   SeoOverride & {
     pillars?: Array<TrustPillar & { id?: string }>;
     heroImage?: Id | { id: Id } | null;
+    /** "Home page sections" (page-copy-cms.ts). */
+    page?: unknown;
   };
 
 /**
@@ -175,6 +186,8 @@ function toHomeContent(
       doc?.citiesIntro ||
       'Own crews in each. Pick your pickup city for the areas we cover, local rate bands and real reviews, delivery goes anywhere in India.',
     faqHeading: doc?.faqHeading || 'Questions people ask',
+    // The current page's editable text: only the fields an editor filled in.
+    page: homePageOverrides(doc?.page) as Record<string, unknown>,
     pillars: (doc?.pillars ?? [])
       .filter((p) => p.title && p.body)
       .map((p) => ({
@@ -687,8 +700,16 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           template: seoDefaults.serviceHub,
           tokens: { service: service.name, brand: BRAND },
           fallbackTitle: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
+          // The seven pages shipped with no description at all; each now has its own
+          // (packages/shared/src/service-copy.ts). A per-service SEO override still wins.
+          fallbackDescription: serviceCopy(service.slug)?.metaDescription,
         }),
-        h1: `${service.name} Services`,
+        // The service plus a reason to click ("Home shifting services with one fixed,
+        // written price"), not the bare name. A service with no copy keeps the name.
+        h1:
+          serviceCardOverrides(service.card).h1 ??
+          serviceCopy(service.slug)?.h1 ??
+          `${service.name} Services`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
         // Only the cities that actually offer this service (from the pre-pass) — never a
         // city whose `/packers-and-movers/<city>/<service>` page doesn't exist (→ 404).
@@ -699,6 +720,8 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           editorial: idx.editorialParagraphs(service.editorialNote),
           inclusions: (service.inclusions ?? []).map((i) => i.item),
           exclusions: (service.exclusions ?? []).map((i) => i.item),
+          // The card text an editor set on the service; the site fills in the rest.
+          card: serviceCardOverrides(service.card),
         },
       }),
     );
@@ -728,12 +751,15 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       // Google a machine-generated snippet for the site's most important result.
       ...resolveSeo({
         override: homeContentDoc,
-        fallbackTitle: `Packers and Movers in India – Fixed Quotes | ${BRAND}`.slice(0, 60),
+        // From the Home Page brief (3 Oct 2026).
+        fallbackTitle: `Packers and Movers in India | Fixed Quotes | ${BRAND}`.slice(0, 60),
         fallbackDescription:
-          'Packers and movers across India with fixed, written quotes, verified crews, ' +
-          'published rate cards and real claims data. Get your price before you book.',
+          'Packers and movers in India led by a founder with 15 years in the trade. Fixed ' +
+          'written quotes, photo inventory, ID-verified crews, published claims data.',
       }),
-      h1: 'Packers and Movers you can actually verify',
+      h1:
+        homePageOverrides(homeContentDoc?.page).h1 ??
+        "Packers and movers in India who won't compromise on a single scratch",
       relatedLinks: [
         ...publicServices.map<ManifestLink>((s) => ({
           path: paths.serviceHub(s.slug),
@@ -914,8 +940,20 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const org = await payload
     .findGlobal({ slug: 'org-profile', overrideAccess: true })
     .catch(() => null);
+  // The /services page's editable text. Its "You need" column relates to services;
+  // those become slugs, the form the page links with.
+  const serviceSlugById = new Map(services.map((s) => [sid(s.id), s.slug]));
+  const servicesPageDoc = await payload
+    .findGlobal({ slug: 'services-page' as never, overrideAccess: true, depth: 0 })
+    .catch(() => null);
+  const servicesPage = servicesPageOverrides(servicesPageDoc, (ref) => {
+    const id = idOf(ref);
+    return id == null ? undefined : serviceSlugById.get(sid(id));
+  });
+
   return {
     generatedAt: new Date().toISOString(),
+    servicesPage: servicesPage as Record<string, unknown>,
     siteOrigin: siteOrigin.replace(/\/$/, ''),
     jobs,
     team,

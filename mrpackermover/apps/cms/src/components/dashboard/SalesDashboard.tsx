@@ -14,6 +14,8 @@ import {
   LEAD_SOURCES,
   LEAD_STATUS,
   NOTICE_DAYS,
+  REVIEW_BUCKETS,
+  buildReview,
   dueState,
   sourceLabel,
   exactTime,
@@ -28,6 +30,8 @@ import { DuePrompt } from '../leads/DuePrompt.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
+import { REVIEW_CSS, ReviewDonut } from './LeadReview.js';
+import { ReviewExplorer } from './ReviewExplorer.js';
 
 /**
  * The lead desk, in two shapes.
@@ -120,6 +124,13 @@ const FRESH = new Set(LEAD_GROUPS.find((g) => g.key === 'fresh')?.statuses ?? []
  * from the collection and the prefix is added here.
  */
 const groupKey = (key: string): string => `g-${key}`;
+
+/**
+ * A slice of the lead review, as a board filter. Its own prefix for the same reason the
+ * groups have one: "qualified" or "lost" must never be read as a stage value, and `lost`
+ * IS one - without the prefix the Lost slice would filter to the single Lost stage.
+ */
+const reviewKey = (key: string): string => `r-${key}`;
 
 /** The one filter that is neither a stage nor a group: this person's own queue. */
 const QUEUE = 'queue';
@@ -819,6 +830,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   const boardTotal = sumOf(LEAD_STATUS.map((s) => s.value));
 
   const group = LEAD_GROUPS.find((g) => groupKey(g.key) === filterKey);
+  const reviewSlice = REVIEW_BUCKETS.find((b) => reviewKey(b.key) === filterKey);
   const exact = LEAD_STATUS.find((s) => s.value === filterKey);
   const wantsProposals = filterKey === 'proposal';
   const wantsQueue = filterKey === QUEUE;
@@ -839,6 +851,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   const datedView =
     wantsDue ||
     (group ? group.statuses.every((v) => DATED_STAGES.includes(v)) : false) ||
+    (reviewSlice ? reviewSlice.statuses.every((v) => DATED_STAGES.includes(v)) : false) ||
     (exact ? DATED_STAGES.includes(exact.value) : false);
 
   // Soonest-first unless the reader has said otherwise; their choice always wins.
@@ -865,11 +878,13 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
       : base(
           group
             ? { status: { in: group.statuses } }
-            : exact
-              ? { status: { equals: exact.value } }
-              : wantsProposals
-                ? { id: { in: proposalLeadIds } }
-                : undefined,
+            : reviewSlice
+              ? { status: { in: reviewSlice.statuses } }
+              : exact
+                ? { status: { equals: exact.value } }
+                : wantsProposals
+                  ? { id: { in: proposalLeadIds } }
+                  : undefined,
         );
 
   /**
@@ -1010,6 +1025,22 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   // "Fresh" would otherwise land on an empty table that looks like an empty pipeline.
   const filterLink = (key: string): string =>
     link({ filter: key === 'all' ? undefined : key, page: undefined });
+
+  /**
+   * The lead review.
+   *
+   * A salesperson's is their own board's stage counts, regrouped - the same numbers the
+   * stage buttons show, through the same `base()`, so the chart and the buttons cannot
+   * disagree and a search or a date range narrows both at once.
+   *
+   * A handler's is the ReviewExplorer: one donut, the whole team or one person, over any
+   * dates - it reads its own numbers, so it carries its own period rather than the board's.
+   */
+  const myReview = buildReview((v) => pillCounts.get(v) ?? 0);
+  const rangeLabel =
+    props.from || props.to
+      ? 'Chosen dates'
+      : (RANGES.find((r) => r.key === (range || 'all'))?.label ?? 'All time');
   // The queue card opens the queue with nothing else applied, so the figure on the card
   // and the figure under the table are the same query rather than two that ought to match.
   const queueLink = link({
@@ -1083,6 +1114,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     <div className="mpm-dash">
       <style>{CSS}</style>
       <style>{EXTRA_CSS}</style>
+      <style>{REVIEW_CSS}</style>
 
       <header className="mpm-head">
         <div className="mpm-head__text">
@@ -1667,6 +1699,31 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
         </div>
       </article>
 
+      {/* ── The review ───────────────────────────────────────────────────────
+          How the leads turned out, under the board rather than above it: the leads are the
+          work, the review is reading back over it. A salesperson sees their own donut; a
+          handler sees one donut for the whole team or any one person, over any dates. */}
+      {isHandler ? (
+        <ReviewExplorer
+          mode="team"
+          title="Lead review"
+          lede="How the leads turned out. Pick the whole team or one salesperson, and any dates. Click a slice to open those leads."
+          // With one person picked in the board's owner filter, open on them.
+          initialPerson={ownerFilter && ownerFilter !== 'none' ? ownerFilter : undefined}
+        />
+      ) : (
+        <ReviewDonut
+          review={myReview}
+          title="Your lead review"
+          period={rangeLabel}
+          links={Object.fromEntries(
+            REVIEW_BUCKETS.map((b) => [b.key, filterLink(reviewKey(b.key))]),
+          )}
+          pendingHref={filterLink(groupKey('fresh'))}
+          selected={reviewSlice?.key}
+        />
+      )}
+
       {/* ── The team ─────────────────────────────────────────────────────────
           Handlers only, and the only thing on this page that is not a lead: who is in the
           rotation, how much each of them is holding, and the switch that shares new work
@@ -1790,6 +1847,8 @@ const EXTRA_CSS = `
    stage or an urgency" - the same move as the status badge and the row rail, so three
    different things are read the same way. */
 .mpm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-3);margin:0 0 var(--s-5)}
+/* Every full-width card on the desk keeps the same gap below it as the four cards above. */
+.mpm-dash > .mpm-card{margin-bottom:var(--s-5)}
 .mpm-stat{--c:var(--v-500);position:relative;overflow:hidden;
   display:flex;flex-direction:column;gap:0;height:100%;
   padding:18px 18px 16px;background:var(--paper);

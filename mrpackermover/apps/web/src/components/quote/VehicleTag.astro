@@ -1,0 +1,80 @@
+---
+import { VEHICLE_NOTE, VEHICLE_TAG } from './vehicle-note.js';
+
+/**
+ * "Separate vehicle" beside every price we show.
+ *
+ * Every estimate on the site is the price of a whole truck carrying only this customer's
+ * goods - the engine prices by truck size, never by a share of one. Movers who quote low
+ * often mean a part-load: your sofa rides with three other families' boxes, waits for
+ * their pickups, and arrives days later. Saying plainly that ours is a separate vehicle
+ * makes the number comparable, and stops it being undercut by a quote for something else.
+ *
+ * One component, used wherever a price appears (the price bar's estimate and the
+ * thank-you page), so the wording is written once.
+ */
+interface Props {
+  /** Tighter spacing for a narrow box. */
+  compact?: boolean;
+  /** Centre it, for a box whose price is centred (the thank-you page). */
+  center?: boolean;
+}
+const { compact = false, center = false } = Astro.props;
+---
+
+<p class:list={['vtag', { 'vtag--compact': compact, 'vtag--center': center }]}>
+  <span class="vtag__pill">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      ><path d="M10 17h4V5H2v12h3"></path><path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5v8h2"
+      ></path><circle cx="7.5" cy="17.5" r="1.5"></circle><circle cx="17.5" cy="17.5" r="1.5"
+      ></circle></svg
+    >
+    {VEHICLE_TAG}
+  </span>
+  <span class="vtag__note">{VEHICLE_NOTE}</span>
+</p>
+
+<style>
+  .vtag {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    margin: 0.55rem 0 0;
+  }
+  .vtag--compact {
+    margin-top: 0.4rem;
+  }
+  .vtag--center {
+    justify-content: center;
+    text-align: center;
+  }
+  /* Green, not brand blue: this is a reassurance about the price, read like a "verified"
+     mark, and the price bar already spends its blue on the buttons. */
+  .vtag__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: #e6f4ea;
+    color: #137333;
+    font-size: var(--text-xs, 0.8rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .vtag__note {
+    font-size: var(--text-xs, 0.8rem);
+    color: var(--color-ink-500, #5f6368);
+  }
+</style>

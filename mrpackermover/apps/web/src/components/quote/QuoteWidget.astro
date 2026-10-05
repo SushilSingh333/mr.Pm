@@ -1,5 +1,6 @@
 ---
 import './quote.css';
+import VehicleTag from './VehicleTag.astro';
 
 /**
  * Booking bar + instant estimator. The bar design is our existing Porter bar
@@ -100,6 +101,7 @@ const service = prefillService ?? '';
           <span class="est-amt" id={`${idPrefix}-amt`}>₹0</span>
           <span class="est-gst">+ GST</span>
         </div>
+        <VehicleTag compact />
         <div class="est-lane" id={`${idPrefix}-lane`}></div>
       </div>
       <a class="btn btn-primary" id={`${idPrefix}-cta`} href="/get-quote">Get a fixed quote</a>

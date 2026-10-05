@@ -69,7 +69,13 @@ export const Leads: CollectionConfig = {
         // left, and that is the order they should appear in.
         '/components/leads/LeadFilters#LeadFilters',
         '/components/leads/BulkAssign#BulkAssign',
+        // Remembers this list's filter and sort for the ‹ › buttons on an open lead.
+        '/components/leads/LeadListMemory#LeadListMemory',
       ],
+      edit: {
+        // ‹ 3 of 120 ›: previous and next lead, in the order of the list you came from.
+        beforeDocumentControls: ['/components/leads/LeadPager#LeadPager'],
+      },
     },
     description:
       'Every quote form and price check lands here. Newest first. Filter by date, status, owner or source.',

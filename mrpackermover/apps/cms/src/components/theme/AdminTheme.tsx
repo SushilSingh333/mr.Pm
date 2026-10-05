@@ -4,6 +4,12 @@ import logoInverse from '../graphics/brand/logo-inverse.png';
 import { materialUrl } from '../icons/material.js';
 import { NAV_ICON_CSS } from '../nav/nav-icons.js';
 import { ScrollEdge } from './ScrollEdge.js';
+import { LEAD_STATUS } from '../dashboard/lead-status.js';
+
+/** The Leads list's status chips, one rule per stage, from the shared stage list. */
+const STAGE_CHIP_CSS = LEAD_STATUS.map(
+  (s) => `.cell-status > span.selected--${s.value}{ --chip:${s.color}; }`,
+).join('\n');
 
 /**
  * App-wide admin theme (admin.components.providers) - a provider wraps EVERY admin page,
@@ -751,18 +757,9 @@ html[data-theme="dark"] .search-filter__input,html[data-theme="dark"] .collectio
   .mpm-bulk__go,.mpm-bulk__cancel{ min-height:40px; }
 }
 
-.cell-status > span.selected--new{ --chip:#0B57D0; }
-.cell-status > span.selected--assigned{ --chip:#0B57D0; }
-.cell-status > span.selected--reassigned{ --chip:#0B57D0; }
-.cell-status > span.selected--contacted{ --chip:#5F6368; }
-.cell-status > span.selected--call-not-picked{ --chip:#D93025; }
-.cell-status > span.selected--call-later{ --chip:#007B83; }
-.cell-status > span.selected--follow-up{ --chip:#007B83; }
-.cell-status > span.selected--quoted{ --chip:#E37400; }
-.cell-status > span.selected--scheduled{ --chip:#039BE5; }
-.cell-status > span.selected--won{ --chip:#188038; }
-.cell-status > span.selected--lost{ --chip:#80868B; }
-.cell-status > span.selected--invalid{ --chip:#B3261E; }
+/* One chip colour per stage, written from LEAD_STATUS so the Leads list can never
+   disagree with the dashboards - this list used to be typed out here by hand. */
+${STAGE_CHIP_CSS}
 
 /* ---- The dial strip ----
    A number, a Call button and a WhatsApp button. Ringing the customer is what this screen

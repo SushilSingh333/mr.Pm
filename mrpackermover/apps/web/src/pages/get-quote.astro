@@ -318,6 +318,7 @@ const assurances = [
     geocodeState,
   } from '../components/quote/maps';
   import { quote, inr } from '../components/quote/estimator';
+  import { VEHICLE_BASIS } from '../components/quote/vehicle-note';
   import type { QuoteInput } from '../components/quote/estimator';
   import { PLACES, resolvePlace, routeDistanceKm } from '../components/quote/pricing';
   import { terrainFor } from '../components/quote/terrain';
@@ -466,7 +467,9 @@ const assurances = [
           distanceKm: Math.round(km),
           rangeLow: r.rangeLow,
           rangeHigh: r.rangeHigh,
-          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing`,
+          // The sales team sees what the customer was priced on, including that it was a
+          // whole truck for them alone - the same promise the estimate showed them.
+          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing · ${VEHICLE_BASIS}`,
         };
       } catch {
         return null;

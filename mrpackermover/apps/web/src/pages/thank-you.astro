@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { staticRow } from '../lib/page.js';
 import { PHONE_TEL, PHONE_DISPLAY } from '../lib/site.js';
 import { PIXEL_ID } from '../components/seo/pixel.js';
+import VehicleTag from '../components/quote/VehicleTag.astro';
 
 /**
  * Where the quote form lands once a lead is saved.
@@ -122,6 +123,7 @@ const row = staticRow({
       <div class="ty-estimate" id="ty-estimate" hidden>
         <span class="tye-label">Your estimated range</span>
         <strong class="tye-amount" id="ty-amount"></strong>
+        <VehicleTag compact center />
         <span class="tye-meta" id="ty-meta"></span>
         <p class="tye-note">
           This is an estimate from our published rate card, not your final price. A coordinator will

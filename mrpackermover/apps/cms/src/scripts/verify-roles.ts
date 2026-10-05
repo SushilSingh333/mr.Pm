@@ -570,6 +570,34 @@ try {
     `grouped=[${grouped.join(',')}] stages=[${dashboardValues.join(',')}]`,
   );
 
+  // The lead review sorts every worked stage into exactly one of three slices, and leaves
+  // only the fresh stages out. A stage in no slice would vanish from a salesperson's
+  // review; a stage in two would be counted twice and the shares would pass 100%.
+  const {
+    REVIEW_BUCKETS,
+    REVIEW_PENDING,
+    LEAD_STATUS: STAGES,
+  } = await import('../components/dashboard/lead-status.js');
+  const reviewed = REVIEW_BUCKETS.flatMap((b: { statuses: string[] }) => b.statuses);
+  check(
+    'no lead stage is in two review slices',
+    new Set(reviewed).size === reviewed.length,
+    `reviewed=[${reviewed.join(',')}]`,
+  );
+  const placed = new Set([...reviewed, ...REVIEW_PENDING]);
+  check(
+    'every lead stage is in one review slice or waiting',
+    dashboardValues.every((v) => placed.has(v)) && placed.size === dashboardValues.length,
+    `missing=[${dashboardValues.filter((v) => !placed.has(v)).join(',')}]`,
+  );
+  // One colour per stage: two stages sharing one is what this list was rebuilt to end.
+  const colours = STAGES.map((x: { color: string }) => x.color.toLowerCase());
+  check(
+    'every lead stage has its own colour',
+    new Set(colours).size === colours.length,
+    `colours=[${colours.join(',')}]`,
+  );
+
   // Globals were the gap the collection sweep missed: all three shipped with
   // `update: isAuthenticated`, so anyone signed in could rewrite the home page.
   for (const [who, actor] of [

@@ -23,29 +23,44 @@ export interface LeadStage {
 }
 
 export const LEAD_STATUS: LeadStage[] = [
-  // Google's palette, and few of it: blue for a lead nobody has worked yet, teal for a
-  // promised call, amber for waiting on the customer, calendar blue for a booked move,
-  // green for won, grey for contacted and lost, red for the two that went wrong. Stages
-  // that ask the same thing of the reader share a colour; the label tells them apart.
-  { value: 'new', label: 'New', color: '#0B57D0' },
-  { value: 'assigned', label: 'Assigned', color: '#0B57D0' },
-  { value: 'reassigned', label: 'Reassigned', color: '#0B57D0' },
-  { value: 'contacted', label: 'Contacted', color: '#5F6368' },
-  { value: 'call-not-picked', label: 'Call not picked', color: '#D93025' },
+  // ONE COLOUR PER STAGE, AND THE COLOUR SAYS WHAT THE STAGE IS.
+  //
+  // This used to be four colours shared out among twelve stages - three blues, two teals,
+  // two greys - so a list of leads read as a handful of colours and the eye still had to
+  // read every label. Now each stage has its own, chosen from the family its meaning
+  // belongs to: blue and purples for routing (nobody has worked it yet), sky blue for a
+  // first conversation, red for an attempt that failed, amber for a promise to ring back,
+  // teal for a chase, orange for money on the table, olive for a booked move, bright
+  // green for a win, grey for a loss and a muddy taupe for junk.
+  //
+  // The set was searched, not eyeballed: every pair is at least 15 apart in OKLab (the
+  // floor at which people with full colour vision can tell two marks apart), and every
+  // colour is visible on both the light and the dark admin surface. Red/green pairs still
+  // collide for colour-blind readers - unavoidable with twelve hues - which is why a stage
+  // colour never appears without the stage's name beside it.
+  { value: 'new', label: 'New', color: '#2962FF' },
+  { value: 'assigned', label: 'Assigned', color: '#673AB7' },
+  { value: 'reassigned', label: 'Reassigned', color: '#BA68C8' },
+  { value: 'contacted', label: 'Contacted', color: '#29B6F6' },
+  { value: 'call-not-picked', label: 'Call not picked', color: '#D50000' },
   // The customer answered but asked for another time. Distinct from Call not picked,
   // which is nobody answering - one is a promise to ring back, the other is a retry.
-  { value: 'call-later', label: 'Call later', color: '#007B83' },
+  { value: 'call-later', label: 'Call later', color: '#FFC107' },
   // Spoken to, still deciding. The lead is warm and owed another contact.
-  { value: 'follow-up', label: 'Follow up', color: '#007B83' },
-  { value: 'quoted', label: 'Quoted', color: '#E37400' },
+  { value: 'follow-up', label: 'Follow up', color: '#006064' },
+  { value: 'quoted', label: 'Quoted', color: '#FF6D00' },
   // Said yes, and the move has a date. The stage that was missing: until it existed a
   // booked customer sat in "Quoted", where the board chased them daily for a decision
   // they had already made.
-  { value: 'scheduled', label: 'Scheduled', color: '#039BE5' },
-  { value: 'won', label: 'Won', color: '#188038' },
-  { value: 'lost', label: 'Lost', color: '#80868B' },
-  { value: 'invalid', label: 'Invalid lead', color: '#B3261E' },
+  { value: 'scheduled', label: 'Scheduled', color: '#558B2F' },
+  { value: 'won', label: 'Won', color: '#00C853' },
+  { value: 'lost', label: 'Lost', color: '#BDC1C6' },
+  { value: 'invalid', label: 'Invalid lead', color: '#A1887F' },
 ];
+
+/** A stage's colour, for the few places that name a stage rather than iterate the list. */
+export const stageColor = (value: string): string =>
+  LEAD_STATUS.find((s) => s.value === value)?.color ?? '#8a8f98';
 
 /**
  * Set by the assignment hook when a handler routes work, never chosen by a salesperson.
@@ -132,6 +147,11 @@ export const exactTime = (iso?: string | null): string =>
  * `verify-roles` asserts the "at most one, and all real" part, so a stage added to the
  * collection cannot quietly end up counted twice or pointed at nothing.
  */
+/**
+ * A group's colour is one of its own stages' colours, never a seventh hue of its own, so a
+ * button and the chips it filters to agree: the Quote sent button is the Quoted orange,
+ * Follow-up is the Call later amber, and so on.
+ */
 export interface LeadGroup {
   key: string;
   label: string;
@@ -146,42 +166,42 @@ export const LEAD_GROUPS: LeadGroup[] = [
     key: 'fresh',
     label: 'Fresh',
     statuses: ['new', 'assigned', 'reassigned'],
-    color: '#2558E6',
+    color: stageColor('new'),
     hint: 'Arrived and nobody has spoken to them yet',
   },
   {
     key: 'follow-up',
     label: 'Follow-up',
     statuses: ['call-not-picked', 'call-later'],
-    color: '#0f8b9e',
+    color: stageColor('call-later'),
     hint: 'Owed another attempt: nobody picked up, or they asked us to ring back',
   },
   {
     key: 'interested',
     label: 'Interested',
     statuses: ['contacted', 'follow-up'],
-    color: '#c2478f',
+    color: stageColor('contacted'),
     hint: 'Spoken to, still deciding',
   },
   {
     key: 'quoted',
     label: 'Quote sent',
     statuses: ['quoted'],
-    color: '#c98a00',
+    color: stageColor('quoted'),
     hint: 'Priced and waiting on the customer',
   },
   {
     key: 'scheduled',
     label: 'Scheduled',
     statuses: ['scheduled'],
-    color: '#0d8a7a',
+    color: stageColor('scheduled'),
     hint: 'Booked in, with a move date - waiting for the day rather than for the customer',
   },
   {
     key: 'closed',
     label: 'Won / Lost',
     statuses: ['won', 'lost'],
-    color: '#1a9d5a',
+    color: stageColor('won'),
     hint: 'Decided, either way',
   },
 ];
@@ -195,6 +215,127 @@ export const LEAD_GROUPS: LeadGroup[] = [
  * once called an assigned lead "New" for weeks.
  */
 export const FRESH_STAGES: string[] = LEAD_GROUPS.find((g) => g.key === 'fresh')?.statuses ?? [];
+
+/**
+ * The lead review: how a salesperson's leads have turned out, in three answers.
+ *
+ * A different question from the board's groups. The groups ask "what is this lead waiting
+ * for", which is how you work a list. The review asks "how did it go", which is how you
+ * give somebody feedback - so it sorts the same stages into outcome, not next step:
+ *
+ *   Qualified          moved forward: priced, booked or done.
+ *   Needs improvement  spoken to and still warm, but not yet pushed to a price. This is
+ *                      the slice coaching can move.
+ *   Lost               lost, junk, or never reached.
+ *
+ * Fresh leads (New / Assigned / Reassigned) are in none of them: nobody has worked them
+ * yet, so they are not anybody's result. They are counted beside the chart as "waiting
+ * for a first call" instead of being folded into a slice they would distort.
+ *
+ * Every other stage is in exactly one bucket - `verify-roles` asserts it, so a stage added
+ * to the collection cannot drop out of the review or be counted in two slices.
+ *
+ * The colours are the theme's good / warning / critical, as CSS variables so they can step
+ * lighter on the dark surface (see REVIEW_CSS). They never stand alone: every slice also
+ * carries an icon, its name, a count and a share, because red and green cannot be told
+ * apart by roughly one man in twelve.
+ */
+export interface ReviewBucket {
+  key: 'qualified' | 'improve' | 'lost';
+  label: string;
+  statuses: string[];
+  /** A CSS colour expression; a variable, so dark mode can lighten it. */
+  color: string;
+  icon: 'check' | 'trending_up' | 'close';
+  hint: string;
+}
+
+export const REVIEW_BUCKETS: ReviewBucket[] = [
+  {
+    key: 'qualified',
+    label: 'Qualified',
+    statuses: ['quoted', 'scheduled', 'won'],
+    color: 'var(--rv-qualified)',
+    icon: 'check',
+    hint: 'Moved forward: a price was sent, the move was booked, or it was won',
+  },
+  {
+    key: 'improve',
+    label: 'Needs improvement',
+    statuses: ['contacted', 'follow-up', 'call-later'],
+    color: 'var(--rv-improve)',
+    icon: 'trending_up',
+    hint: 'Spoken to and still warm, but not yet given a price - push these to a quote',
+  },
+  {
+    key: 'lost',
+    label: 'Lost',
+    statuses: ['lost', 'invalid', 'call-not-picked'],
+    color: 'var(--rv-lost)',
+    icon: 'close',
+    hint: 'Lost to a "no" or a competitor, a junk enquiry, or never reached',
+  },
+];
+
+/** Stages that are nobody's result yet - shown beside the review, not inside it. */
+export const REVIEW_PENDING: string[] = FRESH_STAGES;
+
+export interface ReviewSlice {
+  bucket: ReviewBucket;
+  count: number;
+  /** Share of the reviewed leads, 0-100, rounded. */
+  pct: number;
+  /** The stages inside the slice, for the legend's breakdown. Zero rows are left out. */
+  stages: { value: string; label: string; color: string; count: number }[];
+}
+
+export interface Review {
+  slices: ReviewSlice[];
+  /** Qualified + needs improvement + lost. */
+  reviewed: number;
+  /** Fresh leads, outside the review. */
+  pending: number;
+  /** Qualified as a share of the reviewed leads, or null when there is nothing to judge. */
+  score: number | null;
+}
+
+/**
+ * Build the review from a count per stage. Every caller already has those counts - the
+ * board's stage buttons, the team aggregation, the profile panel's fetch - so the review
+ * is arithmetic on numbers shown elsewhere, never a second query that could disagree.
+ *
+ * Shares are rounded so they always add up to 100: the largest-remainder method, rather
+ * than rounding each one and showing a reader 33 + 33 + 33.
+ */
+export function buildReview(countOf: (status: string) => number): Review {
+  const raw = REVIEW_BUCKETS.map((bucket) => {
+    const stages = bucket.statuses
+      .map((v) => ({ ...statusMeta(v), value: v, count: countOf(v) }))
+      .filter((s) => s.count > 0);
+    return { bucket, count: stages.reduce((a, s) => a + s.count, 0), stages };
+  });
+  const reviewed = raw.reduce((a, r) => a + r.count, 0);
+  const exact = raw.map((r) => (reviewed ? (r.count / reviewed) * 100 : 0));
+  const pct = exact.map(Math.floor);
+  let short = reviewed ? 100 - pct.reduce((a, b) => a + b, 0) : 0;
+  exact
+    .map((v, i) => ({ i, rem: v - Math.floor(v) }))
+    .sort((a, b) => b.rem - a.rem)
+    .forEach(({ i }) => {
+      if (short > 0) {
+        pct[i] = (pct[i] ?? 0) + 1;
+        short -= 1;
+      }
+    });
+  const pending = REVIEW_PENDING.reduce((a, v) => a + countOf(v), 0);
+  const qualified = raw[0]?.count ?? 0;
+  return {
+    slices: raw.map((r, i) => ({ ...r, pct: pct[i] ?? 0 })),
+    reviewed,
+    pending,
+    score: reviewed ? Math.round((qualified / reviewed) * 100) : null,
+  };
+}
 
 /**
  * Where a lead came from.

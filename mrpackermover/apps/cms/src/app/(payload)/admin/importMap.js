@@ -33,6 +33,8 @@ import { OwnerCell as OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../.
 import { AgeCell as AgeCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { LeadFilters as LeadFilters_51609792908264dbc9232729914f07ee } from '../../../components/leads/LeadFilters'
 import { BulkAssign as BulkAssign_c9d8058b31c86f5fc313b99e4f970e83 } from '../../../components/leads/BulkAssign'
+import { LeadListMemory as LeadListMemory_a930d08611b44b11371f122c82f78a13 } from '../../../components/leads/LeadListMemory'
+import { LeadPager as LeadPager_9b1dd90a1bee6ee26b9c1cd0ac98f44e } from '../../../components/leads/LeadPager'
 import { ProposalStatusCell as ProposalStatusCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { WhenCell as WhenCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { LeadAutofill as LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec } from '../../../components/proposal/LeadAutofill'
@@ -42,6 +44,7 @@ import { RouteCell as RouteCell_85f975e0671011bc92ac00c61ca8a749 } from '../../.
 import { AmountCell as AmountCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { MeasureDistance as MeasureDistance_d707844cebb44f084064938405f1d175 } from '../../../components/proposal/MeasureDistance'
 import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../../../components/proposal/ProposalPdf'
+import { LeadReviewField as LeadReviewField_5024c0df2d86ed461d27416ff581a0f9 } from '../../../components/users/LeadReviewField'
 import { WebhookSetup as WebhookSetup_4589d205252be6016ff2846103214a98 } from '../../../components/settings/WebhookSetup'
 import { AccountAvatar as AccountAvatar_0d0b17769902b4ad4d21ac072cf97555 } from '../../../components/nav/AccountAvatar'
 import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../../components/graphics/BrandIcon'
@@ -89,6 +92,8 @@ export const importMap = {
   "/components/leads/Cells#AgeCell": AgeCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/LeadFilters#LeadFilters": LeadFilters_51609792908264dbc9232729914f07ee,
   "/components/leads/BulkAssign#BulkAssign": BulkAssign_c9d8058b31c86f5fc313b99e4f970e83,
+  "/components/leads/LeadListMemory#LeadListMemory": LeadListMemory_a930d08611b44b11371f122c82f78a13,
+  "/components/leads/LeadPager#LeadPager": LeadPager_9b1dd90a1bee6ee26b9c1cd0ac98f44e,
   "/components/proposal/Cells#ProposalStatusCell": ProposalStatusCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/Cells#WhenCell": WhenCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/LeadAutofill#LeadAutofill": LeadAutofill_7285a066f66ad3c7a3f3589ea397bcec,
@@ -98,6 +103,7 @@ export const importMap = {
   "/components/proposal/Cells#AmountCell": AmountCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/MeasureDistance#MeasureDistance": MeasureDistance_d707844cebb44f084064938405f1d175,
   "/components/proposal/ProposalPdf#ProposalPdf": ProposalPdf_96917c16d64f6b56cae496087e6af5a4,
+  "/components/users/LeadReviewField#LeadReviewField": LeadReviewField_5024c0df2d86ed461d27416ff581a0f9,
   "/components/settings/WebhookSetup#WebhookSetup": WebhookSetup_4589d205252be6016ff2846103214a98,
   "/components/nav/AccountAvatar#AccountAvatar": AccountAvatar_0d0b17769902b4ad4d21ac072cf97555,
   "/components/graphics/BrandIcon#BrandIcon": BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f,

@@ -182,6 +182,18 @@ export const Users: CollectionConfig = {
         condition: (data) => data?.role === 'handler',
       },
     },
+    {
+      // The salesperson's lead review: how their leads turned out, as a donut. A `ui`
+      // field, so it stores nothing and needs no migration.
+      name: 'leadReview',
+      type: 'ui',
+      admin: {
+        // Only a salesperson has leads to review, and only a saved one has an id to look
+        // their leads up by.
+        condition: (data) => data?.role === 'sales' && Boolean(data?.id),
+        components: { Field: '/components/users/LeadReviewField#LeadReviewField' },
+      },
+    },
   ],
 };
 

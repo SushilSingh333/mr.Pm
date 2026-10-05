@@ -1,6 +1,7 @@
 import type { Payload } from 'payload';
 import Link from 'next/link';
 import { LEAD_STATUS, exactTime, ownerName, personCase, statusMeta } from './lead-status.js';
+import { ReviewExplorer } from './ReviewExplorer.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
@@ -496,6 +497,17 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
         )}
       </section>
 
+      {/* The lead review, under Recent leads: the newest leads are what needs a person now,
+          the review is reading back over them. One donut - the whole team or one
+          salesperson - over any dates, read in the browser as the signed-in admin. */}
+      {user?.role === 'admin' && (
+        <ReviewExplorer
+          mode="team"
+          title="Lead review"
+          lede="How the leads turned out. Pick the whole team or one salesperson, and any dates. Click a slice to open those leads."
+        />
+      )}
+
       {/* Careers + Inbox */}
       <div className="mpm-grid">
         <section className="mpm-card">
@@ -746,6 +758,9 @@ a.mpm-kpi--hero:hover { border:none; box-shadow:0 26px 52px -20px color-mix(in s
    card with a third of its body empty, matched to whatever the queue beside it happened
    to contain. */
 .mpm-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; align-items:start; }
+/* A card that sits directly on the page, outside a grid, keeps the same 16px below it that
+   the grids keep - without it a full-width card sat flush on the next one with no gap. */
+.mpm-dash > .mpm-card { margin-bottom:16px; }
 @media (max-width:1000px){ .mpm-grid{ grid-template-columns:1fr; } }
 
 .mpm-card { background:var(--paper); border:1px solid color-mix(in srgb, var(--v-500) 9%, var(--line)); border-radius:var(--card-radius); padding:22px 23px 23px; box-shadow:var(--card-shadow); }

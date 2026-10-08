@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.1",
-    "@fontsource/titillium-web": "^5.1.0",
+    "@fontsource-variable/google-sans": "^5.3.1",
     "@mpm/seo": "workspace:*",
     "@mpm/shared": "workspace:*",
     "@mpm/ui-tokens": "workspace:*",

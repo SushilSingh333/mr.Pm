@@ -26,6 +26,7 @@ import { CreateProposal as CreateProposal_4b3e26dd13427489eed77a57bc2956d1 } fro
 import { NameCell as NameCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { PhoneCell as PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
 import { PhoneField as PhoneField_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
+import { SamePhone as SamePhone_ea35465dfd3da1e9fd96298650ba759a } from '../../../components/leads/SamePhone'
 import { ServiceCell as ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { LeadTimeline as LeadTimeline_f938f3965088211dbb6411ebb92a410f } from '../../../components/leads/LeadTimeline'
 import { LeadStatusSelect as LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4 } from '../../../components/fields/LeadStatusSelect'
@@ -85,6 +86,7 @@ export const importMap = {
   "/components/leads/Cells#NameCell": NameCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/PhoneActions#PhoneCell": PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1,
   "/components/leads/PhoneActions#PhoneField": PhoneField_d45560ec092cb2c7a304c318d0d1bdc1,
+  "/components/leads/SamePhone#SamePhone": SamePhone_ea35465dfd3da1e9fd96298650ba759a,
   "/components/leads/Cells#ServiceCell": ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/LeadTimeline#LeadTimeline": LeadTimeline_f938f3965088211dbb6411ebb92a410f,
   "/components/fields/LeadStatusSelect#LeadStatusSelect": LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4,

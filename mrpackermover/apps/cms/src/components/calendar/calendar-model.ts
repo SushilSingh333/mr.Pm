@@ -229,7 +229,7 @@ export const stateMeta = (s: CalState) => CAL_STATES.find((c) => c.value === s) 
 
 export function stateOf(status: string, day: DayKey, today: DayKey): CalState {
   if (status === 'won') return 'won';
-  if (status === 'lost' || status === 'invalid') return 'lost';
+  if (status === 'lost' || status === 'invalid' || status === 'duplicate') return 'lost';
   if (status === 'call-later') return 'call-later';
   if (status === 'follow-up') return 'follow-up';
   if (day < today) return 'overdue';

@@ -116,19 +116,27 @@ const extraJsonLd = [
     {
       /* One white card under the banner: the same price bar the city and service pages
         use (Check Price shows the estimate on the spot and saves the price check as a
-        lead), then the trust strip beneath it. The hero's card row lays its children
-        side by side, so they share one wrapper. */
+        lead), then one footer line under it: the trust points and the WhatsApp option,
+        set to the right so they sit under Check Price - the reassurance beside the button
+        it is reassuring about. The hero's card row lays its children side by side, so
+        they share one wrapper. */
     }
     <div class="home-hero-box">
       <QuoteWidget eager />
-      <p class="home-hero-note">
-        <a href={videoHref} target="_blank" rel="noopener noreferrer"
-          >Or WhatsApp us a video of your home</a
-        >
-      </p>
-      <ul class="home-trust" aria-label="Why people book us">
-        {C.trust.map((t) => <li>{fill(t)}</li>)}
-      </ul>
+      <div class="home-hero-foot">
+        <ul class="home-trust" aria-label="Why people book us">
+          {C.trust.map((t) => <li>{fill(t)}</li>)}
+        </ul>
+        <a class="home-hero-wa" href={videoHref} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.18-1.36a9.9 9.9 0 0 0 4.86 1.24h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2Zm0 18.17h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.11.82.83-3.04-.2-.31a8.22 8.22 0 1 1 6.98 3.86Zm4.5-6.15c-.25-.12-1.46-.72-1.69-.8-.22-.09-.39-.13-.55.12s-.63.8-.77.96c-.14.17-.28.19-.53.06a6.74 6.74 0 0 1-3.37-2.95c-.25-.43.25-.4.72-1.33.08-.17.04-.31-.02-.44-.06-.12-.55-1.34-.76-1.83-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3c-.22.25-.85.83-.85 2.02s.87 2.35 1 2.51c.12.17 1.71 2.61 4.15 3.66 1.54.67 2.15.72 2.92.61.47-.07 1.46-.6 1.66-1.18s.2-1.07.14-1.18c-.06-.11-.22-.17-.47-.29Z"
+            ></path>
+          </svg>
+          Or WhatsApp us a video of your home
+        </a>
+      </div>
     </div>
   </HeroShell>
 
@@ -406,22 +414,35 @@ const extraJsonLd = [
 
 <style>
   /* ── Hero ── */
+  /* A short line above, a big bold heading in three lines, then an 18px subhead: the
+     same shape the banner had in Titillium, re-set for Google Sans. Google Sans is
+     wider, so the heading runs a little smaller and tighter to keep those three lines. */
   .home-tagline {
-    margin: 0 0 0.6rem;
+    margin: 0 0 0.35rem;
     font-family: var(--font-display);
     font-size: var(--text-lg);
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.005em;
     color: rgb(255 255 255 / 0.92);
   }
   /* Scoped under .hero to outrank HeroShell's own `.hero.align-left h1`, which is
      sized for a two-to-three-word tagline, not this sentence-length heading. */
   :global(.hero.align-left) .home-h1 {
     margin: 0;
-    max-width: 21ch;
-    font-size: clamp(1.85rem, 3.4vw, 2.9rem);
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+    max-width: 19ch;
+    font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+  }
+  :global(.hero.align-left .hero-intro) {
+    margin: 0.5rem 0 0;
+    max-width: 50ch;
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.88);
+    text-wrap: pretty;
   }
   /* The heading and subhead are a full sentence now, set over the busiest part of the
      photograph (the logo on the carton). A wash that is darkest behind the text and
@@ -453,21 +474,71 @@ const extraJsonLd = [
   .home-hero-box :global(.booking-bar) {
     box-shadow: none;
   }
-  .home-hero-note {
-    margin: 0.75rem 0 0;
-    font-size: var(--text-sm);
+  /* One line under the bar, right-aligned under Check Price: the four trust points, a
+     hairline, then the WhatsApp option. It wraps from the right on narrower laptops and
+     stacks on a phone. */
+  .home-hero-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem 1.25rem;
+    margin: 1rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--color-line);
   }
-  .home-hero-note a {
+  .home-hero-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--color-line);
+    font-size: var(--text-sm);
     font-weight: 600;
     color: var(--color-brand-600);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .home-hero-wa svg {
+    flex: none;
+    color: #25d366;
+  }
+  .home-hero-wa:hover {
+    text-decoration: underline;
+  }
+  /* Below this the row no longer fits on one line, and a divider left at the start of
+     the second line would separate nothing. */
+  @media (max-width: 1100px) {
+    .home-hero-wa {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+  @media (max-width: 700px) {
+    .home-hero-foot {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .home-hero-wa {
+      order: -1;
+      padding-left: 0;
+      border-left: 0;
+    }
+    /* Two even columns of ticks read better than a ragged wrap on a narrow screen.
+       Scoped under the footer so it outranks the base rule further down. */
+    .home-hero-foot .home-trust {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
   }
   .home-trust {
     display: flex;
     flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 0.5rem 1.4rem;
-    margin: 1rem 0 0;
-    padding: 1rem 0 0;
-    border-top: 1px solid var(--color-line);
+    margin: 0;
+    padding: 0;
     list-style: none;
     font-size: var(--text-sm);
     font-weight: 600;

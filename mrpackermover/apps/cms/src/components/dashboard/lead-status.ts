@@ -31,7 +31,8 @@ export const LEAD_STATUS: LeadStage[] = [
   // belongs to: blue and purples for routing (nobody has worked it yet), sky blue for a
   // first conversation, red for an attempt that failed, amber for a promise to ring back,
   // teal for a chase, orange for money on the table, olive for a booked move, bright
-  // green for a win, grey for a loss and a muddy taupe for junk.
+  // green for a win, grey for a loss, a muddy taupe for junk and a darker brown for a
+  // repeat of a lead we already have.
   //
   // The set was searched, not eyeballed: every pair is at least 15 apart in OKLab (the
   // floor at which people with full colour vision can tell two marks apart), and every
@@ -56,6 +57,12 @@ export const LEAD_STATUS: LeadStage[] = [
   { value: 'won', label: 'Won', color: '#00C853' },
   { value: 'lost', label: 'Lost', color: '#BDC1C6' },
   { value: 'invalid', label: 'Invalid lead', color: '#A1887F' },
+  // The same customer, already on another lead - a second form, a retried ad, a call
+  // logged twice. Junk's family (brown, beside Invalid's taupe) because it is not a new
+  // opportunity, but its own shade, since "this number is wrong" and "we have this one
+  // already" are different answers. Found by search like the rest: 16.3 from its nearest
+  // stage, 16.7 from Invalid.
+  { value: 'duplicate', label: 'Duplicate', color: '#88541C' },
 ];
 
 /** A stage's colour, for the few places that name a stage rather than iterate the list. */
@@ -82,7 +89,7 @@ export const ROUTING_STAGES = ['new', 'assigned', 'reassigned'];
  * decided, and an invalid lead was never an opportunity anyone could have won - folding
  * it in would push the number down for reasons that have nothing to do with selling.
  */
-export const CLOSED_STAGES = ['won', 'lost', 'invalid'];
+export const CLOSED_STAGES = ['won', 'lost', 'invalid', 'duplicate'];
 
 /**
  * Everything a lead can be BEFORE it has been quoted.
@@ -139,10 +146,11 @@ export const exactTime = (iso?: string | null): string =>
  * enough.
  *
  * Every status belongs to at most ONE group, so the group counts add up to the whole
- * board rather than double-counting a lead into two buttons. `invalid` deliberately
- * belongs to none: a wrong number is not a stage of selling, and folding it into
- * "Won / Lost" would make that button disagree with the win rate beside it. It stays
- * reachable from the exact-status row, which renders every entry in LEAD_STATUS.
+ * board rather than double-counting a lead into two buttons. `invalid` and `duplicate`
+ * deliberately belong to none: a wrong number or a repeat is not a stage of selling, and
+ * folding either into "Won / Lost" would make that button disagree with the win rate
+ * beside it. Both stay reachable from the exact-status row, which renders every entry in
+ * LEAD_STATUS.
  *
  * `verify-roles` asserts the "at most one, and all real" part, so a stage added to the
  * collection cannot quietly end up counted twice or pointed at nothing.
@@ -279,6 +287,16 @@ export const REVIEW_BUCKETS: ReviewBucket[] = [
 
 /** Stages that are nobody's result yet - shown beside the review, not inside it. */
 export const REVIEW_PENDING: string[] = FRESH_STAGES;
+
+/**
+ * Stages the review leaves out altogether.
+ *
+ * A duplicate is a customer already counted on their first lead. Putting the copy in Lost
+ * would record one enquiry as a loss next to its own win, and pull the salesperson's score
+ * down for a form the customer happened to fill twice. It is not anybody's result, so it
+ * is not in the pie - and not "waiting" either, because nobody needs to call it.
+ */
+export const REVIEW_EXCLUDED: string[] = ['duplicate'];
 
 export interface ReviewSlice {
   bucket: ReviewBucket;
@@ -502,6 +520,7 @@ export const NEXT_STEP: Record<string, { label: string; chase: boolean }> = {
   won: { label: 'Closed', chase: false },
   lost: { label: 'Closed', chase: false },
   invalid: { label: 'Closed', chase: false },
+  duplicate: { label: 'Closed', chase: false },
 };
 
 /** The next step for a stage, never undefined - an unmapped stage just says "Open it". */

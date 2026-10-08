@@ -64,9 +64,11 @@
   --color-surface-3: #ebebf6; /* icon badges, soft fills */
   --color-hero: #1d00b2; /* royal blue hero backdrop */
 
-  /* ── Typography — single family, matching Porter (Titillium Web) ─────────── */
-  --font-display: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-text: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* ── Typography — single family: Google Sans, the same as the CMS ────────── */
+  --font-display:
+    'Google Sans Variable', 'Google Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-text:
+    'Google Sans Variable', 'Google Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;

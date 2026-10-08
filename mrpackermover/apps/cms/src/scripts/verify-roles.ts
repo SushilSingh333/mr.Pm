@@ -571,11 +571,13 @@ try {
   );
 
   // The lead review sorts every worked stage into exactly one of three slices, and leaves
-  // only the fresh stages out. A stage in no slice would vanish from a salesperson's
-  // review; a stage in two would be counted twice and the shares would pass 100%.
+  // out only the fresh stages and the ones deliberately excluded (a duplicate). A stage in
+  // no slice would vanish from a salesperson's review; a stage in two would be counted
+  // twice and the shares would pass 100%.
   const {
     REVIEW_BUCKETS,
     REVIEW_PENDING,
+    REVIEW_EXCLUDED,
     LEAD_STATUS: STAGES,
   } = await import('../components/dashboard/lead-status.js');
   const reviewed = REVIEW_BUCKETS.flatMap((b: { statuses: string[] }) => b.statuses);
@@ -584,9 +586,9 @@ try {
     new Set(reviewed).size === reviewed.length,
     `reviewed=[${reviewed.join(',')}]`,
   );
-  const placed = new Set([...reviewed, ...REVIEW_PENDING]);
+  const placed = new Set([...reviewed, ...REVIEW_PENDING, ...REVIEW_EXCLUDED]);
   check(
-    'every lead stage is in one review slice or waiting',
+    'every lead stage is in one review slice, waiting, or excluded on purpose',
     dashboardValues.every((v) => placed.has(v)) && placed.size === dashboardValues.length,
     `missing=[${dashboardValues.filter((v) => !placed.has(v)).join(',')}]`,
   );

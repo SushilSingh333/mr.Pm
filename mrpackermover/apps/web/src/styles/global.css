@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 @import '@mpm/ui-tokens/theme.css';
 
-/* Self-hosted Titillium Web (Porter's font) — no Google Fonts network request. */
-@import '@fontsource/titillium-web/300.css';
-@import '@fontsource/titillium-web/400.css';
-@import '@fontsource/titillium-web/600.css';
-@import '@fontsource/titillium-web/700.css';
+/* Google Sans - the CMS's typeface, so the website and the admin read as one product.
+   Self-hosted from the open-licensed (OFL) release, never requested from Google Fonts:
+   one variable file covers every weight from 400 to 700, split by script, so an
+   English page downloads only the Latin file. */
+@import '@fontsource-variable/google-sans';
 
 /*
  * Base layer — a close match to porter.in: one technical sans, cobalt-blue

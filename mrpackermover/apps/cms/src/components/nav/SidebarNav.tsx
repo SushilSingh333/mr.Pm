@@ -7,10 +7,10 @@ import { NavRow } from './NavRow.js';
 import { NavDismiss } from './NavDismiss.js';
 
 /**
- * Sidebar header (admin.components.beforeNavLinks): a live "Needs attention" panel —
- * new leads, new job applications and unread contact messages, each a one-tap link to
- * the filtered collection — plus Create and the schedule shortcuts. Server component so
- * the counts are always current. Styled as Google's side navigation.
+ * Sidebar header (admin.components.beforeNavLinks): Create, then Leads, Schedule and
+ * Calendar, then a live "Needs attention" panel for new job applications and unread
+ * contact messages. Server component so the counts are always current. Styled as
+ * Google's side navigation.
  */
 
 /**
@@ -69,15 +69,20 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
     : isHandler
       ? { and: [{ assignedTo: { exists: false } }, { status: { not_in: CLOSED_STAGES } }] }
       : { status: { equals: 'new' } };
-  const leadBadgeLabel = isSales ? 'New to you' : isHandler ? 'Unassigned leads' : 'New leads';
-  // Both sales roles land on their own dashboard with that queue already filtered, which
-  // is the only screen where the badge's number and the list underneath it are the same
-  // query. The sales link used to be ?where[status][equals]=new - and a salesperson's
-  // leads are never `new`, as the note below already says, so the badge read 4 and opened
-  // an empty list. Content staff keep the list link: they have no lead board.
-  const leadBadgeHref = salesOnly
-    ? '/admin?range=all&filter=queue#leads'
-    : '/admin/collections/leads?where[status][equals]=new';
+  // What the number beside Leads means in this chair, for its tooltip.
+  const leadCountMeans = isSales ? 'new to you' : isHandler ? 'with nobody on them' : 'new';
+  /**
+   * Leads is a row of its own, first, for everyone who works leads - and it opens the
+   * WHOLE list, newest first, not a filtered one. New leads are one tap away on the
+   * list's Status filter, and the count of them rides on the row the way Gmail's unread
+   * count rides on Inbox.
+   *
+   * It has to be ours rather than Payload's. Payload draws its own "Leads" entry as plain
+   * text, not a link, on every Leads list - and Schedule IS the Leads list, filtered to
+   * Scheduled - so from Schedule, "Leads" could not be clicked and the Scheduled filter
+   * stayed on. This link always goes to the list with no filter at all.
+   */
+  const leadsHref = '/admin/collections/leads';
   /**
    * Every booked move, which is exactly what the button opens.
    *
@@ -90,6 +95,8 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
    * which is where urgency belongs. This is a destination, not an alarm.
    */
   const scheduleWhere = { status: { equals: 'scheduled' } };
+  // Content staff cannot read leads at all (access/index.ts), so they get neither row.
+  const worksLeads = role !== 'editor' && role !== 'ops';
 
   const [leads, scheduled, apps, messages] = await Promise.all([
     // "Needs attention" means something different in each chair, and the badge has to
@@ -102,11 +109,9 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
     //             work rather than receiving it, so counting leads assigned TO them
     //             would sit at 0 while the queue filled up behind them.
     //   others  — leads nobody has touched at all.
-    tally(payload, 'leads', user, leadBadgeWhere),
+    worksLeads ? tally(payload, 'leads', user, leadBadgeWhere) : Promise.resolve(0),
     // Content staff have no moves to keep track of.
-    role === 'editor' || role === 'ops'
-      ? Promise.resolve(0)
-      : tally(payload, 'leads', user, scheduleWhere),
+    worksLeads ? tally(payload, 'leads', user, scheduleWhere) : Promise.resolve(0),
     salesOnly
       ? Promise.resolve(0)
       : tally(payload, 'job-applications', user, { status: { equals: 'new' } }),
@@ -115,33 +120,24 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
       : tally(payload, 'contact-messages', user, { status: { equals: 'new' } }),
   ]);
 
-  const alerts = [
-    {
-      label: leadBadgeLabel,
-      count: leads,
-      href: leadBadgeHref,
-      icon: (isHandler ? 'person_add' : 'inbox') as 'person_add' | 'inbox' | 'assignment' | 'mail',
-    },
-    // Careers and the contact inbox belong to content staff, not the sales desk.
-    ...(salesOnly
-      ? []
-      : [
-          {
-            label: 'New applications',
-            count: apps,
-            icon: 'assignment' as const,
-            href: '/admin/collections/job-applications?where[status][equals]=new',
-          },
-          {
-            label: 'Unread messages',
-            count: messages,
-            icon: 'mail' as const,
-            href: '/admin/collections/contact-messages?where[status][equals]=new',
-          },
-        ]),
-  ];
-
-  const showSchedule = role !== 'editor' && role !== 'ops';
+  // Careers and the contact inbox belong to content staff, not the sales desk, so for the
+  // sales roles there is nothing here and the whole section stays out of the way.
+  const alerts = salesOnly
+    ? []
+    : [
+        {
+          label: 'New applications',
+          count: apps,
+          icon: 'assignment' as const,
+          href: '/admin/collections/job-applications?where[status][equals]=new',
+        },
+        {
+          label: 'Unread messages',
+          count: messages,
+          icon: 'mail' as const,
+          href: '/admin/collections/contact-messages?where[status][equals]=new',
+        },
+      ];
 
   return (
     <div className="mpm-nav">
@@ -175,14 +171,29 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
           Payload saves sort and column choices as preferences the moment a URL carries
           them, and the soonest-first order comes from the collection instead (Leads'
           beforeOperation hook). */}
-      {showSchedule && (
+      {worksLeads && (
         <>
+          <NavRow
+            href={leadsHref}
+            icon="inbox"
+            label="Leads"
+            count={leads}
+            strong={leads > 0}
+            activeOn="/admin/collections/leads"
+            inactiveParam="[status][equals]=scheduled"
+            title={leads > 0 ? `All leads - ${leads} ${leadCountMeans}` : 'All leads'}
+            navKey="leads"
+            fresh
+          />
           <NavRow
             href="/admin/collections/leads?where%5Bstatus%5D%5Bequals%5D=scheduled"
             icon="format_list_bulleted"
             label="Schedule"
             count={scheduled}
+            activeOn="/admin/collections/leads"
+            activeParam="[status][equals]=scheduled"
             title="Every booked move, on the Leads list"
+            navKey="schedule"
           />
           <NavRow
             href="/admin/calendar"
@@ -196,19 +207,21 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
 
       {/* Things waiting on somebody. Gmail's unread treatment: a row goes bold, count and
           all, while there is something in it. */}
-      <div className="mpm-nav__section" role="group" aria-label="Needs attention">
-        <div className="mpm-nav__section-title">Needs attention</div>
-        {alerts.map((a) => (
-          <NavRow
-            key={a.label}
-            href={a.href}
-            icon={a.icon}
-            label={a.label}
-            count={a.count}
-            strong={a.count > 0}
-          />
-        ))}
-      </div>
+      {alerts.length > 0 && (
+        <div className="mpm-nav__section" role="group" aria-label="Needs attention">
+          <div className="mpm-nav__section-title">Needs attention</div>
+          {alerts.map((a) => (
+            <NavRow
+              key={a.label}
+              href={a.href}
+              icon={a.icon}
+              label={a.label}
+              count={a.count}
+              strong={a.count > 0}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -248,6 +261,12 @@ html[data-theme="dark"] .mpm-nav__create:hover { box-shadow:0 1px 3px rgba(0,0,0
 
 .mpm-nav__section { margin-top:14px; }
 .mpm-nav__section-title { padding:6px 16px 6px 20px; font-size:14px; font-weight:500; color:var(--mpm-ink); }
+
+/* Payload's own Leads entry, in the Inbox group, is replaced by the Leads row above: on
+   any Leads list (Schedule included) Payload draws it as plain text, not a link. */
+.nav #nav-leads { display:none; }
+/* ...and a salesperson's Inbox group held nothing else, so it would be an empty heading. */
+.nav .nav-group:has(#nav-leads):not(:has(.nav__link:not(#nav-leads))) { display:none; }
 
 /* The phone drawer: the same rows, sized for a thumb. */
 .nav--nav-open .mpm-nav__row { min-height:48px; margin:1px 0; }

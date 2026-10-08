@@ -24,3 +24,12 @@ No Google Fonts request (extra connection + a privacy question in some jurisdict
 - The LCP-critical H1 uses the display serif, which must be preloaded.
 - Token names in `packages/ui-tokens` expose `--font-display` and `--font-text`.
 - The final licence-clean pairing is chosen at build time and pinned here.
+
+## Update - 2026-10-08
+
+The website now uses **Google Sans** for both `--font-display` and `--font-text`, the same
+family as the CMS, so the site and the admin read as one product. It is the open-licensed
+(SIL OFL 1.1) release, self-hosted through `@fontsource-variable/google-sans`: one variable
+`woff2` per script (Latin is ~36 KB for every weight 400-700), `font-display: swap`, and
+still no request to Google Fonts. It replaces Titillium Web. The CMS's body cut, Google Sans
+Text, is not in the public catalogue, so the website does not use it.

@@ -971,6 +971,10 @@ a.mpm-kpi:hover { transform:none; border-color:var(--line); box-shadow:0 1px 2px
 .mpm-kpi--hero .mpm-kpi__label,.mpm-kpi--hero .mpm-kpi__value,.mpm-kpi--hero .mpm-kpi__hint { color:var(--mpm-on-sel); }
 a.mpm-kpi--hero:hover { box-shadow:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15); }
 .mpm-kpi__glow { display:none; }
+/* Its icon was white at 20% - made for the old dark gradient, and close to invisible on
+   the pale-blue fill. A solid blue circle is Google's mark for the one card that matters. */
+.mpm-ico--ghost { background:var(--mpm-v-500); color:#fff; }
+[data-theme="dark"] .mpm-ico--ghost { color:#062E6F; }
 .mpm-card__head h3 { font-family:var(--mpm-font-display); font-size:18px; font-weight:400; letter-spacing:0; }
 .mpm-avatar { background:var(--mpm-v-500); font-weight:500; }
 .mpm-badge { border:0; border-radius:8px; font-weight:500; text-transform:none; letter-spacing:.01em; font-size:12px; }

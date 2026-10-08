@@ -122,6 +122,12 @@ export const Leads: CollectionConfig = {
       ({ data, originalDoc, req, operation }) => {
         if (!data) return data;
 
+        // One number, one spelling. The quote form and the webhook store the number as it
+        // was typed, so "98765 43210" and "9876543210" were two numbers to every search -
+        // and the "same number" panel (SamePhone) could not find one from the other.
+        // Only the spacing goes: the digits and a leading + are kept exactly.
+        if (typeof data.phone === 'string') data.phone = data.phone.replace(/[\s().-]/g, '');
+
         const meId = (req.user as { id?: string | number } | null)?.id ?? null;
         const before = idOf(originalDoc?.assignedTo);
         const after = idOf(data.assignedTo);
@@ -462,6 +468,13 @@ export const Leads: CollectionConfig = {
       name: 'phoneActions',
       type: 'ui',
       admin: { components: { Field: '/components/leads/PhoneActions#PhoneField' } },
+    },
+    {
+      // Other leads on the same number, right where a duplicate would be noticed, with a
+      // one-tap "Mark as duplicate" when this lead is the later one.
+      name: 'samePhone',
+      type: 'ui',
+      admin: { components: { Field: '/components/leads/SamePhone#SamePhone' } },
     },
     {
       name: 'email',

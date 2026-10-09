@@ -22,6 +22,8 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { SectionRowLabel as SectionRowLabel_c640d79e0c641f2270701020d73be7c2 } from '../../../components/fields/RowLabels'
+import { FaqRowLabel as FaqRowLabel_c640d79e0c641f2270701020d73be7c2 } from '../../../components/fields/RowLabels'
 import { CreateProposal as CreateProposal_4b3e26dd13427489eed77a57bc2956d1 } from '../../../components/leads/CreateProposal'
 import { NameCell as NameCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { PhoneCell as PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
@@ -82,6 +84,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "/components/fields/RowLabels#SectionRowLabel": SectionRowLabel_c640d79e0c641f2270701020d73be7c2,
+  "/components/fields/RowLabels#FaqRowLabel": FaqRowLabel_c640d79e0c641f2270701020d73be7c2,
   "/components/leads/CreateProposal#CreateProposal": CreateProposal_4b3e26dd13427489eed77a57bc2956d1,
   "/components/leads/Cells#NameCell": NameCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/PhoneActions#PhoneCell": PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1,

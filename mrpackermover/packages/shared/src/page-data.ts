@@ -107,10 +107,20 @@ export interface RouteData {
 export interface ServiceHubData {
   serviceName: string;
   summary?: string;
-  /** Paragraphs of service-specific prose, one string per paragraph. */
+  /**
+   * The page's prose as plain paragraphs. Not rendered (the sections in `page` are);
+   * it is what the duplication gate compares between service pages.
+   */
   editorial: string[];
   inclusions: string[];
   exclusions: string[];
+  /**
+   * The finished page: the brief with every CMS override laid over it. Absent from the
+   * committed sample manifest, where the site falls back to the brief itself.
+   */
+  page?: import('./service-pages/types.js').ServicePage;
+  /** The page's FAQs again, at the top level where the duplication gate reads them. */
+  faqs?: import('./service-pages/types.js').ServiceFaq[];
 }
 
 /** A trust pillar in the "why us" bento (editable from the CMS). */

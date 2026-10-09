@@ -20,7 +20,10 @@ import {
   cldUrl,
   CLD_TRANSFORM,
   SERVICES,
-  serviceCopy,
+  mergeServicePage,
+  pageWithCityCount,
+  plainText,
+  servicePage,
 } from '@mpm/shared';
 import { coverForCategory } from '@mpm/shared/blog-fallback';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
@@ -29,6 +32,7 @@ import {
   homePageOverrides,
   idOf,
   serviceCardOverrides,
+  servicePageOverrides,
   servicesPageOverrides,
 } from './page-copy-cms.js';
 import { evaluateCandidate, type GateCandidate } from './publish-gate.js';
@@ -95,6 +99,8 @@ interface ServiceDoc {
   metaDescription?: string | null;
   /** "Heading and cards": the service's H1 and its card text (page-copy-cms.ts). */
   card?: unknown;
+  /** "Service page" (field `body`): overrides for the page brief (servicePageOverrides). */
+  body?: unknown;
   updatedAt: string;
 }
 interface LaneDoc {
@@ -693,31 +699,71 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             .filter((s): s is ServiceDoc => Boolean(s) && sid(s!.id) !== sid(service.id))
             .map((s) => ({ path: paths.serviceHub(s.slug), anchor: s.name, group: 'services' }))
         : [];
+    // The page brief for this service with the editor's "Service page" fields laid over
+    // it - merged once, here, so the site and the gates read the same finished page.
+    // `{count}` is the cities that actually offer this service - the same ones its city
+    // links list - so "from 7 cities" and the seven links below it always agree.
+    const cityCount = (serviceCities.get(sid(service.id)) ?? []).length;
+    const rawBrief = servicePage(service.slug);
+    const brief = rawBrief ? pageWithCityCount(rawBrief, cityCount) : undefined;
+    const page = brief
+      ? pageWithCityCount(
+          mergeServicePage(brief, {
+            ...servicePageOverrides(service.body),
+            // An uploaded photo, resolved like every other CMS image (Cloudinary URL).
+            photo: imageFor((service.body as { photo?: Id | { id: Id } | null } | null)?.photo),
+          }),
+          cityCount,
+        )
+      : undefined;
     rows.push(
       makeRow('service-hub', path, service.slug, service.updatedAt, siteOrigin, {
         ...resolveSeo({
           override: service,
-          template: seoDefaults.serviceHub,
+          // A page with its own brief has its own title and description, written for that
+          // service; the site-wide template is for a service without one. A per-service
+          // SEO override still beats both.
+          template: brief ? undefined : seoDefaults.serviceHub,
           tokens: { service: service.name, brand: BRAND },
-          fallbackTitle: `${service.name} Services in India – ${BRAND}`.slice(0, 60),
-          // The seven pages shipped with no description at all; each now has its own
-          // (packages/shared/src/service-copy.ts). A per-service SEO override still wins.
-          fallbackDescription: serviceCopy(service.slug)?.metaDescription,
+          fallbackTitle:
+            brief?.title ?? `${service.name} Services in India – ${BRAND}`.slice(0, 60),
+          fallbackDescription: brief?.metaDescription,
         }),
-        // The service plus a reason to click ("Home shifting services with one fixed,
-        // written price"), not the bare name. A service with no copy keeps the name.
-        h1:
-          serviceCardOverrides(service.card).h1 ??
-          serviceCopy(service.slug)?.h1 ??
-          `${service.name} Services`,
+        // The service plus a reason to click, not the bare name. A service with no brief
+        // keeps the name.
+        h1: serviceCardOverrides(service.card).h1 ?? brief?.h1 ?? `${service.name} Services`,
         breadcrumbs: [{ path: '/', anchor: 'Home' }],
         // Only the cities that actually offer this service (from the pre-pass) — never a
         // city whose `/packers-and-movers/<city>/<service>` page doesn't exist (→ 404).
         relatedLinks: [...(serviceCities.get(sid(service.id)) ?? []), ...siblings],
         data: {
           serviceName: service.name,
-          summary: service.summary,
-          editorial: idx.editorialParagraphs(service.editorialNote),
+          // The page's own prose, flattened for the duplication gate; a service without a
+          // brief keeps its old editorial text.
+          editorial: page
+            ? page.sections
+                .flatMap((s) => [
+                  s.heading,
+                  ...s.blocks.flatMap((b) =>
+                    b.kind === 'text'
+                      ? b.body.split(/\n\s*\n/).map(plainText)
+                      : b.kind === 'steps'
+                        ? b.items.map((i) => plainText(`${i.title}. ${i.body}`))
+                        : b.kind === 'list'
+                          ? b.items.map(plainText)
+                          : b.kind === 'table'
+                            ? b.rows.map((r) => r.join(' '))
+                            : [],
+                  ),
+                ])
+                .filter(Boolean)
+            : idx.editorialParagraphs(service.editorialNote),
+          ...(page
+            ? {
+                page,
+                faqs: page.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) })),
+              }
+            : {}),
           inclusions: (service.inclusions ?? []).map((i) => i.item),
           exclusions: (service.exclusions ?? []).map((i) => i.item),
           // The card text an editor set on the service; the site fills in the rest.

@@ -48,9 +48,9 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Condition report at pickup',
       'Transit insurance option',
     ],
+    // No fuel or toll lines (car brief, Oct 2026): tolls are in the quote, and running
+    // the tank low is on the handover checklist rather than an extra.
     exclusions: [
-      'Fuel in the tank (kept low for safety)',
-      'Toll / entry taxes at destination',
       'Aftermarket accessories unless declared',
       'RTO paperwork or registration changes',
     ],
@@ -64,7 +64,6 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Transit insurance option',
     ],
     exclusions: [
-      'Fuel drained for safe transit',
       'Aftermarket accessories unless declared',
       'Registration transfer',
       'Storage beyond the quoted period',

@@ -14,6 +14,7 @@
     "import-locations": "tsx src/scripts/import-locations.ts",
     "import-blog": "tsx src/scripts/import-blog.ts",
     "import-service-content": "tsx src/scripts/import-service-content.ts",
+    "import-service-pages": "tsx src/scripts/import-service-pages.ts",
     "verify-roles": "tsx src/scripts/verify-roles.ts",
     "verify-login-audit": "tsx src/scripts/verify-login-audit.ts",
     "audit-access": "tsx src/scripts/audit-access.ts",

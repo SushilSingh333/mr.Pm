@@ -1,0 +1,593 @@
+---
+import type { ServiceQuoteMode } from '@mpm/shared';
+
+/**
+ * The enquiry form in the hero of every service page.
+ *
+ * Each service asks what its brief asks - the home size, the seats, the car and the
+ * carrier, the bike and its packing, the destination and the mode, the floors and the
+ * heavy pieces - and saves the lead with all of it, so the coordinator who rings back
+ * already knows the job.
+ *
+ * No price is shown here. The instant price check prices a truck, and lives on
+ * /get-quote and the home page; on a service page the promise is one fixed, written
+ * price, which is what the button and the line above it say.
+ *
+ * Posts to /api/quote like /get-quote, then hands off to /thank-you (a URL of its own,
+ * for conversion tracking, and Back does not land on a filled-in form).
+ */
+interface Props {
+  mode: ServiceQuoteMode;
+  /** The service as the lead records it, e.g. "Car Transport". */
+  serviceName: string;
+}
+const { mode, serviceName } = Astro.props;
+
+type Base = { name: string; label: string; half?: boolean };
+type Field =
+  | (Base & { kind: 'text'; placeholder?: string; required?: boolean; auto?: string })
+  | (Base & { kind: 'tel' })
+  | (Base & { kind: 'date' })
+  | (Base & { kind: 'month' })
+  | (Base & { kind: 'select'; options: string[]; required?: boolean })
+  | (Base & { kind: 'checks'; options: string[] });
+
+const FLOORS = ['Ground', '1st', '2nd', '3rd', '4th', '5th and above'];
+const name: Field = {
+  kind: 'text',
+  name: 'name',
+  label: 'Full name',
+  placeholder: 'Your name',
+  required: true,
+  auto: 'name',
+};
+const phone: Field = { kind: 'tel', name: 'phone', label: 'Phone number', half: true };
+const date = (label = 'Moving date'): Field => ({ kind: 'date', name: 'date', label, half: true });
+const from = (label: string, placeholder: string): Field => ({
+  kind: 'text',
+  name: 'pickup',
+  label,
+  placeholder,
+  required: true,
+  half: true,
+  auto: 'off',
+});
+const to = (label: string, placeholder: string): Field => ({
+  kind: 'text',
+  name: 'drop',
+  label,
+  placeholder,
+  required: true,
+  half: true,
+  auto: 'off',
+});
+const pick = (n: string, label: string, options: string[], required = false): Field => ({
+  kind: 'select',
+  name: n,
+  label,
+  options,
+  required,
+  half: true,
+});
+
+const FIELDS: Record<ServiceQuoteMode, Field[]> = {
+  home: [
+    name,
+    from('Moving from', 'Area, city'),
+    to('Moving to', 'Area, city'),
+    pick(
+      'homeSize',
+      'Home size',
+      ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+', 'Villa or large house'],
+      true,
+    ),
+    pick('packingLevel', 'Packing', ['Basic', 'Standard', 'Not sure, advise me']),
+    date(),
+    phone,
+  ],
+  office: [
+    name,
+    from('Current office', 'Area, city'),
+    to('New office', 'Area, city'),
+    pick(
+      'seats',
+      'Seats moving',
+      ['Up to 10', '11 to 25', '26 to 50', '51 to 100', 'More than 100'],
+      true,
+    ),
+    pick('itUnits', 'Servers or racks', ['None', 'A few units', 'A server room']),
+    date('Target weekend'),
+    phone,
+  ],
+  car: [
+    name,
+    from('Pickup city', 'e.g. Noida'),
+    to('Drop city', 'e.g. Bengaluru'),
+    pick('carType', 'Car type', ['Hatchback', 'Sedan', 'SUV or MUV', 'Luxury'], true),
+    pick('carrier', 'Carrier', ['Open carrier', 'Enclosed carrier', 'Not sure, advise me']),
+    date(),
+    phone,
+  ],
+  bike: [
+    name,
+    from('Pickup city', 'e.g. Delhi'),
+    to('Drop city', 'e.g. Pune'),
+    pick(
+      'bikeType',
+      'Bike type',
+      ['Scooter', 'Up to 200 cc', '200 cc and above', 'Superbike'],
+      true,
+    ),
+    pick('packing', 'Packing', ['Standard wrap', 'Wooden crate']),
+    date(),
+    phone,
+  ],
+  international: [
+    name,
+    from('Pickup city', 'e.g. Gurgaon'),
+    to('Destination', 'City, country'),
+    pick('homeSize', 'Home size', ['1 BHK', '2 BHK', '3 BHK', '4 BHK+', 'A few boxes'], true),
+    pick('shipMode', 'Sea or air', ['Sea', 'Air', 'Both', 'Not sure, advise me']),
+    { kind: 'month', name: 'month', label: 'Target month', half: true },
+    phone,
+  ],
+  labour: [
+    // The longest form: name and phone share a row so the card stays close to the others.
+    { ...name, half: true },
+    phone,
+    from('Pickup address', 'Area, city'),
+    to('Drop address', 'Same building? Say so'),
+    pick('load', 'Home or load size', ['1 RK', '1 BHK', '2 BHK', '3 BHK+', 'A few items'], true),
+    date(),
+    pick('pickupFloor', 'Floor at pickup', FLOORS),
+    pick('pickupLift', 'Lift at pickup', ['Yes', 'No']),
+    pick('dropFloor', 'Floor at drop', FLOORS),
+    pick('dropLift', 'Lift at drop', ['Yes', 'No']),
+    {
+      kind: 'checks',
+      name: 'heavy',
+      label: 'Heavy items',
+      options: ['Fridge', 'Almirah', 'Sofa', 'Washing machine'],
+    },
+  ],
+  packing: [
+    name,
+    {
+      kind: 'text',
+      name: 'pickup',
+      label: 'Area and city',
+      placeholder: 'Where we pack',
+      required: true,
+      auto: 'off',
+    },
+    pick('homeSize', 'Home size', ['1 RK', '1 BHK', '2 BHK', '3 BHK', '4 BHK+'], true),
+    pick('packingLevel', 'Packing level', ['Basic', 'Standard']),
+    pick('unpacking', 'Unpacking too?', ['Yes', 'No']),
+    pick('appliances', 'Large appliances', ['0', '1', '2', '3', '4', '5 or more']),
+    date('Packing date'),
+    phone,
+  ],
+};
+const fields = FIELDS[mode];
+const id = (n: string): string => `se-${n}`;
+---
+
+<form class="se" data-se data-mode={mode} data-service={serviceName} novalidate>
+  <div class="se-grid">
+    {
+      fields.map((f) => (
+        <div class:list={['se-field', { 'se-half': f.half }]}>
+          {f.kind === 'checks' ? (
+            <fieldset class="se-checks">
+              <legend>{f.label}</legend>
+              <div class="se-chips">
+                {f.options.map((o) => (
+                  <label class="se-chip">
+                    <input type="checkbox" name={f.name} value={o} />
+                    <span>{o}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : (
+            <>
+              <label for={id(f.name)}>
+                {f.label}
+                {(f.kind === 'tel' || ('required' in f && f.required)) && (
+                  <span class="se-req" aria-hidden="true">
+                    *
+                  </span>
+                )}
+              </label>
+              {f.kind === 'select' ? (
+                <select id={id(f.name)} name={f.name} required={f.required}>
+                  {f.required && (
+                    <option value="" selected disabled>
+                      Choose
+                    </option>
+                  )}
+                  {f.options.map((o) => (
+                    <option value={o}>{o}</option>
+                  ))}
+                </select>
+              ) : f.kind === 'tel' ? (
+                <input
+                  id={id(f.name)}
+                  name={f.name}
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  placeholder="10-digit mobile"
+                  required
+                />
+              ) : f.kind === 'date' ? (
+                <input id={id(f.name)} name={f.name} type="date" data-min-today />
+              ) : f.kind === 'month' ? (
+                <select id={id(f.name)} name={f.name} data-months>
+                  <option value="">Not sure yet</option>
+                </select>
+              ) : (
+                <input
+                  id={id(f.name)}
+                  name={f.name}
+                  type="text"
+                  placeholder={f.placeholder}
+                  required={f.required}
+                  autocomplete={f.auto ?? 'off'}
+                />
+              )}
+            </>
+          )}
+        </div>
+      ))
+    }
+  </div>
+  <button class="se-btn" type="submit">
+    <span>Check my price</span>
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+    >
+  </button>
+  <p class="se-error" role="alert" hidden></p>
+</form>
+
+<script>
+  /** Ten digits starting 6-9, after +91, 91 or a leading 0 - the rule /api/quote applies. */
+  const phoneOk = (v: string): boolean => {
+    const d = v.replace(/\D/g, '');
+    const core =
+      d.length === 12 && d.startsWith('91')
+        ? d.slice(2)
+        : d.length === 11 && d.startsWith('0')
+          ? d.slice(1)
+          : d;
+    return /^[6-9]\d{9}$/.test(core);
+  };
+  /** Today in India, as YYYY-MM-DD: a UTC "today" is yesterday until 5:30 am. */
+  const todayIST = (): string =>
+    new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+
+  const LABELS: Record<string, string> = {
+    homeSize: 'Home size',
+    packingLevel: 'Packing',
+    seats: 'Seats',
+    itUnits: 'Servers or racks',
+    carType: 'Car type',
+    carrier: 'Carrier',
+    bikeType: 'Bike type',
+    packing: 'Packing',
+    shipMode: 'Sea or air',
+    month: 'Target month',
+    load: 'Load size',
+    pickupFloor: 'Floor at pickup',
+    pickupLift: 'Lift at pickup',
+    dropFloor: 'Floor at drop',
+    dropLift: 'Lift at drop',
+    heavy: 'Heavy items',
+    unpacking: 'Unpacking',
+    appliances: 'Large appliances',
+  };
+  /** The answers that size the job, for the lead's "move size" column. */
+  const SIZE: Record<string, string[]> = {
+    home: ['homeSize', 'packingLevel'],
+    office: ['seats'],
+    car: ['carType', 'carrier'],
+    bike: ['bikeType', 'packing'],
+    international: ['homeSize', 'shipMode'],
+    labour: ['load'],
+    packing: ['homeSize', 'packingLevel'],
+  };
+
+  for (const form of document.querySelectorAll<HTMLFormElement>('form[data-se]')) {
+    const mode = form.dataset.mode ?? '';
+    const err = form.querySelector<HTMLElement>('.se-error');
+    const btn = form.querySelector<HTMLButtonElement>('.se-btn');
+    const btnHtml = btn?.innerHTML ?? '';
+
+    for (const d of form.querySelectorAll<HTMLInputElement>('input[data-min-today]'))
+      d.min = todayIST();
+    // The next twelve months, worked out in the browser so the list never goes stale
+    // between builds.
+    for (const sel of form.querySelectorAll<HTMLSelectElement>('select[data-months]')) {
+      const now = new Date();
+      for (let i = 0; i < 12; i += 1) {
+        const m = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const label = m.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        sel.add(new Option(label, label));
+      }
+    }
+
+    const mark = (el: Element, bad: boolean): void => {
+      el.closest('.se-field')?.classList.toggle('is-bad', bad);
+      el.setAttribute('aria-invalid', bad ? 'true' : 'false');
+    };
+    form.addEventListener('input', (e) => {
+      const t = e.target as Element;
+      if (t.closest('.se-field.is-bad')) mark(t, false);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let first: HTMLElement | null = null;
+      for (const el of form.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[required]')) {
+        const v = el.value.trim();
+        const bad =
+          !v || (el.name === 'phone' && !phoneOk(v)) || (el.name === 'name' && v.length < 2);
+        mark(el, bad);
+        if (bad && !first) first = el;
+      }
+      if (first) {
+        if (err) {
+          err.textContent = 'Please fill the highlighted fields. The phone number needs 10 digits.';
+          err.hidden = false;
+        }
+        first.focus();
+        return;
+      }
+      if (err) err.hidden = true;
+
+      const fd = new FormData(form);
+      const value = (k: string): string =>
+        fd
+          .getAll(k)
+          .map((v) => String(v).trim())
+          .filter(Boolean)
+          .join(', ');
+      const details = Object.keys(LABELS)
+        .filter((k) => value(k))
+        .map((k) => `${LABELS[k]}: ${value(k)}`);
+      const size = (SIZE[mode] ?? []).map(value).filter(Boolean).join(' · ');
+
+      const body = {
+        source: 'quote-form',
+        service: form.dataset.service,
+        name: value('name'),
+        phone: value('phone'),
+        pickup: value('pickup') || undefined,
+        drop: value('drop') || undefined,
+        date: value('date') || undefined,
+        size: size || undefined,
+        notes: details.join('\n') || undefined,
+      };
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+      }
+      try {
+        const res = await fetch('/api/quote', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+      } catch {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = btnHtml;
+        }
+        if (err) {
+          err.textContent =
+            "Sorry, that didn't send. Please try again, or call us and we'll take your details.";
+          err.hidden = false;
+        }
+        return;
+      }
+      try {
+        sessionStorage.setItem(
+          'mpm:quote-result',
+          JSON.stringify({ firstName: body.name.split(' ')[0], phone: body.phone }),
+        );
+      } catch {
+        /* Private mode: /thank-you shows its generic wording. */
+      }
+      window.location.replace('/thank-you');
+    });
+  }
+</script>
+
+<style>
+  /* Material 3 outlined fields: label above, 44px box, 2px brand outline on focus. The
+     form is its own size container, so paired fields stack whenever the card is narrow,
+     whatever the window. */
+  .se {
+    container-type: inline-size;
+  }
+  .se-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  @container (max-width: 330px) {
+    .se-field.se-half {
+      grid-column: 1 / -1;
+    }
+  }
+  .se-field {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  .se-field.se-half {
+    grid-column: span 1;
+  }
+  .se-field label,
+  .se-checks legend {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--g-ink-2, #444746);
+  }
+  .se-req {
+    margin-left: 0.15rem;
+    color: #b3261e;
+  }
+  .se-field input,
+  .se-field select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 2.75rem;
+    padding: 0 0.85rem;
+    border: 1px solid var(--g-outline-strong, #747775);
+    border-radius: 0.75rem;
+    background: #fff;
+    color: var(--g-ink, #1f1f1f);
+    font: inherit;
+    font-size: 1rem;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .se-field select {
+    appearance: none;
+    padding-right: 2.25rem;
+    background: #fff
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23444746'/%3E%3C/svg%3E")
+      right 0.6rem center / 1.4rem no-repeat;
+  }
+  .se-field input::placeholder {
+    color: #8e918f;
+  }
+  .se-field input:hover,
+  .se-field select:hover {
+    border-color: var(--g-ink, #1f1f1f);
+  }
+  .se-field input:focus,
+  .se-field select:focus {
+    outline: none;
+    border-color: var(--color-brand-600);
+    box-shadow: inset 0 0 0 1px var(--color-brand-600);
+  }
+  .se-field.is-bad input,
+  .se-field.is-bad select {
+    border-color: #b3261e;
+    box-shadow: inset 0 0 0 1px #b3261e;
+  }
+  .se-checks {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: grid;
+    gap: 0.45rem;
+  }
+  .se-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  /* Material filter chips: outlined, 8px corners; a tick and tonal fill when chosen. */
+  .se-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 2.25rem;
+    padding: 0 0.85rem;
+    border: 1px solid var(--g-outline-strong, #747775);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--g-ink-2, #444746);
+    cursor: pointer;
+    user-select: none;
+  }
+  .se-chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .se-chip:has(input:checked) {
+    border-color: transparent;
+    background: var(--color-brand-50);
+    color: var(--color-brand-800, #0f0066);
+  }
+  .se-chip:has(input:checked)::before {
+    content: '✓';
+    margin-right: 0.4rem;
+    font-weight: 700;
+  }
+  .se-chip:has(input:focus-visible) {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  /* Filled button, full width: the one thing in the card to press. */
+  .se-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 3rem;
+    margin-top: 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-brand-600);
+    color: #fff;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition:
+      background-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .se-btn:hover {
+    background: var(--color-brand-700);
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 1px 3px 1px rgb(60 64 67 / 0.15);
+  }
+  .se-btn:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 3px;
+  }
+  .se-btn:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+  .se-error {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #b3261e;
+  }
+  @media (max-width: 420px) {
+    .se-field.se-half {
+      grid-column: 1 / -1;
+    }
+    .se-field input,
+    .se-field select {
+      height: 3rem;
+    }
+  }
+</style>

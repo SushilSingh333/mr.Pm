@@ -104,13 +104,38 @@ export const CONTACT_LINK = {
   desc: 'Talk to a human',
 };
 
-/** Primary contact — click-to-call in the header + everywhere (user-provided). */
-export const PHONE_DISPLAY = '+91 80903 43030';
-export const PHONE_TEL = '+918090343030';
+/**
+ * The ten digits of an Indian mobile, or null when the value is not one (blank, or the
+ * "+91-00000-00000" placeholder the seed data carries). +91, 91 and a leading 0 are
+ * accepted, as people type them.
+ */
+const mobile = (v: unknown): string | null => {
+  const d = String(v ?? '').replace(/\D/g, '');
+  const core =
+    d.length === 12 && d.startsWith('91')
+      ? d.slice(2)
+      : d.length === 11 && d.startsWith('0')
+        ? d.slice(1)
+        : d;
+  return /^[6-9]\d{9}$/.test(core) ? core : null;
+};
+
+/**
+ * Primary contact - click-to-call in the header and everywhere. Edited in the CMS under
+ * Settings → Organisation profile → Phone / WhatsApp; anything that is not a real mobile
+ * number there falls back to this one, so a placeholder can never reach the site.
+ */
+const FALLBACK_MOBILE = '8090343030';
+const ORG = manifest().org as { phone?: string; whatsapp?: string } | undefined;
+const PHONE_CORE = mobile(ORG?.phone) ?? FALLBACK_MOBILE;
+const WHATSAPP_CORE = mobile(ORG?.whatsapp) ?? PHONE_CORE;
+
+export const PHONE_DISPLAY = `+91 ${PHONE_CORE.slice(0, 5)} ${PHONE_CORE.slice(5)}`;
+export const PHONE_TEL = `+91${PHONE_CORE}`;
 export const EMAIL = 'shiftwith@mrmoverpacker.com';
 
-/** WhatsApp click-to-chat: same number, digits only (wa.me rejects "+" and spaces). */
-export const WHATSAPP_NUMBER = PHONE_TEL.replace(/\D/g, '');
+/** WhatsApp click-to-chat, digits only (wa.me rejects "+" and spaces). */
+export const WHATSAPP_NUMBER = `91${WHATSAPP_CORE}`;
 export const WHATSAPP_MESSAGE = 'Hi MrMoverPacker, I would like a fixed quote for my move.';
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 

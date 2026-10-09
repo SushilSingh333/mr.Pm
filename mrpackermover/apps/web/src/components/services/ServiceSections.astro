@@ -1,0 +1,404 @@
+---
+import type { ServiceSection } from '@mpm/shared';
+import { inlineHtml, paragraphsHtml } from '../../lib/rich-text.js';
+
+/**
+ * The body of a service page: the brief's sections in order, every one drawn with the same
+ * few Material building blocks, so the seven pages read as one family whatever their
+ * content - paragraphs, a vertical stepper for steps, check lists, data tables, and the
+ * "included / costs extra" cards.
+ *
+ * Tables are Material data tables on a laptop and turn into one card per row on a phone,
+ * each value under its column's name: a three-column table squeezed into 360px is
+ * unreadable, and sideways scrolling hides half of it.
+ *
+ * Each heading carries an id for the "On this page" list beside it. The id is on the H2,
+ * not the section, so the site's own scroll-padding (the sticky header's height) lands a
+ * clicked heading just under the header; anchoring the section would add its padding.
+ */
+interface Props {
+  sections: (ServiceSection & { id: string })[];
+  inclusions: string[];
+  exclusions: string[];
+}
+const { sections, inclusions, exclusions } = Astro.props;
+---
+
+{
+  sections.map((section) => (
+    <section class:list={['gs-sec', { 'gs-sec--lead': !section.heading }]}>
+      {section.heading && (
+        <h2 class="gs-h2" id={section.id}>
+          {section.heading}
+        </h2>
+      )}
+      {section.blocks.map((block) =>
+        block.kind === 'text' ? (
+          paragraphsHtml(block.body).map((html) => <p class="gs-p" set:html={html} />)
+        ) : block.kind === 'steps' ? (
+          <ol class="gs-steps">
+            {block.items.map((step, n) => (
+              <li class="gs-step">
+                <span class="gs-step__n" aria-hidden="true">
+                  {n + 1}
+                </span>
+                <div class="gs-step__body">
+                  <p class="gs-step__t">{step.title}</p>
+                  {step.body && <p class="gs-step__d" set:html={inlineHtml(step.body)} />}
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : block.kind === 'list' ? (
+          <ul class="gs-list">
+            {block.items.map((item) => (
+              <li set:html={inlineHtml(item)} />
+            ))}
+          </ul>
+        ) : block.kind === 'table' ? (
+          <div class="gs-tbl-wrap">
+            <table class:list={['gs-tbl', { 'gs-tbl--compare': !block.columns[0] }]}>
+              <thead>
+                <tr>{block.columns.map((c) => (c ? <th scope="col">{c}</th> : <td />))}</tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row) => (
+                  <tr>
+                    {row.map((cell, ci) =>
+                      ci === 0 ? (
+                        <th scope="row" set:html={inlineHtml(cell)} />
+                      ) : (
+                        <td data-label={block.columns[ci] ?? ''} set:html={inlineHtml(cell)} />
+                      ),
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class:list={['gs-scope', { 'gs-scope--one': exclusions.length === 0 }]}>
+            <div class="gs-scope__card gs-scope__card--yes">
+              <p class="gs-scope__t">What's included</p>
+              <ul>
+                {inclusions.map((i) => (
+                  <li>{i}</li>
+                ))}
+              </ul>
+            </div>
+            {exclusions.length > 0 && (
+              <div class="gs-scope__card gs-scope__card--extra">
+                <p class="gs-scope__t">What costs extra</p>
+                <ul>
+                  {exclusions.map((i) => (
+                    <li>{i}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ),
+      )}
+    </section>
+  ))
+}
+
+<style>
+  .gs-sec {
+    padding: 3rem 0 0.5rem;
+  }
+  .gs-sec + .gs-sec {
+    border-top: 1px solid var(--g-outline);
+  }
+  .gs-sec--lead {
+    padding-top: 0;
+  }
+  .gs-h2 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gs-p {
+    margin: 0 0 1rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--g-ink-2);
+    text-wrap: pretty;
+  }
+  .gs-sec--lead .gs-p {
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    color: var(--g-ink);
+  }
+  .gs-sec :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gs-sec :global(a:hover) {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  /* ── Vertical stepper: tonal number discs joined by a rule ── */
+  .gs-steps {
+    list-style: none;
+    margin: 0.5rem 0 1.5rem;
+    padding: 0;
+  }
+  .gs-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+  }
+  .gs-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: calc(1.125rem - 1px);
+    top: 2.5rem;
+    bottom: 0.25rem;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--g-outline);
+  }
+  .gs-step__n {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .gs-step__t {
+    margin: 0.35rem 0 0.2rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gs-step__d {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--g-ink-2);
+  }
+
+  /* ── Check list ── */
+  .gs-list {
+    list-style: none;
+    margin: 0.25rem 0 1.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .gs-list li {
+    position: relative;
+    padding-left: 2rem;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--g-ink-2);
+  }
+  .gs-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--color-brand-600);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  /* ── Material data table ── */
+  .gs-tbl-wrap {
+    margin: 0.5rem 0 1.5rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .gs-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+  .gs-tbl th,
+  .gs-tbl td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.55;
+    border-bottom: 1px solid var(--g-outline);
+  }
+  .gs-tbl tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  .gs-tbl thead > tr > * {
+    background: var(--g-surface-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--g-ink-2);
+  }
+  .gs-tbl tbody th {
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gs-tbl tbody td {
+    color: var(--g-ink-2);
+  }
+  .gs-tbl tbody tr:hover > * {
+    background: var(--g-surface-1);
+  }
+  /* Comparison: our column in the brand's tonal blue. */
+  .gs-tbl--compare thead th:last-child {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .gs-tbl--compare tbody td:last-child {
+    color: var(--g-ink);
+    background: color-mix(in srgb, var(--color-brand-50) 45%, #fff);
+  }
+
+  /* ── Included / costs extra ── */
+  .gs-scope {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+  .gs-scope--one {
+    grid-template-columns: 1fr;
+  }
+  .gs-scope__card {
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 1.25rem;
+    background: var(--g-surface-2);
+  }
+  .gs-scope__t {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gs-scope__card ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .gs-scope__card li {
+    position: relative;
+    padding-left: 1.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--g-ink-2);
+  }
+  .gs-scope__card li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.25rem;
+    text-align: center;
+    font-weight: 700;
+  }
+  .gs-scope__card--yes li::before {
+    content: '✓';
+    color: #188038;
+  }
+  .gs-scope__card--extra li::before {
+    content: '+';
+    color: #b06000;
+  }
+
+  @media (max-width: 640px) {
+    .gs-sec {
+      padding-top: 2.25rem;
+    }
+    .gs-p,
+    .gs-sec--lead .gs-p {
+      font-size: 1rem;
+    }
+    .gs-scope {
+      grid-template-columns: 1fr;
+    }
+    /* Each table row becomes a card; every value sits under its column's name. */
+    .gs-tbl-wrap {
+      border: 0;
+      border-radius: 0;
+      background: none;
+      overflow: visible;
+    }
+    .gs-tbl,
+    .gs-tbl tbody,
+    .gs-tbl tr,
+    .gs-tbl th,
+    .gs-tbl td {
+      display: block;
+      width: 100%;
+    }
+    .gs-tbl thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+    .gs-tbl tbody {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .gs-tbl tr {
+      border: 1px solid var(--g-outline);
+      border-radius: 1rem;
+      background: #fff;
+      overflow: hidden;
+    }
+    .gs-tbl tbody tr:hover > * {
+      background: none;
+    }
+    .gs-tbl tbody th {
+      padding: 0.85rem 1rem 0.35rem;
+      border: 0;
+      font-size: 1rem;
+    }
+    .gs-tbl tbody td {
+      padding: 0.35rem 1rem 0.85rem;
+      border: 0;
+    }
+    .gs-tbl tbody td + td {
+      border-top: 1px dashed var(--g-outline);
+      padding-top: 0.6rem;
+    }
+    .gs-tbl tbody td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 0.15rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--g-ink-3);
+    }
+    .gs-tbl tbody td[data-label='']::before {
+      display: none;
+    }
+    .gs-tbl--compare tbody td:last-child {
+      background: color-mix(in srgb, var(--color-brand-50) 45%, #fff);
+    }
+    .gs-tbl--compare tbody td:last-child::before {
+      color: var(--color-brand-700);
+    }
+  }
+</style>

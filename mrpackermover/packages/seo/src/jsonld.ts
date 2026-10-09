@@ -108,8 +108,13 @@ interface ServiceInput {
   siteOrigin: string;
   name: string;
   description?: string;
-  /** The serviceable city or locality name (never a premises). */
-  areaServed: string;
+  /**
+   * The serviceable city or locality name (never a premises), or several cities - a
+   * national service page lists the cities it picks up from.
+   */
+  areaServed: string | string[];
+  /** schema.org `serviceType`, when it differs from the name ("Bike transport"). */
+  serviceType?: string;
   /** Optional Offer, for city×service and route pages. Must match visible price. */
   offer?: { priceFrom: number; priceCurrency?: 'INR' };
 }
@@ -120,8 +125,10 @@ export function service(input: ServiceInput): JsonLd {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: input.name,
-    serviceType: input.name,
-    areaServed: { '@type': 'Place', name: input.areaServed },
+    serviceType: input.serviceType ?? input.name,
+    areaServed: Array.isArray(input.areaServed)
+      ? input.areaServed.map((name) => ({ '@type': 'City', name }))
+      : { '@type': 'Place', name: input.areaServed },
     provider: { '@id': orgId(input.siteOrigin) },
     ...(input.description ? { description: input.description } : {}),
   };

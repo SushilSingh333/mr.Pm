@@ -6,7 +6,16 @@
  * dropped, so the site keeps its built-in copy for them. List rows that lost a required
  * part are skipped rather than rendered half-empty.
  */
-import type { CopyOverrides, FaqCopy, HomePageCopy, LinkCopy, ServicesPageCopy } from '@mpm/shared';
+import type {
+  CopyOverrides,
+  FaqCopy,
+  HomePageCopy,
+  LinkCopy,
+  ServiceBlock,
+  ServicePageOverrides,
+  ServiceSection,
+  ServicesPageCopy,
+} from '@mpm/shared';
 
 type Row = Record<string, unknown>;
 type Id = string | number;
@@ -164,6 +173,87 @@ export function serviceCardOverrides(card: unknown): ServiceCardOverrides {
   set('homeLine', c.homeLine);
   set('anchor', c.linkText);
   return out;
+}
+
+/** One CMS content block → the page's block shape; undefined when it is unusable. */
+function serviceBlock(b: Row): ServiceBlock | undefined {
+  switch (b.blockType) {
+    case 'svcText': {
+      const body = str(b.body);
+      return body ? { kind: 'text', body } : undefined;
+    }
+    case 'svcSteps': {
+      const items = rows(b.items).flatMap((r) => {
+        const title = str(r.title);
+        return title ? [{ title, body: str(r.body) ?? '' }] : [];
+      });
+      return items.length ? { kind: 'steps', items } : undefined;
+    }
+    case 'svcList': {
+      const items = texts(b.items);
+      return items.length ? { kind: 'list', items } : undefined;
+    }
+    case 'svcTable': {
+      // Two columns unless the third has a heading or any cell. The first heading may
+      // be blank on purpose: the corner of a comparison table.
+      const three = Boolean(str(b.h3)) || rows(b.rows).some((r) => str(r.c3));
+      const columns = [str(b.h1) ?? '', str(b.h2) ?? '', ...(three ? [str(b.h3) ?? ''] : [])];
+      const body = rows(b.rows).flatMap((r) => {
+        const c1 = str(r.c1);
+        const c2 = str(r.c2);
+        if (!c1 || !c2) return [];
+        return [three ? [c1, c2, str(r.c3) ?? ''] : [c1, c2]];
+      });
+      return body.length ? { kind: 'table', columns, rows: body } : undefined;
+    }
+    case 'svcScope':
+      return { kind: 'scope' };
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Services → "Service page" → the overrides the service page lays over its brief
+ * (packages/shared/src/service-pages). A section with no usable content is dropped, and a
+ * list is sent only when it has rows - an empty list means "keep the brief's".
+ */
+export function servicePageOverrides(page: unknown): ServicePageOverrides {
+  const d = (page ?? {}) as Row;
+  const sections: ServiceSection[] = rows(d.sections).flatMap((r) => {
+    const blocks = rows(r.blocks)
+      .map(serviceBlock)
+      .filter((b): b is ServiceBlock => Boolean(b));
+    return blocks.length ? [{ heading: str(r.heading) ?? '', blocks }] : [];
+  });
+  return clean<Required<ServicePageOverrides>>({
+    subhead: str(d.subhead),
+    trust: rows(d.trust)
+      .map((r) => str(r.item))
+      .filter((t): t is string => Boolean(t)),
+    quoteNote: str(d.quoteNote),
+    sections,
+    faqHeading: str(d.faqHeading),
+    faqs: rows(d.faqs).flatMap((r) => {
+      const question = str(r.question);
+      const answer = str(r.answer);
+      return question && answer ? [{ question, answer }] : [];
+    }),
+    citiesHeading: str(d.citiesHeading),
+    citiesIntro: str(d.citiesIntro),
+    ctaHeading: str(d.ctaHeading),
+    ctaText: str(d.ctaText),
+    chip: str(d.chip),
+    cardTitle: str(d.cardTitle),
+    ctaCheck: str(d.ctaCheck),
+    ctaCall: str(d.ctaCall),
+    ctaWhatsapp: str(d.ctaWhatsapp),
+    related: rows(d.related).flatMap((r) => {
+      const label = str(r.label);
+      const href = str(r.href);
+      return label && href ? [{ label, href }] : [];
+    }),
+  }) as ServicePageOverrides;
 }
 
 export const idOf = (ref: unknown): Id | undefined =>

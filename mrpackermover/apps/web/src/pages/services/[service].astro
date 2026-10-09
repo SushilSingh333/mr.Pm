@@ -1,19 +1,33 @@
 ---
-import type { ServiceHubData } from '@mpm/shared';
+import type { ServiceHubData, ServicePage } from '@mpm/shared';
+import {
+  CLD_TRANSFORM,
+  SERVICE_PAGE_LABELS,
+  cldUrl,
+  pageWithCityCount,
+  plainText,
+  serviceCopy,
+  servicePage,
+} from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
 import { rowsOfType, dataOf } from '../../data/manifest.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import HeroBanner from '../../components/sections/HeroBanner.astro';
-import Band from '../../components/ui/Band.astro';
-import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
-import Inclusions from '../../components/sections/Inclusions.astro';
-import RelatedLinks from '../../components/sections/RelatedLinks.astro';
-import ValueProps from '../../components/sections/ValueProps.astro';
-import LocalNotes from '../../components/sections/LocalNotes.astro';
-import { SITE_ORIGIN } from '../../lib/site.js';
-import { heroForService } from '../../lib/hero.js';
+import ServiceEnquiry from '../../components/services/ServiceEnquiry.astro';
+import ServiceSections from '../../components/services/ServiceSections.astro';
+import { SITE_ORIGIN, PHONE_TEL, PHONE_DISPLAY, WHATSAPP_HREF } from '../../lib/site.js';
+import { heroAlt, heroForService } from '../../lib/hero.js';
+import { inlineHtml, paragraphsHtml } from '../../lib/rich-text.js';
 
-/** National service hub — parent of the city × service matrix. */
+/**
+ * National service page (/services/<slug>), in Google's Material style: a light hero with
+ * the enquiry form in its own card, then one reading column with an "On this page" list
+ * beside it, the FAQs as expansion panels, the cities as chips, and a tonal closing panel.
+ *
+ * Every service page uses exactly these pieces in this order; only the brief's words
+ * differ. The copy comes finished from the manifest - the brief with the editor's
+ * "Service page" fields laid over it - and the committed sample manifest CI builds from
+ * has none, so there the brief itself stands in.
+ */
 export function getStaticPaths() {
   return rowsOfType('service-hub')
     .filter((row) => row.path.startsWith('/services/'))
@@ -22,70 +36,975 @@ export function getStaticPaths() {
 
 const { row } = Astro.props;
 const data = dataOf<ServiceHubData>(row);
-// A manifest without the service's own prose - the committed sample that CI builds from
-// has none - must still render, not crash on `.length` of nothing.
-const editorial = data.editorial ?? [];
 
-// "Cities we serve" shows only the cities that actually offer this service (group
-// 'cities'); sibling-service links live in relatedLinks for the link graph but aren't
-// listed here. A city that didn't check this service is never shown → no 404.
+// Only the cities that actually offer this service - never a city whose
+// /packers-and-movers/<city>/<service> page does not exist.
 const cityLinks = row.relatedLinks.filter((l) => l.group === 'cities');
+// "Bike transport in Delhi": the sentence-case name, whatever capitals the CMS record
+// uses. The city is the part after the last " in ".
+const svcName = serviceCopy(row.slug)?.name ?? data.serviceName;
+const cityOf = (anchor: string): string => anchor.replace(/^.* in /, '');
+
+const brief = servicePage(row.slug);
+const page: ServicePage =
+  data.page ??
+  (brief
+    ? pageWithCityCount(brief, cityLinks.length || rowsOfType('city-hub').length)
+    : {
+        // A service with no brief at all: a plain page that is still true.
+        title: row.title,
+        metaDescription: row.metaDescription ?? '',
+        h1: row.h1,
+        subhead: `${data.serviceName} by our own trained crews, on one fixed, written quote.`,
+        trust: [],
+        quoteMode: 'home',
+        quoteNote: '',
+        sections: [{ heading: "What's included", blocks: [{ kind: 'scope' }] }],
+        faqHeading: '',
+        faqs: [],
+        citiesHeading: 'Cities we serve',
+        citiesIntro: '',
+        ctaHeading: 'Get one fixed, written price',
+        ctaText: 'Tell us what you are moving and where. A real person calls you back.',
+        related: [{ label: 'All services', href: '/services' }],
+        serviceType: data.serviceName,
+      });
+
+// Anchors for the "On this page" list: one per headed section, then the FAQs and cities.
+const slugify = (s: string): string =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48);
+const used = new Set<string>();
+const sections = page.sections.map((s) => {
+  let id = s.heading ? slugify(s.heading) : '';
+  while (id && used.has(id)) id += '-2';
+  if (id) used.add(id);
+  return { ...s, id };
+});
+// The sidebar lists the main sections only: the page breaks before the FAQs, and the
+// FAQs and cities run full width below the two-column part.
+const toc = sections.filter((s) => s.heading).map((s) => ({ id: s.id, label: s.heading }));
+
+const faqs = page.faqs.map((f) => ({
+  question: f.question,
+  answer: plainText(f.answer),
+  html: paragraphsHtml(f.answer),
+}));
+
+const image = heroForService(row.slug);
+// The photo: the one uploaded in the CMS (Cloudinary, sized for a banner), or the built-in
+// files for this service. Both slots - the strip and the photo under the heading - use it.
+const photo = page.photo
+  ? {
+      wide: cldUrl(page.photo.url, CLD_TRANSFORM.hero),
+      narrow: cldUrl(page.photo.url, CLD_TRANSFORM.hero),
+      fallback: cldUrl(page.photo.url, CLD_TRANSFORM.hero),
+      alt: page.photo.alt || heroAlt(image),
+    }
+  : {
+      wide: `/images/hero/${image}-full.webp`,
+      narrow: `/images/hero/${image}-narrow.webp`,
+      fallback: `/images/hero/${image}.jpg`,
+      alt: heroAlt(image),
+    };
+const webp = !page.photo; // only the built-in files have WebP variants on disk
+
+// The small fixed words, from the CMS where an editor set them.
+const L = {
+  chip: page.chip || SERVICE_PAGE_LABELS.chip,
+  cardTitle: page.cardTitle || SERVICE_PAGE_LABELS.cardTitle,
+  ctaCheck: page.ctaCheck || SERVICE_PAGE_LABELS.ctaCheck,
+  ctaCall: page.ctaCall || SERVICE_PAGE_LABELS.ctaCall,
+  ctaWhatsapp: page.ctaWhatsapp || SERVICE_PAGE_LABELS.ctaWhatsapp,
+};
+// On a phone the chip keeps only what comes before " · ".
+const [chipLead, ...chipRest] = L.chip.split(' · ');
+const chipMore = chipRest.join(' · ');
 
 const extraJsonLd = [
   jsonld.service({
     siteOrigin: SITE_ORIGIN,
-    name: `${data.serviceName} in India`,
-    areaServed: 'India',
+    name: row.h1,
+    serviceType: page.serviceType,
+    description: plainText(page.subhead),
+    // The cities it picks up from, as the brief's schema asks; India when none are live.
+    areaServed: cityLinks.length ? cityLinks.map((l) => cityOf(l.anchor)) : 'India',
   }),
+  jsonld.faqPage(faqs.map((f) => ({ question: f.question, answer: f.answer }))),
 ];
 ---
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
-  <div class="container-page">
-    <Breadcrumbs items={row.breadcrumbs} current={data.serviceName} />
-  </div>
+  <div class="gsv">
+    {/* ── Image strip: a slim photo banner across the top ─────────────────── */}
+    <div class="container-page gsv-strip-wrap">
+      <div class="gsv-strip">
+        {
+          /* The service's own photograph, cropped to a strip. A real <img>, so image search
+             and screen readers get it; eager, because it is near the top of the page. */
+        }
+        <picture>
+          {webp && <source type="image/webp" media="(min-width: 900px)" srcset={photo.wide} />}
+          {webp && <source type="image/webp" srcset={photo.narrow} />}
+          <img
+            src={photo.fallback}
+            alt={photo.alt}
+            width="1920"
+            height="800"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+        {/* What every brief promises, as a chip on the strip. */}
+        <a class="gsv-chip" href="#quote">
+          <svg viewBox="0 -960 960 960" width="18" height="18" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"
+            ></path>
+          </svg>
+          <span>{chipLead}{chipMore && <span class="gsv-chip__more"> · {chipMore}</span>}</span>
+        </a>
+      </div>
+    </div>
 
-  <HeroBanner
-    badge={data.serviceName}
-    h1={row.h1}
-    intro={data.summary ??
-      `${data.serviceName} handled by our own trained crews, with a fixed written quote and optional transit insurance.`}
-    image={heroForService(row.slug)}
-    prefillService={data.serviceName}
-  />
+    {/* ── Hero: the words on the left, the form card on the right ─────────── */}
+    <section class="gsv-hero" aria-label={data.serviceName}>
+      <div class="container-page gsv-hero__grid">
+        <div class="gsv-hero__text">
+          <nav class="gsv-crumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <span aria-hidden="true">›</span>
+            <a href="/services">Services</a>
+            <span aria-hidden="true">›</span>
+            <span aria-current="page">{svcName}</span>
+          </nav>
+          <h1 class="gsv-h1">{row.h1}</h1>
+          <p class="gsv-sub">{page.subhead}</p>
+          {
+            page.trust.length > 0 && (
+              <ul class="gsv-trust" aria-label="What you get">
+                {page.trust.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            )
+          }
+          {
+            /* The service photograph again, whole, under the words - the strip above shows
+               only a band of it. Laptop only: on a phone the strip is enough. */
+          }
+          <picture class="gsv-photo">
+            {webp && <source type="image/webp" srcset={photo.wide} />}
+            <img
+              src={photo.fallback}
+              alt=""
+              width="1920"
+              height="800"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        </div>
 
-  {
-    /* The service's own prose sits above the generic trust band: it is the only part
-       of this page written for this service, so it should not be below boilerplate. */
-    editorial.length > 0 && (
-      <Band alt label="About this service">
-        <LocalNotes
-          paragraphs={editorial}
-          heading={`What ${data.serviceName.toLowerCase()} actually involves`}
-          eyebrow="How it works"
+        <div class="gsv-card" id="quote">
+          <p class="gsv-card__t">{L.cardTitle}</p>
+          {page.quoteNote && <p class="gsv-card__note" set:html={inlineHtml(page.quoteNote)} />}
+          <ServiceEnquiry mode={page.quoteMode} serviceName={data.serviceName} />
+          <p class="gsv-card__alt">
+            Or call <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> ·
+            <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* ── Body: "On this page" beside one reading column ─────────────────── */}
+    <div class="container-page gsv-body">
+      {
+        toc.length > 2 && (
+          <aside class="gsv-toc" aria-label="On this page">
+            <p class="gsv-toc__t">On this page</p>
+            <ul>
+              {toc.map((t) => (
+                <li>
+                  <a href={`#${t.id}`} data-toc={t.id}>
+                    {t.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )
+      }
+
+      <div class="gsv-main">
+        <ServiceSections
+          sections={sections}
+          inclusions={data.inclusions}
+          exclusions={data.exclusions}
         />
-      </Band>
-    )
-  }
+      </div>
+    </div>
 
-  {
-    /* Without a heading this defaults to "House Shifting…", which read wrong on six of
-      the seven service pages. */
-  }
-  <Band label="Why us">
-    <ValueProps heading={`${data.serviceName} you can actually verify`} />
-  </Band>
+    {/* ── From the FAQs on, the page runs full width ─────────────────────── */}
+    {
+      faqs.length > 0 && (
+        <section class="gsv-band gsv-band--tint" aria-label="Questions">
+          <div class="container-page gsv-band__in">
+            <h2 class="gsv-h2" id="faqs">
+              {page.faqHeading || 'Questions'}
+            </h2>
+            <div class="gsv-faqs">
+              {faqs.map((f) => (
+                <details class="gsv-faq">
+                  <summary>
+                    <span>{f.question}</span>
+                    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                      <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="currentColor" />
+                    </svg>
+                  </summary>
+                  <div class="gsv-faq__a">
+                    {f.html.map((h) => (
+                      <p set:html={h} />
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
 
-  <Band alt label="Scope">
-    <div class="section-head"><h2>What's included</h2></div>
-    <Inclusions inclusions={data.inclusions} exclusions={data.exclusions} />
-  </Band>
+    {
+      cityLinks.length > 0 && (
+        <section class="gsv-band" aria-label="Cities">
+          <div class="container-page gsv-band__in">
+            <h2 class="gsv-h2" id="cities">
+              {page.citiesHeading}
+            </h2>
+            {page.citiesIntro && <p class="gsv-cities__intro">{page.citiesIntro}</p>}
+            <ul class="gsv-chips">
+              {cityLinks.map((l) => (
+                <li>
+                  <a href={l.path}>
+                    <svg viewBox="0 -960 960 960" width="18" height="18" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Z"
+                      />
+                    </svg>
+                    {`${svcName} in ${cityOf(l.anchor)}`}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
 
-  {
-    cityLinks.length > 0 && (
-      <Band label="Cities">
-        <RelatedLinks links={cityLinks} />
-      </Band>
-    )
-  }
+    {/* ── Closing panel ─────────────────────────────────────────────────── */}
+    <section class="container-page gsv-cta-wrap" aria-label="Get a price">
+      <div class="gsv-cta">
+        <div class="gsv-cta__copy">
+          <h2>{page.ctaHeading}</h2>
+          <p>{page.ctaText}</p>
+        </div>
+        <div class="gsv-cta__actions">
+          <a class="gbtn gbtn--filled" href="#quote">{L.ctaCheck}</a>
+          <a class="gbtn gbtn--tonal" href={`tel:${PHONE_TEL}`}>{L.ctaCall}</a>
+          <a
+            class="gbtn gbtn--outlined"
+            href={WHATSAPP_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {L.ctaWhatsapp}
+          </a>
+        </div>
+        {
+          page.related.length > 0 && (
+            <nav class="gsv-cta__related" aria-label="Related services">
+              <span>Related</span>
+              {page.related.map((l) => (
+                <a href={l.href}>{l.label}</a>
+              ))}
+            </nav>
+          )
+        }
+      </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<script>
+  /*
+    "On this page": light up the section being read.
+
+    The current section is the last one whose top has scrolled up to the line where a
+    clicked link lands it (the site's scroll-padding, just under the header) - so clicking a
+    link and scrolling to the same spot by hand always light the same row. At the very
+    bottom of the page the last section wins, since a short final section can never
+    reach that line.
+
+    A click lights its row at once and holds it until the smooth scroll has settled:
+    working it out mid-scroll is what used to leave the row before it lit.
+  */
+  const links = new Map<string, HTMLAnchorElement>();
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('.gsv-toc a[data-toc]')) {
+    links.set(a.dataset.toc ?? '', a);
+  }
+  const order = [...links.keys()];
+  const targets = order
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => Boolean(el));
+
+  if (targets.length) {
+    const toc = document.querySelector<HTMLElement>('.gsv-toc');
+    const setCurrent = (id: string): void => {
+      for (const [key, a] of links) a.toggleAttribute('aria-current', key === id);
+      // Keep the lit row inside the list's own scroll box. Done by hand: scrollIntoView
+      // would scroll the page as well.
+      const a = links.get(id);
+      if (toc && a && toc.scrollHeight > toc.clientHeight) {
+        const top = a.offsetTop - toc.offsetTop;
+        if (top < toc.scrollTop + 40) toc.scrollTop = Math.max(0, top - 40);
+        else if (top + a.offsetHeight > toc.scrollTop + toc.clientHeight - 40)
+          toc.scrollTop = top + a.offsetHeight - toc.clientHeight + 40;
+      }
+    };
+    // Where a clicked link lands a heading: the site's scroll-padding (the sticky header).
+    const line = (): number =>
+      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    const compute = (): string => {
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom) return targets[targets.length - 1]!.id;
+      let current = targets[0]!.id;
+      for (const el of targets) {
+        if (el.getBoundingClientRect().top <= line() + 12) current = el.id;
+      }
+      return current;
+    };
+
+    let held: string | null = null;
+    let release = 0;
+    let frame = 0;
+    const onScroll = (): void => {
+      if (held) {
+        // Keep the clicked row lit until the scroll stops moving.
+        window.clearTimeout(release);
+        release = window.setTimeout(() => {
+          held = null;
+          setCurrent(compute());
+        }, 140);
+        return;
+      }
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        setCurrent(compute());
+      });
+    };
+
+    for (const [id, a] of links) {
+      a.addEventListener('click', () => {
+        held = id;
+        setCurrent(id);
+        // A target already in place does not scroll at all; let go regardless.
+        window.clearTimeout(release);
+        release = window.setTimeout(() => {
+          held = null;
+        }, 1200);
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    setCurrent(compute());
+  }
+
+  // FAQs: opening one closes the others, like Google's own help pages.
+  const faqs = [...document.querySelectorAll<HTMLDetailsElement>('.gsv-faq')];
+  for (const d of faqs) {
+    d.addEventListener('toggle', () => {
+      if (d.open) for (const o of faqs) if (o !== d) o.open = false;
+    });
+  }
+</script>
+
+<style>
+  /* Google's neutral surfaces and outlines, with the site's own blue as the one accent. */
+  .gsv {
+    --g-ink: #1f1f1f;
+    --g-ink-2: #444746;
+    --g-ink-3: #5e5e5e;
+    --g-outline: #e1e3e1;
+    --g-outline-strong: #747775;
+    --g-surface-1: #f8fafd;
+    --g-surface-2: #f0f4f9;
+    color: var(--g-ink);
+    background:
+      radial-gradient(
+        60rem 34rem at 0% 0%,
+        color-mix(in srgb, var(--color-brand-50) 55%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(var(--g-surface-1), #fff 56rem);
+    background-repeat: no-repeat;
+    background-color: #fff;
+  }
+
+  /* ── Image strip: a slim, rounded photo banner across the top ── */
+  .gsv-strip-wrap {
+    padding-top: clamp(0.75rem, 1.6vw, 1.25rem);
+  }
+  .gsv-strip {
+    position: relative;
+    isolation: isolate;
+    height: clamp(9rem, 15vw, 12.5rem);
+    border-radius: 1.75rem;
+    overflow: hidden;
+    background: #202124;
+  }
+  .gsv-strip picture,
+  .gsv-strip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .gsv-strip img {
+    object-fit: cover;
+    object-position: center 45%;
+  }
+  /* A soft wash at the foot, so the chip reads on any photograph. */
+  .gsv-strip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(
+      100deg,
+      rgb(0 0 0 / 0.45) 0%,
+      rgb(0 0 0 / 0.12) 45%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+  /* A Material assist chip on glass: the one promise every brief makes. */
+  .gsv-chip {
+    position: absolute;
+    z-index: 1;
+    left: clamp(1rem, 2.4vw, 1.75rem);
+    bottom: clamp(1rem, 2.4vw, 1.5rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    max-width: calc(100% - 2rem);
+    min-height: 2.25rem;
+    padding: 0.4rem 0.95rem 0.4rem 0.75rem;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    border-radius: 0.5rem;
+    background: rgb(32 33 36 / 0.42);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+  .gsv-chip svg {
+    flex: none;
+  }
+  .gsv-chip:hover {
+    background: rgb(32 33 36 / 0.6);
+  }
+  .gsv-chip:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  /* ── Hero: light, the words on the left, the form card on the right ── */
+  .gsv-hero {
+    padding: clamp(1.5rem, 3vw, 2.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+  }
+  .gsv-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+  .gsv-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--g-ink-3);
+  }
+  .gsv-crumbs a {
+    color: var(--g-ink-2);
+    text-decoration: none;
+  }
+  .gsv-crumbs a:hover {
+    color: var(--color-brand-600);
+    text-decoration: underline;
+  }
+  .gsv-crumbs [aria-current] {
+    color: var(--g-ink);
+    font-weight: 500;
+  }
+  .gsv-h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4.2vw, 3.25rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gsv-sub {
+    margin: 1.1rem 0 0;
+    max-width: 38rem;
+    font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--g-ink-2);
+    text-wrap: pretty;
+  }
+  .gsv-trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1.25rem;
+    margin: 1.75rem 0 0;
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--g-outline);
+    list-style: none;
+  }
+  .gsv-trust li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--g-ink);
+  }
+  .gsv-trust li::before {
+    content: '';
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.05rem;
+    border-radius: 50%;
+    background: var(--color-brand-50)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d00b2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 60% no-repeat;
+  }
+
+  .gsv-photo {
+    display: block;
+    margin-top: 1.75rem;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: var(--g-surface-2);
+  }
+  .gsv-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The form card: Material elevation 1, large corners; follows the reader on a laptop. */
+  .gsv-card {
+    position: sticky;
+    top: 5.5rem;
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-radius: 1.75rem;
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 2px 6px 2px rgb(60 64 67 / 0.15);
+  }
+  .gsv-card__t {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gsv-card__note {
+    margin: 0.35rem 0 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--g-ink-3);
+  }
+  .gsv-card__alt {
+    margin: 0.9rem 0 0;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--g-ink-3);
+  }
+  .gsv-card__alt a {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gsv-card__alt a:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Body ── */
+  .gsv-body {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 46rem);
+    justify-content: center;
+    gap: clamp(2rem, 5vw, 5rem);
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    padding-bottom: 1rem;
+  }
+  .gsv-body:not(:has(.gsv-toc)) {
+    grid-template-columns: minmax(0, 46rem);
+  }
+  .gsv-toc {
+    position: sticky;
+    top: 6rem;
+    align-self: start;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.25rem;
+    /* A thin scrollbar that only shows while the pointer is over the list. */
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .gsv-toc:hover {
+    scrollbar-color: #c4c7c5 transparent;
+  }
+  .gsv-toc::-webkit-scrollbar {
+    width: 6px;
+  }
+  .gsv-toc::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    background: transparent;
+  }
+  .gsv-toc:hover::-webkit-scrollbar-thumb {
+    background: #c4c7c5;
+  }
+  .gsv-toc__t {
+    margin: 0 0 0.75rem;
+    padding-left: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gsv-toc ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--g-outline);
+  }
+  .gsv-toc a {
+    display: block;
+    margin-left: -1px;
+    padding: 0.45rem 0.75rem 0.45rem 1rem;
+    border-left: 2px solid transparent;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--g-ink-2);
+    text-decoration: none;
+    /* Full titles, wrapped - as Google's own "On this page" lists show them. A clamped
+       title left a sliver of its third line showing under the ellipsis. */
+    text-wrap: pretty;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+  .gsv-toc a:hover {
+    color: var(--g-ink);
+    background: var(--g-surface-1);
+  }
+  .gsv-toc a[aria-current] {
+    border-left-color: var(--color-brand-600);
+    color: var(--color-brand-700);
+    font-weight: 500;
+  }
+  .gsv-block {
+    padding: 3rem 0 0.5rem;
+    border-top: 1px solid var(--g-outline);
+  }
+  .gsv-h2 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+
+  /* ── Full-width bands below the two-column part: a clear break before the FAQs ── */
+  .gsv-band {
+    padding: clamp(2.75rem, 5vw, 4rem) 0;
+  }
+  .gsv-band--tint {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    background: var(--g-surface-1);
+    border-top: 1px solid var(--g-outline);
+    border-bottom: 1px solid var(--g-outline);
+  }
+  /* The cities band sits right above the closing panel, which brings its own space. */
+  .gsv-band:not(.gsv-band--tint) {
+    padding-bottom: 0;
+  }
+  .gsv-band__in {
+    max-width: 56rem;
+  }
+  .gsv-band .gsv-h2 {
+    margin-bottom: 1.25rem;
+  }
+  .gsv-band--tint .gsv-faqs {
+    background: #fff;
+  }
+
+  /* FAQs: Material expansion panels in one outlined container. */
+  .gsv-faqs {
+    border: 1px solid var(--g-outline);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .gsv-faq + .gsv-faq {
+    border-top: 1px solid var(--g-outline);
+  }
+  .gsv-faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.85rem 1rem 0.85rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--g-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .gsv-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .gsv-faq summary:hover {
+    background: var(--g-surface-1);
+  }
+  .gsv-faq summary:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: -2px;
+  }
+  .gsv-faq summary svg {
+    flex: none;
+    color: var(--g-ink-2);
+    transition: transform 0.2s;
+  }
+  .gsv-faq[open] summary svg {
+    transform: rotate(180deg);
+  }
+  .gsv-faq__a {
+    padding: 0 1.25rem 1.1rem;
+  }
+  .gsv-faq__a p {
+    margin: 0 0 0.6rem;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--g-ink-2);
+  }
+  .gsv-faq__a :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gsv-faq__a :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  /* Cities: Material assist chips. */
+  .gsv-cities__intro {
+    margin: 0 0 1.1rem;
+    font-size: 1.0625rem;
+    color: var(--g-ink-2);
+  }
+  .gsv-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gsv-chips a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.5rem;
+    padding: 0 1rem 0 0.75rem;
+    border: 1px solid var(--g-outline-strong);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--g-ink-2);
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+  .gsv-chips a svg {
+    color: var(--color-brand-600);
+  }
+  .gsv-chips a:hover {
+    background: var(--g-surface-2);
+    color: var(--g-ink);
+  }
+
+  /* ── Closing panel: tonal container, three Material buttons ── */
+  .gsv-cta-wrap {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  .gsv-cta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.5rem 2rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    border-radius: 1.75rem;
+    background: var(--color-brand-50);
+  }
+  .gsv-cta__copy h2 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gsv-cta__copy p {
+    margin: 0;
+    max-width: 36rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+  .gsv-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .gsv-cta__related {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-brand-600) 18%, transparent);
+    font-size: 0.875rem;
+  }
+  .gsv-cta__related span {
+    color: var(--g-ink-3);
+  }
+  .gsv-cta__related a {
+    color: var(--color-brand-700);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gsv-cta__related a:hover {
+    text-decoration: underline;
+  }
+  .gbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    padding: 0 1.5rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .gbtn--filled {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .gbtn--filled:hover {
+    background: var(--color-brand-700);
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 1px 3px 1px rgb(60 64 67 / 0.15);
+  }
+  .gbtn--tonal {
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .gbtn--tonal:hover {
+    background: var(--g-surface-1);
+  }
+  .gbtn--outlined {
+    border: 1px solid var(--g-outline-strong);
+    color: var(--color-brand-700);
+  }
+  .gbtn--outlined:hover {
+    background: color-mix(in srgb, var(--color-brand-600) 8%, transparent);
+  }
+  .gbtn:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  /* ── Smaller screens ── */
+  @media (max-width: 1100px) {
+    .gsv-body {
+      grid-template-columns: minmax(0, 46rem);
+    }
+    .gsv-toc {
+      display: none;
+    }
+  }
+  @media (max-width: 900px) {
+    /* Phone and tablet: one column - words, then the form, which stops following. */
+    .gsv-hero__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gsv-card {
+      position: static;
+    }
+    .gsv-photo {
+      display: none;
+    }
+    .gsv-strip {
+      height: clamp(7.5rem, 30vw, 10rem);
+    }
+    .gsv-cta {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .gsv-chip__more {
+      display: none;
+    }
+    .gsv-trust {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gsv-cta__actions .gbtn {
+      flex: 1 1 auto;
+    }
+    .gsv-card {
+      border-radius: 1.5rem;
+    }
+  }
+</style>

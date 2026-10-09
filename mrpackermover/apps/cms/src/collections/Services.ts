@@ -6,6 +6,7 @@ import {
   contentReadVersions,
 } from '../access/index.js';
 import { seoOverrideFields } from '../fields/seo.js';
+import { servicePageField } from '../fields/service-page.js';
 import { slugField } from '../fields/slug.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
 
@@ -37,15 +38,15 @@ export const Services: CollectionConfig = {
       defaultValue: false,
       admin: { description: 'Part of the corporate relocation silo (higher ticket).' },
     },
-    { name: 'summary', type: 'textarea' },
+    // Retired by "Service page" below (Oct 2026): the page is built from the per-service
+    // briefs now, section by section. Hidden rather than removed so no column is dropped
+    // and the old text stays readable in the database.
+    { name: 'summary', type: 'textarea', admin: { hidden: true } },
     {
       name: 'editorialNote',
       type: 'richText',
-      label: 'Page content',
-      admin: {
-        description:
-          'The prose that runs on the national service page: how the job actually works, what decides the price, what to have ready. Written per service, not templated.',
-      },
+      label: 'Page content (old)',
+      admin: { hidden: true },
     },
     { name: 'inclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
     { name: 'exclusions', type: 'array', fields: [{ name: 'item', type: 'text', required: true }] },
@@ -100,6 +101,7 @@ export const Services: CollectionConfig = {
         },
       ],
     },
+    servicePageField,
     seoOverrideFields('this service page'),
   ],
 };

@@ -1,0 +1,288 @@
+---
+import { inlineHtml } from '../../lib/rich-text.js';
+
+/**
+ * A "What | Who arranges it | When" table as what it really is for the reader: a to-do
+ * list for their move. Each row is a task they can tick off, with who handles it and when
+ * as small chips (any other column, such as "Applies to", becomes a chip too). A count and
+ * a bar show how far they have got, and the ticks are kept in this browser, so the list
+ * is still ticked when they come back to the page.
+ */
+interface Props {
+  columns: string[];
+  rows: string[][];
+  /** Unique on the page: the key the ticks are saved under. */
+  id: string;
+}
+const { columns, rows, id } = Astro.props;
+const whoIdx = columns.findIndex((c) => /who/i.test(c));
+const whenIdx = columns.findIndex((c) => /^when$/i.test(c.trim()));
+const others = columns.map((_, i) => i).filter((i) => i > 0 && i !== whoIdx && i !== whenIdx);
+---
+
+<div class="gck" data-gck={id} data-cols={columns.length}>
+  <div class="gck__head">
+    <p class="gck__t">Your moving checklist</p>
+    <p class="gck__n" aria-live="polite">
+      <span data-gck-done>0</span> of {rows.length} done
+    </p>
+  </div>
+  <div class="gck__bar" aria-hidden="true"><span data-gck-bar></span></div>
+  <ul class="gck__list">
+    {
+      rows.map((r, i) => (
+        <li>
+          <label class="gck__item">
+            <input type="checkbox" data-i={i} />
+            <span class="gck__box" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16">
+                <path
+                  d="M5 12.5l4.5 4.5L19 7.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="gck__body">
+              <span class="gck__what" set:html={inlineHtml(r[0] ?? '')} />
+              <span class="gck__meta">
+                {whoIdx > 0 && r[whoIdx] && (
+                  <span class="gck__chip">
+                    <svg viewBox="0 -960 960 960" width="15" height="15" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z"
+                      />
+                    </svg>
+                    <span class="gck__sr">{columns[whoIdx]}: </span>
+                    {r[whoIdx]}
+                  </span>
+                )}
+                {whenIdx > 0 && r[whenIdx] && (
+                  <span class="gck__chip gck__chip--when">
+                    <svg viewBox="0 -960 960 960" width="15" height="15" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"
+                      />
+                    </svg>
+                    <span class="gck__sr">{columns[whenIdx]}: </span>
+                    {r[whenIdx]}
+                  </span>
+                )}
+                {others.map((ci) =>
+                  r[ci] ? (
+                    <span class="gck__chip gck__chip--other">
+                      <span class="gck__k">{columns[ci]}</span> {r[ci]}
+                    </span>
+                  ) : null,
+                )}
+              </span>
+            </span>
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  for (const box of document.querySelectorAll<HTMLElement>('[data-gck]')) {
+    const key = `mpm-check:${location.pathname}:${box.dataset.gck}`;
+    const inputs = [...box.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+    const done = box.querySelector<HTMLElement>('[data-gck-done]');
+    const bar = box.querySelector<HTMLElement>('[data-gck-bar]');
+    // Ticks live in this browser only - a convenience, never required for the page.
+    let saved: number[] = [];
+    try {
+      saved = JSON.parse(localStorage.getItem(key) ?? '[]') as number[];
+    } catch {
+      saved = [];
+    }
+    for (const i of saved) if (inputs[i]) inputs[i]!.checked = true;
+    const update = (): void => {
+      const ticked = inputs.flatMap((el, i) => (el.checked ? [i] : []));
+      if (done) done.textContent = String(ticked.length);
+      if (bar) bar.style.transform = `scaleX(${ticked.length / Math.max(1, inputs.length)})`;
+      box.toggleAttribute('data-complete', ticked.length === inputs.length);
+      try {
+        localStorage.setItem(key, JSON.stringify(ticked));
+      } catch {
+        /* storage blocked: the ticks just won't be remembered */
+      }
+    };
+    for (const el of inputs) el.addEventListener('change', update);
+    update();
+  }
+</script>
+
+<style>
+  .gck {
+    max-width: 56rem;
+    margin: 0.5rem auto 1.5rem;
+    padding: 1.25rem 1.25rem 0.75rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.5rem;
+    background: #fff;
+  }
+  .gck__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 0.25rem;
+  }
+  .gck__t {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gck__n {
+    margin: 0;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--g-ink-3);
+  }
+  .gck[data-complete] .gck__n {
+    color: #188038;
+    font-weight: 500;
+  }
+  .gck__bar {
+    height: 6px;
+    margin: 0.75rem 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: var(--g-surface-2);
+    overflow: hidden;
+  }
+  .gck__bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-brand-600);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .gck[data-complete] .gck__bar > span {
+    background: #188038;
+  }
+  .gck__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gck__list li + li {
+    border-top: 1px solid var(--g-outline);
+  }
+  .gck__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.95rem 0.5rem;
+    border-radius: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  .gck__item:hover {
+    background: var(--g-surface-1);
+  }
+  .gck__item input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .gck__box {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.05rem;
+    border: 2px solid var(--g-outline-strong);
+    border-radius: 0.45rem;
+    color: transparent;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s,
+      color 0.15s;
+  }
+  .gck__item input:checked + .gck__box {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .gck__item input:focus-visible + .gck__box {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .gck__body {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+  .gck__what {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--g-ink);
+    transition: color 0.15s;
+  }
+  .gck__item input:checked ~ .gck__body .gck__what {
+    color: var(--g-ink-3);
+    text-decoration: line-through;
+    text-decoration-color: var(--g-outline-strong);
+  }
+  .gck__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .gck__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--g-surface-2);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--g-ink-2);
+  }
+  .gck__chip svg {
+    flex: none;
+    color: var(--g-ink-3);
+  }
+  .gck__chip--when {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .gck__chip--when svg {
+    color: var(--color-brand-600);
+  }
+  .gck__k {
+    font-weight: 500;
+  }
+  .gck__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  @media (max-width: 640px) {
+    .gck {
+      padding: 1rem 0.75rem 0.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gck__bar > span {
+      transition: none;
+    }
+  }
+</style>

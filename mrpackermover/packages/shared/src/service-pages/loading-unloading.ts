@@ -118,6 +118,47 @@ export const loadingUnloading: ServicePage = {
       ],
     },
     {
+      heading: 'Packing your own cartons so they load safely',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'The crew can only stack what holds its shape. A carton that sags or bursts on the stairs puts the whole load at risk.',
+        },
+        {
+          kind: 'list',
+          items: [
+            'Put books and kitchen items in small cartons, so no box is too heavy to lift safely.',
+            'Fill gaps with paper or clothes so nothing moves inside.',
+            'Tape the bottom and the top across every seam.',
+            'Close each carton flat on top, so the next layer sits level.',
+            'Mark fragile cartons on every side, so the crew stacks them on top.',
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Damage inside cartons you packed yourself is not covered the same way as handling damage. If your fragile items worry you, book our [packing and unpacking services](/services/packing-unpacking).',
+        },
+      ],
+    },
+    {
+      heading: 'Is your truck ready for loading?',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'A tied load is only as good as the truck under it. Check these before the crew arrives.',
+        },
+        {
+          kind: 'list',
+          items: [
+            'The truck bed is swept, dry and free of oil, nails or sharp edges.',
+            'An open truck carries a tarpaulin in case of rain.',
+            'The truck has side rails or hooks for the ropes.',
+            'The driver has both addresses and knows where the truck can legally stop at each end.',
+          ],
+        },
+      ],
+    },
+    {
       heading: 'Trained crew vs daily-wage labour: what is the difference?',
       blocks: [
         {
@@ -131,6 +172,7 @@ export const loadingUnloading: ServicePage = {
             ],
             ['Training', 'None', 'Trained by us in lifting, stacking and tying'],
             ['Ropes and straps', 'Often none', 'Brought by us'],
+            ['Lift walls and door frames', 'Rarely protected', 'Protected on the way out'],
             [
               'Price',
               'Bargained on the spot, often raised mid-job',
@@ -187,6 +229,10 @@ export const loadingUnloading: ServicePage = {
             'Make sure the truck is at the gate when the crew arrives, so the crew can start on time.',
           ],
         },
+        {
+          kind: 'text',
+          body: 'When the crew arrives, show the crew lead the heavy and fragile pieces first. Before the truck leaves, walk the empty flat once more and check the lofts, balconies and cupboards.',
+        },
       ],
     },
   ],
@@ -219,6 +265,11 @@ export const loadingUnloading: ServicePage = {
       question: 'What if something gets damaged while being carried?',
       answer:
         'Tell the crew lead on the spot. Handling damage by our crew is covered by our written claims process. See [how claims work](/claims).',
+    },
+    {
+      question: 'Is damage inside cartons I packed covered?',
+      answer:
+        'Not the same way. Our claims process covers handling damage by our crew, so leave fragile items to our packers if they worry you.',
     },
     {
       question: 'Can you move goods within the same building or society?',

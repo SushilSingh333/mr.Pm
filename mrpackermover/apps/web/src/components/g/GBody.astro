@@ -1,0 +1,418 @@
+---
+import ServiceSections from '../services/ServiceSections.astro';
+import type { AnchoredSection } from '../../lib/page-sections.js';
+import { iconSvg } from '../../lib/icons.js';
+
+/**
+ * The body of a Google-style page, laid out on one centre line: a slim sticky bar that
+ * names the section being read, then the brief's sections as full-width bands that
+ * alternate white and tinted, each with its content in one centred column. Shared by the
+ * service, city and locality pages.
+ *
+ * The bar shows the current section's full question, where it sits ("3 / 6") and a thin
+ * line filling as the reader goes through the sections. Opening it drops a numbered list
+ * of every section - full titles, nothing cut off - and choosing one scrolls there. Long
+ * question-style headings never fitted a row of tabs; this never truncates them.
+ *
+ * "Current" is the last section whose heading has scrolled up to the line where a chosen
+ * section lands (the scroll-padding: the header plus this bar), so choosing and scrolling
+ * by hand always agree. A choice lights its row at once and holds it until the smooth
+ * scroll has settled.
+ */
+interface Props {
+  sections: AnchoredSection[];
+  toc: { id: string; label: string }[];
+  /** "What's included / What costs extra", for sections that carry a scope block. */
+  inclusions?: string[];
+  exclusions?: string[];
+  /** The callout at the end of the cost section (city and locality pages). */
+  priceCta?: { title: string; text: string; label: string };
+}
+const { sections, toc, inclusions = [], exclusions = [], priceCta } = Astro.props;
+---
+
+{
+  /* One box around the bar and the sections, so the sticky bar stops where the sections
+    end instead of following the reader into the FAQs and the footer. */
+}
+<div class="gsv-bodywrap">
+  {
+    toc.length > 2 && (
+      <nav class="gsv-nav" aria-label="On this page">
+        <div class="gsv-nav__bar">
+          <button
+            type="button"
+            class="container-page gsv-nav__btn"
+            aria-expanded="false"
+            aria-controls="gsv-toc"
+          >
+            <span class="gsv-nav__ic" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                set:html={iconSvg('list')}
+              />
+            </span>
+            <span class="gsv-nav__k">On this page</span>
+            <span class="gsv-nav__cur" data-nav-cur>
+              {toc[0]!.label}
+            </span>
+            <span class="gsv-nav__n" data-nav-n>
+              1 / {toc.length}
+            </span>
+            <svg
+              class="gsv-nav__chev"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              aria-hidden="true"
+            >
+              <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="currentColor" />
+            </svg>
+          </button>
+          <span class="gsv-nav__progress" aria-hidden="true">
+            <span data-nav-progress />
+          </span>
+        </div>
+        <div class="gsv-toc" id="gsv-toc">
+          <ol class="container-page">
+            {toc.map((t, i) => (
+              <li>
+                <a href={`#${t.id}`} data-toc={t.id}>
+                  <span class="gsv-toc__n">{i + 1}</span>
+                  <span data-toc-label>{t.label}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    )
+  }
+
+  <div class="gsv-sections">
+    <ServiceSections
+      sections={sections}
+      inclusions={inclusions}
+      exclusions={exclusions}
+      priceCta={priceCta}
+    />
+  </div>
+</div>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('.gsv-nav');
+  const btn = nav?.querySelector<HTMLButtonElement>('.gsv-nav__btn');
+  const cur = nav?.querySelector<HTMLElement>('[data-nav-cur]');
+  const num = nav?.querySelector<HTMLElement>('[data-nav-n]');
+  const bar = nav?.querySelector<HTMLElement>('[data-nav-progress]');
+  const wrap = document.querySelector<HTMLElement>('.gsv-bodywrap');
+
+  const links = new Map<string, HTMLAnchorElement>();
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('.gsv-toc a[data-toc]')) {
+    links.set(a.dataset.toc ?? '', a);
+  }
+  const ids = [...links.keys()];
+  const targets = ids
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => Boolean(el));
+
+  const setOpen = (open: boolean): void => {
+    if (!nav || !btn) return;
+    nav.toggleAttribute('data-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  };
+  btn?.addEventListener('click', () => setOpen(!nav?.hasAttribute('data-open')));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav?.hasAttribute('data-open')) {
+      setOpen(false);
+      btn?.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (nav?.hasAttribute('data-open') && !nav.contains(e.target as Node)) setOpen(false);
+  });
+
+  if (targets.length) {
+    const setCurrent = (id: string): void => {
+      for (const [key, a] of links) a.toggleAttribute('aria-current', key === id);
+      const i = ids.indexOf(id);
+      if (i < 0) return;
+      const label = links.get(id)?.querySelector('[data-toc-label]')?.textContent ?? '';
+      if (cur) cur.textContent = label;
+      if (num) num.textContent = `${i + 1} / ${ids.length}`;
+    };
+    // How far through the sections the reader is, for the line under the bar.
+    const progress = (): void => {
+      if (!bar || !wrap) return;
+      const r = wrap.getBoundingClientRect();
+      const start = window.innerHeight * 0.35;
+      const done = (start - r.top) / Math.max(1, r.height - start);
+      bar.style.transform = `scaleX(${Math.min(1, Math.max(0, done))})`;
+    };
+    // Where a chosen section lands a heading: the scroll-padding (header + bar).
+    const line = (): number =>
+      parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    const compute = (): string => {
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom) return targets[targets.length - 1]!.id;
+      let current = targets[0]!.id;
+      for (const el of targets) {
+        if (el.getBoundingClientRect().top <= line() + 12) current = el.id;
+      }
+      return current;
+    };
+
+    let held: string | null = null;
+    let release = 0;
+    let frame = 0;
+    const onScroll = (): void => {
+      progress();
+      if (held) {
+        // Keep the chosen row lit until the scroll stops moving.
+        window.clearTimeout(release);
+        release = window.setTimeout(() => {
+          held = null;
+          setCurrent(compute());
+        }, 140);
+        return;
+      }
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        setCurrent(compute());
+      });
+    };
+
+    for (const [id, a] of links) {
+      a.addEventListener('click', () => {
+        held = id;
+        setCurrent(id);
+        setOpen(false);
+        // A target already in place does not scroll at all; let go regardless.
+        window.clearTimeout(release);
+        release = window.setTimeout(() => {
+          held = null;
+        }, 1200);
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    setCurrent(compute());
+    progress();
+  }
+</script>
+
+<style>
+  /* A chosen section lands its heading below the header (68px) and this bar. */
+  :global(html:has(.gsv-nav)) {
+    scroll-padding-top: 132px;
+  }
+
+  /* ── The bar: solid, slim, sticky under the site header ── */
+  .gsv-nav {
+    position: sticky;
+    top: 68px;
+    z-index: 40;
+  }
+  .gsv-nav__bar {
+    position: relative;
+    background: #fff;
+    border-bottom: 1px solid var(--g-outline);
+    box-shadow: 0 1px 2px rgb(60 64 67 / 0.08);
+  }
+  .gsv-nav__btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    height: 3.25rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    color: var(--g-ink);
+    cursor: pointer;
+  }
+  .gsv-nav__btn:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: -4px;
+    border-radius: 0.75rem;
+  }
+  .gsv-nav__ic {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  .gsv-nav__k {
+    flex: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--g-ink-3);
+  }
+  .gsv-nav__k::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1rem;
+    margin-left: 0.75rem;
+    vertical-align: -0.2rem;
+    background: var(--g-outline);
+  }
+  .gsv-nav__cur {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .gsv-nav__n {
+    flex: none;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--g-surface-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--g-ink-2);
+  }
+  .gsv-nav__chev {
+    flex: none;
+    color: var(--g-ink-2);
+    transition: transform 0.2s;
+  }
+  .gsv-nav[data-open] .gsv-nav__chev {
+    transform: rotate(180deg);
+  }
+  /* A hairline that fills as the reader goes through the sections. */
+  .gsv-nav__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    overflow: hidden;
+  }
+  .gsv-nav__progress > span {
+    display: block;
+    height: 100%;
+    background: var(--color-brand-600);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  /* ── The list: every section, numbered, full titles ── */
+  .gsv-toc {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    max-height: min(70vh, 32rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: #fff;
+    border-bottom: 1px solid var(--g-outline);
+    box-shadow: 0 12px 28px rgb(32 33 36 / 0.16);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 0.15s,
+      transform 0.15s,
+      visibility 0s linear 0.15s;
+  }
+  .gsv-nav[data-open] .gsv-toc {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.15s,
+      transform 0.15s,
+      visibility 0s;
+  }
+  /* Lined up with the bar above it; two columns where there is room. */
+  .gsv-toc ol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.125rem 1rem;
+    margin: 0 auto;
+    padding-top: 0.75rem;
+    padding-bottom: 1rem;
+    list-style: none;
+  }
+  .gsv-toc a {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--g-ink-2);
+    text-decoration: none;
+  }
+  .gsv-toc a:hover {
+    background: var(--g-surface-1);
+    color: var(--g-ink);
+  }
+  .gsv-toc a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: -2px;
+  }
+  .gsv-toc__n {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--g-surface-2);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--g-ink-2);
+  }
+  .gsv-toc a[aria-current] {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    font-weight: 500;
+  }
+  .gsv-toc a[aria-current] .gsv-toc__n {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+
+  @media (max-width: 900px) {
+    .gsv-toc ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 640px) {
+    .gsv-nav__k {
+      display: none;
+    }
+    .gsv-nav__btn {
+      gap: 0.6rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gsv-toc,
+    .gsv-nav[data-open] .gsv-toc,
+    .gsv-nav__chev {
+      transition: none;
+    }
+  }
+</style>

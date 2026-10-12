@@ -16,6 +16,8 @@ import { checkBannedEntities } from './checks/banned-entities.js';
 import { checkStatusCodes } from './checks/status-codes.js';
 import { checkHeadTags } from './checks/head-tags.js';
 import { checkSeoResolution } from './checks/seo-resolution.js';
+import { checkReleasePlan } from './checks/release-plan.js';
+import { checkInternalLinks } from './checks/internal-links.js';
 import type { CheckResult } from './checks/load.js';
 
 const checks: Array<() => CheckResult> = [
@@ -28,6 +30,8 @@ const checks: Array<() => CheckResult> = [
   checkHeadTags,
   checkSeoResolution,
   checkBannedEntities,
+  checkReleasePlan,
+  checkInternalLinks,
 ];
 
 let failed = 0;

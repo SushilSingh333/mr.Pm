@@ -23,7 +23,7 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'MrMoverPacker plans office shifting services backwards from Monday morning, the moment your team needs to log in. Desks, files and IT move while the building is empty, on one fixed, itemised price you approve before we start.\n\nEvery carton is labelled to a seat, a cabin or a store room. Workstations are reinstalled at the new site. Server decommissioning, structured cabling and anything under a support contract stay with your IT vendor. We plan the IT handover with them.\n\nTo fix the price, book a free video survey of both floors, the server room and the lift lobby, or ask for an in-person survey.',
+          body: 'MrMoverPacker plans office shifting services backwards from Monday morning, when your team logs in. Desks, files and IT move while the building is empty, on one fixed, itemised price you approve first.\n\nTo fix the price, book a free video survey of both floors, the server room and the lift lobby, or an in-person survey.',
         },
       ],
     },
@@ -32,7 +32,7 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'On an office move, the trucks are the cheap part; the expensive part is every seat that cannot log in on Monday. Price one lost Monday morning in seats and salary before you compare quotes.',
+          body: 'Trucks are the cheap part of an office move. The expensive part is every seat that cannot log in on Monday, so price one lost morning first.',
         },
         {
           kind: 'table',
@@ -42,19 +42,15 @@ export const officeShifting: ServicePage = {
             [
               'B',
               'Cost of one seat for one working hour',
-              'Monthly salary and overhead per seat, divided by working hours in the month',
+              'Monthly salary and overhead per seat, divided by working hours',
             ],
             ['C', 'Hours lost if the move runs into Monday', 'Count from your normal start time'],
-            [
-              'A × B × C',
-              'What one lost morning costs you',
-              'Set it beside the total on your moving quote',
-            ],
+            ['A × B × C', 'What one lost morning costs you', 'Set it beside your moving quote'],
           ],
         },
         {
           kind: 'text',
-          body: "That figure is why we move desks after Friday close and split larger floors across two weekends. A cheaper quote that leaves desks unbuilt at your Monday start time costs more than it saved.\n\nIf your team's desks are going to another country, see [moving an office abroad](/services/international-relocation) or [all our moving services](/services).",
+          body: "A cheaper quote that leaves desks unbuilt at your Monday start time costs more than it saved.\n\nIf your team's desks are going to another country, see [moving an office abroad](/services/international-relocation) or [all our moving services](/services).",
         },
       ],
     },
@@ -63,7 +59,7 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Desks usually move between Friday close and Sunday night, while the floor is empty. On larger floors, we split the move across two weekends so half your desks stay in use.',
+          body: 'Desks usually move between Friday close and Sunday night, while the floor is empty. Larger floors split across two weekends so half your desks stay in use.',
         },
         {
           kind: 'table',
@@ -71,26 +67,26 @@ export const officeShifting: ServicePage = {
           rows: [
             [
               'Well before the move',
-              'Building approvals filed at both sites. Seat map and floor plan agreed. Crew names sent to building security.',
+              'Building approvals filed at both sites. Seat map and floor plan agreed.',
             ],
             [
               'Friday, after close',
-              'Each workstation photographed. IT hardware unplugged and packed. Desks dismantled. Every carton labelled to its new seat.',
+              'Workstations photographed, IT unplugged and packed, desks dismantled, cartons labelled to new seats.',
             ],
             [
               'Saturday',
-              'Loading, transport in a separate vehicle carrying only your goods, and unloading floor by floor to the seat map',
+              'Loading, transport in a separate vehicle with only your goods, unloading floor by floor to the seat map',
             ],
             [
               'Sunday',
-              'Desks rebuilt and workstations reinstalled. Your IT vendor reconnects the network and servers. Department heads walk their own space.',
+              'Desks rebuilt, workstations reinstalled. Your IT vendor reconnects the network and servers. Department heads walk their space.',
             ],
             ['Monday morning', 'Your team logs in.'],
           ],
         },
         {
           kind: 'text',
-          body: 'For an intercity move, we pack the desks in one of our pickup cities. Your quote gives a dated delivery window, and that decides whether desks are rebuilt that weekend or the next.\n\nFor the planning on your side, from seat plans to IT cut-over, read [our guide to sequencing an office move](/blog/office-relocation-without-downtime).',
+          body: 'For an intercity move, we pack the desks in one of our pickup cities. The dated delivery window on your quote decides whether desks are rebuilt that weekend or the next.\n\nFor your side, from seat plans to IT cut-over, read [our guide to sequencing an office move](/blog/office-relocation-without-downtime).',
         },
       ],
     },
@@ -99,22 +95,23 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Commercial towers usually need notice for after-hours access, a service lift booking and our crew names, so we file that paperwork well before the first desk moves.',
+          body: 'Commercial towers need notice for after-hours work. We file it well before the first desk moves.',
         },
         {
           kind: 'table',
           columns: ['Approval', 'Who files it'],
           rows: [
-            ['After-hours access notice, at both buildings', 'We file it with your admin team'],
-            ['Service lift booking, at both buildings', 'We file it with your admin team'],
-            ['Crew name list and vehicle number, for building security', 'We send it'],
-            ['Loading bay or truck parking slot', 'We file it with your admin team'],
+            [
+              'After-hours access notice and service lift booking at both buildings, plus a loading bay or truck parking slot',
+              'We file them with your admin team',
+            ],
+            ['Crew names and vehicle number, for building security', 'We send them'],
             ['Material outward pass, if the old building uses one', 'Your admin team signs it'],
           ],
         },
         {
           kind: 'text',
-          body: "Get both buildings' after-hours rules in writing, because the lift timings at each end decide which departments move on which night.",
+          body: "Get both buildings' after-hours rules in writing. The lift timings at each end decide which departments move on which night.",
         },
       ],
     },
@@ -123,36 +120,31 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Our crew handles desks, files and hardware. Anything that could void a support contract or needs a network engineer stays with your IT vendor. We agree IT handover times with them before Friday.',
+          body: 'Anything that could void a support contract or needs a network engineer stays with your IT vendor. We agree handover times with them before Friday.',
         },
         {
           kind: 'table',
           columns: ['Task', 'Who does it'],
           rows: [
             ['Packing desks, drawers, files and IT hardware', 'Our crew'],
-            ['Photographing each workstation before dismantling', 'Our crew'],
             ['Dismantling and rebuilding desks and storage units', 'Our crew'],
-            [
-              'Reinstalling workstations: monitors, CPUs and peripherals back on the right desk',
-              'Our crew',
-            ],
+            ['Reinstalling monitors, CPUs and peripherals on the right desk', 'Our crew'],
             [
               'Shutting down and decommissioning servers',
-              'Your IT vendor. Listed on our quote as an optional add-on',
+              'Your IT vendor. An optional add-on on our quote',
             ],
             [
               'Structured network cabling at the new site',
-              'Coordinated with your IT vendor. Listed on our quote as an optional add-on',
+              'Coordinated with your IT vendor. An optional add-on on our quote',
             ],
             ['Equipment under a support contract', 'Your IT vendor, so the contract stays valid'],
             ['Network and login testing', 'Your IT vendor'],
-            ['Seat map, floor plan, list of furniture that is not moving', 'Your admin team'],
             ['Final sign-off at the new office', 'One named person from your side'],
           ],
         },
         {
           kind: 'text',
-          body: 'If your own staff will carry and set up desks, book only [packing done by us, the rest by your staff](/services/packing-unpacking). If you have your own transport and only need hands for desks and cartons, book [a crew for loading and unloading only](/services/loading-unloading). If you run several offices or move departments every year, [multi-site and repeat moves under one agreement](/corporate) puts them under one MSA.',
+          body: 'If your staff will carry and set up desks, book only [packing done by us, the rest by your staff](/services/packing-unpacking). If you have transport, book [a crew for loading and unloading only](/services/loading-unloading). Several offices or yearly department moves can run as [multi-site and repeat moves under one agreement](/corporate).',
         },
       ],
     },
@@ -161,18 +153,14 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Every carton carries a label that maps to a destination: a seat number, a cabin or a store room. The crew unloads to the seat map, floor by floor.',
+          body: 'Every carton, desk part and IT unit carries the code of its seat, cabin or store room. The crew unloads to the seat map, floor by floor.',
         },
         {
           kind: 'steps',
           items: [
             {
               title: 'Seat map',
-              body: 'Your admin team gives us the new floor plan with seats marked. Every seat, cabin and store room gets a code, labelled by team and floor.',
-            },
-            {
-              title: 'Labels',
-              body: 'Every carton, desk part and IT unit gets the code of the seat it is going to.',
+              body: 'Your admin team marks seats on the new floor plan. Every seat, cabin and store room gets a code by team and floor.',
             },
             {
               title: 'Photos',
@@ -180,11 +168,11 @@ export const officeShifting: ServicePage = {
             },
             {
               title: 'Files',
-              body: 'Files are packed in sequence, never tipped loose into boxes. A cabinet unpacks in the order it was filled.',
+              body: 'Files are packed in sequence, never tipped loose into boxes, so a cabinet unpacks in the order it was filled.',
             },
             {
               title: 'Inventory',
-              body: 'Every carton goes on a labelled inventory, so your admin team can audit by department on arrival. The photo inventory is shared on WhatsApp before anything leaves.',
+              body: 'Every carton goes on a labelled inventory, so your admin team can audit by department. The photo inventory is shared on WhatsApp before anything leaves.',
             },
             {
               title: 'Department sign-off',
@@ -199,22 +187,22 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The survey counts seats, not rooms; [how our fixed pricing works](/pricing) explains the rest of the method.',
+          body: 'The survey counts seats, not rooms. [How our fixed pricing works](/pricing) explains the rest.',
         },
         {
           kind: 'table',
           columns: ['Input', 'Why it moves the price'],
           rows: [
-            ['Seats and workstations', 'Each one is photographed, dismantled, moved and rebuilt'],
+            ['Seats and workstations', 'Each is photographed, dismantled, moved and rebuilt'],
             [
               'IT units: monitors, CPUs, printers',
-              'Each is packed and labelled on its own. Monitors get foam corners and a rigid carton, and stay upright',
+              'Each is packed and labelled alone. Monitors go upright in a rigid carton with foam corners',
             ],
-            ['Files and records', 'Packing in sequence takes more cartons and more time'],
+            ['Files and records', 'Packing in sequence takes more cartons and time'],
             ['Furniture that must come apart', 'Crew time at both ends'],
             [
               'Floors and service lift at each building',
-              'Lift slots and stairs set how long loading takes',
+              'Lift slots and stairs set the loading time',
             ],
             ['Distance and truck size', 'Local and intercity moves are priced separately'],
             ['Packing level', 'Basic cartons and wrap, or 3-layer wrap with crates'],
@@ -222,14 +210,14 @@ export const officeShifting: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'Before the survey, settle three things about your seats and furniture.',
+          body: 'Before the survey, settle three things.',
         },
         {
           kind: 'list',
           items: [
-            'What is not moving. Workstations and cabinets left over from past teams are the easiest money to save: leave them off the move.',
-            "Who signs off at the new office. One named person needs the authority to move a team's seats on the night.",
-            'The floor plan. With seats marked, the quote covers the whole weekend rather than the parts we could see from a call.',
+            'What is not moving. Leftover workstations and cabinets from past teams are the easiest saving.',
+            "Who signs off. One named person needs the authority to move a team's seats on the night.",
+            'The floor plan. With seats marked, the quote covers the whole weekend.',
           ],
         },
       ],
@@ -239,12 +227,12 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Tell us what you are moving and where it is going. You get one price for the whole job, itemised and in writing, with nothing added on moving day.\n\nThe written quote is the price you pay. Anything that could change it, floor rise, long carry, extra packing, is itemised up front, never sprung on you on delivery day.',
+          body: 'Anything that could change your price, such as floor rise, long carry or extra packing, is itemised up front and never added on delivery day.',
         },
         { kind: 'scope' },
         {
           kind: 'text',
-          body: "One move coordinator owns the plan from survey to department sign-off.\n\nA token advance books the weekend, and the balance is due on completion, after the last department signs off. If seats or departments are added after the survey, we confirm the revised charge before doing the work. To check another mover's quote for the same desks and IT, read [what a fair moving quote includes](/blog/what-a-fair-moving-quote-includes).",
+          body: "One move coordinator owns the plan from survey to department sign-off. A token advance books the weekend, and the balance is due after final sign-off.\n\nIf seats or departments are added after the survey, we confirm the revised charge first. To check another mover's quote, read [what a fair moving quote includes](/blog/what-a-fair-moving-quote-includes).",
         },
       ],
     },
@@ -253,7 +241,7 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: "Every crew and vehicle is ID-verified. Check who's coming, and in what vehicle, before they load. Building security gets the same names before Friday, so check each crew member's ID at the door before a single desk is unplugged.\n\nOptional transit cover, shown as a clear line item on your quote, never buried in the fine print. Without it, the most we pay for a damaged laptop or monitor is our basic liability limit. That limit is not insurance, so check it against the value of your IT hardware.\n\nYour fixed asset register should already list the laptops, monitors and furniture with their values, so use it for the declared value.\n\nDamage is rare, but when it happens we settle. And we publish our median settlement time on the [claims page](/claims). If a monitor or desk is damaged, report it within the claims window printed on your invoice. We check it against that workstation's pre-move photo and the carton inventory.",
+          body: "Every crew member and vehicle is ID-verified, and building security gets the names before Friday. [Check each crew member's ID](/verify) at the door before a desk is unplugged.\n\n[Optional transit cover](/insurance) is one clear line on your quote. Without it, the most we pay for a damaged laptop or monitor is our basic liability limit, which is not insurance. Use your fixed asset register for the declared value.\n\nDamage is rare, and when it happens we settle. Our median settlement time is on the [claims page](/claims). Report damage within the claims window on your invoice, and we check it against the pre-move photo and carton inventory.",
         },
       ],
     },
@@ -263,17 +251,17 @@ export const officeShifting: ServicePage = {
     {
       question: 'How long does it take to move an office?',
       answer:
-        "Most office moves fit between Friday close and Monday's first login. Larger floors are split across two weekends, so half your desks stay in use. [Our guide to sequencing an office move](/blog/office-relocation-without-downtime) covers seat plans and IT cut-over on your side.",
+        "Most office moves fit between Friday close and Monday's first login, with larger floors split across two weekends.",
     },
     {
       question: 'How much does office moving cost?',
       answer:
-        'We do not publish a range, because the price is set by seat count, IT units, files, floors and distance. Our [instant price check](/get-quote) does not count seats, so treat its figure as a budget. The survey of your floors and seats fixes the price in writing: see [how our fixed pricing works](/pricing).',
+        'Seat count, IT units, files, floors and distance set the price, so we do not publish a range. Our [instant price check](/get-quote) does not count seats, so use it as a budget. The survey fixes the price: see [how our fixed pricing works](/pricing).',
     },
     {
       question: 'How far in advance should we book an office move?',
       answer:
-        'A week ahead is comfortable, and earlier for the first and last few days of the month, as those dates fill first. Book once the new seat plan is final, so building approvals at both ends can go in well before the move.',
+        'A week ahead is comfortable, and earlier for month-start and month-end dates, which fill first. Book once the seat plan is final, so building approvals go in early.',
     },
     {
       question: 'Do you charge extra for weekend or night work?',
@@ -283,17 +271,12 @@ export const officeShifting: ServicePage = {
     {
       question: 'Do you move servers?',
       answer:
-        'Server decommissioning is done by your IT vendor and appears on our quote only as an optional add-on. Anything under a support contract stays with them too.',
+        'Your IT vendor decommissions servers, listed on our quote only as an optional add-on. Anything under a support contract stays with them too.',
     },
     {
       question: 'What will the GST invoice show?',
       answer:
-        'Your finance team gets one GST invoice that matches the quote you approved, with GST as its own line. Our GST details are on [our licences and GST page](/company/licences).',
-    },
-    {
-      question: 'Can we sign one agreement for repeat office moves?',
-      answer:
-        'Yes. Several offices or yearly department moves can run under one master service agreement: see [corporate relocation](/corporate).',
+        'Your finance team gets one GST invoice matching the quote you approved, with GST as its own line. Our GST details are on [our licences and GST page](/company/licences).',
     },
     {
       question: 'Can you move staff who relocate with the office?',

@@ -1,137 +1,345 @@
 ---
-import type { ServiceSection } from '@mpm/shared';
+import type { ServiceBlock, ServiceSection } from '@mpm/shared';
 import { inlineHtml, paragraphsHtml } from '../../lib/rich-text.js';
+import { iconSvg } from '../../lib/icons.js';
+import { topicIcon } from '../../lib/topic-icon.js';
+import { seasonsOf } from '../../lib/seasons.js';
+import SeasonStrip from '../g/SeasonStrip.astro';
+import GChecklist from '../g/GChecklist.astro';
 
 /**
- * The body of a service page: the brief's sections in order, every one drawn with the same
- * few Material building blocks, so the seven pages read as one family whatever their
- * content - paragraphs, a vertical stepper for steps, check lists, data tables, and the
- * "included / costs extra" cards.
+ * The body of a service, city or locality page: each of the brief's sections is its own
+ * full-width band - white and tinted in turn - with everything on one centre line: the
+ * heading and its opening paragraph centred, the rest in one centred column. A long page
+ * reads as a run of answers rather than one wall of text. Inside a band the blocks pick
+ * the Material form that fits what they hold:
  *
- * Tables are Material data tables on a laptop and turn into one card per row on a phone,
- * each value under its column's name: a three-column table squeezed into 360px is
- * unreadable, and sideways scrolling hides half of it.
+ *   - paragraphs;
+ *   - steps → numbered cards, two across (a real sequence, so they are numbered);
+ *   - a list whose items each open with a short name ("Truck timings. Goods vehicles…")
+ *     → feature tiles, the name as the title; any other list → a check list;
+ *   - a two-column table of names and answers ("Factor | How it affects a move") → tiles,
+ *     one per row; a wider table → a Material data table, which on a phone turns into
+ *     one card per row with every value under its column's name;
+ *   - the service's "included / costs extra" lists → two cards.
  *
- * Each heading carries an id for the "On this page" list beside it. The id is on the H2,
- * not the section, so the site's own scroll-padding (the sticky header's height) lands a
- * clicked heading just under the header; anchoring the section would add its padding.
+ * Each heading carries an id for the section tabs. The id is on the H2, not the band, so
+ * the scroll-padding (header + tabs) lands a clicked heading just under the tabs.
  */
 interface Props {
   sections: (ServiceSection & { id: string })[];
   inclusions: string[];
   exclusions: string[];
+  /**
+   * A callout at the end of the section on cost, pointing back up to the page's price
+   * check - the moment a reader is thinking about price. City and locality pages only.
+   */
+  priceCta?: { title: string; text: string; label: string };
 }
-const { sections, inclusions, exclusions } = Astro.props;
+const { sections, inclusions, exclusions, priceCta } = Astro.props;
+/** The section on cost: "How much does…", "What decides the price…". */
+const COST = /\b(cost|charge|price|priced)\b/i;
+
+/** "Truck timings. Goods vehicles face…" → ["Truck timings", "Goods vehicles face…"]. */
+const FEATURE = /^([^.?!:[\]]{2,60}?)[.:]\s+(\S[\s\S]*)$/;
+const featureOf = (item: string): [string, string] | null => {
+  const m = FEATURE.exec(item);
+  if (!m || m[1]!.trim().split(/\s+/).length > 7) return null;
+  return [m[1]!.trim(), m[2]!];
+};
+type ListBlock = Extract<ServiceBlock, { kind: 'list' }>;
+type TableBlock = Extract<ServiceBlock, { kind: 'table' }>;
+/** Feature tiles when every item opens with a short name. */
+const features = (b: ListBlock): [string, string][] | null => {
+  const out = b.items.map(featureOf);
+  return out.length >= 2 && out.every(Boolean) ? (out as [string, string][]) : null;
+};
+/**
+ * A to-do table - "What | Who arranges it | When" - becomes a checklist the reader can
+ * tick off (GChecklist).
+ */
+const isChecklist = (b: TableBlock): boolean =>
+  b.columns.length >= 3 &&
+  b.rows.length >= 3 &&
+  b.columns.some((c) => /who/i.test(c)) &&
+  b.columns.some((c) => /^when$/i.test(c.trim()));
+/**
+ * A two-column table of names and short answers - "Factor | How it affects a Delhi move" -
+ * as one panel of rows, each with its own icon, like a spec sheet.
+ */
+const isTiles = (b: TableBlock): boolean =>
+  b.columns.length === 2 &&
+  Boolean(b.columns[0]) &&
+  b.rows.length >= 2 &&
+  b.rows.every((r) => (r[0] ?? '').length <= 48 && (r[1] ?? '').length <= 220);
+/**
+ * Paragraphs sit on the centre line like everything else; a long one (five lines or so)
+ * keeps a left edge, because a ragged left edge that long is hard to read.
+ */
+const LONG = 380;
+const plainLength = (html: string): number => html.replace(/<[^>]+>/g, '').length;
+/**
+ * Columns for a grid of tiles: three where the count fills rows of three (3, 5, 6, 7…),
+ * two for 2 and 4, four for 8 (two even rows) - so the band's full width is used without
+ * a lone tile.
+ */
+const cols = (n: number): 2 | 3 | 4 => (n === 8 ? 4 : n === 2 || n === 4 ? 2 : 3);
+/**
+ * A season note's colour - the same as its band in the season strip above it (summer
+ * amber, monsoon blue…); notes without a season take the brand's.
+ */
+const toneOf = (title: string, seasons: ReturnType<typeof seasonsOf>): string =>
+  seasons?.find((s) => title.startsWith(s.name))?.tone ?? 'brand';
+/** Short check items sit in two columns. */
+const shortList = (b: ListBlock): boolean =>
+  b.items.length >= 4 && b.items.every((i) => i.length <= 64);
 ---
 
 {
   sections.map((section) => (
     <section class:list={['gs-sec', { 'gs-sec--lead': !section.heading }]}>
-      {section.heading && (
-        <h2 class="gs-h2" id={section.id}>
-          {section.heading}
-        </h2>
-      )}
-      {section.blocks.map((block) =>
-        block.kind === 'text' ? (
-          paragraphsHtml(block.body).map((html) => <p class="gs-p" set:html={html} />)
-        ) : block.kind === 'steps' ? (
-          <ol class="gs-steps">
-            {block.items.map((step, n) => (
-              <li class="gs-step">
-                <span class="gs-step__n" aria-hidden="true">
-                  {n + 1}
-                </span>
-                <div class="gs-step__body">
+      <div class="gs-in">
+        {section.heading && (
+          <h2 class="gs-h2" id={section.id}>
+            {section.heading}
+          </h2>
+        )}
+        {section.blocks.map((block, bi) =>
+          block.kind === 'text' ? (
+            paragraphsHtml(block.body).map((html) => (
+              <p
+                class:list={['gs-p', { 'gs-p--long': plainLength(html) > LONG }]}
+                set:html={html}
+              />
+            ))
+          ) : block.kind === 'steps' ? (
+            <ol class:list={['gs-steps', `gs-cols-${cols(block.items.length)}`]}>
+              {block.items.map((step, n) => (
+                <li class="gs-step">
+                  <span class="gs-step__n" aria-hidden="true">
+                    {n + 1}
+                  </span>
                   <p class="gs-step__t">{step.title}</p>
                   {step.body && <p class="gs-step__d" set:html={inlineHtml(step.body)} />}
-                </div>
-              </li>
-            ))}
-          </ol>
-        ) : block.kind === 'list' ? (
-          <ul class="gs-list">
-            {block.items.map((item) => (
-              <li set:html={inlineHtml(item)} />
-            ))}
-          </ul>
-        ) : block.kind === 'table' ? (
-          <div class="gs-tbl-wrap">
-            <table class:list={['gs-tbl', { 'gs-tbl--compare': !block.columns[0] }]}>
-              <thead>
-                <tr>{block.columns.map((c) => (c ? <th scope="col">{c}</th> : <td />))}</tr>
-              </thead>
-              <tbody>
-                {block.rows.map((row) => (
-                  <tr>
-                    {row.map((cell, ci) =>
-                      ci === 0 ? (
-                        <th scope="row" set:html={inlineHtml(cell)} />
-                      ) : (
-                        <td data-label={block.columns[ci] ?? ''} set:html={inlineHtml(cell)} />
-                      ),
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div class:list={['gs-scope', { 'gs-scope--one': exclusions.length === 0 }]}>
-            <div class="gs-scope__card gs-scope__card--yes">
-              <p class="gs-scope__t">What's included</p>
-              <ul>
-                {inclusions.map((i) => (
-                  <li>{i}</li>
+                </li>
+              ))}
+            </ol>
+          ) : block.kind === 'list' ? (
+            features(block) ? (
+              <>
+                {seasonsOf(features(block)!) && (
+                  <SeasonStrip seasons={seasonsOf(features(block)!)!} />
+                )}
+                <ul
+                  class:list={[
+                    'gs-feat',
+                    `gs-cols-${cols(block.items.length)}`,
+                    { 'gs-feat--cards': seasonsOf(features(block)!) },
+                  ]}
+                >
+                  {features(block)!.map(([title, body]) => (
+                    <li class={`gss--${toneOf(title, seasonsOf(features(block)!))}`}>
+                      <span class="gs-feat__i" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="22"
+                          height="22"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          set:html={topicIcon(title)}
+                        />
+                      </span>
+                      <div>
+                        <p class="gs-feat__t">{title}</p>
+                        <p class="gs-feat__d" set:html={inlineHtml(body)} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <ul class:list={['gs-list', { 'gs-list--two': shortList(block) }]}>
+                {block.items.map((item) => (
+                  <li set:html={inlineHtml(item)} />
                 ))}
               </ul>
-            </div>
-            {exclusions.length > 0 && (
-              <div class="gs-scope__card gs-scope__card--extra">
-                <p class="gs-scope__t">What costs extra</p>
+            )
+          ) : block.kind === 'table' ? (
+            isChecklist(block) ? (
+              <GChecklist columns={block.columns} rows={block.rows} id={`${section.id}-${bi}`} />
+            ) : isTiles(block) ? (
+              <div class:list={['gs-factors', { 'gs-factors--odd': block.rows.length % 2 === 1 }]}>
+                <p class="gs-factors__head">{block.columns[1]}</p>
+                <dl
+                  class="gs-factors__grid"
+                  aria-label={`${block.columns[0]}: ${block.columns[1]}`}
+                >
+                  {block.rows.map((row) => (
+                    <div class="gs-factor">
+                      <span class="gs-factor__i" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="22"
+                          height="22"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          set:html={topicIcon(row[0] ?? '')}
+                        />
+                      </span>
+                      <div>
+                        <dt set:html={inlineHtml(row[0] ?? '')} />
+                        <dd set:html={inlineHtml(row[1] ?? '')} />
+                      </div>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ) : (
+              <div class="gs-tbl-wrap">
+                <table class:list={['gs-tbl', { 'gs-tbl--compare': !block.columns[0] }]}>
+                  <thead>
+                    <tr>{block.columns.map((c) => (c ? <th scope="col">{c}</th> : <td />))}</tr>
+                  </thead>
+                  <tbody>
+                    {block.rows.map((row) => (
+                      <tr>
+                        {row.map((cell, ci) =>
+                          ci === 0 ? (
+                            <th scope="row" set:html={inlineHtml(cell)} />
+                          ) : (
+                            <td data-label={block.columns[ci] ?? ''} set:html={inlineHtml(cell)} />
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          ) : (
+            <div class:list={['gs-scope', { 'gs-scope--one': exclusions.length === 0 }]}>
+              <div class="gs-scope__card gs-scope__card--yes">
+                <p class="gs-scope__t">What's included</p>
                 <ul>
-                  {exclusions.map((i) => (
+                  {inclusions.map((i) => (
                     <li>{i}</li>
                   ))}
                 </ul>
               </div>
-            )}
-          </div>
-        ),
-      )}
+              {exclusions.length > 0 && (
+                <div class="gs-scope__card gs-scope__card--extra">
+                  <p class="gs-scope__t">What costs extra</p>
+                  <ul>
+                    {exclusions.map((i) => (
+                      <li>{i}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ),
+        )}
+        {priceCta && COST.test(section.heading) && (
+          <a class="gs-pcta" href="#quote">
+            <span class="gs-pcta__i" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                set:html={iconSvg('rupee')}
+              />
+            </span>
+            <span class="gs-pcta__copy">
+              <strong>{priceCta.title}</strong>
+              <span>{priceCta.text}</span>
+            </span>
+            <span class="gs-pcta__btn">{priceCta.label}</span>
+          </a>
+        )}
+      </div>
     </section>
   ))
 }
 
 <style>
+  /* ── Each section: a full-width band, white and tinted in turn ── */
   .gs-sec {
-    padding: 3rem 0 0.5rem;
+    /* The tiles inside take the other tone, so they always stand off the band. */
+    --tile: var(--g-surface-2);
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
   }
-  .gs-sec + .gs-sec {
-    border-top: 1px solid var(--g-outline);
+  .gs-sec:nth-of-type(even) {
+    --tile: #fff;
+    background: var(--g-surface-2);
   }
-  .gs-sec--lead {
-    padding-top: 0;
+  /* The band's content runs to the page's full width - the price bar's width - so the
+     tiles, tables and cards use the space; paragraphs keep a readable measure. */
+  .gs-in {
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin-inline: auto;
+  }
+  .gs-in > :last-child {
+    margin-bottom: 0;
   }
   .gs-h2 {
-    margin: 0 0 1rem;
-    font-size: clamp(1.5rem, 2.4vw, 1.875rem);
+    margin: 0 auto 1.1rem;
+    max-width: 36rem;
+    font-size: clamp(1.625rem, 3vw, 2.375rem);
     font-weight: 500;
-    line-height: 1.25;
-    letter-spacing: -0.005em;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
     color: var(--g-ink);
     text-wrap: balance;
   }
   .gs-p {
-    margin: 0 0 1rem;
+    max-width: 50rem;
+    margin: 0 auto 1rem;
     font-size: 1.0625rem;
     line-height: 1.7;
+    text-align: center;
     color: var(--g-ink-2);
     text-wrap: pretty;
   }
-  .gs-sec--lead .gs-p {
+  .gs-p--long {
+    text-align: left;
+  }
+  /* A paragraph after tiles, steps or a table: a little air above it. */
+  .gs-feat + .gs-p,
+  .gs-factors + .gs-p,
+  .gs-steps + .gs-p,
+  .gs-tbl-wrap + .gs-p,
+  .gs-list + .gs-p {
+    margin-top: 1.75rem;
+  }
+  /* The answer under each heading, centred and a step larger: read first. */
+  .gs-h2 + .gs-p {
+    max-width: 46rem;
+    margin: 0 auto 2rem;
     font-size: 1.1875rem;
-    line-height: 1.65;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--g-ink);
+  }
+  /* The opening paragraphs, with no heading: a centred lead. */
+  .gs-sec--lead .gs-p {
+    max-width: 50rem;
+    margin-inline: auto;
+    font-size: clamp(1.125rem, 1.8vw, 1.3125rem);
+    line-height: 1.6;
+    text-align: center;
     color: var(--g-ink);
   }
   .gs-sec :global(a) {
@@ -144,85 +352,328 @@ const { sections, inclusions, exclusions } = Astro.props;
     text-underline-offset: 0.18em;
   }
 
-  /* ── Vertical stepper: tonal number discs joined by a rule ── */
+  /* ── Tile rows: steps, feature tiles and answer tiles share one layout ──
+     A centred wrap of equal tiles, two or three across (see `cols`), so a short last row
+     sits in the middle - the same rule as the link cards below. */
+  .gs-steps,
+  .gs-feat {
+    --cols: 3;
+    --gap: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap);
+  }
+  .gs-steps > li,
+  .gs-feat > li {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));
+    min-width: 0;
+  }
+  .gs-cols-2 {
+    --cols: 2;
+  }
+  .gs-cols-3 {
+    --cols: 3;
+  }
+  .gs-cols-4 {
+    --cols: 4;
+  }
+
+  /* ── Steps: numbered cards ── */
   .gs-steps {
-    list-style: none;
     margin: 0.5rem 0 1.5rem;
     padding: 0;
+    list-style: none;
   }
   .gs-step {
-    position: relative;
-    display: grid;
-    grid-template-columns: 2.25rem 1fr;
-    gap: 1rem;
-    padding-bottom: 1.25rem;
-  }
-  .gs-step:not(:last-child)::before {
-    content: '';
-    position: absolute;
-    left: calc(1.125rem - 1px);
-    top: 2.5rem;
-    bottom: 0.25rem;
-    width: 2px;
-    border-radius: 2px;
-    background: var(--g-outline);
+    padding: 1.35rem 1.35rem 1.4rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.25rem;
+    background: #fff;
   }
   .gs-step__n {
     display: grid;
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
+    margin-bottom: 0.75rem;
     border-radius: 50%;
-    background: var(--color-brand-50);
-    color: var(--color-brand-700);
+    background: var(--color-brand-600);
+    color: #fff;
     font-size: 0.9375rem;
     font-weight: 500;
   }
   .gs-step__t {
-    margin: 0.35rem 0 0.2rem;
+    margin: 0 0 0.3rem;
     font-size: 1.0625rem;
     font-weight: 500;
     color: var(--g-ink);
   }
   .gs-step__d {
     margin: 0;
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: 0.9375rem;
+    line-height: 1.6;
     color: var(--g-ink-2);
+  }
+
+  /* ── Feature tiles: a short name, then the detail ── */
+  .gs-feat {
+    margin: 0.5rem 0 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+  /* Open columns - icon, title, text - with no box around them, like Google's own
+     product pages: cards are kept for the things you click. */
+  .gs-feat {
+    row-gap: 2.25rem;
+    column-gap: 2.5rem;
+  }
+  .gs-feat > li {
+    flex-basis: calc((100% - (var(--cols) - 1) * 2.5rem) / var(--cols));
+  }
+  .gs-feat li {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+  /* The topic's icon in a tonal square: the tiles scan at a glance. */
+  /* The notes under a season strip, as cards: each with a top edge and icon in its
+     season's colour, so card and band read together. */
+  .gs-feat--cards {
+    row-gap: 0.875rem;
+    column-gap: 0.875rem;
+  }
+  .gs-feat--cards > li {
+    flex-basis: calc((100% - (var(--cols) - 1) * 0.875rem) / var(--cols));
+    padding: 1.35rem 1.35rem 1.4rem;
+    border: 1px solid var(--g-outline);
+    border-top: 4px solid var(--band, var(--color-brand-600));
+    border-radius: 1.25rem;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(60 64 67 / 0.06);
+  }
+  .gs-feat--cards .gs-feat__i {
+    background: color-mix(in srgb, var(--band, var(--color-brand-600)) 14%, #fff);
+    color: color-mix(in srgb, var(--band, var(--color-brand-600)) 80%, #000);
+  }
+  .gss--heat {
+    --band: #f9ab00;
+  }
+  .gss--rain {
+    --band: #1a73e8;
+  }
+  .gss--fog {
+    --band: #80868b;
+  }
+  .gss--festive {
+    --band: #a142f4;
+  }
+  .gss--brand {
+    --band: var(--color-brand-600);
+  }
+  .gs-feat__i {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  .gs-feat__t {
+    margin: 0.1rem 0 0.35rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--g-ink);
+  }
+  .gs-feat__d {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+
+  /* ── Price callout: at the end of the cost section, back up to the price check ── */
+  /* `.gs-sec .gs-pcta` outranks `.gs-sec a` (the body's link blue), which had turned the
+     rupee and the words brand blue on brand blue. */
+  .gs-sec .gs-pcta {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    max-width: 50rem;
+    margin: 2rem auto 0;
+    padding: 1.15rem 1.15rem 1.15rem 1.25rem;
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(120% 140% at 0% 0%, rgb(255 255 255 / 0.14), transparent 55%),
+      var(--color-brand-600);
+    color: #fff;
+    font-weight: 400;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgb(29 0 178 / 0.22);
+    transition:
+      background-color 0.15s,
+      transform 0.2s;
+  }
+  .gs-sec .gs-pcta:hover {
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .gs-pcta:focus-visible {
+    outline: 3px solid var(--color-brand-100);
+    outline-offset: 2px;
+  }
+  .gs-pcta__i {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.875rem;
+    background: rgb(255 255 255 / 0.16);
+    color: #fff;
+  }
+  .gs-pcta__copy {
+    display: grid;
+    flex: 1;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .gs-pcta__copy strong {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: #fff;
+  }
+  .gs-pcta__copy span {
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: rgb(255 255 255 / 0.82);
+  }
+  .gs-pcta__btn {
+    flex: none;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-brand-700);
   }
 
   /* ── Check list ── */
   .gs-list {
+    max-width: 50rem;
     list-style: none;
-    margin: 0.25rem 0 1.5rem;
+    margin: 0.25rem auto 1.25rem;
     padding: 0;
     display: grid;
     gap: 0.75rem;
+  }
+  .gs-list--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1.5rem;
   }
   .gs-list li {
     position: relative;
     padding-left: 2rem;
     font-size: 1rem;
-    line-height: 1.65;
+    line-height: 1.6;
     color: var(--g-ink-2);
   }
   .gs-list li::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0.2rem;
+    top: 0.15rem;
     width: 1.25rem;
     height: 1.25rem;
-    background: var(--color-brand-600);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z'/%3E%3C/svg%3E")
-      center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z'/%3E%3C/svg%3E")
-      center / contain no-repeat;
+    border-radius: 50%;
+    background: var(--color-brand-50)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d00b2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 60% no-repeat;
+  }
+
+  /* ── Factors: one panel, a row per factor with its icon, two across ── */
+  .gs-factors {
+    margin: 0.5rem 0 1.5rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.5rem;
+    background: #fff;
+    overflow: hidden;
+  }
+  .gs-factors__head {
+    margin: 0;
+    padding: 0.95rem 1.5rem;
+    border-bottom: 1px solid var(--g-outline);
+    background: var(--g-surface-1);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--g-ink-2);
+  }
+  .gs-factors__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+  }
+  .gs-factor {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--g-outline);
+  }
+  .gs-factor:nth-child(odd) {
+    border-right: 1px solid var(--g-outline);
+  }
+  /* The last row has no rule under it; an odd last factor spans both columns. */
+  .gs-factors:not(.gs-factors--odd) .gs-factor:nth-last-child(-n + 2),
+  .gs-factors--odd .gs-factor:last-child {
+    border-bottom: 0;
+  }
+  .gs-factors--odd .gs-factor:last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+  .gs-factor__i {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  .gs-factor dt {
+    margin: 0.1rem 0 0.3rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gs-factor dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+  @media (max-width: 760px) {
+    .gs-factors__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gs-factor,
+    .gs-factor:nth-child(odd) {
+      border-right: 0;
+      padding: 1.1rem 1.15rem;
+    }
+    .gs-factors:not(.gs-factors--odd) .gs-factor:nth-last-child(2) {
+      border-bottom: 1px solid var(--g-outline);
+    }
   }
 
   /* ── Material data table ── */
   .gs-tbl-wrap {
-    margin: 0.5rem 0 1.5rem;
+    margin: 0.5rem 0 1.25rem;
     border: 1px solid var(--g-outline);
     border-radius: 1rem;
     overflow: hidden;
@@ -275,16 +726,21 @@ const { sections, inclusions, exclusions } = Astro.props;
   .gs-scope {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
-    margin: 0.5rem 0 1.5rem;
+    gap: 0.75rem;
+    margin: 0.5rem 0 1.25rem;
   }
   .gs-scope--one {
     grid-template-columns: 1fr;
   }
   .gs-scope__card {
     padding: 1.25rem 1.25rem 1rem;
-    border-radius: 1.25rem;
-    background: var(--g-surface-2);
+    border-radius: 1rem;
+  }
+  .gs-scope__card--yes {
+    background: #e6f4ea;
+  }
+  .gs-scope__card--extra {
+    background: #fef7e0;
   }
   .gs-scope__t {
     margin: 0 0 0.75rem;
@@ -323,18 +779,50 @@ const { sections, inclusions, exclusions } = Astro.props;
     color: #b06000;
   }
 
+  @media (max-width: 1100px) {
+    .gs-cols-4 {
+      --cols: 2;
+    }
+  }
+  @media (max-width: 980px) {
+    .gs-cols-3 {
+      --cols: 2;
+    }
+  }
+  @media (max-width: 760px) {
+    .gs-cols-2,
+    .gs-cols-3,
+    .gs-cols-4 {
+      --cols: 1;
+    }
+    .gs-list--two {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 760px) {
+    .gs-sec .gs-pcta {
+      flex-wrap: wrap;
+    }
+    .gs-pcta__btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
   @media (max-width: 640px) {
     .gs-sec {
-      padding-top: 2.25rem;
+      padding: 2.75rem 1.15rem;
     }
-    .gs-p,
-    .gs-sec--lead .gs-p {
+    .gs-p {
       font-size: 1rem;
+    }
+    .gs-h2 + .gs-p,
+    .gs-sec--lead .gs-p {
+      font-size: 1.0625rem;
     }
     .gs-scope {
       grid-template-columns: 1fr;
     }
-    /* Each table row becomes a card; every value sits under its column's name. */
+    /* Each table row becomes a tinted tile; every value sits under its column's name. */
     .gs-tbl-wrap {
       border: 0;
       border-radius: 0;
@@ -358,12 +846,11 @@ const { sections, inclusions, exclusions } = Astro.props;
     }
     .gs-tbl tbody {
       display: grid;
-      gap: 0.75rem;
+      gap: 0.625rem;
     }
     .gs-tbl tr {
-      border: 1px solid var(--g-outline);
       border-radius: 1rem;
-      background: #fff;
+      background: var(--tile);
       overflow: hidden;
     }
     .gs-tbl tbody tr:hover > * {
@@ -379,7 +866,7 @@ const { sections, inclusions, exclusions } = Astro.props;
       border: 0;
     }
     .gs-tbl tbody td + td {
-      border-top: 1px dashed var(--g-outline);
+      border-top: 1px dashed #c4c7c5;
       padding-top: 0.6rem;
     }
     .gs-tbl tbody td::before {
@@ -395,10 +882,88 @@ const { sections, inclusions, exclusions } = Astro.props;
       display: none;
     }
     .gs-tbl--compare tbody td:last-child {
-      background: color-mix(in srgb, var(--color-brand-50) 45%, #fff);
+      background: color-mix(in srgb, var(--color-brand-50) 60%, #fff);
     }
     .gs-tbl--compare tbody td:last-child::before {
       color: var(--color-brand-700);
+    }
+  }
+
+  /* ── Hover: one family across the page ──
+     Information cards lift a little and their icon fills with its colour; rows inside a
+     panel (the cost factors) tint instead of lifting; open feature columns only light
+     their icon. Material's standard easing, 200ms; off for reduced motion. */
+  .gs-feat__i,
+  .gs-factor__i,
+  .gs-step__n {
+    transition:
+      background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gs-feat li:hover .gs-feat__i {
+    background: var(--color-brand-600);
+    color: #fff;
+    transform: scale(1.06);
+  }
+  .gs-feat--cards > li {
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gs-feat--cards > li:hover {
+    border-color: color-mix(in srgb, var(--band) 35%, var(--g-outline));
+    border-top-color: var(--band);
+    box-shadow:
+      0 2px 4px rgb(60 64 67 / 0.08),
+      0 12px 28px rgb(60 64 67 / 0.12);
+    transform: translateY(-3px);
+  }
+  .gs-feat--cards li:hover .gs-feat__i {
+    background: var(--band);
+    color: #fff;
+  }
+  .gs-step {
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gs-step:hover {
+    border-color: var(--color-brand-100);
+    box-shadow:
+      0 2px 4px rgb(60 64 67 / 0.08),
+      0 12px 28px rgb(60 64 67 / 0.12);
+    transform: translateY(-3px);
+  }
+  .gs-step:hover .gs-step__n {
+    transform: scale(1.1);
+  }
+  .gs-factor {
+    transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gs-factor:hover {
+    background: var(--g-surface-1);
+  }
+  .gs-factor:hover .gs-factor__i {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gs-feat__i,
+    .gs-factor__i,
+    .gs-step__n,
+    .gs-feat--cards > li,
+    .gs-step,
+    .gs-factor {
+      transition: none;
+    }
+    .gs-feat li:hover .gs-feat__i,
+    .gs-feat--cards > li:hover,
+    .gs-step:hover,
+    .gs-step:hover .gs-step__n {
+      transform: none;
     }
   }
 </style>

@@ -1,0 +1,258 @@
+---
+import { MONTHS, type Season } from '../../lib/seasons.js';
+
+/**
+ * The year at a glance for a "best time to shift" section: twelve months across, one row
+ * per season the copy names, each season a coloured band over its months, and this
+ * month marked - so "when should I move?" is answered before a word is read. The words
+ * stay in the tiles under it; this only draws what they say.
+ */
+interface Props {
+  seasons: Season[];
+}
+const { seasons } = Astro.props;
+// "Apr to Jun": the months in words, next to each season's name.
+const span = (s: Season): string => {
+  const a = MONTHS[s.months[0]!]!.slice(0, 3);
+  const b = MONTHS[s.months[s.months.length - 1]!]!.slice(0, 3);
+  return a === b ? a : `${a} to ${b}`;
+};
+const label = seasons
+  .map((s) => `${s.name}: ${MONTHS[s.months[0]!]} to ${MONTHS[s.months[s.months.length - 1]!]}`)
+  .join('; ');
+---
+
+<figure class="gss" aria-label={`Seasons to plan around. ${label}.`}>
+  <div class="gss__head" aria-hidden="true">
+    <p class="gss__title">Seasons to plan around</p>
+    <p class="gss__sub">Months in colour need extra planning. The notes below say how.</p>
+  </div>
+  <div class="gss__grid" aria-hidden="true">
+    <span class="gss__corner"></span>
+    {
+      MONTHS.map((m, i) => (
+        <span class="gss__m" data-m={i}>
+          <span class="gss__m-l">{m.slice(0, 3)}</span>
+          <span class="gss__m-s">{m.slice(0, 1)}</span>
+        </span>
+      ))
+    }
+    {
+      seasons.map((s) => (
+        <>
+          <span class="gss__name">
+            <i class={`gss__dot gss--${s.tone}`} />
+            <span>
+              {s.name}
+              <span class="gss__span">{span(s)}</span>
+            </span>
+          </span>
+          {MONTHS.map((_, i) => {
+            const on = s.months.includes(i);
+            const start = on && !s.months.includes((i + 11) % 12);
+            const end = on && !s.months.includes((i + 1) % 12);
+            return (
+              <span
+                class:list={[
+                  'gss__c',
+                  `gss--${s.tone}`,
+                  {
+                    'is-on': on,
+                    'is-start': start || (on && i === 0),
+                    'is-end': end || (on && i === 11),
+                  },
+                ]}
+                data-m={i}
+              />
+            );
+          })}
+        </>
+      ))
+    }
+  </div>
+  <figcaption class="gss__cap">
+    <span class="gss__now-dot" aria-hidden="true"></span>
+    <span data-gss-now>This month</span>
+  </figcaption>
+</figure>
+
+<script>
+  // Mark this month's column, so the reader sees where they stand in the year.
+  const now = new Date().getMonth();
+  const name = new Date().toLocaleString('en-IN', { month: 'long' });
+  for (const fig of document.querySelectorAll<HTMLElement>('.gss')) {
+    for (const el of fig.querySelectorAll<HTMLElement>(`[data-m="${now}"]`))
+      el.classList.add('is-now');
+    const cap = fig.querySelector<HTMLElement>('[data-gss-now]');
+    if (cap) cap.textContent = `${name}, this month`;
+  }
+</script>
+
+<style>
+  .gss {
+    max-width: 56rem;
+    margin: 0.5rem auto 2.25rem;
+    padding: 1.4rem 1.5rem 1rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.5rem;
+    background: #fff;
+  }
+  .gss__head {
+    margin-bottom: 1.1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--g-outline);
+    text-align: left;
+  }
+  .gss__title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gss__sub {
+    margin: 0.2rem 0 0;
+    font-size: 0.875rem;
+    color: var(--g-ink-3);
+  }
+  .gss__span {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--g-ink-3);
+  }
+  .gss__grid {
+    display: grid;
+    grid-template-columns: minmax(9rem, 12rem) repeat(12, minmax(0, 1fr));
+    align-items: center;
+    row-gap: 0.6rem;
+  }
+  .gss__m {
+    position: relative;
+    padding-bottom: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--g-ink-3);
+  }
+  .gss__m-s {
+    display: none;
+  }
+  .gss__m.is-now {
+    color: var(--color-brand-700);
+  }
+  .gss__m.is-now::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    transform: translateX(-50%);
+  }
+  .gss__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--g-ink);
+  }
+  .gss__dot {
+    flex: none;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--band);
+  }
+  /* Each month cell: an empty track, or part of the season's band. */
+  .gss__c {
+    position: relative;
+    height: 1.75rem;
+    background: var(--g-surface-2);
+  }
+  .gss__c.is-on {
+    background: var(--band);
+  }
+  .gss__c.is-start {
+    border-radius: 0.875rem 0 0 0.875rem;
+  }
+  .gss__c.is-end {
+    border-radius: 0 0.875rem 0.875rem 0;
+  }
+  .gss__c.is-start.is-end {
+    border-radius: 0.875rem;
+  }
+  .gss__c.is-now::after {
+    content: '';
+    position: absolute;
+    inset: -0.3rem auto -0.3rem 50%;
+    width: 2px;
+    background: var(--color-brand-600);
+    opacity: 0.55;
+    transform: translateX(-50%);
+  }
+  .gss--heat {
+    --band: #f9ab00;
+  }
+  .gss--rain {
+    --band: #1a73e8;
+  }
+  .gss--fog {
+    --band: #80868b;
+  }
+  .gss--festive {
+    --band: #a142f4;
+  }
+  .gss--brand {
+    --band: var(--color-brand-600);
+  }
+  .gss__cap {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--g-ink-3);
+  }
+  .gss__now-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+  }
+  @media (max-width: 640px) {
+    .gss {
+      padding: 1rem 0.9rem 0.85rem;
+    }
+    /* The season names go above their bands; the months shrink to initials. */
+    .gss__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      row-gap: 0.35rem;
+    }
+    .gss__corner {
+      display: none;
+    }
+    .gss__span {
+      display: inline;
+      margin-left: 0.4rem;
+    }
+    .gss__name {
+      grid-column: 1 / -1;
+      margin-top: 0.4rem;
+    }
+    .gss__m-l {
+      display: none;
+    }
+    .gss__m-s {
+      display: inline;
+    }
+    .gss__c {
+      height: 1.4rem;
+    }
+  }
+</style>

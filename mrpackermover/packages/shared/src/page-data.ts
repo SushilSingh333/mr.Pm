@@ -48,11 +48,24 @@ export interface StatBlock {
 
 export interface CityHubData {
   cityName: string;
+  /**
+   * The page's prose as plain paragraphs. Not rendered (the sections in `page` are); it
+   * is what the duplication gate compares between city pages.
+   */
   editorial: string[];
   rateBands: RateBand[];
-  stats: StatBlock;
-  reviews: ReviewSnippet[];
+  /** No longer sent or shown: seeded numbers are not a track record. */
+  stats?: StatBlock;
+  /** No longer sent or shown: only verified reviews may appear, and none are wired yet. */
+  reviews?: ReviewSnippet[];
+  /** The page's FAQs in plain text, where the duplication gate reads them. */
   faqs: FaqItem[];
+  /**
+   * The finished page: the brief (or the plain fallback) with the editor's "Page content"
+   * fields laid over it. Absent from the committed sample manifest, where the site builds
+   * it from the brief.
+   */
+  page?: import('./geo-pages/types.js').GeoPage;
   priceFrom?: number;
   /** Localities we cover in this city — the "Areas we cover" grid. */
   areas?: Array<{ path: string; name: string }>;
@@ -65,8 +78,8 @@ export interface CityServiceData {
   serviceName: string;
   editorial: string[];
   rateBands: RateBand[];
-  stats: StatBlock;
-  reviews: ReviewSnippet[];
+  stats?: StatBlock;
+  reviews?: ReviewSnippet[];
   faqs: FaqItem[];
   inclusions: string[];
   exclusions: string[];
@@ -79,11 +92,14 @@ export interface LocalityData {
   localityName: string;
   cityName: string;
   cityPath: string;
+  /** As on the city page: the plain text for the duplication gate. */
   editorial: string[];
   rateBands: RateBand[];
-  stats: StatBlock;
-  reviews: ReviewSnippet[];
+  stats?: StatBlock;
+  reviews?: ReviewSnippet[];
   faqs: FaqItem[];
+  /** As on the city page: the finished page. */
+  page?: import('./geo-pages/types.js').GeoPage;
   priceFrom?: number;
   /**
    * The locality's own uploaded hero when the editor set one, else the parent city's.

@@ -1,0 +1,384 @@
+---
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_HREF } from '../../lib/site.js';
+import { inlineHtml } from '../../lib/rich-text.js';
+
+/**
+ * The top of a Google-style page, shared by the service, city and locality pages: a slim
+ * photo strip with one promise on it, then the words on the left (breadcrumbs, H1, the
+ * line under it, the trust points, the photo again) and the page's form card on the
+ * right. The card's content is the slot - the service enquiry form, or the price check.
+ *
+ * `id="quote"` is on the card: every "Check my price" button on the page scrolls here.
+ */
+interface Photo {
+  wide: string;
+  narrow: string;
+  fallback: string;
+  alt: string;
+  /** Only the committed files have WebP variants on disk. */
+  webp: boolean;
+}
+interface Props {
+  crumbs: { href?: string; label: string }[];
+  h1: string;
+  /** The line under the heading; `[label](/path)` links allowed. */
+  sub: string;
+  trust: string[];
+  photo: Photo;
+  /** The promise on the strip; the part after " · " is hidden on a phone. */
+  chip: string;
+  cardTitle: string;
+  /** A short line under the card title; `[label](/path)` links allowed. */
+  cardNote?: string;
+}
+const { crumbs, h1, sub, trust, photo, chip, cardTitle, cardNote } = Astro.props;
+const [chipLead, ...chipRest] = chip.split(' · ');
+const chipMore = chipRest.join(' · ');
+---
+
+<div class="container-page gh-strip-wrap">
+  <div class="gh-strip">
+    <picture>
+      {photo.webp && <source type="image/webp" media="(min-width: 900px)" srcset={photo.wide} />}
+      {photo.webp && <source type="image/webp" srcset={photo.narrow} />}
+      <img
+        src={photo.fallback}
+        alt={photo.alt}
+        width="1920"
+        height="800"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+    <a class="gh-chip" href="#quote">
+      <svg viewBox="0 -960 960 960" width="18" height="18" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"
+        ></path>
+      </svg>
+      <span>{chipLead}{chipMore && <span class="gh-chip__more"> · {chipMore}</span>}</span>
+    </a>
+  </div>
+</div>
+
+<section class="gh" aria-label={h1}>
+  <div class="container-page gh__grid">
+    <div class="gh__text">
+      <nav class="gh-crumbs" aria-label="Breadcrumb">
+        {
+          crumbs.map((c, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true">›</span>}
+              {c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+            </>
+          ))
+        }
+      </nav>
+      <h1 class="gh-h1">{h1}</h1>
+      <p class="gh-sub" set:html={inlineHtml(sub)} />
+      {
+        trust.length > 0 && (
+          <ul class="gh-trust" aria-label="What you get">
+            {trust.map((t) => (
+              <li set:html={inlineHtml(t)} />
+            ))}
+          </ul>
+        )
+      }
+      <div class="gh-actions">
+        <a class="gh-act" href={`tel:${PHONE_TEL}`}>
+          <svg viewBox="0 -960 960 960" width="20" height="20" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M798-120q-125 0-247-54.5T329-329Q229-429 174.5-551T120-798q0-18 12-30t30-12h162q14 0 25 9.5t13 22.5l26 140q2 16-1 27t-11 19l-97 98q20 37 47.5 71.5T387-386q31 31 65 57.5t72 48.5l94-94q9-9 23.5-13.5T670-390l138 28q14 4 23 14.5t9 23.5v162q0 18-12 30t-30 12Z"
+            ></path>
+          </svg>
+          {PHONE_DISPLAY}
+        </a>
+        <a class="gh-act" href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm5.8 14.03c-.25.69-1.43 1.33-1.98 1.38-.51.05-1 .24-3.36-.7-2.84-1.12-4.65-4.03-4.79-4.22-.14-.19-1.15-1.53-1.15-2.92 0-1.39.73-2.07.99-2.35.25-.28.55-.35.74-.35l.53.01c.17.01.4-.06.62.48.25.6.84 2.06.92 2.2.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.17-.3.37-.42.5-.14.14-.29.29-.12.57.17.28.73 1.2 1.57 1.95 1.08.96 1.99 1.26 2.27 1.4.28.14.45.12.61-.07.17-.19.71-.83.9-1.11.19-.28.37-.23.63-.14.25.09 1.62.76 1.9.9.28.14.46.21.53.32.07.12.07.67-.18 1.36Z"
+            ></path>
+          </svg>
+          WhatsApp
+        </a>
+      </div>
+      {
+        /* The photograph again, whole, under the words - the strip shows only a band of
+           it. Laptop only: on a phone the strip is enough. */
+      }
+      <picture class="gh-photo">
+        {photo.webp && <source type="image/webp" srcset={photo.wide} />}
+        <img
+          src={photo.fallback}
+          alt=""
+          width="1920"
+          height="800"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
+    </div>
+
+    <div class="gh-card" id="quote">
+      <p class="gh-card__t">{cardTitle}</p>
+      {cardNote && <p class="gh-card__note" set:html={inlineHtml(cardNote)} />}
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── The strip: a slim, rounded photo banner ── */
+  .gh-strip-wrap {
+    padding-top: clamp(0.75rem, 1.6vw, 1.25rem);
+  }
+  .gh-strip {
+    position: relative;
+    isolation: isolate;
+    height: clamp(9rem, 15vw, 12.5rem);
+    border-radius: 1.75rem;
+    overflow: hidden;
+    background: #202124;
+  }
+  .gh-strip picture,
+  .gh-strip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .gh-strip img {
+    object-fit: cover;
+    object-position: center 45%;
+  }
+  .gh-strip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      rgb(0 0 0 / 0.45) 0%,
+      rgb(0 0 0 / 0.12) 45%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+  .gh-chip {
+    position: absolute;
+    z-index: 1;
+    left: clamp(1rem, 2.4vw, 1.75rem);
+    bottom: clamp(1rem, 2.4vw, 1.5rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    max-width: calc(100% - 2rem);
+    min-height: 2.25rem;
+    padding: 0.4rem 0.95rem 0.4rem 0.75rem;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    border-radius: 0.5rem;
+    background: rgb(32 33 36 / 0.42);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #fff;
+    text-decoration: none;
+  }
+  .gh-chip svg {
+    flex: none;
+  }
+  .gh-chip:hover {
+    background: rgb(32 33 36 / 0.6);
+  }
+  .gh-chip:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  /* ── Words on the left, the card on the right ── */
+  .gh {
+    padding: clamp(1.5rem, 3vw, 2.5rem) 0 clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .gh__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+  .gh-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    color: var(--g-ink-3);
+  }
+  .gh-crumbs a {
+    color: var(--g-ink-2);
+    text-decoration: none;
+  }
+  .gh-crumbs a:hover {
+    color: var(--color-brand-600);
+    text-decoration: underline;
+  }
+  .gh-crumbs [aria-current] {
+    color: var(--g-ink);
+    font-weight: 500;
+  }
+  .gh-h1 {
+    margin: 0;
+    font-size: clamp(2.125rem, 4.2vw, 3.25rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gh-sub {
+    margin: 1.1rem 0 0;
+    max-width: 38rem;
+    font-size: clamp(1.0625rem, 1.5vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--g-ink-2);
+    text-wrap: pretty;
+  }
+  .gh-sub :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  /* The promises as a 2 × 2 of quiet tiles: easy to take in at a glance. */
+  .gh-trust {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gh-trust li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.875rem;
+    background: var(--g-surface-2);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--g-ink);
+  }
+  .gh-trust li::before {
+    content: '';
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--color-brand-600)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 62% no-repeat;
+  }
+  /* Two quick ways to talk to a person, as Material outlined buttons. */
+  .gh-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+  }
+  .gh-act {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 1.25rem 0 1rem;
+    border: 1px solid var(--g-outline-strong);
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-brand-700);
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+  .gh-act:hover {
+    background: color-mix(in srgb, var(--color-brand-600) 8%, transparent);
+  }
+  .gh-act:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .gh-photo {
+    display: block;
+    margin-top: 1.75rem;
+    border-radius: 1.75rem;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: var(--g-surface-2);
+  }
+  .gh-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The card: Material elevation 1, large corners; follows the reader on a laptop. */
+  .gh-card {
+    position: sticky;
+    top: 5.5rem;
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-radius: 1.75rem;
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 2px 6px 2px rgb(60 64 67 / 0.15);
+  }
+  .gh-card__t {
+    margin: 0 0 1rem;
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gh-card__note {
+    margin: -0.65rem 0 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--g-ink-3);
+  }
+  .gh-card__note :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  @media (max-width: 900px) {
+    .gh__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gh-card {
+      position: static;
+    }
+    .gh-photo {
+      display: none;
+    }
+    .gh-strip {
+      height: clamp(7.5rem, 30vw, 10rem);
+    }
+  }
+  @media (max-width: 560px) {
+    .gh-chip__more {
+      display: none;
+    }
+    .gh-trust {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .gh-card {
+      border-radius: 1.5rem;
+    }
+  }
+</style>

@@ -1,8 +1,10 @@
 ---
 /**
  * The shared Porter hero shell: a dark full-bleed banner with a heading and a card
- * slot that overlaps its bottom edge. `align` controls layout — geo pages are
- * centered (Porter's city pages), the homepage is left-aligned (Porter's home).
+ * slot that overlaps its bottom edge. `align` controls layout — `center` (routes,
+ * corporate), `left` (the homepage) and `split` (city, locality and city × service
+ * pages: the words on the left over a shade that darkens only that side, so the crew and
+ * truck on the right of the photo stay in full view, with the breadcrumbs in the banner).
  * A `heading` named slot lets a page supply custom heading markup (e.g. a two-line
  * styled tagline); otherwise the plain <h1> is used.
  */
@@ -17,11 +19,22 @@ interface Props {
   image?: string;
   /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence. */
   imageUrl?: string;
-  align?: 'center' | 'left';
+  align?: 'center' | 'left' | 'split';
+  /** Breadcrumbs drawn inside the banner, in white (the split layout). */
+  crumbs?: { href?: string; label: string }[];
   /** Overrides the description looked up from `image`. Needed for CMS uploads. */
   imageAlt?: string;
 }
-const { h1, intro, badge, image = 'home', imageUrl, align = 'center', imageAlt } = Astro.props;
+const {
+  h1,
+  intro,
+  badge,
+  image = 'home',
+  imageUrl,
+  align = 'center',
+  imageAlt,
+  crumbs = [],
+} = Astro.props;
 // A CMS-uploaded (Cloudinary) image wins; `cldUrl` injects the delivery transform and
 // is a no-op for any non-Cloudinary URL. Otherwise fall back to the static file.
 const resolvedImage = imageUrl ? cldUrl(imageUrl, CLD_TRANSFORM.hero) : `/images/hero/${image}.jpg`;
@@ -84,13 +97,26 @@ const hasHeadingSlot = Astro.slots.has('heading');
     />
   </picture>
   <div class="container-page hero-inner">
+    {
+      crumbs.length > 0 && (
+        <nav class="hero-crumbs" aria-label="Breadcrumb">
+          {crumbs.map((c, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true">/</span>}
+              {c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
+            </>
+          ))}
+        </nav>
+      )
+    }
     {badge && <span class="hero-badge">{badge}</span>}
     {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
     {intro && <p class="hero-intro">{intro}</p>}
   </div>
 </section>
 
-<div class:list={['hero-card', 'container-page', `align-${align}`]}>
+{/* `id="quote"`: every "Check my price" button on the page scrolls here. */}
+<div class:list={['hero-card', 'container-page', `align-${align}`]} id="quote">
   <slot />
 </div>
 
@@ -144,9 +170,125 @@ const hasHeadingSlot = Astro.slots.has('heading');
   .hero.align-center {
     text-align: center;
   }
+  /* Geo pages: the words sit over a busy, branded photo (crew, truck, logos). A soft
+     shade with no edges deepens towards the middle, where the words are, and fades out
+     towards the sides, so the heading reads clearly and the photo still shows whole. */
+  .hero.align-center::before {
+    background:
+      radial-gradient(
+        ellipse 62% 66% at 50% 46%,
+        rgb(8 6 28 / 0.78),
+        rgb(8 6 28 / 0.38) 60%,
+        transparent 100%
+      ),
+      linear-gradient(rgb(0 0 0 / 0.42), rgb(0 0 0 / 0.18));
+  }
+  /* On a phone the lines run nearly edge to edge, past the middle's shade: an even,
+     deeper shade instead. */
+  @media (max-width: 640px) {
+    .hero.align-center::before {
+      background: linear-gradient(rgb(8 6 28 / 0.72), rgb(8 6 28 / 0.55));
+    }
+  }
   .hero.align-center .hero-inner {
     align-items: center;
   }
+  .hero.align-center :global(h1) {
+    max-width: 22ch;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+    text-shadow:
+      0 2px 4px rgb(0 0 0 / 0.35),
+      0 4px 24px rgb(0 0 0 / 0.55);
+  }
+  /* Wide enough for three lines rather than four. */
+  .hero.align-center .hero-intro {
+    max-width: 64ch;
+    color: #fff;
+    text-shadow:
+      0 1px 3px rgb(0 0 0 / 0.5),
+      0 2px 18px rgb(0 0 0 / 0.6);
+  }
+  /* ── Split (city, locality, city × service): the words on the left ──
+     A shade that darkens only the left side, where the words are, and lifts away to
+     nothing across the photo - so the heading reads crisply and the crew and truck on
+     the right stay in full view. The breadcrumbs sit in the banner, in white. */
+  .hero.align-split {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: clamp(400px, 34vw, 500px);
+    padding-bottom: clamp(4.25rem, 7vw, 5.75rem);
+  }
+  .hero.align-split::before {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(10 6 34 / 0.92) 0%,
+        rgb(10 6 34 / 0.84) 36%,
+        rgb(10 6 34 / 0.45) 56%,
+        rgb(10 6 34 / 0) 76%
+      ),
+      linear-gradient(rgb(0 0 0 / 0.18), rgb(0 0 0 / 0) 40%, rgb(10 6 34 / 0.35));
+  }
+  .hero.align-split .hero-photo img {
+    object-position: 70% 25%;
+  }
+  .hero.align-split .hero-inner {
+    align-items: flex-start;
+    gap: 0;
+    text-align: left;
+  }
+  .hero.align-split :global(h1) {
+    max-width: 20ch;
+    margin: 0;
+    font-size: clamp(1.75rem, 3.3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    text-shadow: 0 2px 18px rgb(0 0 0 / 0.35);
+  }
+  .hero.align-split .hero-intro {
+    max-width: 36rem;
+    margin: 0.875rem 0 0;
+    font-size: clamp(0.9375rem, 1.15vw, 1.0625rem);
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.9);
+    text-wrap: pretty;
+    text-shadow: 0 1px 12px rgb(0 0 0 / 0.4);
+  }
+  .hero-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+    color: rgb(255 255 255 / 0.7);
+  }
+  .hero-crumbs a {
+    color: rgb(255 255 255 / 0.85);
+    text-decoration: none;
+  }
+  .hero-crumbs a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .hero-crumbs [aria-current] {
+    color: #fff;
+    font-weight: 500;
+  }
+  @media (max-width: 760px) {
+    /* The words run full width on a phone: an even shade, deeper at the foot. */
+    .hero.align-split::before {
+      background: linear-gradient(rgb(10 6 34 / 0.62), rgb(10 6 34 / 0.8));
+    }
+    .hero.align-split {
+      min-height: 0;
+    }
+  }
+
   /* Home: bottom-align the headline so it sits just above the (centered) card. */
   .hero.align-left {
     display: flex;
@@ -193,6 +335,9 @@ const hasHeadingSlot = Astro.slots.has('heading');
     color: rgba(255, 255, 255, 0.86);
     font-size: var(--text-lg);
     max-width: 56ch;
+    /* Even lines, no lone last word, now the city briefs give the banner a full sentence
+       or two. */
+    text-wrap: balance;
   }
   /* The overlapping card (booking bar / service selector) is always centered. */
   .hero-card {

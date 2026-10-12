@@ -27,8 +27,12 @@ interface Props {
   prefillDestination?: string;
   bands?: RateBand[];
   roadKm?: number;
+  /** HeroShell's layout; `split` for the city, locality and city × service pages. */
+  align?: 'center' | 'split';
+  /** Breadcrumbs in the banner (the split layout). */
+  crumbs?: { href?: string; label: string }[];
 }
-const { h1, intro, badge, image, imageUrl, cityLabel, ...quote } = Astro.props;
+const { h1, intro, badge, image, imageUrl, cityLabel, align, crumbs, ...quote } = Astro.props;
 
 // City list for the modal (only needed when the chip is shown) — carries each city's
 // uploaded thumbnail so the picker matches the hero.
@@ -40,7 +44,15 @@ const cities = cityLabel
   : [];
 ---
 
-<HeroShell h1={h1} intro={intro} badge={badge} image={image} imageUrl={imageUrl}>
+<HeroShell
+  h1={h1}
+  intro={intro}
+  badge={badge}
+  image={image}
+  imageUrl={imageUrl}
+  align={align}
+  crumbs={crumbs}
+>
   <QuoteWidget {...quote} cityLabel={cityLabel} eager />
 </HeroShell>
 

@@ -23,8 +23,9 @@
  *   npx tsx src/scripts/import-service-pages.ts --force
  */
 import fs from 'node:fs';
-import type { ServiceBlock, ServicePage } from '@mpm/shared';
+import type { ServicePage } from '@mpm/shared';
 import { SERVICE_PAGE_LABELS, SERVICE_PAGES } from '@mpm/shared';
+import { blank, toCmsBlock } from '../lib/brief-blocks.js';
 
 const envFile = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';
 for (const rawLine of envFile.split('\n')) {
@@ -51,31 +52,6 @@ const DROP_EXTRAS: Record<string, string[]> = {
   'bike-transport': ['Fuel drained for safe transit'],
 };
 
-/** A brief block in the shape the CMS stores it (Services → Service page → Sections). */
-function toCmsBlock(b: ServiceBlock): Record<string, unknown> {
-  switch (b.kind) {
-    case 'text':
-      return { blockType: 'svcText', body: b.body };
-    case 'steps':
-      return {
-        blockType: 'svcSteps',
-        items: b.items.map((i) => ({ title: i.title, body: i.body })),
-      };
-    case 'list':
-      return { blockType: 'svcList', items: b.items.map((text) => ({ text })) };
-    case 'table':
-      return {
-        blockType: 'svcTable',
-        h1: b.columns[0] ?? '',
-        h2: b.columns[1] ?? '',
-        h3: b.columns[2] ?? '',
-        rows: b.rows.map((r) => ({ c1: r[0] ?? '', c2: r[1] ?? '', c3: r[2] ?? '' })),
-      };
-    case 'scope':
-      return { blockType: 'svcScope' };
-  }
-}
-
 /** The whole "Service page" group, filled from the brief. */
 function fromBrief(p: ServicePage): Record<string, unknown> {
   return {
@@ -95,9 +71,6 @@ function fromBrief(p: ServicePage): Record<string, unknown> {
     ...SERVICE_PAGE_LABELS,
   };
 }
-
-const blank = (v: unknown): boolean =>
-  v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0);
 
 const payload = await getPayload({ config });
 const found = await payload.find({

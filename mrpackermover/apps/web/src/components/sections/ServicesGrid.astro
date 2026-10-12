@@ -1,10 +1,7 @@
 ---
-import fs from 'node:fs';
-import path from 'node:path';
 import { serviceCopy } from '@mpm/shared';
 import { iconSvg } from '../../lib/icons.js';
-import { heroAlt, heroForService } from '../../lib/hero.js';
-import cardPhotos from '../../data/card-photos.json';
+import { cardPhoto } from '../../lib/card-photo.js';
 
 /**
  * The service cards (our services only), on the home page and on /services.
@@ -32,17 +29,9 @@ interface Props {
 }
 const { services, heading = 'What we move', intro, detail = 'line' } = Astro.props;
 
-/**
- * Each card leads with a real photo of that job, carrying our mark - a 600x375 crop
- * (~20 KB) built with its alt text by scripts/build-card-photos.mjs. A service added
- * later with no photo yet simply shows its card without one.
- */
-const photoFor = (slug: string): string | null =>
-  fs.existsSync(path.resolve('public/images/cards', `${slug}.webp`))
-    ? `/images/cards/${slug}.webp`
-    : null;
-const altFor = (slug: string): string =>
-  (cardPhotos as Record<string, { alt: string }>)[slug]?.alt ?? heroAlt(heroForService(slug));
+/** Each card leads with a real photo of that job (lib/card-photo.ts). */
+const photoFor = (slug: string): string | null => cardPhoto(slug)?.src ?? null;
+const altFor = (slug: string): string => cardPhoto(slug)?.alt ?? '';
 ---
 
 <div class="section-head">

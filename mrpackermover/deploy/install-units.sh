@@ -11,6 +11,7 @@
 # Usage:  sudo bash deploy/install-units.sh
 #         sudo systemctl daemon-reload
 #         sudo systemctl enable --now mrpackermover-cms mrpackermover-deploy
+#         sudo systemctl enable --now mrpackermover-release.timer   # locality release batches
 #
 # Re-run it after moving the clone; it simply rewrites the units.
 set -euo pipefail
@@ -40,7 +41,8 @@ fi
 echo "→ Project root: $PROJECT_ROOT"
 echo "→ Installing units into $UNIT_DEST"
 
-for unit in mrpackermover-cms.service mrpackermover-deploy.service; do
+for unit in mrpackermover-cms.service mrpackermover-deploy.service \
+	mrpackermover-release.service mrpackermover-release.timer; do
 	src="$DEPLOY_DIR/$unit"
 	if [ ! -f "$src" ]; then
 		echo "✗ Missing $src" >&2
@@ -55,3 +57,4 @@ echo
 echo "✅ Units installed. Now run:"
 echo "     sudo systemctl daemon-reload"
 echo "     sudo systemctl enable --now mrpackermover-cms mrpackermover-deploy"
+echo "     sudo systemctl enable --now mrpackermover-release.timer"

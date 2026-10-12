@@ -105,7 +105,7 @@ export const carTransport: ServicePage = {
             'Photo condition report. Every panel, the wheels and the interior, at pickup and at delivery. Both sets are shared with you, so any question is settled by the record, not by memory.',
             'Wheel locks and soft tyre straps. The car is held by its wheels, never chained by the body.',
             'ID-verified crew and vehicle. Check who is coming and in which carrier before pickup: [verify your crew](/verify).',
-            'Written claims process. If something does happen, it is assessed against the pickup photos and settled. We publish how fast. See [how claims work](/claims) and [transit insurance](/insurance).',
+            'Written claims process. If something does happen, it is assessed against the pickup photos and settled, and we publish how fast. See [how claims work](/claims) and [transit insurance](/insurance).',
           ],
         },
       ],
@@ -246,7 +246,7 @@ export const carTransport: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'Moving to another state for good? If the car stays in the new state for more than 12 months, it must be re-registered there, which needs an NOC from your current RTO. Some states refund unused road tax; ask your RTO. If you are eligible for a BH (Bharat) series number, such as government and defence staff or employees of companies with offices in 4 or more states, you can avoid re-registering on future moves. RTO paperwork is not part of our service, but we will tell you where to start.',
+          body: 'Moving to another state for good? If the car stays in the new state for more than 12 months, it must be re-registered there, which needs an NOC from your current RTO. Some states refund unused road tax; ask your RTO.\n\nA BH (Bharat) series number avoids re-registering on future moves. Government and defence staff, and employees of companies with offices in 4 or more states, can be eligible. RTO paperwork is not part of our service, but we will tell you where to start.',
         },
       ],
     },

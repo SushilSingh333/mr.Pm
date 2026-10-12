@@ -1,0 +1,277 @@
+---
+import { PHONE_TEL, WHATSAPP_HREF } from '../../lib/site.js';
+
+/**
+ * The closing panel: a light, tonal panel on the centre line like everything above it - the
+ * brand's palest lavender, lit from one corner - so the last thing a reader meets is the
+ * next step, set apart without shouting. The heading and
+ * one line, what happens next in three steps, three buttons - price (back up to the
+ * page's form or price check), call, WhatsApp - and related links underneath. Shared by
+ * the service, city and locality pages.
+ */
+interface Props {
+  heading: string;
+  text: string;
+  labels: { check: string; call: string; whatsapp: string };
+  /** Where "Check my price" goes: the form or the price check on this page. */
+  checkHref?: string;
+  related?: { label: string; href: string }[];
+  /** White or tinted surround, to carry on the sections' alternation. */
+  tone?: 'white' | 'tint';
+}
+const { heading, text, labels, checkHref = '#quote', related = [], tone = 'white' } = Astro.props;
+/** How every move goes from here: the same three steps on every page. */
+const STEPS = [
+  'Share pickup, drop and date',
+  'Free video survey of your home',
+  'One fixed, written price',
+];
+---
+
+<section class:list={['gc-wrap', { 'gc-wrap--tint': tone === 'tint' }]} aria-label="Get a price">
+  <div class="gsv-cta">
+    <div class="gsv-cta__copy">
+      <h2>{heading}</h2>
+      <p>{text}</p>
+      <ol class="gsv-cta__steps" aria-label="What happens next">
+        {
+          STEPS.map((step, i) => (
+            <li>
+              <span class="gsv-cta__n">{i + 1}</span>
+              <span>{step}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="gsv-cta__actions">
+        <a class="gbtn gbtn--filled" href={checkHref}>{labels.check}</a>
+        <a class="gbtn gbtn--tonal" href={`tel:${PHONE_TEL}`}>{labels.call}</a>
+        <a
+          class="gbtn gbtn--outlined"
+          href={WHATSAPP_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {labels.whatsapp}
+        </a>
+      </div>
+      {
+        related.length > 0 && (
+          <nav class="gsv-cta__related" aria-label="Related">
+            {related.map((l) => (
+              <a href={l.href}>{l.label}</a>
+            ))}
+          </nav>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .gc-wrap {
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
+  }
+  .gc-wrap--tint {
+    background: var(--g-surface-2);
+  }
+  /* Light and tonal: the brand's palest lavender, lit from the top-left corner, with a
+     hairline edge - the earlier service pages' closing panel, refined. */
+  .gsv-cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin-inline: auto;
+    padding: clamp(2.25rem, 5vw, 3.75rem) clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+    border-radius: 2rem;
+    background:
+      radial-gradient(60% 90% at 0% 0%, #fff 0%, transparent 70%),
+      radial-gradient(
+        50% 80% at 100% 100%,
+        color-mix(in srgb, var(--color-brand-100) 70%, #fff),
+        transparent 70%
+      ),
+      var(--color-brand-50);
+    color: var(--g-ink);
+    text-align: center;
+  }
+  .gsv-cta__copy h2 {
+    margin: 0 auto 0.75rem;
+    max-width: 26ch;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gsv-cta__copy p {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+    text-wrap: pretty;
+  }
+  /* What happens next: three white steps. */
+  .gsv-cta__steps {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    max-width: 52rem;
+    margin: 1.75rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gsv-cta__steps li {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-brand-600) 12%, transparent);
+    border-radius: 1rem;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: left;
+    color: var(--g-ink);
+    box-shadow: 0 1px 2px rgb(29 0 178 / 0.06);
+  }
+  .gsv-cta__n {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .gsv-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .gsv-cta__related {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    max-width: 40rem;
+    margin: 2rem auto 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-brand-600) 14%, transparent);
+    font-size: 0.875rem;
+  }
+  .gsv-cta__related a {
+    color: var(--color-brand-700);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gsv-cta__related a:hover {
+    text-decoration: underline;
+  }
+  /* Material buttons: filled for the main action, tonal and outlined beside it. */
+  .gbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 1.6rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .gbtn--filled {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .gbtn--filled:hover {
+    background: var(--color-brand-700);
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 2px 6px 2px rgb(60 64 67 / 0.15);
+  }
+  .gbtn--tonal {
+    background: color-mix(in srgb, var(--color-brand-600) 12%, #fff);
+    color: var(--color-brand-700);
+  }
+  .gbtn--tonal:hover {
+    background: color-mix(in srgb, var(--color-brand-600) 18%, #fff);
+  }
+  .gbtn--outlined {
+    border: 1px solid var(--g-outline-strong);
+    background: #fff;
+    color: var(--color-brand-700);
+  }
+  .gbtn--outlined:hover {
+    background: var(--g-surface-1);
+  }
+  .gbtn:focus-visible,
+  .gsv-cta__related a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  @media (max-width: 760px) {
+    .gsv-cta__steps {
+      flex-direction: column;
+    }
+  }
+  @media (max-width: 560px) {
+    .gsv-cta {
+      border-radius: 1.5rem;
+    }
+    .gsv-cta__actions .gbtn {
+      flex: 1 1 auto;
+    }
+  }
+
+  /* Hover: the three steps lift a little and their number deepens. */
+  .gsv-cta__steps li,
+  .gsv-cta__n {
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gsv-cta__steps li:hover {
+    border-color: color-mix(in srgb, var(--color-brand-600) 30%, transparent);
+    box-shadow: 0 10px 24px rgb(29 0 178 / 0.12);
+    transform: translateY(-3px);
+  }
+  .gsv-cta__steps li:hover .gsv-cta__n {
+    background: var(--color-brand-700);
+    transform: scale(1.08);
+  }
+  .gbtn--filled:active,
+  .gbtn--tonal:active,
+  .gbtn--outlined:active {
+    transform: scale(0.98);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gsv-cta__steps li,
+    .gsv-cta__n {
+      transition: none;
+    }
+    .gsv-cta__steps li:hover,
+    .gsv-cta__steps li:hover .gsv-cta__n {
+      transform: none;
+    }
+  }
+</style>

@@ -37,6 +37,13 @@
 		reverse_proxy localhost:3000
 	}
 
+	# Pages retired because another page covers the same place. Noida Extension is the
+	# popular name of Greater Noida West, so one page now serves both names; the old
+	# address keeps its search history by redirecting permanently. The list of these
+	# lives in packages/shared/src/geo-pages/index.ts (LOCALITY_REDIRECTS) - keep the two
+	# in step.
+	redir /packers-and-movers/noida/noida-extension /packers-and-movers/greater-noida/greater-noida-west permanent
+
 	# Everything else is the static site.
 	handle {
 		root * /var/www/mrpackermover

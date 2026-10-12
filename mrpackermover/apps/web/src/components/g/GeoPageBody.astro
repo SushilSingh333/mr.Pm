@@ -1,0 +1,217 @@
+---
+import type { GeoPage } from '@mpm/shared';
+import { SERVICE_PAGE_LABELS, plainText } from '@mpm/shared';
+import GBody from './GBody.astro';
+import GFaqBand from './GFaqBand.astro';
+import GLinkBand from './GLinkBand.astro';
+import GCtaPanel from './GCtaPanel.astro';
+import { bandTones, tocOf, withIds } from '../../lib/page-sections.js';
+import { paragraphsHtml } from '../../lib/rich-text.js';
+import { topicIcon } from '../../lib/topic-icon.js';
+
+/**
+ * Everything on a city or locality page below the photo banner and price bar, built from
+ * the same pieces as the service pages, all on one centre line: the brief's trust points
+ * as four icon cards, the section bar, the brief's sections as alternating bands, the
+ * FAQs, the services as photo cards, the areas and nearby places as cards, and the
+ * brand-blue closing panel whose "Check my price" goes back up to the
+ * price check in the hero.
+ *
+ * Links only ever point at live pages: the caller passes them from the manifest.
+ */
+type Link = { href: string; label: string; sub?: string; image?: { src: string; alt: string } };
+interface Props {
+  page: GeoPage;
+  serviceLinks: Link[];
+  /** A city's localities with pages of their own. */
+  areas?: {
+    heading: string;
+    intro?: string;
+    links: Link[];
+    search?: { label: string; empty: string };
+  };
+  /** Nearby cities, or a locality's sibling areas. */
+  nearbyLinks: Link[];
+}
+const { page, serviceLinks, areas, nearbyLinks } = Astro.props;
+
+const sections = withIds(page.sections);
+const toc = tocOf(sections);
+const faqs = page.faqs.map((f) => ({ question: f.question, html: paragraphsHtml(f.answer) }));
+// The bands after the sections carry on their white / tinted alternation.
+const tone = bandTones(sections.length);
+const showAreas = Boolean(areas && areas.links.length > 0);
+const tones = {
+  faq: faqs.length > 0 ? tone() : 'white',
+  services: serviceLinks.length > 0 ? tone() : 'white',
+  areas: showAreas ? tone() : 'white',
+  nearby: nearbyLinks.length > 0 || page.routes.length > 0 ? tone() : 'white',
+  cta: tone(),
+};
+// The cost section ends with a pointer back up to the price check in the banner.
+const priceCta = {
+  title: 'See your price in seconds',
+  text: 'Pickup, drop, phone and date are all the price check needs.',
+  label: 'Check your price',
+};
+const labels = {
+  check: SERVICE_PAGE_LABELS.ctaCheck,
+  call: SERVICE_PAGE_LABELS.ctaCall,
+  whatsapp: SERVICE_PAGE_LABELS.ctaWhatsapp,
+};
+---
+
+{
+  page.trust.length > 0 && (
+    <div class="container-page geo-trust-wrap">
+      <ul class="geo-trust" aria-label="What you get">
+        {page.trust.map((t) => (
+          <li>
+            <span class="geo-trust__i" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                set:html={topicIcon(t)}
+              />
+            </span>
+            <span>{plainText(t)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+<GBody sections={sections} toc={toc} priceCta={priceCta} />
+
+<GFaqBand heading={page.faqHeading} faqs={faqs} tone={tones.faq} />
+
+<GLinkBand
+  id="services"
+  heading={page.servicesHeading}
+  links={serviceLinks}
+  icon="arrow"
+  tone={tones.services}
+/>
+
+{
+  showAreas && (
+    <GLinkBand
+      id="areas"
+      heading={areas!.heading}
+      intro={areas!.intro}
+      links={areas!.links}
+      tone={tones.areas}
+      search={areas!.search}
+    />
+  )
+}
+
+<GLinkBand
+  id="nearby"
+  heading={page.nearbyHeading}
+  intro={page.nearbyIntro}
+  links={nearbyLinks}
+  notesLabel={nearbyLinks.length ? 'Popular routes' : undefined}
+  notes={page.routes}
+  tone={tones.nearby}
+/>
+
+<GCtaPanel
+  heading={page.ctaHeading}
+  text={page.ctaText}
+  labels={labels}
+  checkHref="#quote"
+  tone={tones.cta}
+/>
+
+<style>
+  .geo-trust-wrap {
+    padding-top: clamp(1.25rem, 2.5vw, 2rem);
+    padding-bottom: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  /* The brief's promises as four cards, each with its own icon: read at a glance under
+     the price bar. Two across on a phone. */
+  .geo-trust {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .geo-trust li {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.25rem;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--g-ink);
+  }
+  .geo-trust__i {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  @media (max-width: 900px) {
+    .geo-trust {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 480px) {
+    .geo-trust li {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.9rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Hover: the trust cards lift a little and their icon fills. */
+  .geo-trust li,
+  .geo-trust__i {
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .geo-trust li:hover {
+    border-color: var(--color-brand-100);
+    box-shadow:
+      0 2px 4px rgb(60 64 67 / 0.08),
+      0 12px 28px rgb(60 64 67 / 0.12);
+    transform: translateY(-3px);
+  }
+  .geo-trust li:hover .geo-trust__i {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .geo-trust li,
+    .geo-trust__i {
+      transition: none;
+    }
+    .geo-trust li:hover {
+      transform: none;
+    }
+  }
+</style>

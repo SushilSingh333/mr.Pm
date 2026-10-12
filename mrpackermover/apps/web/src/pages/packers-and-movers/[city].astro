@@ -1,20 +1,24 @@
 ---
-import type { CityHubData } from '@mpm/shared';
+import type { CityHubData, GeoPage } from '@mpm/shared';
+import { CITY_PAGES, fallbackGeoPage, geoPageWithCount, plainText, serviceCopy } from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
 import { rowsOfType, dataOf } from '../../data/manifest.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import GeoHero from '../../components/sections/GeoHero.astro';
-import Band from '../../components/ui/Band.astro';
-import Breadcrumbs from '../../components/nav/Breadcrumbs.astro';
-import StatStrip from '../../components/trust/StatStrip.astro';
-import AreasGrid from '../../components/sections/AreasGrid.astro';
-import LocalNotes from '../../components/sections/LocalNotes.astro';
-import ReviewList from '../../components/trust/ReviewList.astro';
-import RelatedLinks from '../../components/sections/RelatedLinks.astro';
-import Faq from '../../components/sections/Faq.astro';
+import GPage from '../../components/g/GPage.astro';
+import GeoPageBody from '../../components/g/GeoPageBody.astro';
 import { SITE_ORIGIN } from '../../lib/site.js';
+import { cardPhoto } from '../../lib/card-photo.js';
 
-/** City hub. Every path comes from a manifest row — no arbitrary input (ADR-0003). */
+/**
+ * City page (/packers-and-movers/<city>): the same photo banner and price bar as every
+ * geo page and the home page (GeoHero), then the owner's city brief on the service
+ * pages' tinted canvas of cards (GeoPageBody). The copy comes finished from the manifest - the brief with the
+ * editor's "Page content" fields laid over it. The committed sample manifest CI builds
+ * from has none, so there the brief (or the plain fallback) stands in.
+ *
+ * Every path comes from a manifest row - no arbitrary input (ADR-0003).
+ */
 export function getStaticPaths() {
   return rowsOfType('city-hub').map((row) => ({
     params: { city: row.slug },
@@ -24,104 +28,77 @@ export function getStaticPaths() {
 
 const { row } = Astro.props;
 const data = dataOf<CityHubData>(row);
-// City hero artwork.
-//
-// /images/hero/cities/<slug>.jpg was being used as this banner's background, but those
-// files are 240x240 square thumbnails built for the city cards on the home page. Used
-// full-bleed they were upscaled roughly six times and read as a blur on exactly the
-// pages that matter most - Delhi, Mumbai, Bengaluru and the rest.
-//
-// They also had no WebP variants, because the variant builder only walks the top level
-// of the hero folder, so every one of those pages requested a -narrow/-full file that
-// did not exist and preloaded two 404s.
-//
-// The branded montage is 1920 wide, sharp, and carries the current logo, so it is the
-// better banner until city-specific wide artwork exists. The square thumbnails keep
-// doing their real job on the city cards, untouched.
+const page: GeoPage =
+  data.page ??
+  geoPageWithCount(
+    CITY_PAGES[row.slug] ??
+      fallbackGeoPage({ place: data.cityName, notes: data.editorial, faqs: data.faqs }),
+    rowsOfType('city-hub').length,
+  );
+
+// Each service as a photo card: the sentence-case name, whatever capitals the CMS record
+// uses, and the service's own photograph.
+const serviceLinks = row.relatedLinks
+  .filter((l) => l.group === 'services')
+  .map((l) => {
+    const slug = l.path.split('/').pop() ?? '';
+    const name = serviceCopy(slug)?.name;
+    return {
+      href: l.path,
+      label: name ?? l.anchor,
+      sub: name ? `in ${data.cityName}` : undefined,
+      image: cardPhoto(slug) ?? undefined,
+    };
+  });
+// The banner artwork. /images/hero/cities/<slug>.jpg are 240px square card thumbnails
+// that blur when stretched full-bleed (and have no WebP variants), so the branded 1920px
+// montage is the banner until wide city artwork exists. A CMS upload wins.
 const heroImage = 'home';
-const areas = data.areas ?? [];
-// Localities are shown in the Areas grid, so keep RelatedLinks to services + routes.
-const otherLinks = row.relatedLinks.filter((l) => l.group !== 'localities');
+
+const areaLinks = (data.areas ?? []).map((a) => ({ href: a.path, label: a.name }));
+const nearbyLinks = row.relatedLinks
+  .filter((l) => l.group === 'nearby')
+  .map((l) => ({ href: l.path, label: l.anchor }));
 
 const extraJsonLd = [
   jsonld.service({
     siteOrigin: SITE_ORIGIN,
-    name: `Packers and Movers in ${data.cityName}`,
+    name: `Packers and movers in ${data.cityName}`,
+    serviceType: 'Packers and movers',
+    description: plainText(page.subhead),
     areaServed: data.cityName,
     offer: data.priceFrom ? { priceFrom: data.priceFrom } : undefined,
   }),
-  jsonld.faqPage(data.faqs),
+  jsonld.faqPage(page.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) }))),
 ];
 ---
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
-  <div class="container-page"><Breadcrumbs items={row.breadcrumbs} current={data.cityName} /></div>
-
   <GeoHero
-    h1={row.h1}
-    intro={data.stats.jobs12m > 0
-      ? `Fixed written quotes, verified crews, and ${data.stats.jobs12m.toLocaleString('en-IN')} moves completed across ${data.cityName}. We pick up here, and deliver anywhere in India.`
-      : `Fixed written quotes and verified crews in ${data.cityName}. We pick up here, and deliver anywhere in India.`}
+    align="split"
+    crumbs={[{ href: '/', label: 'Home' }, { label: data.cityName }]}
+    h1={page.h1}
+    intro={plainText(page.subhead)}
     image={heroImage}
     imageUrl={data.heroImage?.url}
     prefillCity={data.cityName}
     bands={data.rateBands}
   />
 
-  {
-    /* A newly launched city has no completed-job data yet. Claiming a track
-       record with zeros would contradict the site's own honesty pitch, so the
-       band appears only once real numbers exist. */
-    data.stats.jobs12m > 0 && (
-      <Band label="Serviceability">
-        <div class="section-head">
-          <h2>Our track record in {data.cityName}</h2>
-        </div>
-        <StatStrip stats={data.stats} scope={`in ${data.cityName}`} />
-      </Band>
-    )
-  }
-
-  {
-    areas.length > 0 && (
-      <Band label="Areas">
-        <AreasGrid areas={areas} cityName={data.cityName} />
-      </Band>
-    )
-  }
-
-  {
-    data.editorial.length > 0 && (
-      <Band alt label="Local notes">
-        <LocalNotes
-          paragraphs={data.editorial}
-          heading={`Moving in ${data.cityName}: what our crews plan for`}
-        />
-      </Band>
-    )
-  }
-
-  {
-    data.reviews.length > 0 && (
-      <Band label="Reviews">
-        <ReviewList reviews={data.reviews} heading={`Reviews from ${data.cityName}`} />
-      </Band>
-    )
-  }
-
-  {
-    otherLinks.length > 0 && (
-      <Band alt label="Explore">
-        <RelatedLinks links={otherLinks} />
-      </Band>
-    )
-  }
-
-  {
-    data.faqs.length > 0 && (
-      <Band label="FAQ">
-        <Faq faqs={data.faqs} heading={`Packers and movers in ${data.cityName}: FAQs`} />
-      </Band>
-    )
-  }
+  <GPage>
+    <GeoPageBody
+      page={page}
+      serviceLinks={serviceLinks}
+      areas={{
+        heading: `Which areas of ${data.cityName} do you cover?`,
+        intro: `All of ${data.cityName}. Each area below has its own guide to access, society rules and timings.`,
+        links: areaLinks,
+        search: {
+          label: `Find your area in ${data.cityName}`,
+          empty: `No guide for that area yet, but we cover all of ${data.cityName}.`,
+        },
+      }}
+      nearbyLinks={nearbyLinks}
+    />
+  </GPage>
 </BaseLayout>

@@ -27,8 +27,10 @@ const { row, extraJsonLd } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- Self-hosted fonts get preloaded here once pinned (ADR-0002):
-         <link rel="preload" href="/fonts/fraunces-subset.woff2" as="font" type="font/woff2" crossorigin /> -->
+    {
+      /* Self-hosted fonts get preloaded here once pinned (ADR-0002):
+         <link rel="preload" href="/fonts/fraunces-subset.woff2" as="font" type="font/woff2" crossorigin /> */
+    }
     <Seo row={row} extraJsonLd={extraJsonLd} />
     {
       /* For a page that must run something in <head> in a particular order relative to

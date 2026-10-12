@@ -45,6 +45,10 @@ export const bikeTransport: ServicePage = {
             },
           ],
         },
+        {
+          kind: 'text',
+          body: 'Every crew member and vehicle is ID-verified. Before you hand over the keys, [verify your crew](/verify) and the vehicle number.',
+        },
       ],
     },
     {
@@ -67,13 +71,48 @@ export const bikeTransport: ServicePage = {
             ],
             [
               'Long routes or premium bikes',
-              'Wooden crate on request, the closest thing to a guarantee against handling damage',
+              'Wooden crate on request, the most protection we offer against handling damage',
             ],
           ],
         },
         {
           kind: 'text',
           body: 'Nobody lifts a bike by the handlebars and nobody drops it onto a truck bed. That is exactly how a fork gets bent.',
+        },
+      ],
+    },
+    {
+      heading: 'Standard wrap or wooden crate: which does your bike need?',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'Most bikes travel safely in our standard wrap. A crate adds a rigid wooden frame around the wrapped bike, for when the handling risk is higher.',
+        },
+        {
+          kind: 'table',
+          columns: ['', 'Standard wrap', 'Wooden crate'],
+          rows: [
+            [
+              'What it is',
+              'Foam, bubble wrap and stretch film over the tank, panels, levers and mirrors',
+              'A wooden frame built around the wrapped bike',
+            ],
+            [
+              'Best for',
+              'Scooters, commuter bikes and moves within the city',
+              'Long routes and premium bikes',
+            ],
+            [
+              'What it protects against',
+              'Scratches and knocks to paint, panels and controls',
+              'Knocks and pressure from every side during handling',
+            ],
+            ['Price', 'Part of the standard quote', 'Costs more, and your quote shows it'],
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Not sure? Tell us the bike and the route, and we will recommend one.',
         },
       ],
     },
@@ -132,13 +171,36 @@ export const bikeTransport: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'Your written quote is the final number, with GST shown. Moving house too? Add the bike to your [home shifting quote](/services/home-shifting).',
+          body: 'Your written quote is the final number, with GST shown. Moving house too? Add the bike to your [home shifting quote](/services/home-shifting).\n\nThe full method is on [how our fixed pricing works](/pricing).',
         },
       ],
     },
     {
       heading: 'What the price covers',
       blocks: [{ kind: 'scope' }],
+    },
+    {
+      heading: 'What a bike transport quote should show',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'Compare quotes line by line, not by the total alone. Our written quote shows:',
+        },
+        {
+          kind: 'list',
+          items: [
+            'Pickup and delivery addresses, so the price is door to door',
+            'The packing: standard wrap or a wooden crate',
+            'Transit insurance as one optional line, priced on your declared value',
+            'GST, shown on the quote',
+            'For city to city moves, a dated delivery window',
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'If another quote leaves out the packing, the delivery address or a condition record, ask before you pay. Read [what a fair moving quote includes](/blog/what-a-fair-moving-quote-includes).',
+        },
+      ],
     },
     {
       heading: 'Documents you need for bike transport',
@@ -170,7 +232,26 @@ export const bikeTransport: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'Moving to another state for good? If you will keep the bike in the new state for more than 12 months, it needs re-registration there, and you will need an NOC from your current RTO. That paperwork is not part of this service, but ask us and we will tell you where to start.',
+          body: 'Moving to another state for good? If you will keep the bike in the new state for more than 12 months, it needs re-registration there, and you will need an NOC from your current RTO. Some states refund unused road tax, so ask your RTO.\n\nThat paperwork is not part of this service, but ask us and we will tell you where to start.',
+        },
+      ],
+    },
+    {
+      heading: 'At delivery: check before you sign',
+      blocks: [
+        {
+          kind: 'list',
+          items: [
+            'Match the bike against the pickup photos, panel by panel.',
+            'Check the mirrors, levers, exhaust and indicators, the parts that stick out.',
+            'Confirm the odometer reading matches the one noted at pickup.',
+            'Note any damage on the condition report before you sign, and take your own photos.',
+            'The tank was ridden down for transit, so make the nearest fuel pump your first stop.',
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'If something is wrong, report it within the claims window printed on your invoice. It is checked against the pickup photos, so the record settles it, not memory.',
         },
       ],
     },
@@ -201,6 +282,11 @@ export const bikeTransport: ServicePage = {
       question: 'Can I pack my luggage with the bike?',
       answer:
         'Not on the bike or inside the crate. Add a few boxes to the same quote and they travel in the same vehicle.',
+    },
+    {
+      question: 'Can I check who is coming to collect my bike?',
+      answer:
+        'Yes. Every crew member and vehicle is ID-verified, so you can [verify your crew](/verify) before handing over the keys.',
     },
     {
       question: 'Do I need to be there at pickup and delivery?',

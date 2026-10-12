@@ -6,6 +6,7 @@ import {
   contentReadVersions,
 } from '../access/index.js';
 import { seoOverrideFields, cityServiceSeoField } from '../fields/seo.js';
+import { geoPageField } from '../fields/service-page.js';
 import { slugField } from '../fields/slug.js';
 import { latLngFields } from '../fields/geo.js';
 import { triggerBuildOnChange } from '../hooks/trigger-build.js';
@@ -171,6 +172,7 @@ export const Locations: CollectionConfig = {
         condition: (data) => data?.type !== 'locality',
       },
     },
+    geoPageField,
     seoOverrideFields('this city or locality'),
     cityServiceSeoField,
   ],

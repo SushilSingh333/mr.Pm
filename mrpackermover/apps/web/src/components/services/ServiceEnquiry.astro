@@ -260,6 +260,8 @@ const id = (n: string): string => `se-${n}`;
 </form>
 
 <script>
+  import { attachAutocomplete } from '../quote/maps';
+
   /** Ten digits starting 6-9, after +91, 91 or a leading 0 - the rule /api/quote applies. */
   const phoneOk = (v: string): boolean => {
     const d = v.replace(/\D/g, '');
@@ -311,6 +313,21 @@ const id = (n: string): string => `se-${n}`;
     const err = form.querySelector<HTMLElement>('.se-error');
     const btn = form.querySelector<HTMLButtonElement>('.se-btn');
     const btnHtml = btn?.innerHTML ?? '';
+
+    // Google's place suggestions on the address boxes, as on the price bar and /get-quote.
+    // Loaded on first focus (see maps.ts), so a visitor who never touches the form never
+    // downloads Maps. India only - except an overseas destination, which is worldwide.
+    for (const name of ['pickup', 'drop']) {
+      const input = form.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+      if (!input) continue;
+      const worldwide = mode === 'international' && name === 'drop';
+      void attachAutocomplete(input, worldwide ? { country: null } : {});
+      // Picking a suggestion fills the box; clear any "fill this in" mark it carried.
+      input.addEventListener('change', () => {
+        input.closest('.se-field')?.classList.remove('is-bad');
+        input.setAttribute('aria-invalid', 'false');
+      });
+    }
 
     for (const d of form.querySelectorAll<HTMLInputElement>('input[data-min-today]'))
       d.min = todayIST();

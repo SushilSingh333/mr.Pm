@@ -9,6 +9,7 @@
 import type {
   CopyOverrides,
   FaqCopy,
+  GeoPageOverrides,
   HomePageCopy,
   LinkCopy,
   ServiceBlock,
@@ -194,15 +195,20 @@ function serviceBlock(b: Row): ServiceBlock | undefined {
       return items.length ? { kind: 'list', items } : undefined;
     }
     case 'svcTable': {
-      // Two columns unless the third has a heading or any cell. The first heading may
-      // be blank on purpose: the corner of a comparison table.
-      const three = Boolean(str(b.h3)) || rows(b.rows).some((r) => str(r.c3));
-      const columns = [str(b.h1) ?? '', str(b.h2) ?? '', ...(three ? [str(b.h3) ?? ''] : [])];
+      // Two columns, plus the third and fourth when they have a heading or any cell. The
+      // first heading may be blank on purpose: the corner of a comparison table.
+      const used = (n: 3 | 4): boolean =>
+        Boolean(str(b[`h${n}`])) || rows(b.rows).some((r) => str(r[`c${n}`]));
+      const width = used(4) ? 4 : used(3) ? 3 : 2;
+      const columns = [str(b.h1) ?? '', str(b.h2) ?? '', str(b.h3) ?? '', str(b.h4) ?? ''].slice(
+        0,
+        width,
+      );
       const body = rows(b.rows).flatMap((r) => {
         const c1 = str(r.c1);
         const c2 = str(r.c2);
         if (!c1 || !c2) return [];
-        return [three ? [c1, c2, str(r.c3) ?? ''] : [c1, c2]];
+        return [[c1, c2, str(r.c3) ?? '', str(r.c4) ?? ''].slice(0, width)];
       });
       return body.length ? { kind: 'table', columns, rows: body } : undefined;
     }
@@ -254,6 +260,38 @@ export function servicePageOverrides(page: unknown): ServicePageOverrides {
       return label && href ? [{ label, href }] : [];
     }),
   }) as ServicePageOverrides;
+}
+
+/** Locations → "Page content" → the city or locality page overrides (geo-pages). */
+export function geoPageOverrides(body: unknown): GeoPageOverrides {
+  const d = (body ?? {}) as Row;
+  const sections: ServiceSection[] = rows(d.sections).flatMap((r) => {
+    const blocks = rows(r.blocks)
+      .map(serviceBlock)
+      .filter((b): b is ServiceBlock => Boolean(b));
+    return blocks.length ? [{ heading: str(r.heading) ?? '', blocks }] : [];
+  });
+  return clean<Required<GeoPageOverrides>>({
+    subhead: str(d.subhead),
+    trust: rows(d.trust)
+      .map((r) => str(r.item))
+      .filter((t): t is string => Boolean(t)),
+    sections,
+    faqHeading: str(d.faqHeading),
+    faqs: rows(d.faqs).flatMap((r) => {
+      const question = str(r.question);
+      const answer = str(r.answer);
+      return question && answer ? [{ question, answer }] : [];
+    }),
+    servicesHeading: str(d.servicesHeading),
+    nearbyHeading: str(d.nearbyHeading),
+    nearbyIntro: str(d.nearbyIntro),
+    routes: rows(d.routes)
+      .map((r) => str(r.text))
+      .filter((t): t is string => Boolean(t)),
+    ctaHeading: str(d.ctaHeading),
+    ctaText: str(d.ctaText),
+  }) as GeoPageOverrides;
 }
 
 export const idOf = (ref: unknown): Id | undefined =>

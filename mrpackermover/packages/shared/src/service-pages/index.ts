@@ -1,4 +1,4 @@
-import type { ServicePage, ServicePageOverrides } from './types.js';
+import type { ServicePage, ServicePageOverrides, ServiceSection } from './types.js';
 import { homeShifting } from './home-shifting.js';
 import { officeShifting } from './office-shifting.js';
 import { carTransport } from './car-transport.js';
@@ -82,3 +82,25 @@ export const plainText = (text: string): string =>
     .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '$1')
     .replace(/\s*\n\s*\n\s*/g, ' ')
     .trim();
+
+/**
+ * A page's sections as plain paragraphs - the text the duplication gate compares between
+ * pages of one type. Not rendered; the sections themselves are.
+ */
+export const sectionsPlainText = (sections: ServiceSection[]): string[] =>
+  sections
+    .flatMap((s) => [
+      s.heading,
+      ...s.blocks.flatMap((b) =>
+        b.kind === 'text'
+          ? b.body.split(/\n\s*\n/).map(plainText)
+          : b.kind === 'steps'
+            ? b.items.map((i) => plainText(`${i.title}. ${i.body}`))
+            : b.kind === 'list'
+              ? b.items.map(plainText)
+              : b.kind === 'table'
+                ? b.rows.map((r) => r.join(' '))
+                : [],
+      ),
+    ])
+    .filter(Boolean);

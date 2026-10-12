@@ -535,10 +535,20 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
     box-shadow: -22px 0 55px rgba(9, 35, 65, 0.28);
     overflow: hidden; /* the middle section scrolls, not the whole drawer */
     transform: translateX(100%);
-    transition: transform var(--dur-base) var(--ease-out);
+    /* Closed, it is hidden as well as off-screen: otherwise its shadow showed as a grey
+       band down the right edge of every page on a phone, and its links took keyboard
+       focus. It hides only once the slide-out has finished. */
+    visibility: hidden;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      visibility 0s linear var(--dur-base);
   }
   .m-drawer.show {
     transform: translateX(0);
+    visibility: visible;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      visibility 0s;
   }
   /* Scrollable middle: links scroll here; top bar + footer stay pinned. */
   .md-scroll {

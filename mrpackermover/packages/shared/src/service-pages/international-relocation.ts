@@ -2,7 +2,7 @@ import type { ServicePage } from './types.js';
 
 /** International relocation page, from the owner's brief "InternationalRelocation_FINAL" (8 October 2026). */
 export const internationalRelocation: ServicePage = {
-  title: 'International Packers and Movers from India | MrMoverPacker',
+  title: 'International Packers and Movers | One Quote | MrMoverPacker',
   metaDescription:
     'International packers and movers from Delhi NCR. Export packing, sea or air freight, customs paperwork and one fixed written quote, door to door.',
   h1: 'International packers and movers, door to door with one fixed price',
@@ -91,7 +91,21 @@ export const internationalRelocation: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'How much space will you need? As a rough guide, a 20 ft container suits a 1 to 2 BHK and a 40 ft container a 3 to 4 BHK. Smaller loads may suit a shared container, where you pay only for the space you use. The survey confirms what fits your move.',
+          body: 'How much space will you need? Use this as a rough guide, and the survey confirms what fits your move.',
+        },
+        {
+          kind: 'table',
+          columns: ['Your load', 'Usual option'],
+          rows: [
+            ['Essentials for the first weeks', 'A small air shipment'],
+            ['Less than a 1 BHK', 'A shared container, where you pay only for the space you use'],
+            ['1 to 2 BHK', 'A 20 ft container'],
+            ['3 to 4 BHK', 'A 40 ft container'],
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'A shared container can take longer, because it waits for other shipments on the same route.',
         },
       ],
     },
@@ -186,6 +200,22 @@ export const internationalRelocation: ServicePage = {
         {
           kind: 'text',
           body: 'These are typical ranges. Your quote gives dates for your route.',
+        },
+      ],
+    },
+    {
+      heading: 'Before packing day: a checklist for moving abroad',
+      blocks: [
+        {
+          kind: 'list',
+          items: [
+            'Decide what goes by air, what goes by sea, and what you will sell or give away.',
+            'Collect passport and visa copies and proof of your new address.',
+            "Go through your destination's restricted items with us.",
+            'Set aside your hand luggage: passports, cash, jewellery, medicines and work laptops.',
+            'List values for the valued inventory, and decide on marine transit insurance.',
+            'Clean wooden furniture and outdoor items so they are free of soil and pests.',
+          ],
         },
       ],
     },

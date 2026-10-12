@@ -5,4 +5,5 @@ export * from './page-data.js';
 export * from './cloudinary.js';
 export * from './service-copy.js';
 export * from './service-pages/index.js';
+export * from './geo-pages/index.js';
 export * from './page-copy.js';

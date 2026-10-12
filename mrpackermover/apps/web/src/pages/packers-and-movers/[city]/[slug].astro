@@ -1,22 +1,32 @@
 ---
-import type { CityServiceData, LocalityData } from '@mpm/shared';
+import type { CityServiceData, GeoPage, LocalityData } from '@mpm/shared';
+import {
+  LOCALITY_PAGES,
+  fallbackGeoPage,
+  geoPageWithCount,
+  plainText,
+  serviceCopy,
+} from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
 import { rowsOfType, dataOf } from '../../../data/manifest.js';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import GeoHero from '../../../components/sections/GeoHero.astro';
 import Band from '../../../components/ui/Band.astro';
-import Breadcrumbs from '../../../components/nav/Breadcrumbs.astro';
-import StatStrip from '../../../components/trust/StatStrip.astro';
 import Inclusions from '../../../components/sections/Inclusions.astro';
 import LocalNotes from '../../../components/sections/LocalNotes.astro';
-import ReviewList from '../../../components/trust/ReviewList.astro';
 import RelatedLinks from '../../../components/sections/RelatedLinks.astro';
 import Faq from '../../../components/sections/Faq.astro';
+import GeoPageBody from '../../../components/g/GeoPageBody.astro';
+import GPage from '../../../components/g/GPage.astro';
 import { SITE_ORIGIN } from '../../../lib/site.js';
+import { cardPhoto } from '../../../lib/card-photo.js';
 
 /**
  * Two page families share this depth: city × service and locality. Both come from
  * manifest rows, so the route table is finite; the template branches on pageType.
+ *
+ * A locality page is built like its city page: the same photo banner and price bar,
+ * then the locality's brief on the tinted canvas of cards (GeoPageBody).
  */
 export function getStaticPaths() {
   return [...rowsOfType('city-service'), ...rowsOfType('locality')].map((row) => {
@@ -31,102 +41,139 @@ const cs = isService ? dataOf<CityServiceData>(row) : null;
 const loc = !isService ? dataOf<LocalityData>(row) : null;
 
 const cityName = cs?.cityName ?? loc?.cityName ?? '';
-const areaServed = isService ? cs!.cityName : loc!.localityName;
-// Pick per page type, never `cs?.x ?? loc!.x`: on a city-service page a missing
-// field (a city without pricing data, say) would fall through the `??` into
-// `loc!`, which is null there — that crashed the first build of a city that
-// launched on content alone.
-const stats = isService ? cs!.stats : loc!.stats;
-const bands = (isService ? cs!.rateBands : loc!.rateBands) ?? [];
-const reviews = (isService ? cs!.reviews : loc!.reviews) ?? [];
-const faqs = (isService ? cs!.faqs : loc!.faqs) ?? [];
-const editorial = (isService ? cs!.editorial : loc!.editorial) ?? [];
-const priceFrom = isService ? cs!.priceFrom : loc!.priceFrom;
-const current = isService ? `${cs!.serviceName} in ${cityName}` : `${loc!.localityName}`;
-
-const extraJsonLd = [
-  jsonld.service({
-    siteOrigin: SITE_ORIGIN,
-    name: isService
-      ? `${cs!.serviceName} in ${cityName}`
-      : `Packers and Movers in ${areaServed}, ${cityName}`,
-    areaServed,
-    offer: priceFrom ? { priceFrom } : undefined,
-  }),
-  jsonld.faqPage(faqs),
-];
-
-const intro = isService
-  ? `${cs!.serviceName} in ${cityName} with a fixed written quote, verified crews, and reviews tied to real job references.`
-  : `Packers and movers in ${loc!.localityName}, ${cityName}. Fixed quotes, verified crews, and notes specific to your society and block.`;
-
-// A CMS upload wins: the locality's own photo, else its city's (the manifest already
-// resolved that fallback). Without one, the static /images/hero/cities/<city>.jpg file.
-const heroImageUrl = cs?.heroImage?.url ?? loc?.heroImage?.url;
-// Same banner choice as the city hub - see the note there on why the square city
-// thumbnails are not used full-bleed.
+// Same banner choice as the city page - see the note there.
 const heroImage = 'home';
+
+// ── Locality ───────────────────────────────────────────────────────────────
+const page: GeoPage | null = loc
+  ? (loc.page ??
+    geoPageWithCount(
+      LOCALITY_PAGES[row.slug] ??
+        fallbackGeoPage({
+          place: loc.localityName,
+          city: loc.cityName,
+          notes: loc.editorial,
+          faqs: loc.faqs,
+        }),
+      rowsOfType('city-hub').length,
+    ))
+  : null;
+const serviceLinks = row.relatedLinks
+  .filter((l) => l.group === 'services')
+  .map((l) => {
+    const slug = l.path.split('/').pop() ?? '';
+    const name = serviceCopy(slug)?.name;
+    return {
+      href: l.path,
+      label: name ?? l.anchor,
+      sub: name ? `in ${cityName}` : undefined,
+      image: cardPhoto(slug) ?? undefined,
+    };
+  });
+// The whole city first, then the sibling areas with pages of their own.
+const nearbyLinks = loc
+  ? [
+      { href: loc.cityPath, label: loc.cityName, sub: 'The whole city' },
+      ...row.relatedLinks
+        .filter((l) => l.group === 'siblings')
+        .map((l) => ({ href: l.path, label: l.anchor.replace(/^Movers in /, '') })),
+    ]
+  : [];
+
+// ── City × service ─────────────────────────────────────────────────────────
+const csFaqs = cs?.faqs ?? [];
+
+const extraJsonLd = isService
+  ? [
+      jsonld.service({
+        siteOrigin: SITE_ORIGIN,
+        name: `${cs!.serviceName} in ${cityName}`,
+        areaServed: cityName,
+        offer: cs!.priceFrom ? { priceFrom: cs!.priceFrom } : undefined,
+      }),
+      jsonld.faqPage(csFaqs),
+    ]
+  : [
+      jsonld.service({
+        siteOrigin: SITE_ORIGIN,
+        name: `Packers and movers in ${loc!.localityName}, ${cityName}`,
+        serviceType: 'Packers and movers',
+        description: plainText(page!.subhead),
+        areaServed: `${loc!.localityName}, ${cityName}`,
+        offer: loc!.priceFrom ? { priceFrom: loc!.priceFrom } : undefined,
+      }),
+      jsonld.faqPage(
+        page!.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) })),
+      ),
+    ];
 ---
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
-  <div class="container-page"><Breadcrumbs items={row.breadcrumbs} current={current} /></div>
-
-  <GeoHero
-    h1={row.h1}
-    intro={intro}
-    image={heroImage}
-    imageUrl={heroImageUrl}
-    prefillCity={cityName}
-    prefillService={cs?.serviceName}
-    bands={bands}
-  />
-
   {
-    /* Same rule as the city hub: no fabricated zeros on a fresh page. */
-    stats.jobs12m > 0 && (
-      <Band label="Serviceability">
-        <StatStrip stats={stats} scope={`in ${areaServed}`} />
-      </Band>
-    )
-  }
+    isService ? (
+      <>
+        <GeoHero
+          align="split"
+          crumbs={[
+            { href: '/', label: 'Home' },
+            { href: `/packers-and-movers/${row.slug.split('/')[0]}`, label: cityName },
+            { label: `${cs!.serviceName}` },
+          ]}
+          h1={row.h1}
+          intro={`${cs!.serviceName} in ${cityName} with one fixed, written quote and our own trained crews.`}
+          image={heroImage}
+          imageUrl={cs!.heroImage?.url}
+          prefillCity={cityName}
+          prefillService={cs!.serviceName}
+          bands={cs!.rateBands ?? []}
+        />
 
-  {
-    isService && (
-      <Band label="Scope">
-        <Inclusions inclusions={cs!.inclusions} exclusions={cs!.exclusions} />
-      </Band>
-    )
-  }
+        <Band label="Scope">
+          <Inclusions inclusions={cs!.inclusions} exclusions={cs!.exclusions} />
+        </Band>
 
-  {
-    editorial.length > 0 && (
-      <Band alt={isService} label="Local notes">
-        <LocalNotes paragraphs={editorial} heading={`What our crews plan for in ${areaServed}`} />
-      </Band>
-    )
-  }
+        {cs!.editorial.length > 0 && (
+          <Band alt label="Local notes">
+            <LocalNotes
+              paragraphs={cs!.editorial}
+              heading={`What our crews plan for in ${cityName}`}
+            />
+          </Band>
+        )}
 
-  {
-    reviews.length > 0 && (
-      <Band label="Reviews">
-        <ReviewList reviews={reviews} heading={`Reviews from ${areaServed}`} />
-      </Band>
-    )
-  }
+        {row.relatedLinks.length > 0 && (
+          <Band label="Explore">
+            <RelatedLinks links={row.relatedLinks} />
+          </Band>
+        )}
 
-  {
-    row.relatedLinks.length > 0 && (
-      <Band alt label="Explore">
-        <RelatedLinks links={row.relatedLinks} />
-      </Band>
-    )
-  }
+        {csFaqs.length > 0 && (
+          <Band alt label="FAQ">
+            <Faq faqs={csFaqs} />
+          </Band>
+        )}
+      </>
+    ) : (
+      <>
+        <GeoHero
+          align="split"
+          crumbs={[
+            { href: '/', label: 'Home' },
+            { href: loc!.cityPath, label: cityName },
+            { label: loc!.localityName },
+          ]}
+          h1={page!.h1}
+          intro={plainText(page!.subhead)}
+          image={heroImage}
+          imageUrl={loc!.heroImage?.url}
+          prefillCity={cityName}
+          bands={loc!.rateBands ?? []}
+        />
 
-  {
-    faqs.length > 0 && (
-      <Band label="FAQ">
-        <Faq faqs={faqs} />
-      </Band>
+        <GPage>
+          <GeoPageBody page={page!} serviceLinks={serviceLinks} nearbyLinks={nearbyLinks} />
+        </GPage>
+      </>
     )
   }
 </BaseLayout>

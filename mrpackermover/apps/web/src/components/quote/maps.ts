@@ -33,7 +33,9 @@ export function loadGoogleMaps(): Promise<boolean> {
 }
 
 /**
- * Attach Places Autocomplete to an input (India-biased). Silently no-ops without a key.
+ * Attach Places Autocomplete to an input - India only unless told otherwise (an overseas
+ * destination passes `country: null` for worldwide suggestions). Silently no-ops without
+ * a key.
  *
  * The Maps JS API + Places library is several hundred KB across several requests, so it
  * is fetched on FIRST FOCUS of the field rather than at page load. Calling this eagerly
@@ -42,15 +44,19 @@ export function loadGoogleMaps(): Promise<boolean> {
  * feature most visitors never touch. Focus fires before the first keystroke, so the
  * dropdown is ready by the time there is anything to complete.
  */
-export async function attachAutocomplete(input: HTMLInputElement | null): Promise<void> {
+export async function attachAutocomplete(
+  input: HTMLInputElement | null,
+  opts: { country?: string | null } = {},
+): Promise<void> {
   if (!input || !KEY) return;
+  const country = opts.country === undefined ? 'in' : opts.country;
 
   const bind = async (): Promise<void> => {
     if (!(await loadGoogleMaps())) return;
     const g = (window as any).google;
     const ac = new g.maps.places.Autocomplete(input, {
       fields: ['formatted_address', 'geometry', 'name'],
-      componentRestrictions: { country: 'in' },
+      ...(country ? { componentRestrictions: { country } } : {}),
     });
     ac.addListener('place_changed', () => {
       const p = ac.getPlace();

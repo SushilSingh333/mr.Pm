@@ -1,0 +1,582 @@
+---
+/**
+ * Links to other pages as a band on the page's centre line: the heading centred, then a
+ * centred grid of Material cards - the cities a service runs in, the services in a city (with their
+ * photographs), the areas and nearby places. Links only ever point at pages that exist
+ * (the caller passes live manifest links). `notes` are plain chips with no link - popular
+ * routes that do not have pages of their own yet.
+ *
+ * `search` puts a Google-style search field above a long list (a city's area guides):
+ * typing narrows the cards as you go, and when nothing matches it says so and points to
+ * the price check, since the whole city is covered whether an area has a guide or not.
+ * A long list also opens with its first dozen cards and a "Show more" button, so the
+ * page is not a wall of names; a search always looks through all of them.
+ */
+interface Link {
+  href: string;
+  label: string;
+  /** A second, quieter line. */
+  sub?: string;
+  /** A photo across the top of the card. */
+  image?: { src: string; alt: string };
+}
+interface Props {
+  id: string;
+  heading: string;
+  intro?: string;
+  links: Link[];
+  /** The icon for cards without a photo: "pin" for places, "arrow" for anything else. */
+  icon?: 'pin' | 'arrow';
+  notesLabel?: string;
+  notes?: string[];
+  /** White or tinted, to carry on the sections' alternation. */
+  tone?: 'white' | 'tint';
+  /** A search field over the cards: its label and the line shown when nothing matches. */
+  search?: { label: string; empty: string };
+}
+const {
+  id,
+  heading,
+  intro,
+  links,
+  icon = 'pin',
+  notesLabel,
+  notes = [],
+  tone = 'white',
+  search,
+} = Astro.props;
+const photos = links.some((l) => l.image);
+// A search field only earns its place on a list too long to scan.
+const searchable = Boolean(search) && links.length > 8;
+/** Cards shown before "Show more" (a searchable list only). */
+const PAGE = 12;
+const paged = searchable && links.length > PAGE;
+---
+
+{
+  (links.length > 0 || notes.length > 0) && (
+    <section class:list={['gb', { 'gb--tint': tone === 'tint' }]} aria-label={heading}>
+      <div class="gb-head">
+        <h2 class="gb-h2" id={id}>
+          {heading}
+        </h2>
+        {intro && <p class="gb-intro">{intro}</p>}
+      </div>
+      <div class="gb-main" data-gl-search={searchable ? '' : undefined}>
+        {searchable && (
+          <div class="gl-search">
+            <label class="gl-search__box">
+              <svg viewBox="0 -960 960 960" width="22" height="22" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"
+                />
+              </svg>
+              <span class="sr-only">{search!.label}</span>
+              <input type="search" placeholder={search!.label} autocomplete="off" />
+            </label>
+            <p class="gl-search__count" aria-live="polite" />
+          </div>
+        )}
+        {links.length > 0 && (
+          <ul class:list={['gl-cards', { 'gl-cards--photo': photos }]}>
+            {links.map((l, i) => (
+              <li data-name={l.label.toLowerCase()} hidden={paged && i >= PAGE ? true : undefined}>
+                <a class="gl-card" href={l.href}>
+                  {l.image ? (
+                    <span class="gl-card__media">
+                      <img
+                        class="gl-card__img"
+                        src={l.image.src}
+                        alt={l.image.alt}
+                        width="640"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                  ) : (
+                    <span class="gl-card__icon" aria-hidden="true">
+                      {icon === 'pin' ? (
+                        <svg viewBox="0 -960 960 960" width="20" height="20">
+                          <path
+                            fill="currentColor"
+                            d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 400Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 -960 960 960" width="20" height="20">
+                          <path
+                            fill="currentColor"
+                            d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm240-600h160v-80H400v80Z"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                  )}
+                  <span class="gl-card__text">
+                    <span class="gl-card__t">{l.label}</span>
+                    {l.sub && <span class="gl-card__s">{l.sub}</span>}
+                  </span>
+                  <svg
+                    class="gl-card__go"
+                    viewBox="0 -960 960 960"
+                    width="20"
+                    height="20"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"
+                    />
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        {paged && (
+          <div class="gl-more">
+            <button type="button" class="gl-more__btn" data-gl-more data-page={PAGE}>
+              Show more areas
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+        )}
+        {searchable && (
+          <p class="gl-search__empty" hidden>
+            {search!.empty} <a href="#quote">Check your price</a>
+          </p>
+        )}
+        {notes.length > 0 && (
+          <div class="gl-notes">
+            {notesLabel && <p class="gl-notes__t">{notesLabel}</p>}
+            <ul>
+              {notes.map((n) => (
+                <li>{n}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<script>
+  // Filter a long card list as the reader types. Plain substring match on the place name,
+  // ignoring case and punctuation, so "gk", "kailash" or "sector 18" all find their card.
+  const norm = (v: string): string =>
+    v
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  for (const box of document.querySelectorAll<HTMLElement>('[data-gl-search]')) {
+    const input = box.querySelector<HTMLInputElement>('.gl-search input');
+    const items = [...box.querySelectorAll<HTMLElement>('.gl-cards > li')];
+    const count = box.querySelector<HTMLElement>('.gl-search__count');
+    const empty = box.querySelector<HTMLElement>('.gl-search__empty');
+    if (!input) continue;
+    const total = items.length;
+    const more = box.querySelector<HTMLButtonElement>('[data-gl-more]');
+    const page = Number(more?.dataset.page ?? total);
+    // How many cards show while nothing is typed: a page at a time, "Show more" adds one.
+    let limit = more ? page : total;
+    const run = (): void => {
+      const q = norm(input.value);
+      let shown = 0;
+      let matched = 0;
+      for (const li of items) {
+        const name = norm(li.dataset.name ?? '');
+        // "gk" for Greater Kailash: also match the initials of a two-word name.
+        const initials = name
+          .split(' ')
+          .map((w) => w[0])
+          .join('');
+        const hit = !q || name.includes(q) || initials === q.replace(/ /g, '');
+        if (hit) matched += 1;
+        // A search shows every match; otherwise only the first `limit` cards.
+        const show = hit && (q ? true : matched <= limit);
+        li.hidden = !show;
+        if (show) shown += 1;
+      }
+      if (count)
+        count.textContent = q
+          ? `${matched} of ${total} areas`
+          : shown < total
+            ? `Showing ${shown} of ${total} areas`
+            : `${total} areas`;
+      if (empty) empty.hidden = matched > 0;
+      if (more) {
+        more.parentElement!.hidden = Boolean(q) || shown >= total;
+        more.firstChild!.textContent = `Show ${Math.min(page, total - shown)} more areas `;
+      }
+    };
+    input.addEventListener('input', run);
+    more?.addEventListener('click', () => {
+      limit += page;
+      run();
+      // Keep the reader's place: focus the first newly shown card.
+      items[limit - page]?.querySelector('a')?.focus({ preventScroll: true });
+    });
+    run();
+  }
+</script>
+
+<style>
+  /* A full-width band on the page's centre line, white or tinted to carry on the
+     sections' alternation (the page passes `tone`). */
+  .gb {
+    --tile: var(--g-surface-2);
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
+  }
+  .gb--tint {
+    --tile: #fff;
+    background: var(--g-surface-2);
+  }
+  .gb-h2 {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: clamp(1.625rem, 3vw, 2.375rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gb-intro {
+    margin: 0.75rem auto 0;
+    max-width: 38rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--g-ink-2);
+  }
+  .gb-main {
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin: 2rem auto 0;
+  }
+  /* A centred wrap, so a short last row sits in the middle rather than on the left. */
+  .gl-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.625rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* One card style for every link card: white, a hairline edge, a rounded-square icon,
+     and a small lift on hover. */
+  .gl-card {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 100%;
+    min-height: 4.75rem;
+    padding: 0.9rem 0.9rem 0.9rem 1rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.25rem;
+    background: #fff;
+    color: var(--g-ink);
+    text-decoration: none;
+    transition:
+      box-shadow 0.2s,
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .gl-card:hover {
+    border-color: var(--color-brand-100);
+    box-shadow:
+      0 1px 3px rgb(60 64 67 / 0.12),
+      0 8px 20px rgb(60 64 67 / 0.1);
+    transform: translateY(-2px);
+  }
+  .gl-card:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .gl-card__icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .gl-card:hover .gl-card__icon {
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .gl-card__text {
+    display: grid;
+    flex: 1;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+  .gl-card__t {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .gl-card__s {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--g-ink-3);
+  }
+  .gl-card__go {
+    flex: none;
+    color: var(--g-ink-3);
+    transition: transform 0.15s;
+  }
+  .gl-card:hover .gl-card__go {
+    transform: translateX(2px);
+    color: var(--color-brand-600);
+  }
+
+  /* Photo cards: the service's photograph across the top, the name under it. */
+  .gl-cards {
+    --per-row: 4;
+  }
+  .gl-cards > li {
+    flex: 0 0 calc((100% - (var(--per-row) - 1) * 0.625rem) / var(--per-row));
+    min-width: 0;
+  }
+  /* More air between rows of photo cards, so each card reads as its own. */
+  .gl-cards--photo {
+    row-gap: 1.25rem;
+  }
+  @media (max-width: 1024px) {
+    .gl-cards {
+      --per-row: 3;
+    }
+  }
+  @media (max-width: 760px) {
+    .gl-cards {
+      --per-row: 2;
+    }
+  }
+  .gl-cards--photo .gl-card {
+    flex-wrap: wrap;
+    align-content: start;
+    padding: 0 0 0.25rem;
+    overflow: hidden;
+  }
+  .gl-card__media {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: var(--g-surface-1);
+  }
+  .gl-card__img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .gl-card:hover .gl-card__img {
+    transform: scale(1.04);
+  }
+  .gl-cards--photo .gl-card__text {
+    padding: 0.25rem 0 0.6rem 1rem;
+  }
+  .gl-cards--photo .gl-card__go {
+    margin-right: 0.85rem;
+    align-self: start;
+    margin-top: 0.35rem;
+  }
+
+  /* ── Search: a Google search pill over the cards ── */
+  .gl-search {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 auto 1.5rem;
+    max-width: 40rem;
+  }
+  .gl-search__box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    height: 3.25rem;
+    padding: 0 1.25rem;
+    border: 1px solid #dfe1e5;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--g-ink-3);
+    transition:
+      box-shadow 0.15s,
+      border-color 0.15s;
+    cursor: text;
+  }
+  .gl-search__box:hover,
+  .gl-search__box:focus-within {
+    border-color: transparent;
+    box-shadow: 0 1px 6px rgb(32 33 36 / 0.28);
+  }
+  .gl-search__box input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    font: inherit;
+    font-size: 1rem;
+    color: var(--g-ink);
+  }
+  .gl-search__box input::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+  .gl-search__count {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--g-ink-3);
+  }
+  /* ── Show more: a tonal pill under the cards ── */
+  .gl-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+  .gl-more[hidden] {
+    display: none;
+  }
+  .gl-more__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.75rem;
+    padding: 0 1.1rem 0 1.4rem;
+    border: 1px solid var(--g-outline-strong);
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-brand-700);
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+  .gl-more__btn:hover {
+    background: var(--color-brand-50);
+  }
+  .gl-more__btn:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  .gl-search__empty {
+    margin: 0.5rem auto 0;
+    max-width: 32rem;
+    text-align: center;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+  .gl-search__empty a {
+    color: var(--color-brand-600);
+    font-weight: 500;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .gl-cards > li[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gl-card,
+    .gl-card__img {
+      transition: none;
+    }
+    .gl-card:hover {
+      transform: none;
+    }
+    .gl-card:hover .gl-card__img {
+      transform: none;
+    }
+  }
+
+  .gl-notes {
+    margin-top: 1.75rem;
+    text-align: center;
+  }
+  .gl-notes__t {
+    margin: 0 0 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gl-notes ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gl-notes li {
+    display: inline-flex;
+    align-items: center;
+    height: 2.25rem;
+    padding: 0 0.9rem;
+    border: 1px solid #c4c7c5;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--g-ink-2);
+  }
+
+  @media (max-width: 560px) {
+    .gl-cards:not(.gl-cards--photo) {
+      --per-row: 1;
+    }
+    .gl-cards--photo .gl-card__t {
+      font-size: 0.875rem;
+    }
+  }
+
+  /* Hover, on top of the lift: the name turns brand blue and the arrow slides on, so it
+     is clear the whole card is the link. Keyboard focus gets the same treatment. */
+  .gl-card__t {
+    transition: color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gl-card:hover .gl-card__t,
+  .gl-card:focus-visible .gl-card__t {
+    color: var(--color-brand-700);
+  }
+  .gl-card:focus-visible {
+    border-color: var(--color-brand-100);
+    transform: translateY(-2px);
+  }
+  .gl-card:hover .gl-card__go,
+  .gl-card:focus-visible .gl-card__go {
+    transform: translateX(4px);
+    color: var(--color-brand-600);
+  }
+  .gl-card:active {
+    transform: translateY(0) scale(0.99);
+  }
+  .gl-notes li {
+    transition:
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+</style>

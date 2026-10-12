@@ -24,7 +24,7 @@ export type ServiceBlock =
   /** A bulleted list. */
   | { kind: 'list'; items: string[] }
   /**
-   * A table of two or three columns. `columns` are the header cells; an empty first
+   * A table of two to four columns. `columns` are the header cells; an empty first
    * header is the corner of a comparison table ("|  | Train | Carrier |").
    */
   | { kind: 'table'; columns: string[]; rows: string[][] }

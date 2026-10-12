@@ -20,6 +20,16 @@ import {
   cldUrl,
   CLD_TRANSFORM,
   SERVICES,
+  CITY_PAGES,
+  LOCALITY_PAGES,
+  LOCALITY_REDIRECTS,
+  isLocalityReleased,
+  localityReleaseTime,
+  fallbackGeoPage,
+  geoPageWithCount,
+  mergeGeoPage,
+  sectionsPlainText,
+  type GeoPage,
   mergeServicePage,
   pageWithCityCount,
   plainText,
@@ -29,6 +39,7 @@ import { coverForCategory } from '@mpm/shared/blog-fallback';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
 import { resolveSeo, type SeoOverride, type SeoTemplate } from '@mpm/seo/resolve';
 import {
+  geoPageOverrides,
   homePageOverrides,
   idOf,
   serviceCardOverrides,
@@ -78,6 +89,8 @@ interface LocationDoc {
   /** Per-(city × service) overrides for the “{Service} in {City}” pages. */
   serviceSeo?: ServiceSeoRow[] | null;
   editorialNote?: unknown;
+  /** "Page content" (field `body`): overrides for the city or locality brief. */
+  body?: unknown;
   updatedAt: string;
 }
 interface MediaDoc {
@@ -347,8 +360,10 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       jobCount12m: stats.jobs12m,
       reviewsCount: idx.reviewsFor(cid).length,
       baseDistanceMeters: 0,
-      localContentWords: countWords(city.editorialNote),
-      scopedFaqCount: idx.faqsForCity(cid).length,
+      localContentWords: CITY_PAGES[city.slug]
+        ? wordsOf(CITY_PAGES[city.slug]!)
+        : countWords(city.editorialNote),
+      scopedFaqCount: CITY_PAGES[city.slug]?.faqs.length ?? idx.faqsForCity(cid).length,
       hasLocationPhotos: false,
       namedLocalFacts: 2,
       hasNamedCoordinator: true,
@@ -398,11 +413,28 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   // bulk import made the difference real: a locality can be serviceable long
   // before it has the reviews and rate card that earn it a page.
   const publishedLocalityIds = new Set<string>();
+  // New locality briefs go live in batches (geo-pages/release.ts), timed from
+  // LOCALITY_RELEASE_START; the release timer rebuilds the site at each batch time.
+  const releaseStart = process.env.LOCALITY_RELEASE_START;
+  const releaseNow = new Date();
+  let heldBack = 0;
+  // Sitemap lastmod: a released locality is new on the day its batch went out, and its
+  // city hub changed then too (a new area card). Both win over an older CMS date.
+  const localityReleasedAt = new Map<string, string>();
+  const cityLatestRelease = new Map<string, string>();
   for (const loc of localities) {
     const parent = idx.location(refId(loc.parent));
     if (!parent || !publishedCityIds.has(sid(parent.id))) continue;
+    // The same place as another page (Noida Extension is Greater Noida West): no page of
+    // its own and no links to it; the web server sends its old URL on.
+    if (LOCALITY_REDIRECTS[`${parent.slug}/${loc.slug}`]) continue;
     const lid = sid(loc.id);
-    const words = countWords(loc.editorialNote);
+    const brief = LOCALITY_PAGES[`${parent.slug}/${loc.slug}`];
+    if (brief && !isLocalityReleased(`${parent.slug}/${loc.slug}`, releaseStart, releaseNow)) {
+      heldBack += 1;
+      continue;
+    }
+    const words = brief ? wordsOf(brief) : countWords(loc.editorialNote);
     const candidate: GateCandidate = {
       pageType: 'locality',
       hasRateCard: idx.hasCityRateCard(sid(parent.id)),
@@ -410,14 +442,31 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       reviewsCount: idx.reviewsFor(lid).length,
       baseDistanceMeters: 0,
       localContentWords: words,
-      scopedFaqCount: idx.faqsForCity(lid).length + 4, // locality FAQs seeded editorially
+      scopedFaqCount: brief?.faqs.length ?? idx.faqsForCity(lid).length + 4, // locality FAQs seeded editorially
       hasLocationPhotos: false,
       namedLocalFacts: words >= 40 ? 2 : 0,
       hasNamedCoordinator: true,
       rateBandCount: idx.cityRateBands(sid(parent.id)).length,
     };
-    if (evaluateCandidate(candidate).passed) publishedLocalityIds.add(lid);
+    if (!evaluateCandidate(candidate).passed) continue;
+    publishedLocalityIds.add(lid);
+    const releasedAt = brief
+      ? localityReleaseTime(`${parent.slug}/${loc.slug}`, releaseStart)
+      : null;
+    if (releasedAt) {
+      localityReleasedAt.set(lid, releasedAt.toISOString());
+      const pid = sid(parent.id);
+      const prev = cityLatestRelease.get(pid);
+      if (!prev || releasedAt.toISOString() > prev)
+        cityLatestRelease.set(pid, releasedAt.toISOString());
+    }
   }
+  console.info(
+    `localities: ${publishedLocalityIds.size} with a page, ${heldBack} waiting for their release batch` +
+      (releaseStart
+        ? ` (LOCALITY_RELEASE_START=${releaseStart})`
+        : ' (LOCALITY_RELEASE_START not set)'),
+  );
 
   // Nearby-city links walk published cities only: the cyclic picker takes six
   // steps then gives up, so serviceable-but-unpublished cities in the walk starve
@@ -425,11 +474,13 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   // the north India import landed).
   const publishedCities = cityPlan.map((p) => p.city);
   // ── City hubs + their city × service pages ─────────────────────────────────
-  for (const { city, cid, services: servicesForCity } of cityPlan) {
-    const stats = idx.statsFor(cid);
+  // `{count}` in a page's text: the cities that are live.
+  const liveCityCount = cityPlan.length;
+  for (const [ci, { city, cid, services: servicesForCity }] of cityPlan.entries()) {
     const cityPath = paths.cityHub(city.slug);
     const localityLinks = localities
       .filter((l) => refId(l.parent) === cid && publishedLocalityIds.has(sid(l.id)))
+      .sort((a, b) => a.name.localeCompare(b.name))
       .map<ManifestLink>((l) => ({
         path: paths.locality(city.slug, l.slug),
         anchor: l.name,
@@ -441,42 +492,67 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       anchor: `${s.name} in ${city.name}`,
       group: 'services',
     }));
+    // The other live cities, starting after this one, so every city gets the same share
+    // of links.
+    const nearbyCityLinks = cityPlan
+      .map((_, k) => cityPlan[(ci + k + 1) % cityPlan.length]!.city)
+      .filter((c) => sid(c.id) !== cid)
+      .slice(0, 8)
+      .map<ManifestLink>((c) => ({ path: paths.cityHub(c.slug), anchor: c.name, group: 'nearby' }));
+
+    const brief = CITY_PAGES[city.slug];
+    const page = geoPageWithCount(
+      mergeGeoPage(
+        brief ??
+          fallbackGeoPage({
+            place: city.name,
+            notes: idx.editorialParagraphs(city.editorialNote),
+            faqs: idx.faqsForCity(cid),
+          }),
+        geoPageOverrides(city.body),
+      ),
+      liveCityCount,
+    );
 
     rows.push(
-      makeRow('city-hub', cityPath, city.slug, city.updatedAt, siteOrigin, {
-        ...resolveSeo({
-          override: city,
-          template: seoDefaults.cityHub,
-          tokens: { city: city.name, brand: BRAND },
-          fallbackTitle: titleFor.cityHub(city.name, { brand: BRAND }),
-        }),
-        h1: `Packers and Movers in ${city.name}`,
-        breadcrumbs: [{ path: '/', anchor: 'Home' }],
-        relatedLinks: [...serviceLinks, ...localityLinks].slice(0, 60),
-        data: {
-          cityName: city.name,
-          // Uploaded hero/thumbnail (Cloudinary). Absent ⇒ the template uses the
-          // static /images/hero/cities/<slug>.jpg fallback.
-          heroImage: imageFor(city.heroImage),
-          // Sub-locations we serve — rendered as the "Areas we cover" grid, each linking
-          // to that locality's own detail page.
-          areas: localityLinks.map((l) => ({ path: l.path, name: l.anchor })),
-          editorial: idx.editorialParagraphs(city.editorialNote),
-          rateBands: idx.cityRateBands(cid),
-          stats,
-          reviews: idx.reviewsFor(cid).slice(0, 10),
-          faqs: idx.faqsForCity(cid),
-          priceFrom: idx.priceFrom(idx.cityRateBands(cid)),
+      makeRow(
+        'city-hub',
+        cityPath,
+        city.slug,
+        laterOf(city.updatedAt, cityLatestRelease.get(cid)),
+        siteOrigin,
+        {
+          ...resolveSeo({
+            override: city,
+            // A city with a brief has its own title and description; the site-wide template
+            // is for a city without one. A per-city SEO override still beats both.
+            template: brief ? undefined : seoDefaults.cityHub,
+            tokens: { city: city.name, brand: BRAND },
+            fallbackTitle: brief?.title ?? titleFor.cityHub(city.name, { brand: BRAND }),
+            fallbackDescription: brief?.metaDescription,
+          }),
+          h1: page.h1,
+          breadcrumbs: [{ path: '/', anchor: 'Home' }],
+          relatedLinks: [...serviceLinks, ...localityLinks, ...nearbyCityLinks].slice(0, 60),
+          data: {
+            cityName: city.name,
+            // Uploaded hero/thumbnail (Cloudinary). Absent ⇒ the template uses the
+            // static /images/hero/cities/<slug>.jpg fallback.
+            heroImage: imageFor(city.heroImage),
+            // Sub-locations we serve, each linking to that locality's own page.
+            areas: localityLinks.map((l) => ({ path: l.path, name: l.anchor })),
+            ...geoPageData(page),
+            rateBands: idx.cityRateBands(cid),
+            priceFrom: idx.priceFrom(idx.cityRateBands(cid)),
+          },
         },
-      }),
+      ),
     );
 
     for (const service of servicesForCity) {
       const svcId = sid(service.id);
       // Fall back to city-level proof when a service has no service-scoped data of its
       // own, so an editor-selected service still renders a substantive page.
-      const svcReviews = idx.reviewsFor(cid, svcId);
-      const csReviews = svcReviews.length ? svcReviews : idx.reviewsFor(cid);
       const svcStats = idx.statsFor(cid, svcId);
       const csStats = svcStats.jobs12m ? svcStats : idx.statsFor(cid);
       const svcFaqs = idx.faqsForCityService(cid, svcId);
@@ -538,8 +614,6 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
               serviceName: service.name,
               editorial: idx.editorialParagraphs(city.editorialNote).slice(0, 2),
               rateBands: bands,
-              stats: csStats,
-              reviews: csReviews.slice(0, 9),
               faqs: csFaqs,
               inclusions: (service.inclusions ?? []).map((i) => i.item),
               exclusions: (service.exclusions ?? []).map((i) => i.item),
@@ -562,43 +636,58 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     const lid = sid(loc.id);
     if (!publishedLocalityIds.has(lid)) continue; // gate evaluated in the pre-pass
 
-    // Reviews render as the moving marquee (like the city page) once there are >4. A
-    // locality rarely has that many of its own, so top up with the parent city's verified
-    // reviews — the locality's own lead, the city's fill the loop (jobRefs are globally
-    // unique, so no duplicates). Mirrors the city-service reviews fallback above.
-    const locReviews = idx.reviewsFor(lid);
-    const localityReviews =
-      locReviews.length > 4 ? locReviews : [...locReviews, ...idx.reviewsFor(sid(parent.id))];
+    const brief = LOCALITY_PAGES[`${parent.slug}/${loc.slug}`];
+    const page = geoPageWithCount(
+      mergeGeoPage(
+        brief ??
+          fallbackGeoPage({
+            place: loc.name,
+            city: parent.name,
+            notes: idx.editorialParagraphs(loc.editorialNote),
+            faqs: idx.faqsForCity(sid(parent.id)).slice(0, 6),
+          }),
+        geoPageOverrides(loc.body),
+      ),
+      liveCityCount,
+    );
+    // The parent city's services: a locality has no service pages of its own.
+    const parentServices = cityPlan.find((p) => p.cid === sid(parent.id))?.services ?? [];
 
     rows.push(
       makeRow(
         'locality',
         paths.locality(parent.slug, loc.slug),
         `${parent.slug}/${loc.slug}`,
-        loc.updatedAt,
+        laterOf(loc.updatedAt, localityReleasedAt.get(lid)),
         siteOrigin,
         {
           ...resolveSeo({
             override: loc,
-            template: seoDefaults.locality,
+            template: brief ? undefined : seoDefaults.locality,
             tokens: { locality: loc.name, city: parent.name, brand: BRAND },
-            fallbackTitle: titleFor.locality(loc.name, parent.name, { brand: BRAND }),
+            fallbackTitle:
+              brief?.title ?? titleFor.locality(loc.name, parent.name, { brand: BRAND }),
+            fallbackDescription: brief?.metaDescription,
           }),
-          h1: `Packers and Movers in ${loc.name}, ${parent.name}`,
+          h1: page.h1,
           breadcrumbs: [
             { path: '/', anchor: 'Home' },
             { path: paths.cityHub(parent.slug), anchor: parent.name },
           ],
-          relatedLinks: siblingLocalityLinks(localities, loc, parent, publishedLocalityIds),
+          relatedLinks: [
+            ...siblingLocalityLinks(localities, loc, parent, publishedLocalityIds),
+            ...parentServices.map<ManifestLink>((s) => ({
+              path: paths.cityService(parent.slug, s.slug),
+              anchor: `${s.name} in ${parent.name}`,
+              group: 'services',
+            })),
+          ],
           data: {
             localityName: loc.name,
             cityName: parent.name,
             cityPath: paths.cityHub(parent.slug),
-            editorial: idx.editorialParagraphs(loc.editorialNote),
+            ...geoPageData(page),
             rateBands: idx.cityRateBands(sid(parent.id)),
-            stats: idx.statsFor(lid),
-            reviews: localityReviews.slice(0, 9),
-            faqs: idx.faqsForCity(sid(parent.id)).slice(0, 6),
             priceFrom: idx.priceFrom(idx.cityRateBands(sid(parent.id))),
             // The locality's own photo when the editor uploaded one, else the city's.
             // Resolved here so the template needs no fallback logic of its own.
@@ -741,22 +830,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           // The page's own prose, flattened for the duplication gate; a service without a
           // brief keeps its old editorial text.
           editorial: page
-            ? page.sections
-                .flatMap((s) => [
-                  s.heading,
-                  ...s.blocks.flatMap((b) =>
-                    b.kind === 'text'
-                      ? b.body.split(/\n\s*\n/).map(plainText)
-                      : b.kind === 'steps'
-                        ? b.items.map((i) => plainText(`${i.title}. ${i.body}`))
-                        : b.kind === 'list'
-                          ? b.items.map(plainText)
-                          : b.kind === 'table'
-                            ? b.rows.map((r) => r.join(' '))
-                            : [],
-                  ),
-                ])
-                .filter(Boolean)
+            ? sectionsPlainText(page.sections)
             : idx.editorialParagraphs(service.editorialNote),
           ...(page
             ? {
@@ -1026,23 +1100,47 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
 }
 
 // ── Related-link helpers ─────────────────────────────────────────────────────
+/** Words in a brief's sections and FAQs, for the publish gate's local-content check. */
+function wordsOf(page: GeoPage): number {
+  return [...sectionsPlainText(page.sections), ...page.faqs.map((f) => f.answer)]
+    .join(' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+/**
+ * The finished page and, beside it, its text in plain form where the duplication gate
+ * reads it (`editorial`, `faqs`).
+ */
+function geoPageData(page: GeoPage): { page: GeoPage; editorial: string[]; faqs: FaqItem[] } {
+  return {
+    page,
+    editorial: sectionsPlainText(page.sections),
+    faqs: page.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) })),
+  };
+}
+
 function siblingLocalityLinks(
   all: LocationDoc[],
   loc: LocationDoc,
   parent: LocationDoc,
   published: Set<string>,
 ): ManifestLink[] {
-  return all
-    .filter(
-      (l) =>
-        refId(l.parent) === sid(parent.id) && sid(l.id) !== sid(loc.id) && published.has(sid(l.id)),
-    )
-    .slice(0, 6)
-    .map((l) => ({
-      path: paths.locality(parent.slug, l.slug),
-      anchor: `Movers in ${l.name}`,
-      group: 'siblings',
-    }));
+  // The next six areas in the city, wrapping round, rather than always the first six: a
+  // city with many area pages would otherwise leave the later ones with no sibling links
+  // pointing at them, and every area should get the same share.
+  const siblings = all
+    .filter((l) => refId(l.parent) === sid(parent.id) && published.has(sid(l.id)))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const i = siblings.findIndex((l) => sid(l.id) === sid(loc.id));
+  return Array.from(
+    { length: Math.min(6, siblings.length - 1) },
+    (_, k) => siblings[(i + k + 1) % siblings.length]!,
+  ).map((l) => ({
+    path: paths.locality(parent.slug, l.slug),
+    anchor: `Movers in ${l.name}`,
+    group: 'siblings',
+  }));
 }
 function nearbyCityServiceLinks(
   cities: LocationDoc[],
@@ -1102,6 +1200,9 @@ interface RowExtras {
   relatedLinks?: ManifestLink[];
   data?: Record<string, unknown>;
 }
+/** The later of two ISO timestamps (the second may be missing). */
+const laterOf = (a: string, b: string | undefined): string => (b && b > a ? b : a);
+
 function makeRow(
   pageType: PageType,
   path: string,

@@ -80,7 +80,7 @@ const tableBlock: Block = {
           type: 'text',
           label: 'Column 1 heading',
           admin: {
-            width: '33%',
+            width: '25%',
             description: 'Leave blank for a comparison table ("| | Train | Carrier |").',
           },
         },
@@ -89,13 +89,19 @@ const tableBlock: Block = {
           type: 'text',
           label: 'Column 2 heading',
           required: true,
-          admin: { width: '33%' },
+          admin: { width: '25%' },
         },
         {
           name: 'h3',
           type: 'text',
           label: 'Column 3 heading',
-          admin: { width: '33%', description: 'Blank for a two-column table.' },
+          admin: { width: '25%', description: 'Blank for a two-column table.' },
+        },
+        {
+          name: 'h4',
+          type: 'text',
+          label: 'Column 4 heading',
+          admin: { width: '25%', description: 'Blank for two or three columns.' },
         },
       ],
     },
@@ -109,9 +115,10 @@ const tableBlock: Block = {
         {
           type: 'row',
           fields: [
-            { name: 'c1', type: 'text', required: true, admin: { width: '33%' } },
-            { name: 'c2', type: 'textarea', required: true, admin: { width: '33%', rows: 2 } },
-            { name: 'c3', type: 'textarea', admin: { width: '33%', rows: 2 } },
+            { name: 'c1', type: 'text', required: true, admin: { width: '25%' } },
+            { name: 'c2', type: 'textarea', required: true, admin: { width: '25%', rows: 2 } },
+            { name: 'c3', type: 'textarea', admin: { width: '25%', rows: 2 } },
+            { name: 'c4', type: 'textarea', admin: { width: '25%', rows: 2 } },
           ],
         },
       ],
@@ -302,6 +309,114 @@ export const servicePageField: Field = {
             },
           ],
         },
+      ],
+    },
+  ],
+};
+
+/**
+ * Locations → "Page content": a city or locality page below the hero, in the shape of
+ * the owner's city briefs (packages/shared/src/geo-pages). Same blocks and the same
+ * rule as the service pages - blank is the brief, a list with rows replaces it whole.
+ * The hero keeps its banner and price check; only its words come from here.
+ */
+export const geoPageField: Field = {
+  name: 'body',
+  type: 'group',
+  label: 'Page content',
+  admin: {
+    description:
+      'Everything on the city or locality page below the heading. Leave a field blank, or a list empty, to show the text from the page brief.',
+    condition: (data) => data?.type === 'city' || data?.type === 'locality',
+  },
+  fields: [
+    {
+      name: 'subhead',
+      type: 'textarea',
+      label: 'Line under the heading',
+      admin: { rows: 3 },
+    },
+    {
+      name: 'trust',
+      type: 'array',
+      label: 'Trust points under the price check',
+      maxRows: 6,
+      labels: { singular: 'Point', plural: 'Points' },
+      fields: [{ name: 'item', type: 'text', required: true }],
+    },
+    {
+      name: 'sections',
+      type: 'array',
+      label: 'Sections',
+      labels: { singular: 'Section', plural: 'Sections' },
+      admin: {
+        initCollapsed: true,
+        components: { RowLabel: '/components/fields/RowLabels#SectionRowLabel' },
+      },
+      fields: [
+        {
+          name: 'heading',
+          type: 'text',
+          label: 'Heading (H2)',
+          admin: { description: 'Blank for opening paragraphs with no heading.' },
+        },
+        {
+          name: 'blocks',
+          type: 'blocks',
+          label: 'Content',
+          minRows: 1,
+          blocks: [textBlock, stepsBlock, listBlock, tableBlock],
+        },
+      ],
+    },
+    { name: 'faqHeading', type: 'text', label: 'FAQ heading' },
+    {
+      name: 'faqs',
+      type: 'array',
+      label: 'FAQs',
+      labels: { singular: 'Question', plural: 'Questions' },
+      admin: {
+        initCollapsed: true,
+        components: { RowLabel: '/components/fields/RowLabels#FaqRowLabel' },
+      },
+      fields: [
+        { name: 'question', type: 'text', required: true },
+        {
+          name: 'answer',
+          type: 'textarea',
+          required: true,
+          admin: { rows: 3, description: TEXT_HELP },
+        },
+      ],
+    },
+    {
+      name: 'servicesHeading',
+      type: 'text',
+      label: 'Services heading',
+      admin: { description: 'The service links under it are built from the live pages.' },
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'nearbyHeading', type: 'text', label: 'Nearby heading', admin: { width: '50%' } },
+        { name: 'nearbyIntro', type: 'text', label: 'Nearby line', admin: { width: '50%' } },
+      ],
+    },
+    {
+      name: 'routes',
+      type: 'array',
+      label: 'Popular routes (plain text)',
+      labels: { singular: 'Route', plural: 'Routes' },
+      admin: {
+        description: 'Shown as text, e.g. "Delhi to Bangalore", until each route has a page.',
+      },
+      fields: [{ name: 'text', type: 'text', required: true }],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'ctaHeading', type: 'text', label: 'Closing heading', admin: { width: '50%' } },
+        { name: 'ctaText', type: 'text', label: 'Closing line', admin: { width: '50%' } },
       ],
     },
   ],

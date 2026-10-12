@@ -7,7 +7,14 @@
  * Only links the site can vouch for become links: its own paths, WhatsApp and the phone.
  * Anything else keeps its words and loses the link, so a typo in the CMS can never send a
  * customer somewhere we did not mean.
+ *
+ * A link to a place page (/packers-and-movers/…) also needs that page to be in this build.
+ * New locality pages go live a batch at a time (geo-pages/release.ts), so the text on a
+ * live page can name an area whose page is not out yet: its words show, unlinked, and
+ * become a link in the build that releases it. No 404s in between.
  */
+import { manifest } from '../data/manifest.js';
+
 const escape = (s: string): string =>
   s
     .replace(/&/g, '&amp;')
@@ -19,6 +26,16 @@ const escape = (s: string): string =>
 const LINK = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 const SITE = /^\/(?!\/)/;
 const OUTSIDE = /^(https:\/\/wa\.me\/|tel:)/;
+const PLACE = /^\/packers-and-movers\//;
+
+let livePaths: { from: object; paths: Set<string> } | null = null;
+/** Whether a site path can be linked: any page, but a place page only once it is built. */
+function linkable(href: string): boolean {
+  if (!PLACE.test(href)) return true;
+  const m = manifest();
+  if (livePaths?.from !== m) livePaths = { from: m, paths: new Set(m.pages.map((r) => r.path)) };
+  return livePaths.paths.has(href.replace(/[?#].*$/, '').replace(/\/$/, ''));
+}
 
 /** One line of text, links resolved. */
 export function inlineHtml(text: string): string {
@@ -27,7 +44,7 @@ export function inlineHtml(text: string): string {
   for (const m of text.matchAll(LINK)) {
     const [all, label, href] = m as unknown as [string, string, string];
     out += escape(text.slice(last, m.index));
-    if (SITE.test(href)) out += `<a href="${escape(href)}">${escape(label)}</a>`;
+    if (SITE.test(href) && linkable(href)) out += `<a href="${escape(href)}">${escape(label)}</a>`;
     else if (OUTSIDE.test(href))
       out += `<a href="${escape(href)}" target="_blank" rel="noopener noreferrer">${escape(label)}</a>`;
     else out += escape(label);

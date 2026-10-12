@@ -1,0 +1,66 @@
+import type { ServiceFaq, ServiceSection } from '../service-pages/types.js';
+
+/**
+ * A city page (/packers-and-movers/<city>) or a locality page
+ * (/packers-and-movers/<city>/<locality>), in the shape of the owner's city briefs:
+ * the hero (the same banner and price check as before - only its words come from here),
+ * a run of sections built from the service pages' blocks, the FAQs, the service links,
+ * the nearby places and routes, and a closing call to action.
+ *
+ * Text conventions are the service pages' (see service-pages/types.ts): `[label](/path)`
+ * links, a blank line between paragraphs, `{count}` for the number of live cities.
+ *
+ * What the page builds by itself, so it is never typed here: the links to the services
+ * offered in the city, the links to nearby cities or sibling localities (only live ones),
+ * the breadcrumbs, and the schema.
+ */
+export interface GeoPage {
+  /**
+   * The place's name as people write it ("Greater Kailash", "Sector 18"). Set on locality
+   * pages: the import script creates the place's CMS record from it when there is none.
+   */
+  name?: string;
+  /** <title>, at most 60 characters. */
+  title: string;
+  /** Meta description, at most 160 characters. */
+  metaDescription: string;
+  h1: string;
+  /** The line under the H1 in the hero. */
+  subhead: string;
+  /** Three or four short proofs, shown as the hero's trust strip. */
+  trust: string[];
+  /** The body sections, in order. */
+  sections: ServiceSection[];
+  faqHeading: string;
+  faqs: ServiceFaq[];
+  /** Heading over the links to this place's services, e.g. "Moving services in Delhi". */
+  servicesHeading: string;
+  /** Heading and one line over the nearby places (cities, or sibling areas) and routes. */
+  nearbyHeading: string;
+  nearbyIntro: string;
+  /**
+   * Popular routes from here, as plain names ("Delhi to Bangalore"). Shown as text, not
+   * links, until each route has a page of its own.
+   */
+  routes: string[];
+  ctaHeading: string;
+  ctaText: string;
+}
+
+/** The parts an editor has filled in; blank keeps the built-in copy. */
+export type GeoPageOverrides = Partial<
+  Pick<
+    GeoPage,
+    | 'subhead'
+    | 'trust'
+    | 'sections'
+    | 'faqHeading'
+    | 'faqs'
+    | 'servicesHeading'
+    | 'nearbyHeading'
+    | 'nearbyIntro'
+    | 'routes'
+    | 'ctaHeading'
+    | 'ctaText'
+  >
+>;

@@ -21,6 +21,8 @@ interface Props {
   prefillDestination?: string;
   bands?: RateBand[];
   roadKm?: number;
+  align?: 'center' | 'split';
+  crumbs?: { href?: string; label: string }[];
 }
 const props = Astro.props as Props;
 ---

@@ -2,7 +2,7 @@ import type { ServicePage } from './types.js';
 
 /** Packing and unpacking page, from the owner's brief "PackingUnpacking_FINAL" (8 October 2026). */
 export const packingUnpacking: ServicePage = {
-  title: 'House Packing and Unpacking Services | MrMoverPacker',
+  title: 'House Packing and Unpacking | Room by Room | MrMoverPacker',
   metaDescription:
     'House packing and unpacking services in Delhi NCR and Meerut. Room-by-room packing, labelled cartons, unpacking and debris removal. One fixed price.',
   h1: 'House packing and unpacking services, done room by room at one fixed price',
@@ -101,7 +101,7 @@ export const packingUnpacking: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Layers, not just boxes. Each layer does one job.',
+          body: 'Good packing works in layers, and each layer does one job.',
         },
         {
           kind: 'table',
@@ -139,7 +139,67 @@ export const packingUnpacking: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'Basic packing uses cartons and wrap. Standard adds 3-layer wrapping and crates for fragile pieces. All material is included in the quote.',
+          body: 'All material is included in the quote.',
+        },
+      ],
+    },
+    {
+      heading: 'Basic or Standard packing: which should you choose?',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'The level sets how much material goes on each item. Choose it by what can break, not by the size of your home.',
+        },
+        {
+          kind: 'table',
+          columns: ['', 'Basic', 'Standard'],
+          rows: [
+            ['Material', 'Cartons and wrap', '3-layer wrapping, plus crates for fragile pieces'],
+            [
+              'Suits',
+              'A home with few fragile items',
+              'A full crockery cabinet, glass tops, framed art or a long-distance move',
+            ],
+            ['Price', 'Lower', 'Higher, for more material and crew time'],
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Not sure? Tell us about your fragile items when you ask for a quote, and we will suggest a level.',
+        },
+      ],
+    },
+    {
+      heading: 'How a packing day runs',
+      blocks: [
+        {
+          kind: 'steps',
+          items: [
+            {
+              title: 'Walk-through',
+              body: 'The crew lead walks each room with you. Anything you are carrying yourself is set aside first, so it is never packed by mistake.',
+            },
+            {
+              title: 'Fragile first',
+              body: 'Crockery, glass, screens and art are packed first, while the crew is fresh and the floor is clear.',
+            },
+            {
+              title: 'Room by room',
+              body: 'Each room is finished before the next one starts. Every carton is labelled with its room and contents.',
+            },
+            {
+              title: 'Photos',
+              body: 'Fragile cartons are photographed once packed, so their condition is on record.',
+            },
+            {
+              title: 'Final check',
+              body: 'You walk the empty rooms with the crew lead, checking cupboards, lofts and drawers before the crew leaves.',
+            },
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Every packer is trained and ID-verified. When the crew arrives, [verify your crew](/verify) against the details we send.',
         },
       ],
     },
@@ -177,6 +237,34 @@ export const packingUnpacking: ServicePage = {
       ],
     },
     { heading: 'What the price covers', blocks: [{ kind: 'scope' }] },
+    {
+      heading: 'What to pack yourself and what to leave to us',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'Packing some things yourself lowers the quote. Damage inside cartons you packed is not covered, so split the work by what can break.',
+        },
+        {
+          kind: 'table',
+          columns: ['Who packs it', 'Items'],
+          rows: [
+            [
+              'You, if you want to save',
+              'Clothes, linen, books, toys and other things that cannot break',
+            ],
+            [
+              'Our crew',
+              'Crockery, glassware, TVs, mirrors, glass tops, framed art and appliances',
+            ],
+            ['Nobody: you carry it', 'Cash, jewellery, documents, medicines and chargers'],
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Use sturdy cartons for anything you pack, keep each one light enough to lift, and label it with its room and contents.',
+        },
+      ],
+    },
     {
       heading: 'How to get ready for professional packers',
       blocks: [

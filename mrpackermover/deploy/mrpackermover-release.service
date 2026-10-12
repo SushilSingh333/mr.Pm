@@ -1,0 +1,23 @@
+# systemd unit — asks the deploy listener for one rebuild. Started by
+# mrpackermover-release.timer at each locality release time (09:05 and 18:05 IST), so
+# the next batch of locality pages goes live without anyone touching the server
+# (packages/shared/src/geo-pages/release.ts). Going through the listener means it never
+# overlaps a rebuild that a CMS publish started.
+#
+# Install:  sudo bash deploy/install-units.sh   (rewrites the paths below to this clone)
+#           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-release.timer
+# Run now:  sudo systemctl start mrpackermover-release
+# Logs:     journalctl -u mrpackermover-release   (the build itself: -u mrpackermover-deploy)
+
+[Unit]
+Description=MrMoverPacker locality release rebuild
+After=network.target mrpackermover-deploy.service
+Wants=mrpackermover-deploy.service
+
+[Service]
+Type=oneshot
+User=mpm
+# BUILD_TRIGGER_TOKEN (and DEPLOY_LISTEN_PORT, if set) come from the CMS env file. "$$" is
+# systemd's escape for a literal "$", so the shell, not systemd, reads them.
+EnvironmentFile=/srv/mrpackermover/repo/mrpackermover/apps/cms/.env
+ExecStart=/bin/sh -c 'curl -fsS -X POST -H "Authorization: Bearer $$BUILD_TRIGGER_TOKEN" "http://127.0.0.1:$${DEPLOY_LISTEN_PORT:-4545}/deploy"'

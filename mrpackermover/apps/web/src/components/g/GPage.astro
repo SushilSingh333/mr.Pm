@@ -1,0 +1,43 @@
+---
+/**
+ * The wrapper for a Google-style page body: Google's neutral surfaces and outlines, with
+ * the site's own blue as the one accent. The tokens are custom properties, so every g/*
+ * component inside picks them up through inheritance.
+ *
+ * `tint` adds the soft blue-to-white wash at the top (the service pages, whose hero is
+ * light). The city and locality pages start with the photo banner and leave it off.
+ */
+interface Props {
+  tint?: boolean;
+}
+const { tint = false } = Astro.props;
+---
+
+<div class:list={['gsv', { 'gsv--tint': tint }]}>
+  <slot />
+</div>
+
+<style>
+  .gsv {
+    --g-ink: #1f1f1f;
+    --g-ink-2: #444746;
+    --g-ink-3: #5e5e5e;
+    --g-outline: #e1e3e1;
+    --g-outline-strong: #747775;
+    --g-surface-1: #f8fafd;
+    --g-surface-2: #f0f4f9;
+    color: var(--g-ink);
+    background-color: #fff;
+  }
+  .gsv--tint {
+    background:
+      radial-gradient(
+        60rem 34rem at 0% 0%,
+        color-mix(in srgb, var(--color-brand-50) 55%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(var(--g-surface-1), #fff 56rem);
+    background-repeat: no-repeat;
+    background-color: #fff;
+  }
+</style>

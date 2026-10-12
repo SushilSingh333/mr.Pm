@@ -27,7 +27,9 @@ for (const dir of DIRS) {
       .toBuffer();
     fs.writeFileSync(full, buf);
     total += 1;
-    console.info(`  ${path.relative(ROOT, full)}  ${Math.round(before / 1024)}KB -> ${Math.round(buf.length / 1024)}KB`);
+    console.info(
+      `  ${path.relative(ROOT, full)}  ${Math.round(before / 1024)}KB -> ${Math.round(buf.length / 1024)}KB`,
+    );
   }
 }
 console.info(`Optimised ${total} images.`);

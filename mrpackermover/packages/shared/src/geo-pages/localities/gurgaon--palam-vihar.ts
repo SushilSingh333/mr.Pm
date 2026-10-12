@@ -28,7 +28,7 @@ export const gurgaonPalamVihar: GeoPage = {
           items: [
             'Builder floors. As across old Gurgaon, many homes here are builder floors, so stairs matter more than lifts.',
             'Block addresses. Homes are found by block, such as Block C 1, where SCR Public School stands.',
-            'A mall junction. Ansal Plaza, opened in 2007, stands near Rezang La Chowk in Sector 23. We keep loading clear of its shopping crowd.',
+            'A mall junction. Ansal Plaza stands near Rezang La Chowk in Sector 23, so we keep loading clear of its shopping crowd.',
             'A bus terminus. City buses run between Krishna Chowk and Sector 55-56, so the truck never parks at that stop.',
             'Road and rail links. Palam Vihar Halt station sits on the line to Bijwasan, and the Dwarka Expressway runs past Bajghera.',
           ],
@@ -147,7 +147,7 @@ export const gurgaonPalamVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a home figure at once. [How pricing works](/pricing) explains each line of a Krishna Chowk or Rezang La Chowk quote.',
+          body: 'The estimator above gives a home figure at once. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },

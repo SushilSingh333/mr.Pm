@@ -126,7 +126,7 @@ export const delhiLaxmiNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a room near Vikas Marg or a family floor, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of a Shakarpur or Lalita Park quote.',
+          body: 'For a room near Vikas Marg or a family floor, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -137,7 +137,7 @@ export const delhiLaxmiNagar: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early loading beats the heat and the Vikas Marg traffic near the metro station.',
-            'Monsoon (July to September). Vikas Marg traffic was thrown out of gear by rain in August 2025, so we keep a spare hour.',
+            'Monsoon (July to September). Heavy rain can jam Vikas Marg near the metro station, so we keep a spare hour.',
             'Winter (December to February). A short move to Preet Vihar or Patparganj can run overnight: loaded by 8 PM, delivered next morning.',
           ],
         },
@@ -157,14 +157,14 @@ export const delhiLaxmiNagar: GeoPage = {
         'Yes. A single room near Laxmi Nagar metro station moves in a smaller vehicle, on the same fixed written price.',
     },
     {
-      question: 'Does rain affect moves near the metro station?',
+      question: 'My Shakarpur floor has no lift. Does that cost more?',
       answer:
-        'It can. A stretch of Vikas Marg beside Laxmi Nagar station flooded in July 2017 after a pipeline burst, and rain in August 2025 jammed the road.',
+        'Stairs add crew time, and the survey counts your floors. It shows as one line on the written quote, not as a surprise on the day.',
     },
     {
-      question: 'Which metro stations are closest for visiting my new home?',
+      question: 'Will my landlord near Lalita Park need anything from you?',
       answer:
-        'Laxmi Nagar station on Vikas Marg, on the Blue Line. Nirman Vihar and Preet Vihar stations are further east on the same line.',
+        'Some landlords ask who is moving goods out. We share the vehicle number and crew IDs so you can pass them on.',
     },
     {
       question: 'What do packers and movers in Laxmi Nagar charge?',

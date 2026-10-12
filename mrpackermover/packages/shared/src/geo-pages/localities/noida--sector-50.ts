@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Sector 50 (Noida) locality page, round 3: rewritten from sourced local facts (Rainbow metro station on Vishwakarma Road, Aqua Line to Sector 51 and Sector 76, Blue Line at Sector 52, Shia Jama Masjid, Mar Thoma and Bethel Methodist churches). */
+/** Sector 50 (Noida) locality page, round 3: rewritten from sourced local facts (Rainbow metro station on Vishwakarma Road, Aqua Line to Sector 51 and Sector 76, Shia Jama Masjid, Mar Thoma and Bethel Methodist churches). Round 4: evergreen only. */
 export const noidaSector50: GeoPage = {
   name: 'Sector 50',
   title: 'Movers in Sector 50, Noida | Overnight Moves | MrMoverPacker',
@@ -26,11 +26,10 @@ export const noidaSector50: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Rainbow station. The Aqua Line stop on Vishwakarma Road was called Noida Sector 50 until its renaming in 2020.',
-            'Line end next door. Noida Sector 51, in Block E of Sector 51, is the next stop north and the end of the Aqua Line.',
-            'Blue Line link. A walkway joins Noida Sector 51 to the Blue Line station at Sector 52, on Captain Shashi Kant Marg.',
-            'Places of worship. The Shia Jama Masjid, Mar Thoma Church and Bethel Methodist Church all stand in Sector 50.',
-            'South to Greater Noida. The Aqua Line runs on past Noida Sector 76 to Pari Chowk and Knowledge Park II.',
+            'Rainbow station. The Aqua Line stop on Vishwakarma Road is the easiest marker for fixing your truck spot.',
+            'Line end next door. Noida Sector 51, the last Aqua Line stop, is one station north, so moves to Sectors 51 and 52 are short.',
+            'Places of worship. The Shia Jama Masjid, Mar Thoma Church and Bethel Methodist Church stand in Sector 50, so loading avoids prayer times.',
+            'Stairs or lift. Not every Sector 50 building has a lift, so the survey checks the stairs and landings.',
           ],
         },
       ],
@@ -136,7 +135,7 @@ export const noidaSector50: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a home off Vishwakarma Road, the price check above gives a first figure, and [how pricing works](/pricing) lists each charge.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) lists each charge on the written quote.',
         },
       ],
     },

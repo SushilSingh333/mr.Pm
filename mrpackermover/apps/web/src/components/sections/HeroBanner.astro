@@ -19,6 +19,8 @@ interface Props {
   image?: string;
   /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence over `image`. */
   imageUrl?: string;
+  /** What the CMS photo shows; read by screen readers and image search. */
+  imageAlt?: string;
   /** When set, shows the city chip + the "Choose your city" modal. */
   cityLabel?: string;
   prefillCity?: string;
@@ -32,7 +34,8 @@ interface Props {
   /** Breadcrumbs in the banner (the split layout). */
   crumbs?: { href?: string; label: string }[];
 }
-const { h1, intro, badge, image, imageUrl, cityLabel, align, crumbs, ...quote } = Astro.props;
+const { h1, intro, badge, image, imageUrl, imageAlt, cityLabel, align, crumbs, ...quote } =
+  Astro.props;
 
 // City list for the modal (only needed when the chip is shown) — carries each city's
 // uploaded thumbnail so the picker matches the hero.
@@ -50,6 +53,7 @@ const cities = cityLabel
   badge={badge}
   image={image}
   imageUrl={imageUrl}
+  imageAlt={imageAlt}
   align={align}
   crumbs={crumbs}
 >

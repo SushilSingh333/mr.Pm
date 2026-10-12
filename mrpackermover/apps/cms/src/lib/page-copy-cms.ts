@@ -291,6 +291,23 @@ export function geoPageOverrides(body: unknown): GeoPageOverrides {
       .filter((t): t is string => Boolean(t)),
     ctaHeading: str(d.ctaHeading),
     ctaText: str(d.ctaText),
+    reviewsHeading: str(d.reviewsHeading),
+    reviews: rows(d.reviews).flatMap((r) => {
+      const name = str(r.name);
+      const text = str(r.text);
+      if (!name || !text) return [];
+      const rating = Number(str(r.rating));
+      return [
+        {
+          name,
+          text,
+          move: str(r.move),
+          rating: rating >= 1 && rating <= 5 ? rating : undefined,
+          date: str(r.date),
+          source: str(r.source),
+        },
+      ];
+    }),
   }) as GeoPageOverrides;
 }
 

@@ -21,16 +21,15 @@ export const delhiModelTown: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Model Town was built by the DLF Group in the early 1950s, and is called the first elite colony of Delhi after Independence. It is split into Model Town I, II and III.',
+          body: 'Model Town was built by the DLF Group in the early 1950s. It is called the first elite colony of Delhi after Independence. It is split into Model Town I, II and III.',
         },
         {
           kind: 'list',
           items: [
-            'Naini Lake. Naini Lake in Model Town I has boating and a walking path around it.',
-            'Chhatrasal Stadium. The stadium stands opposite Model Town III, so we check your date for events there.',
+            'Naini Lake. Homes around Naini Lake in Model Town I face a public walking path, so the truck spot is chosen with care.',
+            'Chhatrasal Stadium. The stadium stands opposite Model Town III and is an easy landmark for fixing the truck spot.',
             'Ring Road. Model Town sits on the Ring Road, with access to the Outer Ring Road for moves further out.',
             'Metro. Model Town station on the Yellow Line is in Block B of Model Town I, between GTB Nagar and Azadpur.',
-            'Azadpur underpass. Azadpur underpass was among the spots badly waterlogged after heavy rain in August 2021.',
           ],
         },
       ],
@@ -64,7 +63,7 @@ export const delhiModelTown: GeoPage = {
             [
               'Model Town III, opposite Chhatrasal Stadium',
               'Homes facing the stadium side',
-              'Date checked against stadium events.',
+              'Stadium gate used to guide the truck in.',
             ],
             ['Derawal Nagar and Kingsway Camp', 'Neighbouring colonies', 'A short local move.'],
           ],
@@ -133,7 +132,7 @@ export const delhiModelTown: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a floor by Naini Lake or a house in Model Town III, the estimator above gives a quick figure. [How pricing works](/pricing) breaks down a Derawal Nagar quote the same way.',
+          body: 'For a floor by Naini Lake or a house in Model Town III, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -144,7 +143,7 @@ export const delhiModelTown: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early loading suits the lanes round Naini Lake, before the heat builds.',
-            'Monsoon (July to September). Heavy rain has flooded the Azadpur underpass, so we route around it on wet days.',
+            'Monsoon (July to September). The Azadpur underpass is a known monsoon waterlogging spot, so we route around it on wet days.',
             'Winter (December to February). A short move to Kamla Nagar or Shalimar Bagh can run overnight: loaded by 8 PM, delivered next morning.',
           ],
         },
@@ -159,14 +158,14 @@ export const delhiModelTown: GeoPage = {
         'Only where it keeps the Naini Lake path clear. We fix the spot on the survey and price any long carry up front.',
     },
     {
-      question: 'Does Chhatrasal Stadium affect a Model Town III move?',
+      question: 'Does my Model Town II RWA need anything from you?',
       answer:
-        'It might, as the stadium faces Model Town III. We check your date for Chhatrasal Stadium events when we book.',
+        'Some blocks ask for a guard note before goods leave. We share the vehicle number and crew IDs for it.',
     },
     {
-      question: 'Which metro stations are closest for visiting my new home?',
+      question: 'Can you load a Model Town III home with no lift?',
       answer:
-        'Model Town station on the Yellow Line, in Block B of Model Town I. Azadpur, one stop north, links the Yellow and Pink Lines.',
+        'Yes. The survey counts the flights of stairs, and that crew time sits on the written quote.',
     },
     {
       question: 'What do packers and movers in Model Town charge?',

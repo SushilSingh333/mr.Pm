@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Udyog Vihar (Gurgaon) locality page, round 3: rewritten from sourced local facts (HSIIDC estate, Phases 3 to 6, NH 48, Shyam Chowk and Atlas Chowk, Rapid Metro, Gurugram Metro Line 2, Dundahera). */
+/** Udyog Vihar (Gurgaon) locality page, round 3: rewritten from sourced local facts (HSIIDC estate, Phases 3 to 6, NH 48, Shyam Chowk and Atlas Chowk, Rapid Metro, Dundahera). */
 export const gurgaonUdyogVihar: GeoPage = {
   name: 'Udyog Vihar',
   title: 'Movers in Udyog Vihar | One Written Price | MrMoverPacker',
@@ -27,10 +27,9 @@ export const gurgaonUdyogVihar: GeoPage = {
           kind: 'list',
           items: [
             'Gate logs. Units in Phase 4 and Phase 5 often log every truck, so we send its number ahead.',
-            'Dock and goods lift. Each building sets its loading hours, so for a Phase 3 block we agree the window with your facility team.',
+            'Dock and goods lift. Each building sets its loading hours. For a Phase 3 block, we agree the window with your facility team.',
             'Expressway links. Shyam Chowk and Atlas Chowk join the estate to NH 48, so trucks are timed around office hours.',
             'Rapid Metro next door. Moulsari Avenue and Cyber City stations sit just east, beside DLF Cyber City.',
-            'Metro works ahead. Gurugram Metro Line 2 plans an Udyog Vihar Phase 6 station, with building under way since November 2025.',
           ],
         },
       ],
@@ -133,7 +132,7 @@ export const gurgaonUdyogVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above suits a home near Dundahera; for an office, the surveyed quote is final. See [how pricing works](/pricing).',
+          body: 'The estimator above suits a home near Dundahera; for an office, the surveyed quote is final. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -167,7 +166,7 @@ export const gurgaonUdyogVihar: GeoPage = {
     {
       question: 'Can you move us from Udyog Vihar to Cyber City?',
       answer:
-        'Yes. It is a short hop past Moulsari Avenue; see [Cyber City](/packers-and-movers/gurgaon/cyber-city) for tower rules there.',
+        'Yes. It is a short hop past Moulsari Avenue. Towers in [Cyber City](/packers-and-movers/gurgaon/cyber-city) set their own dock and lift rules.',
     },
     {
       question: 'Can you move us into Delhi?',
@@ -177,12 +176,12 @@ export const gurgaonUdyogVihar: GeoPage = {
     {
       question: 'Do you also move homes near Udyog Vihar?',
       answer:
-        'Yes, from Dundahera and Sectors 19 and 20, on a separate survey. See [home shifting](/services/home-shifting).',
+        'Yes, from Dundahera and Sectors 19 and 20, on a separate [home shifting](/services/home-shifting) survey.',
     },
     {
       question: 'Is stock from our Phase 4 unit covered in transit?',
       answer:
-        'Basic liability cover comes with every Phase 4 move. Add [transit insurance](/insurance) on the declared value of export stock; see [how claims work](/claims).',
+        'Basic liability cover comes with every Phase 4 move. Add [transit insurance](/insurance) on the declared value of export stock. [How claims work](/claims) sets out the steps.',
     },
   ],
   servicesHeading: 'Moving services in Udyog Vihar',

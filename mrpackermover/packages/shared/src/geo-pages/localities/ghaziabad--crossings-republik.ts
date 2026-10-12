@@ -21,7 +21,7 @@ export const ghaziabadCrossingsRepublik: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Crossings Republik is a high-rise township of about 360 acres on National Highway 9, the Delhi-Meerut Expressway corridor. It was built over the land of Dundahera village, acquired between 2004 and 2009.',
+          body: 'Crossings Republik is a high-rise township of about 360 acres on National Highway 9, the Delhi-Meerut Expressway corridor. It was built over the land of Dundahera village.',
         },
         {
           kind: 'list',
@@ -29,7 +29,7 @@ export const ghaziabadCrossingsRepublik: GeoPage = {
             'Many builders. SKB, Saviour, Ajnara, Assotech, Gaursons, Mahagun, Panchsheel and Supertech all built towers here. Each society keeps its own office and forms.',
             'One spine road. Societies such as Assotech The Nest and Kingswood Court open onto Crossings Republik Road, which every truck shares.',
             'Galleria Market. Galleria Market 1 and 2 hold the shops and the township post office. We plan the truck spot away from their entrances.',
-            'Highway gate. Panchsheel Square Mall stands on the expressway side, where the township meets NH 9.',
+            'Highway gate. Panchsheel Square Mall stands where the township meets NH 9, an easy landmark for the driver.',
             'Greater Noida West next door. Gaur City lies just across the boundary, so many moves cross from Ghaziabad into Gautam Buddh Nagar.',
           ],
         },

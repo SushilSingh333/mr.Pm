@@ -1,13 +1,13 @@
 import type { GeoPage } from '../types.js';
 
-/** Delhi city page, from the owner's brief "Delhi City Page: FINAL" (9 October 2026), round 3: expanded with sourced local detail (DDA sub-cities, Chandni Chowk zone, DND Flyway, NH 48, Minto Bridge, CAQM entry rule). */
+/** Delhi city page, from the owner's brief "Delhi City Page: FINAL" (9 October 2026), round 4: evergreen (no years), varied place pairs; expanded with sourced local detail (DDA sub-cities, Chandni Chowk zone, DND Flyway, NH 48, Minto Bridge, CAQM entry rule). */
 export const delhi: GeoPage = {
   title: 'Packers and Movers in Delhi | Fixed Price | MrMoverPacker',
   metaDescription:
     'Packers and movers in Delhi with one fixed, written price. Gate passes, lift slots and truck timings planned for you. ID-verified crews, overnight moves.',
   h1: 'Packers and movers in Delhi with one fixed, written price',
   subhead:
-    'Packers and movers in Delhi plan gate passes, lift slots and truck timings as much as packing, from Rohini to Saket. We fix all three before the day, then deliver across NCR or India for one written price.',
+    'Packers and movers in Delhi plan gate passes, lift slots and truck timings as much as packing. We fix all three before the day, then deliver across NCR or India for one written price.',
   trust: [
     'Gate pass and lift slot arranged',
     'Overnight local moves: loaded by 8 PM',
@@ -26,7 +26,7 @@ export const delhi: GeoPage = {
           kind: 'list',
           items: [
             'Truck timings. Delhi Traffic Police set daytime no-entry windows for goods vehicles on many roads. Small tempos and larger trucks follow different rules. We size the truck and loading hour to your route over the Ring Road or Outer Ring Road.',
-            'Cleaner trucks. A CAQM order since November 2025 limits goods vehicles registered outside Delhi to cleaner engines, so the truck we send must meet it.',
+            'Cleaner trucks. A CAQM order limits goods vehicles registered outside Delhi to cleaner engines, so the truck we send must meet it.',
             'Society rules. Group housing societies in Dwarka and Patparganj usually want a gate pass, a booked lift slot and set loading hours. Many Dwarka societies also ask for a no-dues slip before goods leave.',
             'Builder floors. Much of South and West Delhi is builder floors with small lifts or none, as in Greater Kailash. Sofas and almirahs often come down by stairs, with extra hands.',
             'Lanes and parking. In market areas like Karol Bagh, around Ajmal Khan Road, the truck may stop at the main road. Carry beyond 50 metres is on the quote.',
@@ -43,7 +43,7 @@ export const delhi: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The Delhi Development Authority (DDA) built much of the city, from Rohini to Mayur Vihar across the Yamuna. Lajpat Nagar, settled by Partition refugees in the 1950s, is now mostly multi-storey.',
+          body: 'The Delhi Development Authority (DDA) built much of the city, including Rohini in the north-west and Mayur Vihar across the Yamuna. Lajpat Nagar, settled by Partition refugees in the 1950s, is now mostly multi-storey.',
         },
         {
           kind: 'table',
@@ -87,7 +87,7 @@ export const delhi: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'In most societies, yes, from Dwarka to the IP Extension societies of Patparganj. Your coordinator checks your society or RWA rules and books the rest with you.',
+          body: 'In most societies, yes, whether a Dwarka sector tower or an IP Extension society in Patparganj. Your coordinator checks your society or RWA rules and books the rest with you.',
         },
         {
           kind: 'table',
@@ -128,7 +128,7 @@ export const delhi: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'It depends on volume, distance and access at each end, from a Shahdara lane to a Vasant Kunj pocket. Our packers and movers in Delhi send one fixed, written price after a video survey, GST shown. The estimator above gives a first figure for any pickup, from Narela to Badarpur.',
+          body: 'It depends on volume, distance and access at each end, such as a narrow Shahdara lane. Our packers and movers in Delhi send one fixed, written price after a video survey, GST shown. The estimator above gives a first figure for any pickup, from Narela to Badarpur.',
         },
         {
           kind: 'table',
@@ -144,14 +144,17 @@ export const delhi: GeoPage = {
               'Carry distance',
               'Old Delhi and Laxmi Nagar lanes where the truck stops at the main road',
             ],
-            ['Date', 'Month-end and weekends are busiest, from Rohini to Saket'],
+            [
+              'Date',
+              'Month-end and weekends fill lift slots fastest in Patparganj and Mayur Vihar societies',
+            ],
             ['Packing level', 'Basic or Standard; crates for fragile items on Old Delhi carries'],
             ['Transit insurance', 'Optional, on declared value, worth it for a haul to Bangalore'],
           ],
         },
         {
           kind: 'text',
-          body: 'Nothing outside the written quote is added on the day, in Rohini or Saket. See [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote, and nothing outside it is added on the day.',
         },
       ],
     },
@@ -165,14 +168,14 @@ export const delhi: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Noida. The DND Flyway links Maharani Bagh and Nizamuddin to Noida Sector 15A. It has been toll-free since a 2016 Allahabad High Court order.',
+            'Noida. The DND Flyway links Maharani Bagh and Nizamuddin to Noida Sector 15A. It is toll-free, so no toll is added to a Noida run.',
             'Gurgaon. The NH 48 expressway starts at Dhaula Kuan, runs past the airport and ends on the edge of Gurgaon.',
             'Ghaziabad and Meerut. The Delhi Meerut Expressway runs from Nizamuddin Bridge through Ghaziabad to Partapur, near Meerut.',
           ],
         },
         {
           kind: 'text',
-          body: 'Our packers and movers in Delhi usually run moves to [Noida](/packers-and-movers/noida), [Gurgaon](/packers-and-movers/gurgaon) or [Ghaziabad](/packers-and-movers/ghaziabad) overnight. For car transport or office shifting from Nehru Place or Okhla, see all our [moving services](/services).',
+          body: 'Our packers and movers in Delhi usually run moves to [Noida](/packers-and-movers/noida), [Gurgaon](/packers-and-movers/gurgaon) or [Ghaziabad](/packers-and-movers/ghaziabad) overnight. Car transport or office shifting from Nehru Place or Okhla sits with all our [moving services](/services).',
         },
       ],
     },
@@ -186,11 +189,11 @@ export const delhi: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Overnight local moves. We load by 8 PM, travel after the evening rush on the Ring Road, and unload when your new society opens. You lose no working day, from Dwarka to Shahdara.',
+            'Overnight local moves. We load by 8 PM, travel after the evening rush on the Ring Road, and unload when your new society opens. You lose no working day, even moving from Janakpuri to Shahdara.',
             'Summer (April to June). May is the hottest month; Safdarjung and Palam have both logged highs above 45°C. Electronics, candles, medicines and cosmetics suffer in a closed truck, so carry the most sensitive ones.',
             'Monsoon (July to September). The bowl-shaped road under Minto Bridge, near Connaught Place, floods in heavy rain, so we route around it. Mattresses, sofas and wooden furniture get waterproof wrapping.',
             'Winter fog (December to January). Dense fog disrupts flights at IGI Airport and trains out of Delhi, and slows night trucks too. Delivery windows on runs to Patna or Dehradun allow for it.',
-            'Month-end. The last and first few days of the month are busiest for lift slots, from Dwarka to Patparganj. A flexible date usually gets a better price.',
+            'Month-end. The last and first few days of the month are busiest for lift slots in Dwarka group housing. A flexible date usually gets a better price.',
           ],
         },
       ],
@@ -216,12 +219,12 @@ export const delhi: GeoPage = {
     {
       question: 'How long does a local shift in Delhi take?',
       answer:
-        'Usually one day, say from Janakpuri to Dwarka. On an overnight move we load by 8 PM and unload in Saket or Shahdara the next morning.',
+        'Usually one day, say from Janakpuri to Dwarka. On an overnight move we load by 8 PM and unload in Saket the next morning.',
     },
     {
       question: 'Do you shift builder floors with no lift?',
       answer:
-        'Yes, from Lajpat Nagar to Malviya Nagar. Extra hands bring heavy items down the stairs, priced on the quote from day one.',
+        'Yes, they are common in Lajpat Nagar and Malviya Nagar. Extra hands bring heavy items down the stairs, priced on the quote from day one.',
     },
     {
       question: 'Can you move me from Delhi to Noida, Gurgaon or Ghaziabad?',
@@ -236,7 +239,7 @@ export const delhi: GeoPage = {
     {
       question: 'Is my move insured?',
       answer:
-        'Every move, from a Rohini flat to a Vasant Kunj house, has basic liability cover. Full cover is optional [transit insurance](/insurance); see [how claims work](/claims).',
+        'Every move has basic liability cover, Old Delhi hand carries too. Full cover is optional [transit insurance](/insurance); see [how claims work](/claims).',
     },
   ],
   servicesHeading: 'Moving services in Delhi',

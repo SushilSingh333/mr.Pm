@@ -75,7 +75,7 @@ export const greaterNoidaGamma: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Gamma 2 once housed the GNIDA registry office, and GNIDA still governs both halves.',
+          body: 'GNIDA governs both halves, and your water account closes with it.',
         },
         {
           kind: 'table',
@@ -124,7 +124,7 @@ export const greaterNoidaGamma: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Read [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },

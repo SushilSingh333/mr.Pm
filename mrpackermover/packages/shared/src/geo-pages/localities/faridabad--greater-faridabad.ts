@@ -28,9 +28,9 @@ export const faridabadGreaterFaridabad: GeoPage = {
           items: [
             'Homes and industry. Sectors 75 to 89 are residential, while Sectors 66 to 74 are industrial. A flat move and a unit move need different plans.',
             'Society towers. The residential sectors are mostly high-rise societies, so lift slots and gate passes decide the day.',
-            'One main road out. The Agra canal road is about 20 km long and two lanes wide. The Tribune reported that it is not wide enough for its traffic.',
-            'A hospital to keep clear. Amrita Hospital opened in Sector 88 in August 2022, so trucks keep off its approach.',
-            'A busy mall. Omaxe World Street is the largest shopping complex in Neharpar, with a food court and offices.',
+            'One main road out. The Agra canal road is about 20 km long and two lanes wide, which is narrow for the traffic it carries.',
+            'A hospital to keep clear. Amrita Hospital stands in Sector 88, so trucks keep off its approach.',
+            'A landmark mall. Omaxe World Street is the largest shopping complex in Neharpar. It is a clear marker for the truck spot.',
           ],
         },
       ],
@@ -132,7 +132,7 @@ export const faridabadGreaterFaridabad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Every line of a Neharpar quote is explained on [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -143,7 +143,7 @@ export const faridabadGreaterFaridabad: GeoPage = {
           kind: 'list',
           items: [
             'Possession weekends. When a tower in Sectors 85 to 88 hands over keys, its lift and loading slots fill fast.',
-            'Monsoon (July to September). The Kalindi Kunj to Faridabad stretch of the Agra canal road was shut from 21 to 23 July 2025 for the Kanwar Yatra. We check for such closures before fixing a July date.',
+            'Monsoon (July to September). Rain on the two-lane Agra canal road slows a Delhi or Noida run. Sofas and mattresses are wrapped before they leave a Sector 75 to 89 tower.',
             'Winter (December to February). Overnight moves load by 8 PM in Neharpar and reach Delhi next morning.',
           ],
         },
@@ -154,7 +154,7 @@ export const faridabadGreaterFaridabad: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The Agra canal road runs from the Sector 37 bypass near the Delhi border, and links Greater Faridabad with Noida and Delhi. A plan to widen it to four lanes has been drawn up.\n\nWithin the city, a move to [Sector 15](/packers-and-movers/faridabad/sector-15) or [Badkhal](/packers-and-movers/faridabad/badkhal) crosses back over the Agra Canal.',
+          body: 'The Agra canal road runs from the Sector 37 bypass near the Delhi border, and links Greater Faridabad with Noida and Delhi.\n\nWithin the city, a move to [Sector 15](/packers-and-movers/faridabad/sector-15) or [Badkhal](/packers-and-movers/faridabad/badkhal) crosses back over the Agra Canal.',
         },
       ],
     },

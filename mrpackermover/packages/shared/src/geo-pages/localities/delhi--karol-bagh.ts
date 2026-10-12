@@ -29,7 +29,7 @@ export const delhiKarolBagh: GeoPage = {
             'Market streets. Ajmal Khan Road and Ghaffar Market are busy shopping streets, so the truck often waits nearby while the crew carries.',
             'Residential pockets. WEA, Beadon Pura, Regharpura, Dev Nagar and Bapa Nagar are the main residential parts, each with its own lanes.',
             'Metro and rail. Karol Bagh station is on the Blue Line. Delhi Sarai Rohilla railway station is about 1 km away.',
-            'Pusa Road. Heavy rain in July 2015 left long tailbacks on Pusa Road, the main road beside the market.',
+            'Pusa Road. The wide road beside the market is where the truck usually waits while the crew carries from the lanes.',
             'Leather trade. Hardhyan Singh Road is known for leather goods, so a home there often sits above or beside a busy shop front.',
           ],
         },
@@ -142,7 +142,7 @@ export const delhiKarolBagh: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a WEA flat or a Tank Road shop, the estimator above gives a quick figure. [How pricing works](/pricing) shows how a Karol Bagh quote is built.',
+          body: 'For a WEA flat or a Tank Road shop, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -178,8 +178,9 @@ export const delhiKarolBagh: GeoPage = {
         'Yes. [Rajinder Nagar](/packers-and-movers/delhi/rajinder-nagar) lies just across Pusa Road, so it is a short local move on one fixed price.',
     },
     {
-      question: 'Which metro station is closest for visiting my new home?',
-      answer: 'Karol Bagh station on the Blue Line, between Jhandewalan and Rajendra Place.',
+      question: 'Can you move a flat above a shop on Hardhyan Singh Road?',
+      answer:
+        'Yes. The crew carries down the stairs to a truck parked clear of the shop fronts. Any carry past 50 metres is on the quote before you book.',
     },
     {
       question: 'What do packers and movers in Karol Bagh charge?',

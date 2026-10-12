@@ -26,10 +26,10 @@ export const faridabadBadkhal: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Badkhal Chowk. The Tribune listed Badkhal Chowk among the main traffic choking points of the city in 2024. Loading near it is timed outside the peak hours on Mathura Road.',
-            'Metro next door. Badkhal Mor station, also named Manav Rachna Badkal Mor, sits in Sector 19 on the Violet Line. It opened in September 2015, between the Sector 28 and Old Faridabad stations.',
-            'Village lanes. The Tribune reported in 2024 that main streets in Badkhal village stayed waterlogged after monsoon rain.',
-            'Lake and hills. Badkhal Lake was made after 1947 with a bund between two low Aravalli hills. A revival project started in 2018 has brought water back to the lake.',
+            'Badkhal Chowk. Badkhal Chowk is one of the main traffic choking points on Mathura Road at rush hour. Loading near it is timed outside the peak hours.',
+            'Metro next door. Badkhal Mor station, also named Manav Rachna Badkal Mor, sits in Sector 19 on the Violet Line. It lies between the Sector 28 and Old Faridabad stations, a handy fix for the truck spot.',
+            'Village lanes. The main streets of Badkhal village are known to stay waterlogged after heavy monsoon rain.',
+            'Lake and hills. Badkhal Lake was made after 1947 with a bund between two low Aravalli hills. Homes in Sectors 18 to 21 sit on quieter roads towards those hills.',
             'Gurgaon side. The Faridabad-Gurgaon road runs close by, so a move west to Gurgaon is direct.',
           ],
         },
@@ -49,7 +49,7 @@ export const faridabadBadkhal: GeoPage = {
             [
               'Badkhal village',
               'Village houses along lanes',
-              'Streets waterlogged in past monsoons; truck spot checked on video.',
+              'Streets waterlog in heavy monsoon rain; truck spot checked on video.',
             ],
             [
               'Sector 19, around Badkhal Mor station',
@@ -137,7 +137,7 @@ export const faridabadBadkhal: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Each line of a Badkhal quote is explained on [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },

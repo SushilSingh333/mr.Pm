@@ -3,8 +3,9 @@
  * Links to other pages as a band on the page's centre line: the heading centred, then a
  * centred grid of Material cards - the cities a service runs in, the services in a city (with their
  * photographs), the areas and nearby places. Links only ever point at pages that exist
- * (the caller passes live manifest links). `notes` are plain chips with no link - popular
- * routes that do not have pages of their own yet.
+ * (the caller passes live manifest links). `notes` are chips - popular routes, which have
+ * no pages of their own yet: a chip with an `href` opens the quote form with both cities
+ * filled in.
  *
  * `search` puts a Google-style search field above a long list (a city's area guides):
  * typing narrows the cards as you go, and when nothing matches it says so and points to
@@ -28,7 +29,7 @@ interface Props {
   /** The icon for cards without a photo: "pin" for places, "arrow" for anything else. */
   icon?: 'pin' | 'arrow';
   notesLabel?: string;
-  notes?: string[];
+  notes?: (string | { label: string; href: string })[];
   /** White or tinted, to carry on the sections' alternation. */
   tone?: 'white' | 'tint';
   /** A search field over the cards: its label and the line shown when nothing matches. */
@@ -154,9 +155,15 @@ const paged = searchable && links.length > PAGE;
           <div class="gl-notes">
             {notesLabel && <p class="gl-notes__t">{notesLabel}</p>}
             <ul>
-              {notes.map((n) => (
-                <li>{n}</li>
-              ))}
+              {notes.map((n) =>
+                typeof n === 'string' ? (
+                  <li>{n}</li>
+                ) : (
+                  <li class="gl-notes__link">
+                    <a href={n.href}>{n.label}</a>
+                  </li>
+                ),
+              )}
             </ul>
           </div>
         )}
@@ -577,6 +584,30 @@ const paged = searchable && links.length > PAGE;
   .gl-notes li {
     transition:
       border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
-      color 0.2s cubic-bezier(0.2, 0, 0, 1);
+      color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      background-color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  /* A route chip that opens the quote form: the whole chip is the link. */
+  .gl-notes__link {
+    padding: 0 !important;
+  }
+  .gl-notes__link a {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 0.9rem;
+    border-radius: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+  .gl-notes__link:hover,
+  .gl-notes__link:focus-within {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .gl-notes__link a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
   }
 </style>

@@ -390,6 +390,73 @@ export const geoPageField: Field = {
       ],
     },
     {
+      name: 'reviewsHeading',
+      type: 'text',
+      label: 'Reviews heading',
+      admin: { description: 'Blank shows "What customers in <place> say".' },
+    },
+    {
+      name: 'reviews',
+      type: 'array',
+      label: 'Customer reviews',
+      labels: { singular: 'Review', plural: 'Reviews' },
+      admin: {
+        initCollapsed: true,
+        description:
+          'Real reviews only, shown with the customer’s permission. The page shows a reviews section only when at least one review is here; with none, there is no section at all.',
+        components: { RowLabel: '/components/fields/RowLabels#ReviewRowLabel' },
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'name',
+              type: 'text',
+              label: 'Customer name',
+              required: true,
+              admin: { width: '50%', description: 'As they agreed to be shown, e.g. "Priya S."' },
+            },
+            {
+              name: 'move',
+              type: 'text',
+              label: 'Their move',
+              admin: { width: '50%', description: 'e.g. "2 BHK, Rohini to Dwarka"' },
+            },
+          ],
+        },
+        { name: 'text', type: 'textarea', label: 'Review', required: true, admin: { rows: 3 } },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'rating',
+              type: 'select',
+              label: 'Stars',
+              options: ['5', '4', '3', '2', '1'].map((v) => ({ label: `${v} stars`, value: v })),
+              admin: { width: '33%' },
+            },
+            {
+              name: 'date',
+              type: 'text',
+              label: 'When',
+              admin: { width: '33%', description: 'e.g. "March 2026"' },
+            },
+            {
+              name: 'source',
+              type: 'select',
+              label: 'First posted on',
+              options: ['Google', 'Justdial', 'Facebook', 'Direct'].map((v) => ({
+                label: v === 'Direct' ? 'Sent to us directly' : v,
+                value: v,
+              })),
+              admin: { width: '34%' },
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'servicesHeading',
       type: 'text',
       label: 'Services heading',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Mayur Vihar (Delhi) locality page, round 3: rewritten from sourced local facts (Phases I to III, DDA pockets, Patparganj Road market, Blue and Pink Line stations, 2025 Yamuna flood). */
+/** Mayur Vihar (Delhi) locality page, round 3: rewritten from sourced local facts (Phases I to III, DDA pockets, Patparganj Road market, Blue and Pink Line stations, Yamuna-side flooding). */
 export const delhiMayurVihar: GeoPage = {
   name: 'Mayur Vihar',
   title: 'Movers in Mayur Vihar | Fixed Written Quote | MrMoverPacker',
@@ -30,7 +30,6 @@ export const delhiMayurVihar: GeoPage = {
             'Monday market. A weekly market runs every Monday on Patparganj Road, so we avoid loading on that stretch that day.',
             'Narrow road. Khudi Ram Bose Marg is only 13 metres wide where the Pink Line station stands.',
             'Two metro lines. Mayur Vihar-I station links the Blue Line and the Pink Line by a footbridge.',
-            'Yamuna floods. Areas of Mayur Vihar Phase I were inundated when the Yamuna rose in September 2025.',
           ],
         },
       ],
@@ -125,7 +124,7 @@ export const delhiMayurVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Pocket II flat or a Phase III home, the estimator above gives a quick figure. [How pricing works](/pricing) walks through a Trilokpuri or Pandav Nagar quote too.',
+          body: 'For a Pocket II flat or a Phase III home, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -156,9 +155,9 @@ export const delhiMayurVihar: GeoPage = {
         'Yes. We check the stairs in Pockets I to V on the survey and price the carry before the day.',
     },
     {
-      question: 'Which metro stations are closest for visiting my new home?',
+      question: 'Does my pocket gate need anything before the move?',
       answer:
-        'Mayur Vihar-I serves the Blue and Pink Lines, and Mayur Vihar Pocket-1 is on the Pink Line. Mayur Vihar Extension is on the Blue Line.',
+        'Some Phase I and Phase III pockets ask for the vehicle number at the gate. We share it with the crew IDs before the day.',
     },
     {
       question: 'What do packers and movers in Mayur Vihar charge?',
@@ -168,7 +167,7 @@ export const delhiMayurVihar: GeoPage = {
     {
       question: 'Can you move me from Mayur Vihar to Noida?',
       answer:
-        'Yes. Phase 1 Extension sits towards New Ashok Nagar on the Blue Line, and we deliver door to door in [Noida](/packers-and-movers/noida).',
+        'Yes. Phase 1 Extension sits towards New Ashok Nagar on the Blue Line. We deliver door to door anywhere in [Noida](/packers-and-movers/noida).',
     },
   ],
   servicesHeading: 'Moving services in Mayur Vihar',

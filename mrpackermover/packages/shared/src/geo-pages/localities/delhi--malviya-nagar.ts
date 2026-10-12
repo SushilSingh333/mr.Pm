@@ -137,7 +137,7 @@ export const delhiMalviyaNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Navjeevan Vihar floor or a Sarvodaya Enclave flat, the estimator above gives a quick figure. [How pricing works](/pricing) breaks down a Sheikh Sarai or Shivalik quote too.',
+          body: 'For a Navjeevan Vihar floor or a Sarvodaya Enclave flat, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -148,7 +148,7 @@ export const delhiMalviyaNagar: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early loading suits the lanes near the Main Market, before the shops open and the day heats up.',
-            'Monsoon (July to September). In July 2015 rain added half an hour to the drive from Defence Colony, so we keep a spare hour.',
+            'Monsoon (July to September). Heavy rain slows the drive in from Defence Colony and Press Enclave Marg, so we keep a spare hour.',
             'Winter (December to February). A short move to Saket or Sheikh Sarai can run overnight: loaded by 8 PM, delivered next morning.',
           ],
         },
@@ -173,9 +173,9 @@ export const delhiMalviyaNagar: GeoPage = {
         'Yes. [Saket](/packers-and-movers/delhi/saket), Hauz Khas and Panchsheel Enclave all border Malviya Nagar, so these are short local moves.',
     },
     {
-      question: 'Which metro station is closest for visiting my new home?',
+      question: 'My Shivalik floor has no lift. Is that a problem?',
       answer:
-        'Malviya Nagar station on the Yellow Line, on Press Enclave Marg. It has separate exits for Geetanjali Enclave and Malviya Nagar.',
+        'No. The crew carries by the stairs, and the survey counts your floors for the quote.',
     },
     {
       question: 'What do packers and movers in Malviya Nagar charge?',

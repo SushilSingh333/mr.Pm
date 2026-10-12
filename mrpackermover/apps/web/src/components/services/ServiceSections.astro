@@ -44,7 +44,16 @@ const COST = /\b(cost|charge|price|priced)\b/i;
 const FEATURE = /^([^.?!:[\]]{2,60}?)[.:]\s+(\S[\s\S]*)$/;
 const featureOf = (item: string): [string, string] | null => {
   const m = FEATURE.exec(item);
-  if (!m || m[1]!.trim().split(/\s+/).length > 7) return null;
+  // A bracketed note ("Nauchandi Mela (from the second Sunday after Holi)") does not
+  // count towards the name's length.
+  if (
+    !m ||
+    m[1]!
+      .replace(/\([^)]*\)/g, ' ')
+      .trim()
+      .split(/\s+/).length > 7
+  )
+    return null;
   return [m[1]!.trim(), m[2]!];
 };
 type ListBlock = Extract<ServiceBlock, { kind: 'list' }>;

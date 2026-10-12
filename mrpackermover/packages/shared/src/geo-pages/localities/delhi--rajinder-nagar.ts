@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Rajinder Nagar (Delhi) locality page, round 3: rewritten from sourced local facts (Old and New Rajinder Nagar split by Shankar Road, Central Ridge, IARI, Sir Ganga Ram Hospital, Rajendra Place on the Blue Line, July 2024 flooding). */
+/** Rajinder Nagar (Delhi) locality page, round 3: rewritten from sourced local facts (Old and New Rajinder Nagar split by Shankar Road, Central Ridge, IARI, Sir Ganga Ram Hospital, Rajendra Place on the Blue Line, monsoon waterlogging in Old Rajinder Nagar). */
 export const delhiRajinderNagar: GeoPage = {
   name: 'Rajinder Nagar',
   title: 'Movers in Rajinder Nagar | Fixed Price | MrMoverPacker',
@@ -29,7 +29,7 @@ export const delhiRajinderNagar: GeoPage = {
             'Coaching hub. Old Rajinder Nagar is a centre for UPSC coaching, with book stores, libraries and rental rooms.',
             'Green edges. The Central Ridge forest borders it to the east and south, IARI to the west and Karol Bagh to the north.',
             'Family homes. New Rajinder Nagar holds more family houses around Nehru Park, its central park.',
-            'Flood risk. Heavy rain in July 2024 flooded lanes and basements in Old Rajinder Nagar, so ground-floor and basement homes need care in the monsoon.',
+            'Flood risk. Old Rajinder Nagar lanes and basements are known to flood in heavy rain, so ground-floor and basement homes need care in the monsoon.',
             'Hospital and metro. Sir Ganga Ram Hospital is in Rajinder Nagar, and Rajendra Place station is on the Blue Line.',
           ],
         },
@@ -122,7 +122,7 @@ export const delhiRajinderNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Use the estimator above for a first figure; [how pricing works](/pricing) explains the rest.',
+          body: 'Use the estimator above for a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -133,7 +133,7 @@ export const delhiRajinderNagar: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early loading keeps the crew out of the busy Old Rajinder Nagar lanes.',
-            'Monsoon (July to September). After the July 2024 flooding, we watch the forecast for Old Rajinder Nagar moves.',
+            'Monsoon (July to September). Old Rajinder Nagar lanes waterlog in heavy rain, so we watch the forecast and keep cartons off basement floors.',
             'Winter (December to February). Short hops to Karol Bagh can run overnight: we load by 8 PM and deliver next morning.',
           ],
         },
@@ -155,11 +155,12 @@ export const delhiRajinderNagar: GeoPage = {
     {
       question: 'What if it rains heavily on my moving day?',
       answer:
-        'Heavy rain flooded parts of Old Rajinder Nagar in July 2024. We keep cartons off the ground and can move your date.',
+        'Old Rajinder Nagar lanes can flood in a downpour. We keep cartons off the ground or move your date.',
     },
     {
-      question: 'Which metro station is closest?',
-      answer: 'Rajendra Place on the Blue Line, between Karol Bagh and Patel Nagar stations.',
+      question: 'Can you move me out of a basement room?',
+      answer:
+        'Yes. In Old Rajinder Nagar we carry basement loads up by hand. The truck waits on Shankar Road or your lane.',
     },
     {
       question: 'Is a move to Karol Bagh a local job?',

@@ -27,7 +27,7 @@ export const meerutGarhRoad: GeoPage = {
           kind: 'list',
           items: [
             'The medical college. LLRM Medical College has stood on Garh Road since 1966. Trucks stop clear of the LLRM gates and ambulance lanes.',
-            'Tejgarhi crossing. Garh Road meets PVS Road at Tejgarhi, close to Shastri Nagar. In 2016 the MDA proposed an underpass there to ease the snarls.',
+            'Tejgarhi crossing. Garh Road meets PVS Road at Tejgarhi, close to Shastri Nagar. The crossing is a known snarl point, so loads near it are kept short.',
             'Nauchandi Ground. The Nauchandi Mela fills this ground for about a month after Holi. Moves near Nauchandi are dated around the fair.',
             'Private hospitals. Bhagyashree Hospital also stands on Garh Road, so a load near it is kept short.',
             'Colonies behind the road. Jagriti Vihar lies beside LLRM Medical College, and its lanes are quieter than Garh Road itself.',
@@ -127,7 +127,7 @@ export const meerutGarhRoad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) shows how the Garh Road truck spot enters the written quote.',
+          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -138,7 +138,7 @@ export const meerutGarhRoad: GeoPage = {
           kind: 'list',
           items: [
             'Nauchandi Mela (March to April). The fair at Nauchandi Ground starts on the second Sunday after Holi and runs about a month. We avoid evening loads near the Chandi Devi temple in those weeks.',
-            'Monsoon (July to September). In August 2017 the Times of India reported deep potholes on Garh Road. Fragile items are packed for a rough ride, and the route is checked the day before.',
+            'Monsoon (July to September). Garh Road is known for deep potholes in the rains. Fragile items are packed for a rough ride, and the route is checked the day before.',
             'Wedding season (November to February). Trucks across western UP are scarce, so book a Garh Road date two to three weeks ahead.',
             'Winter fog (December to January). Runs to Delhi on the Delhi-Meerut Expressway wait until the haze lifts.',
           ],
@@ -159,13 +159,13 @@ export const meerutGarhRoad: GeoPage = {
         'It can, near Nauchandi Ground. The fair begins on the second Sunday after Holi, so we check that year’s dates first.',
     },
     {
-      question: 'Do you move doctors and staff near LLRM Medical College?',
+      question: 'Can you load near LLRM Medical College without blocking the hospital?',
       answer: 'Yes. Packers and movers on Garh Road time loads near LLRM around hospital traffic.',
     },
     {
       question: 'Can you move me to Shastri Nagar or Jagriti Vihar?',
       answer:
-        'Yes. Both sit just off Garh Road; see our [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) and [Jagriti Vihar](/packers-and-movers/meerut/jagriti-vihar) pages.',
+        'Yes. [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) and [Jagriti Vihar](/packers-and-movers/meerut/jagriti-vihar) both sit just off Garh Road, so it is a short local move.',
     },
     {
       question: 'How does a move from Garh Road to Delhi run?',

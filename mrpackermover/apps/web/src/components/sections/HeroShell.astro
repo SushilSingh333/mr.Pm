@@ -37,7 +37,10 @@ const {
 } = Astro.props;
 // A CMS-uploaded (Cloudinary) image wins; `cldUrl` injects the delivery transform and
 // is a no-op for any non-Cloudinary URL. Otherwise fall back to the static file.
-const resolvedImage = imageUrl ? cldUrl(imageUrl, CLD_TRANSFORM.hero) : `/images/hero/${image}.jpg`;
+// A CMS file name can carry a space ("greater noida-200kb"), which is not valid in a URL.
+const resolvedImage = imageUrl
+  ? cldUrl(imageUrl, CLD_TRANSFORM.hero).replace(/ /g, '%20')
+  : `/images/hero/${image}.jpg`;
 
 /**
  * The banner photograph, as sources for a <picture>.
@@ -64,7 +67,9 @@ const heroSources = imageUrl
       narrow: `/images/hero/${image}-narrow.webp`,
       full: `/images/hero/${image}-full.webp`,
     };
-const alt = imageAlt ?? heroAlt(image);
+// The built-in artwork has its own description; a CMS photo is described by the caller,
+// never by the artwork's (that described a delivery rider over a city photograph).
+const alt = imageAlt ?? (imageUrl ? '' : heroAlt(image));
 const hasHeadingSlot = Astro.slots.has('heading');
 ---
 

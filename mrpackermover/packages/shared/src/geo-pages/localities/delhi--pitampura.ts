@@ -30,7 +30,7 @@ export const delhiPitampura: GeoPage = {
             'Red Line. Pitampura, Kohat Enclave and Netaji Subhash Place stations on the Red Line serve the area.',
             'Big DDA flats. SD Tower Apartments are known for the largest Super HIG flats built by the DDA.',
             'Office district. Netaji Subhash Place is a district centre with offices and Pacific Mall NSP.',
-            'Landmarks. The TV Tower dates from 1988, and Dilli Haat Pitampura opened in April 2008.',
+            'Landmarks. The TV Tower and Dilli Haat Pitampura are easy points for guiding the truck to your colony.',
           ],
         },
       ],
@@ -65,7 +65,7 @@ export const delhiPitampura: GeoPage = {
             [
               'Near Madhuban Chowk and Kohat Enclave',
               'Homes by busy junctions and metro',
-              'Truck timed around Outer Ring Road traffic.',
+              'Route via the Outer Ring Road planned.',
             ],
           ],
         },
@@ -158,9 +158,9 @@ export const delhiPitampura: GeoPage = {
         'Yes. Desks, files and computers at Netaji Subhash Place are listed on the survey and cartons marked by team.',
     },
     {
-      question: 'Which metro stations are near Pitampura?',
+      question: 'Do I need a lift slot to move out of SD Tower Apartments?',
       answer:
-        'Pitampura, Kohat Enclave and Netaji Subhash Place, all on the Red Line. They help when you visit the new home before moving day.',
+        'Your coordinator asks the building about a lift slot when you book. The survey sizes the load so the crew and truck suit a Super HIG flat.',
     },
     {
       question: 'Is a move to Rohini or Shalimar Bagh a local job?',

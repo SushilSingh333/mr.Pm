@@ -28,9 +28,9 @@ export const ghaziabadSahibabad: GeoPage = {
           items: [
             'Homes and factories side by side. Colonies such as Rajendra Nagar, Shalimar Garden, Lajpat Nagar and Jhandapur sit next to Sahibabad Industrial Area.',
             'GT Road and the Red Line. Raj Bagh, Major Mohit Sharma Rajendra Nagar, Shyam Park and Mohan Nagar stations all stand on GT Road. Trucks share that road with its traffic, so loading is timed around it.',
-            'Namo Bharat at Site 4. Sahibabad RRTS station on Madan Mohan Malviya Marg opened in October 2023. Its gates face the Sahibabad Bus Depot and the Mohan Nagar side.',
+            'Namo Bharat at Site 4. Sahibabad RRTS station stands on Madan Mohan Malviya Marg. Its gates face the Sahibabad Bus Depot and the Mohan Nagar side, a clear spot to meet the crew.',
             'Older industry at Mohan Nagar. Mohan Nagar Industrial Estate dates from 1949, and Anand Industrial Area lies nearby. Unit moves there are planned around working hours.',
-            'An airport in the area. The Hindon Airport civil terminal stands at Sikandarpur village in Sahibabad.',
+            'Hindon Airport. Its civil terminal at Sikandarpur village is a handy landmark when giving the truck directions.',
           ],
         },
       ],
@@ -137,7 +137,7 @@ export const ghaziabadSahibabad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure for a Sahibabad home; [how pricing works](/pricing) explains each line.',
+          body: 'Use the estimator above for a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -160,12 +160,12 @@ export const ghaziabadSahibabad: GeoPage = {
     {
       question: 'Do you shift factories and offices in Sahibabad Industrial Area?',
       answer:
-        'Yes. Racks, machines and stock at Site 4 and around Mohan Nagar are listed on the survey and moved for one fixed price; see [office shifting](/services/office-shifting).',
+        'Yes. Racks, machines and stock at Site 4 and around Mohan Nagar are listed on the survey and moved for one fixed price, as with any [office shifting](/services/office-shifting) job.',
     },
     {
-      question: 'Do you move homes in Rajendra Nagar and Shalimar Garden?',
+      question: 'Where will the truck park in Rajendra Nagar or Shalimar Garden?',
       answer:
-        'Yes. See [Rajendra Nagar](/packers-and-movers/ghaziabad/rajendra-nagar) and [Shalimar Garden](/packers-and-movers/ghaziabad/shalimar-garden) for the details of each colony.',
+        'The spot on your lane in [Rajendra Nagar](/packers-and-movers/ghaziabad/rajendra-nagar) or [Shalimar Garden](/packers-and-movers/ghaziabad/shalimar-garden) is agreed on the video survey. Long carry applies only if the truck stands more than 50 metres from your door.',
     },
     {
       question: 'Will GT Road traffic delay my move?',

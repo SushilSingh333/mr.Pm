@@ -14,6 +14,8 @@ interface Props {
   image?: string;
   /** Absolute image URL (e.g. a CMS-uploaded Cloudinary image) — takes precedence over `image`. */
   imageUrl?: string;
+  /** What the CMS photo shows; read by screen readers and image search. */
+  imageAlt?: string;
   cityLabel?: string;
   prefillCity?: string;
   prefillService?: string;

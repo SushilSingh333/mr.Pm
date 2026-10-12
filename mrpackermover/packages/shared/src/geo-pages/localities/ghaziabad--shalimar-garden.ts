@@ -140,7 +140,7 @@ export const ghaziabadShalimarGarden: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a flat in Main or either Extension, the estimator above gives a first figure, and [how pricing works](/pricing) explains each line.',
+          body: 'Use the estimator above for a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -180,9 +180,9 @@ export const ghaziabadShalimarGarden: GeoPage = {
         'Yes. Packers and movers in Shalimar Garden can load by 8 PM for [Indirapuram](/packers-and-movers/ghaziabad/indirapuram) and unload next morning. If the society there bars evening loading, we move by day.',
     },
     {
-      question: 'Do you also cover Rajendra Nagar and Sahibabad?',
+      question: 'Can a move to Rajendra Nagar or Sahibabad be done in one day?',
       answer:
-        'Yes. [Rajendra Nagar](/packers-and-movers/ghaziabad/rajendra-nagar) and [Sahibabad](/packers-and-movers/ghaziabad/sahibabad) border Shalimar Garden on the east. A move there from Main or either Extension is a short local job.',
+        'Usually, yes. [Rajendra Nagar](/packers-and-movers/ghaziabad/rajendra-nagar) and [Sahibabad](/packers-and-movers/ghaziabad/sahibabad) border Shalimar Garden on the east, so a move there from Main or either Extension is a short local run.',
     },
     {
       question: 'What if something breaks on the way to Delhi?',

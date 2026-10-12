@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Swarn Nagari (Greater Noida) locality page, round 3: rewritten from sourced local facts (Phi II border, Sectors 36 and 37, P-3 roundabout, Hawalia drain bridge, Surajpur-Kasna Road). */
+/** Swarn Nagari (Greater Noida) locality page, round 3: rewritten from sourced local facts (Phi II border, Sectors 36 and 37, P-3 roundabout, Hawalia drain, Surajpur-Kasna Road). */
 export const greaterNoidaSwarnNagari: GeoPage = {
   name: 'Swarn Nagari',
   title: 'Movers in Swarn Nagari | Fixed Written Quote | MrMoverPacker',
@@ -29,7 +29,7 @@ export const greaterNoidaSwarnNagari: GeoPage = {
             'Plotted homes. Listings here cover plots, independent houses, builder floors and villas, so stairs matter more than lifts.',
             'Two naming systems. Swarn Nagari keeps a name, while nearby sectors use numbers such as Sector 36 and Sector 37.',
             'P-3 roundabout. Traffic police use the P-3 roundabout on detours from Pushta Marg and Honda CL Chowk.',
-            'A new bridge. GNIDA approved a wider bridge over the Hawalia drain near P-3 in September 2025. It aims to ease trips to Pari Chowk and Knowledge Park.',
+            'Lane parking. Plotted lanes near Phi II have no society loading bay, so the truck stands at your gate.',
             'Shops nearby. The Grand Venice Mall on the Surajpur-Kasna Road is close by, as is Jaypee Public School.',
           ],
         },
@@ -80,7 +80,7 @@ export const greaterNoidaSwarnNagari: GeoPage = {
             ['Handover time with your landlord', 'You', 'Before booking.'],
             ['Lane space at your gate', 'You, with neighbours', 'The evening before.'],
             [
-              'Route past any Hawalia drain bridge work near P-3',
+              'Route via the P-3 roundabout and any police detour',
               'Your coordinator',
               'When we fix the date.',
             ],
@@ -119,7 +119,7 @@ export const greaterNoidaSwarnNagari: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Use the estimator above for a first figure; [how pricing works](/pricing) shows each line of a Swarn Nagari quote.',
+          body: 'Use the estimator above for a first figure; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -130,7 +130,7 @@ export const greaterNoidaSwarnNagari: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Morning loading suits stair carries from builder floors near Phi II.',
-            'Monsoon (July to September). Wooden furniture is wrapped before it crosses the lane. We also check the P-3 route for bridge work.',
+            'Monsoon (July to September). Wooden furniture is wrapped before it crosses the lane to a truck near Phi II.',
             'Winter (December to February). Long runs to Agra leave later, as Yamuna Expressway speed limits drop for fog from 15 December.',
             'Any month. Evening local moves load by 8 PM and reach Noida or Greater Noida West next morning.',
           ],
@@ -151,9 +151,9 @@ export const greaterNoidaSwarnNagari: GeoPage = {
         'We confirm the spot at survey, whether your lane faces Phi II or Sector 36. Long carry appears only past 50 metres.',
     },
     {
-      question: 'Will the Hawalia drain bridge work affect my move?',
+      question: 'Whose permission do I need to park the truck in my lane?',
       answer:
-        'It may, near the P-3 roundabout. GNIDA approved the bridge in September 2025, so we check the route before your date.',
+        'A plotted lane near Phi II has no society pass, so tell your neighbours the evening before. If your block has an RWA, give it notice too.',
     },
     {
       question: 'Can you move only one floor of a shared house?',

@@ -142,7 +142,7 @@ export const ghaziabadKaviNagar: GeoPage = {
           items: [
             'Summer (April to June). Morning or evening loading suits the stair carries in C Block and J Block houses.',
             'Monsoon (July to September). Sofas and mattresses are wrapped before they cross from your gate to the truck.',
-            'Festive season (October to November). Kavi Nagar Ramlila Ground hosts public events, such as a drone show in October 2025. We check its dates before fixing yours.',
+            'Festive season (October to November). Kavi Nagar Ramlila Ground draws crowds for its festival events. We check its dates before fixing yours.',
             'Winter (December to February). Overnight moves to Indirapuram load by 8 PM and arrive next morning.',
           ],
         },
@@ -159,12 +159,12 @@ export const ghaziabadKaviNagar: GeoPage = {
     {
       question: 'Can you shift a unit in Kavi Nagar Industrial Area?',
       answer:
-        'Yes. Furniture, racks and stock in Sector 17 units are listed on the survey and moved for one fixed price; see [office shifting](/services/office-shifting).',
+        'Yes. Furniture, racks and stock in Sector 17 units are listed on the survey and moved for one fixed price by our [office shifting](/services/office-shifting) crew.',
     },
     {
       question: 'Will traffic at Hapur Chungi delay my move?',
       answer:
-        'We time the loading so the truck crosses Hapur Chungi outside its busiest hours. A four-lane flyover was proposed there in 2025, so we check for Hapur Chungi roadworks too.',
+        'We time the loading so the truck crosses Hapur Chungi outside its busiest hours. The route is checked again the evening before.',
     },
     {
       question: 'Can you move me overnight to Indirapuram or Raj Nagar Extension?',

@@ -29,7 +29,7 @@ export const gurgaonManesar: GeoPage = {
             'Plant gates. If your IMT Manesar unit logs every truck, we send the vehicle number and crew IDs to its security first.',
             'Two big roads. The KMP Expressway meets NH 48 at the Panchgaon cloverleaf, so a truck to Sonipat or Palwal can skip Delhi.',
             'Highway freight. NH 48 runs past the NSG training centre and carries Delhi to Jaipur trucks.',
-            'A young civic body. Manesar Municipal Corporation, formed in December 2020, covers villages such as Nakhrola, Naurangpur and Lakhnoula.',
+            'Its own civic body. Manesar Municipal Corporation covers villages such as Nakhrola, Naurangpur and Lakhnoula, so final bills are settled there.',
             'A road to new towers. The Dwarka Expressway also serves Manesar, which helps a move into the [Dwarka Expressway](/packers-and-movers/gurgaon/dwarka-expressway) societies.',
           ],
         },
@@ -139,7 +139,7 @@ export const gurgaonManesar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Manesar home, the estimator above gives a figure at once; an IMT unit is priced from the survey. See [how pricing works](/pricing) for each line.',
+          body: 'For a Manesar home, the estimator above gives a figure at once; an IMT unit is priced from the survey. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -166,9 +166,9 @@ export const gurgaonManesar: GeoPage = {
         'Yes, along with offices and homes. An IMT Manesar plant move follows our [office shifting](/services/office-shifting) steps.',
     },
     {
-      question: 'Is Manesar part of Gurgaon?',
+      question: 'Can the truck reach a village house in Nakhrola or Naurangpur?',
       answer:
-        'Manesar is in Gurugram district but has had its own Manesar Municipal Corporation since December 2020.',
+        'Usually, yes. It stands on the village road outside. Long carry is charged only if it parks more than 50 metres from your door.',
     },
     {
       question: 'Can you move me from Manesar to Sonipat or Palwal?',

@@ -30,7 +30,9 @@ export interface Season {
 }
 
 const M = MONTHS.join('|');
-const SPAN = new RegExp(`\\b(${M})\\b(?:\\s*(?:to|and|-|–)\\s*\\b(${M})\\b)?`, 'i');
+/** "early", "mid" or "late" before a month ("late June to mid-September") is read past. */
+const PART = '(?:(?:early|mid|late)[\\s-]*)?';
+const SPAN = new RegExp(`${PART}\\b(${M})\\b(?:\\s*(?:to|and|-|–)\\s*${PART}\\b(${M})\\b)?`, 'i');
 const idx = (name: string): number =>
   MONTHS.findIndex((m) => m.toLowerCase() === name.toLowerCase());
 

@@ -11,6 +11,8 @@ export const FOOTER_SERVICES = [
   { label: 'Car Transport', href: '/services/car-transport' },
   { label: 'Bike Transport', href: '/services/bike-transport' },
   { label: 'Packing & Unpacking', href: '/services/packing-unpacking' },
+  { label: 'Loading & Unloading', href: '/services/loading-unloading' },
+  { label: 'International Relocation', href: '/services/international-relocation' },
 ];
 
 /**

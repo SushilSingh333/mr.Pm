@@ -4,6 +4,7 @@ import type { GeoPage } from '../types.js';
  * Faridabad city page, from the owner's brief "Faridabad City Page: FINAL" (9 October 2026),
  * round 3: expanded with sourced local facts (Violet Line stations, Delhi Faridabad Skyway,
  * Agra canal, Greater Faridabad sectors, Amrita Hospital, Surajkund mela, industrial sectors).
+ * Round 4: no "see [area]" lines, general /pricing line, real customer FAQs.
  */
 export const faridabad: GeoPage = {
   title: 'Movers in Faridabad, Haryana | Fixed Price | MrMoverPacker',
@@ -31,7 +32,7 @@ export const faridabad: GeoPage = {
           items: [
             'Old Faridabad and NIT. Dense blocks, narrow lanes and no lifts around Neelam Chowk and Bata Chowk. Trucks often wait on the main road outside NIT 1 to 5, and heavy items come down the stairs.',
             'Greater Faridabad (Neharpar). High-rise societies in Sectors 75 to 89, with service lift bookings, gate passes and set loading hours. New possessions in Sectors 85, 86 and 88 bring busy weekends.',
-            'Workshop and shop loads. Faridabad is a major industrial hub of Haryana, home to Escorts, JCB and thousands of auto parts units. Moves from NIT and the Mathura Road sectors often include tools, machines or shop stock.',
+            'Workshop and shop loads. Faridabad is a major industrial hub of Haryana, home to Escorts, JCB and many auto parts units. Moves from NIT and the Mathura Road sectors often include tools, machines or shop stock.',
             'The Delhi crossing. The Badarpur border on Mathura Road is the main way into Delhi. It jams badly at peak hours, so timing matters. Above it, the six-lane Delhi Faridabad Skyway carries NH 44 from Badarpur to Sector 37.',
             'The Aravalli side. Surajkund and Badkhal are quieter areas near the Aravalli hills and the Faridabad-Gurgaon road.',
           ],
@@ -83,7 +84,7 @@ export const faridabad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Moving near Amrita Hospital in Sector 88 or Omaxe World Street? Mention it in the survey.',
+          body: 'In Greater Faridabad, Amrita Hospital in Sector 88 and Omaxe World Street are handy landmarks for fixing the truck spot.',
         },
       ],
     },
@@ -169,7 +170,7 @@ export const faridabad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Looking for the cheapest packers and movers in Faridabad? The lowest phone quote is rarely the lowest bill.\n\nCheck whether a quote covers material, labour, stairs, tolls and GST. Ours covers all of them, from NIT stair carries to the Badarpur crossing, so you pay the number you approve.\n\nSee [how pricing works](/pricing) and [how to spot a moving scam](/fraud-check).',
+          body: 'Looking for the cheapest packers and movers in Faridabad? The lowest phone quote is rarely the lowest bill.\n\nCheck whether a quote covers material, labour, stairs, tolls and GST. Ours covers all of them, from NIT stair carries to the Badarpur crossing, so you pay the number you approve.\n\n[How pricing works](/pricing) explains each line of the written quote, and [how to spot a moving scam](/fraud-check) shows what to check.',
         },
       ],
     },
@@ -184,7 +185,7 @@ export const faridabad: GeoPage = {
           kind: 'list',
           items: [
             'Overnight local moves. We load by 8 PM, travel Mathura Road when it is clear, and unload next morning. If your Greater Faridabad society does not allow evening loading, we plan a day move.',
-            'Spring (February). The Surajkund International Crafts Mela is held in the first half of February in the Aravalli foothills. Moves near Surajkund or Badkhal are best planned around its dates.',
+            'Spring (February). The Surajkund International Crafts Mela runs for about a fortnight each February in the Aravalli foothills. Moves near Surajkund or Badkhal are best planned around its dates.',
             'Summer (April to June). Electronics, medicines and cosmetics travel apart, because a closed truck on Mathura Road gets very hot.',
             'Monsoon (July to September). Parts of NIT, the old city and some underpasses waterlog after heavy rain. We wrap for water and plan the route around known trouble spots in NIT and Old Faridabad.',
             'Winter fog (December to January). Intercity night departures down NH 44 towards Mathura can be slow, so dated delivery windows allow for it.',
@@ -198,7 +199,7 @@ export const faridabad: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'A Faridabad to Delhi move usually takes one day, or runs overnight with loading by 8 PM. The Badarpur border on Mathura Road jams at peak hours, so we time the crossing. For East Delhi or Noida we often take the Agra canal side instead, towards Kalindi Kunj.\n\nMoves to Gurgaon go on the Faridabad-Gurgaon road through the Aravalli hills. Tolls on the Delhi and Gurgaon runs are in your fixed quote.\n\nMoving an office from Sector 24 or a shop in NIT as well? See [office shifting in Faridabad](/packers-and-movers/faridabad/office-shifting) and [all our services](/services).',
+          body: 'A Faridabad to Delhi move usually takes one day, or runs overnight with loading by 8 PM. The Badarpur border on Mathura Road jams at peak hours, so we time the crossing. For East Delhi or Noida we often take the Agra canal side instead, towards Kalindi Kunj.\n\nMoves to Gurgaon go on the Faridabad-Gurgaon road through the Aravalli hills. Tolls on the Delhi and Gurgaon runs are in your fixed quote.\n\nMoving an office from Sector 24 or a shop in NIT as well? [Office shifting in Faridabad](/packers-and-movers/faridabad/office-shifting) runs on the same plan. It is one of [our moving services](/services).',
         },
       ],
     },
@@ -211,19 +212,19 @@ export const faridabad: GeoPage = {
         'It depends on home size, distance, access and date, say an NIT walk-up or a Sector 88 tower. The estimator gives an instant figure; your written quote after a video survey is final, with the Badarpur tolls included.',
     },
     {
-      question: 'Are you the cheapest packers and movers in Faridabad?',
+      question: 'Is the cheapest phone quote the best deal?',
       answer:
         'From Old Faridabad to Neharpar, we aim to be the clearest quote, not the cheapest on the phone. Our written quote includes material, labour, NIT stair carries, tolls and GST, so you can compare it fairly.',
     },
     {
-      question: 'Do you shift houses in NIT and Old Faridabad lanes?',
+      question: 'Can the truck reach my house in an NIT lane?',
       answer:
-        'Yes, including NIT 1 to 5 and the lanes around Old Faridabad metro station. If the truck cannot reach your NIT door, goods are carried from the nearest open road, on the quote from the start.',
+        'Often not to the door. In NIT 1 to 5 and the lanes around Old Faridabad metro station, goods are carried from the nearest open road. That carry is on the quote from the start.',
     },
     {
-      question: 'Do you cover Greater Faridabad societies?',
+      question: 'Do Greater Faridabad societies need a lift booking before I move in?',
       answer:
-        'Yes, including new possessions in Sectors 75 to 89, such as Sectors 85, 86 and 88. We check lift bookings and society rules in Neharpar before the day.',
+        'Most towers in Sectors 75 to 89 do, including new possessions in Sectors 85, 86 and 88. We check lift bookings and society rules in Neharpar before the day.',
     },
     {
       question: 'How long does a move from Faridabad to Delhi take?',

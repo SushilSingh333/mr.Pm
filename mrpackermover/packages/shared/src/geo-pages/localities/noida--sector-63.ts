@@ -30,7 +30,7 @@ export const noidaSector63: GeoPage = {
             'Three station gates. Gate 1 leads to Indirapuram, Gate 2 into Sector 63 and Gate 3 to Chhajarsi. We fix a loading spot clear of all three.',
             'NH 24 next door. Indirapuram lies just across the highway, so many moves from here end in Ghaziabad.',
             'Sector 62 neighbours. JIIT, Fortis Hospital and Logix Cyber Park are a short drive away in Sector 62.',
-            'Expressway links. The FNG Expressway meets the Delhi-Meerut Expressway at the Sector 65 interchange, by Chhijarsi.',
+            'Expressway links. The Sector 65 interchange by Chhijarsi joins the Delhi-Meerut Expressway, the way out for moves to Meerut.',
           ],
         },
       ],
@@ -137,7 +137,7 @@ export const noidaSector63: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above suits a flat; [how pricing works](/pricing) shows how a Sector 63 office quote is built.',
+          body: 'The price check above suits a flat, and [how pricing works](/pricing) explains each line of a written office quote.',
         },
       ],
     },
@@ -178,9 +178,9 @@ export const noidaSector63: GeoPage = {
         'Away from Gates 1, 2 and 3 of Noida Electronic City station. We fix the spot on the survey call.',
     },
     {
-      question: 'Which metro station serves Sector 63?',
+      question: 'Does the security gate need a list of our goods?',
       answer:
-        'Noida Electronic City, the eastern end of the Blue Line, opened on 9 March 2019. Its Gate 2 leads into Sector 63.',
+        'If your H Block security desk asks for an outward goods list, you sign it. Our inventory fills it in on moving day.',
     },
     {
       question: 'Do you move offices from Sector 63 into Delhi?',

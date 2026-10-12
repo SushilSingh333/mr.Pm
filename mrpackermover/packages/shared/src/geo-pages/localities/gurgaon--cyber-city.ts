@@ -21,7 +21,7 @@ export const gurgaonCyberCity: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'DLF Cyber City is a commercial district beside NH-48, set up in 2003. It holds IT and Fortune 500 offices. Most moves here are office floors between towers like Infinity Towers and Cyber Greens.',
+          body: 'DLF Cyber City is a commercial district beside NH-48. It holds IT and Fortune 500 offices. Most moves here are office floors between towers like Infinity Towers and Cyber Greens.',
         },
         {
           kind: 'list',
@@ -29,8 +29,8 @@ export const gurgaonCyberCity: GeoPage = {
             'NH-48 runs through it. Udyog Vihar sits across the highway, so a move between the two crosses NH-48.',
             'Rapid Metro loop. A single-track loop links Moulsari Avenue, Belvedere Towers, DLF Phase 2 and DLF Phase 3 stations. Sikanderpur is the Yellow Line interchange.',
             'Big office blocks. Cyber Greens alone has five blocks of 11 to 19 storeys, so goods-lift time is the scarce thing.',
-            'Cyber Hub. This dining and shopping area beside the DLF towers opened in 2013.',
-            'Link to MG Road. A flyover to MG Road opened in 2015, which helps trucks bound for DLF Phase 1.',
+            'Cyber Hub. This dining and shopping area sits beside the DLF towers, and its restaurants draw evening crowds.',
+            'Link to MG Road. A flyover joins Cyber City to MG Road, which helps trucks bound for DLF Phase 1.',
           ],
         },
       ],
@@ -131,7 +131,7 @@ export const gurgaonCyberCity: GeoPage = {
             ],
             [
               'Route',
-              'A move to Udyog Vihar crosses NH-48; a move to MG Road can use the 2015 flyover.',
+              'A move to Udyog Vihar crosses NH-48; a move to MG Road can use the flyover.',
             ],
             [
               'Distance',
@@ -145,7 +145,7 @@ export const gurgaonCyberCity: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For an office in DLF Cyber City, the estimator above is only a starting budget; see [how pricing works](/pricing).',
+          body: 'For an office in DLF Cyber City, the estimator above is only a starting budget. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -156,7 +156,7 @@ export const gurgaonCyberCity: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Office floors move at night, when the NH-48 approach to Cyber City is quieter and cooler.',
-            'Monsoon (July to September). Heavy rain in July 2024 jammed Golf Course Road and Sohna Road. We check the NH-48 approach out of Cyber City the day before.',
+            'Monsoon (July to September). Golf Course Road and Sohna Road waterlog in heavy monsoon rain. We check the NH-48 approach out of Cyber City the day before.',
             'Festive season (October to November). Cyber Hub restaurants get busy in the evenings, so trucks reach the inner roads after closing.',
             'Winter (December to February). Year-end is popular for office moves, so goods-lift slots at Cyber Greens are booked early.',
           ],

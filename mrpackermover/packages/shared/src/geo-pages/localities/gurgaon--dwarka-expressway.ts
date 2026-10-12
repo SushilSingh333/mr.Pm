@@ -28,7 +28,7 @@ export const gurgaonDwarkaExpressway: GeoPage = {
           items: [
             'Two levels. The road has an 8-lane elevated deck and an 8-lane service road, and trucks reach Sector 102 or 106 towers by the service road.',
             'New towers. Sectors 99 to 113 are mostly fresh high-rise societies. Some approach roads off NH 248BB are still being built.',
-            'Fully open since June 2025. Part of it opened in March 2024, and the full road, with tunnels by IGI Airport, in June 2025.',
+            'Tunnels by IGI Airport. The Delhi section dips into tunnels near the airport, so the truck route to Dwarka is checked on the survey.',
             'Key junctions. It meets Pataudi Road near Harsaru and passes Bajghera village and the Basai railway overbridge.',
             'Into Delhi. The Delhi end passes Yashobhoomi and Dwarka Sectors 21, 22 and 25.',
           ],
@@ -130,7 +130,7 @@ export const gurgaonDwarkaExpressway: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a new Sector 99 to 113 flat, the estimator above gives a first figure; see [how pricing works](/pricing).',
+          body: 'The estimator above gives a first figure for a new Sector 99 to 113 flat. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -141,7 +141,7 @@ export const gurgaonDwarkaExpressway: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early lift slots in Sectors 102 to 106 keep the crew out of the midday heat.',
-            'Monsoon (July to September). Heavy rain in July 2024 waterlogged Golf Course Road and Sohna Road, so we check the route to Sector 99 the day before.',
+            'Monsoon (July to September). Gurugram roads such as Golf Course Road and Sohna Road waterlog in heavy monsoon rain, so we check the route to Sector 99 the day before.',
             'Festive season (October to November). Handover weekends in new Sector 111 and 113 towers fill fast, so book early.',
             'Winter (December to February). Overnight moves to Dwarka, Delhi load by 8 PM and unload next morning.',
           ],
@@ -179,7 +179,7 @@ export const gurgaonDwarkaExpressway: GeoPage = {
     {
       question: 'Do you move people from the Dwarka Expressway to other cities?',
       answer:
-        'Yes, anywhere in India. Long-distance trucks join NH-48 near Kherki Daula; see [home shifting](/services/home-shifting).',
+        'Yes, anywhere in India. Long-distance trucks join NH-48 near Kherki Daula, and [home shifting](/services/home-shifting) covers the packing.',
     },
   ],
   servicesHeading: 'Moving services on the Dwarka Expressway',

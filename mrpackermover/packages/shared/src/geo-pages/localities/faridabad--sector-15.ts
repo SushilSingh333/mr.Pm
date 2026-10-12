@@ -27,8 +27,8 @@ export const faridabadSector15: GeoPage = {
           kind: 'list',
           items: [
             'Settled family houses. Homes near the Sector 15 market have often been lived in for years, so packing takes longer than in a new flat.',
-            'A market on the doorstep. Sector 15 market got free public WiFi in January 2016, launched by MLA Vipul Goel. Loading near the Sector 15 market is kept to its quieter hours.',
-            'Metro next door. Neelam Chowk Ajronda station opened in September 2015 on Mathura Road in Sector 15A. Old Faridabad station in Sector 16A is one stop north.',
+            'A market on the doorstep. The Sector 15 market sits among the family houses of the sector. Loading near it is kept to its quieter hours.',
+            'Metro next door. Neelam Chowk Ajronda station stands on Mathura Road in Sector 15A, a clear marker for the truck. Old Faridabad station in Sector 16A is one stop north.',
             'Skyway to Delhi. The Delhi-Faridabad Skyway has an exit for Sectors 14 to 16 and runs on to Badarpur.',
             'Shops in Sector 15A. Crown Plaza mall stands in Sector 15A, so the truck never waits along its frontage.',
           ],

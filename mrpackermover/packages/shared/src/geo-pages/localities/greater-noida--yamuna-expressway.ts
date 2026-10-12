@@ -21,7 +21,7 @@ export const greaterNoidaYamunaExpressway: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The Yamuna Expressway runs from [Pari Chowk](/packers-and-movers/greater-noida/pari-chowk) to Agra and opened in August 2012. Jaypee Infratech operates it for YEIDA, the authority that plans the sectors beside it.',
+          body: 'The Yamuna Expressway runs from [Pari Chowk](/packers-and-movers/greater-noida/pari-chowk) to Agra. Jaypee Infratech operates it for YEIDA, the authority that plans the sectors beside it.',
         },
         {
           kind: 'list',
@@ -30,7 +30,7 @@ export const greaterNoidaYamunaExpressway: GeoPage = {
             'Truck speed. Heavy vehicles are limited to 60 km/h, which shapes the departure time from Noida or Delhi.',
             'Toll road. Our truck pays at plazas such as Jewar, and that toll sits inside the fixed quote.',
             'New sectors. YEIDA has planned residential plots in Sector 18 and Sector 20, and affordable housing in Sector 22D.',
-            'Airport traffic. Noida International Airport at Jewar began flights on 15 June 2026, with the expressway as its main road link.',
+            'Airport traffic. Noida International Airport at Jewar uses the expressway as its main road link.',
           ],
         },
       ],
@@ -129,7 +129,7 @@ export const greaterNoidaYamunaExpressway: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For an early number, try the estimator above; [how pricing works](/pricing) lists each line, Jewar tolls included.',
+          body: 'For an early number, try the estimator above; [how pricing works](/pricing) lists each line of the written quote.',
         },
       ],
     },
@@ -139,10 +139,10 @@ export const greaterNoidaYamunaExpressway: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Winter (December to February). In recent winters, lower speed limits have applied from 15 December to 15 February because of fog. Trucks leave Zero Point once visibility allows.',
+            'Winter (December to February). Fog brings lower speed limits from 15 December to 15 February, so trucks leave Zero Point once visibility allows.',
             'Summer (April to June). A long run past Jewar in a closed truck gets hot, so carry medicines and electronics yourself.',
             'Monsoon (July to September). We check the approach roads in Sector 18 and Sector 20 the day before.',
-            'Race days (any season). Buddh International Circuit, which hosted MotoGP in 2023, sits beside the expressway, so we check its calendar.',
+            'Race days (any season). Buddh International Circuit sits beside the expressway, so we check its event calendar before fixing a date.',
           ],
         },
       ],
@@ -170,9 +170,9 @@ export const greaterNoidaYamunaExpressway: GeoPage = {
         'Yes, packers and movers on Yamuna Expressway run those as intercity moves on the same road. We deliver anywhere else in India too.',
     },
     {
-      question: 'Where is the YEIDA office if I need papers?',
+      question: 'Can the truck reach a new house on an unfinished sector road?',
       answer:
-        "YEIDA's head office is in Omega I, Greater Noida. Allotment and possession papers are yours to collect; we only need the move date.",
+        'We check the approach on the survey, whether in Sector 18, Sector 20 or near Jewar. Long carry applies only if the truck stops more than 50 metres from your door.',
     },
     {
       question: 'How is a long expressway run insured?',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Vasundhara (Ghaziabad) locality page, round 3: rewritten from sourced local facts (Avas Vikas Parishad scheme of 19 sectors, Nagar Nigam's Vasundhara Zone, Vaishali metro, Hindon Elevated Road, 2018 rain at Vartalok and Pragya Kunj). */
+/** Vasundhara (Ghaziabad) locality page, round 3: rewritten from sourced local facts (Avas Vikas Parishad scheme of 19 sectors, Nagar Nigam's Vasundhara Zone, Vaishali metro, Hindon Elevated Road, monsoon waterlogging at Vartalok and Pragya Kunj). */
 export const ghaziabadVasundhara: GeoPage = {
   name: 'Vasundhara',
   title: 'Movers in Vasundhara | One Written Price | MrMoverPacker',
@@ -21,12 +21,12 @@ export const ghaziabadVasundhara: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Vasundhara began as the Vasundhara Avas Yojana of the UP Avas Evam Vikas Parishad, the state housing board. It passed to Ghaziabad Nagar Nigam in 2002. The civic body now runs a Vasundhara Zone.',
+          body: 'Vasundhara began as the Vasundhara Avas Yojana of the UP Avas Evam Vikas Parishad, the state housing board. It later passed to Ghaziabad Nagar Nigam, which now runs a Vasundhara Zone.',
         },
         {
           kind: 'list',
           items: [
-            'Nineteen sectors. The Parishad scheme is split into 19 sectors, so your sector number decides the route in and out.',
+            'Nineteen sectors. The Parishad scheme is split into 19 sectors. Your sector number decides the route in and out.',
             'Mixed homes. Parishad flats, plotted houses and group housing such as Vartalok and Pragya Kunj sit side by side.',
             'Metro next door. Vasundhara has no station of its own; Vaishali station on the Blue Line serves it.',
             'Delhi by the elevated road. Hindon Elevated Road runs from Raj Nagar Extension to UP Gate on the Delhi border.',
@@ -57,14 +57,9 @@ export const ghaziabadVasundhara: GeoPage = {
               'Mover entry and a lift slot from the society office.',
             ],
             [
-              'Sectors 7 and 8',
-              'Land for a new UP Housing Board township',
-              'Building work nearby, checked before your date.',
-            ],
-            [
               'Sector 16',
               'Homes beside its storm drains',
-              'The NGT ordered these drains cleaned in 2017; we check them in the rains.',
+              'Truck spot checked in the rains, as the drains run beside the road.',
             ],
           ],
         },
@@ -127,7 +122,7 @@ export const ghaziabadVasundhara: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Try the price check above with your sector, then see what each line of a Parishad-flat quote covers on [how pricing works](/pricing).',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -137,7 +132,7 @@ export const ghaziabadVasundhara: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Monsoon (July to September). In July 2018 The Quint named Vasundhara among the worst-hit areas, so we check Sector roads first.',
+            'Monsoon (July to September). Roads around Vartalok and Pragya Kunj are known to waterlog in heavy rain. We check the Sector roads first.',
             'Summer (April to June). Early starts suit stair carries in Parishad blocks, and medicines ride with you.',
             'School term. Loading near Jaipuria School or Vanasthali Public School avoids the school run.',
             'Winter (December to February). Overnight moves to Delhi load by 8 PM and cross at UP Gate on emptier roads.',
@@ -156,7 +151,7 @@ export const ghaziabadVasundhara: GeoPage = {
     {
       question: 'Will rain hold up my Vasundhara move?',
       answer:
-        'It can, as the 2018 rain at Vartalok and Pragya Kunj showed. We wrap for water and wait for the Sector roads to drain if needed.',
+        'It can, as roads near Vartalok and Pragya Kunj waterlog in heavy rain. We wrap for water and wait for the Sector roads to drain if needed.',
     },
     {
       question: 'Which way do you take to Delhi from Vasundhara?',

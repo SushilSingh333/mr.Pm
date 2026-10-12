@@ -157,7 +157,7 @@ export const meerutCivilLines: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Loading early, before Vikas Bhawan and the banks open, avoids both heat and office traffic.',
-            'Kanwar Yatra (July to August). In 2026 heavy vehicles were barred from 30 July and NH 58 towards Haridwar closed from 4 to 12 August. We check that year’s plan before routing a truck out of Civil Lines.',
+            'Kanwar Yatra (July to August). Meerut bars heavy vehicles during the yatra and closes stretches of NH 58 towards Haridwar. We check that year’s police plan before routing a truck out of Civil Lines.',
             'Wedding season (November to February). Trucks across Meerut book up early, so fix the date two weeks ahead.',
             'Winter fog (December to January). Delhi runs on the Delhi-Meerut Expressway leave once visibility is safe.',
           ],
@@ -170,7 +170,7 @@ export const meerutCivilLines: GeoPage = {
     {
       question: 'Can you move an office near Vikas Bhawan or on Boundary Road?',
       answer:
-        'Yes. Desks, files and computers are listed on the survey and moved after office hours; see [office shifting](/services/office-shifting).',
+        'Yes. Desks, files and computers are listed on the survey and moved after office hours as part of [office shifting](/services/office-shifting).',
     },
     {
       question: 'My address says Civil Line, Saket. Do you cover it?',

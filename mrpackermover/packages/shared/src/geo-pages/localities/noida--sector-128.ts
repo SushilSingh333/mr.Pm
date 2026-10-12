@@ -27,9 +27,9 @@ export const noidaSector128: GeoPage = {
           kind: 'list',
           items: [
             'Township scale. Wish Town towers can stand far from the gate, so the survey maps the drive to your lobby.',
-            'New owners. Suraksha Group acquired the Jaypee Infratech projects, so we confirm which Wish Town office signs permissions.',
+            'Township office. We confirm which Wish Town maintenance office signs your move permission.',
             'Newer towers. Max Estates built Estate 128 here, and we check its lift and gate rules on the survey.',
-            'A college campus. JIIT has run a Sector 128 campus since August 2009, an extension of its main campus in Sector 62.',
+            'A college campus. JIIT runs a Sector 128 campus, an extension of its main Sector 62 campus.',
           ],
         },
       ],
@@ -136,7 +136,7 @@ export const noidaSector128: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a first figure; [how pricing works](/pricing) explains the written Sector 128 quote.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -181,9 +181,9 @@ export const noidaSector128: GeoPage = {
         'Yes. A small load from the JIIT campus can go on a smaller truck, including to the main campus in [Sector 62](/packers-and-movers/noida/sector-62).',
     },
     {
-      question: 'Is there a metro station in Sector 128?',
+      question: 'Do I need a no-dues slip to leave Wish Town?',
       answer:
-        'No. The Aqua Line runs from Sector 51 to Depot, with a station in [Sector 137](/packers-and-movers/noida/sector-137).',
+        'Plan for one. Your Wish Town or Estate 128 office issues it, and the gate checks it.',
     },
     {
       question: 'Can you move me overnight from Wish Town?',

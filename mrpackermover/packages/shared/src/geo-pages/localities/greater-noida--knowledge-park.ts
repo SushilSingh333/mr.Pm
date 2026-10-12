@@ -129,7 +129,7 @@ export const greaterNoidaKnowledgePark: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Start with the estimator above for a rough figure; [how pricing works](/pricing) explains each line of a quote from a Sharda or Galgotias hostel.',
+          body: 'Start with the estimator above for a rough figure; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -141,7 +141,7 @@ export const greaterNoidaKnowledgePark: GeoPage = {
           items: [
             'Summer (June to July). The academic year turns over, so hostels near Sharda University and Galgotias College empty out together.',
             'Winter (December). A second rush comes at the winter break. Fog brings lower Yamuna Expressway speed limits from 15 December, so long runs leave later.',
-            'Show weeks (all year). IHE, BIOFACH India and Fan Expo ran at India Expo Mart in August 2026. Diversions went via Bada Gol Chakkar and LG Chowk.',
+            'Show weeks (all year). Big India Expo Mart shows bring diversions around the venue, often via Bada Gol Chakkar and LG Chowk, so show dates are checked first.',
             'Monsoon (July to September). Books and mattresses are wrapped before the carry from a GNIOT or Galgotias hostel.',
           ],
         },
@@ -171,9 +171,9 @@ export const greaterNoidaKnowledgePark: GeoPage = {
         'Yes. It sits in Greater Noida West, so we plan it like any move across the city from Pari Chowk.',
     },
     {
-      question: 'Can my parents book from another city?',
+      question: 'Can the truck come inside my hostel campus?',
       answer:
-        'Yes. You show the room on a video call from your hostel near Amity or Sharda University, and they receive the written quote.',
+        'That is up to the gate at Sharda University, Amity or Galgotias College. You ask the warden, and we share truck and crew details for the pass.',
     },
     {
       question: 'Is a small move insured?',

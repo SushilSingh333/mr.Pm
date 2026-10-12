@@ -30,7 +30,7 @@ export const delhiSaket: GeoPage = {
             'Mall stretch. Select Citywalk, MGF Metropolitan Mall and Square One Mall stand in Saket, so truck routes avoid their car traffic.',
             'Courts and offices. Saket is the seat of the South Delhi district, with the District Court on Press Enclave Road near Pushp Vihar.',
             'Hospital traffic. Max Super Speciality Hospital and Pushpawati Singhania Hospital bring ambulances and visitors through the area.',
-            'Two metro stations. Saket and Malviya Nagar stations on the Yellow Line are both underground.',
+            'Two metro stations. Saket and Malviya Nagar stations on the Yellow Line are handy landmarks for fixing where the truck meets you.',
           ],
         },
       ],
@@ -131,7 +131,7 @@ export const delhiSaket: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure; [how pricing works](/pricing) shows how a DDA stair carry is counted.',
+          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -167,9 +167,9 @@ export const delhiSaket: GeoPage = {
         'Yes. Moves to [Malviya Nagar](/packers-and-movers/delhi/malviya-nagar), [Hauz Khas](/packers-and-movers/delhi/hauz-khas) or Pushp Vihar are short local jobs.',
     },
     {
-      question: 'Which metro stations help visitors reach my new Saket home?',
+      question: 'Can I move on a weekend in Saket?',
       answer:
-        'Saket and Malviya Nagar stations on the Yellow Line both serve the colony. Both are underground.',
+        'Yes, if your block RWA allows it. Weekend crowds at Select Citywalk mean the truck uses a side lane, not Press Enclave Road.',
     },
     {
       question: 'Do you move from Saket to Gurgaon or Noida?',

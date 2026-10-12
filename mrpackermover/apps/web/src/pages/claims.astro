@@ -21,10 +21,15 @@ const row = staticRow({
 });
 const o = org();
 
+/**
+ * What the first claims report will show. No figures until there are real ones: sample
+ * numbers on this page would read as real (an outside review took them as real), so each
+ * card names the measure and says when it is published.
+ */
 const metrics = [
-  { value: '6 days', label: 'Median time to settle a claim', sub: 'From report to payment' },
-  { value: '99.2%', label: 'Moves completed damage-free', sub: 'Last reporting period' },
-  { value: '100%', label: 'Valid claims settled', sub: 'No valid claim refused' },
+  { label: 'Median time to settle a claim', sub: 'From report to payment' },
+  { label: 'Share of moves with a damage claim', sub: 'Per reporting period' },
+  { label: 'Valid claims settled', sub: 'And any refused, with the reason' },
 ];
 
 const steps = [
@@ -78,7 +83,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     eyebrow={ed.eyebrow ?? 'Claims & settlement'}
     h1={row.h1}
     intro={ed.intro ??
-      'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.'}
+      'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and settlement numbers published in the open from our first reporting period.'}
     breadcrumbs={row.breadcrumbs}
     current="Claims"
   />
@@ -86,13 +91,16 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
   <Band label="What we publish">
     <div class="section-head">
       <h2>Our claims numbers, in the open</h2>
-      <p>Updated each reporting period, the flattering figures and the unflattering ones alike.</p>
+      <p>
+        Published each reporting period from our first quarterly report, the flattering figures and
+        the unflattering ones alike.
+      </p>
     </div>
     <ul class="metrics" role="list">
       {
         metrics.map((m) => (
           <li class="metric card">
-            <span class="m-value">{m.value}</span>
+            <span class="m-pending">First report pending</span>
             <span class="m-label">{m.label}</span>
             <span class="m-sub">{m.sub}</span>
           </li>
@@ -100,9 +108,8 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
       }
     </ul>
     <p class="metrics-note">
-      Figures shown are illustrative sample data during build; they are replaced by live, audited
-      numbers from our operations system at the first quarterly report. We publish real data or none
-      , never invented counters.
+      These appear here with our first quarterly report, from real, audited case records. We publish
+      real data or none, never sample counters.
     </p>
   </Band>
 
@@ -154,12 +161,13 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     padding: 2rem 1.5rem;
     background: linear-gradient(180deg, var(--color-surface), var(--color-brand-50));
   }
-  .m-value {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2.2rem, 5vw, var(--text-5xl));
+  .m-pending {
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    background: var(--color-brand-50);
+    font-size: var(--text-sm);
+    font-weight: 600;
     color: var(--color-brand-700);
-    line-height: 1;
   }
   .m-label {
     font-weight: 600;

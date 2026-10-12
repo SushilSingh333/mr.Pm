@@ -26,7 +26,7 @@ export const greaterNoidaDelta: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Metro in Block A. Delta 1 station sits in Block A of Delta 1, on the Aqua Line, opened in January 2019.',
+            'Metro in Block A. Delta 1 station on the Aqua Line sits in Block A of Delta 1.',
             'One stop either way. Alpha 1 station lies one stop north, and GNIDA Office station one stop south.',
             'Delta 3 by Gamma 2. Gamma 2, home to Delhi Public School, borders Delta 3 on the west.',
             'Stairs, not lifts. Houses and low-rise flats here, as in Alpha and Gamma, seldom have a lift.',
@@ -112,7 +112,7 @@ export const greaterNoidaDelta: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Read [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -148,9 +148,9 @@ export const greaterNoidaDelta: GeoPage = {
         'Yes. Packers and movers in Delta can load by 8 PM and have your things in [Gaur City](/packers-and-movers/greater-noida/gaur-city) next morning.',
     },
     {
-      question: 'Will the sector name on my papers change?',
+      question: 'How much do packers and movers in Delta charge?',
       answer:
-        'In 2022 GNIDA proposed numbered names for Greek-letter sectors, Delta among them. We use whichever name your lease deed shows.',
+        'It depends on your goods, the stairs in your Delta house and the destination. The price check above gives a first figure, and the video survey fixes it.',
     },
     {
       question: 'Can you move me from Delta to Alpha or Gamma?',

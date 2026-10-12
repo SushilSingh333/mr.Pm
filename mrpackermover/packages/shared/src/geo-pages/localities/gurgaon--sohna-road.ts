@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Sohna Road (Gurgaon) locality page, round 3: rewritten from sourced local facts (NH 248A, the Sohna Elevated Corridor, Subhash Chowk, Gurugram Metro Line 2, Sectors 47 to 49 and 67 to 72, Badshahpur). */
+/** Sohna Road (Gurgaon) locality page, round 3: rewritten from sourced local facts (NH 248A, the Sohna Elevated Corridor, Subhash Chowk, Sectors 47 to 49 and 67 to 72, Badshahpur). */
 export const gurgaonSohnaRoad: GeoPage = {
   name: 'Sohna Road',
   title: 'Movers on Sohna Road | One Written Price | MrMoverPacker',
@@ -26,11 +26,10 @@ export const gurgaonSohnaRoad: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Elevated corridor. A six-lane elevated road, fully open since July 2022, runs from Rajiv Chowk to Sohna.',
+            'Elevated corridor. A six-lane elevated road runs over Sohna Road from Rajiv Chowk, so a truck bound for a society gate uses the road below.',
             'Subhash Chowk. The underpass by ILD Mall and Raheja Mall is busy at peak hours.',
             'Society desks. Societies in Sectors 47 to 49 usually want a booked lift slot and the truck number.',
             'Office towers. Vipul Trade Centre, JMD Megapolis and Universal Trade Tower in Sector 49 add office moves to the road.',
-            'Metro works. Gurugram Metro Line 2, being built since November 2025, will stop at Subhash Chowk and Sectors 47 and 48.',
           ],
         },
       ],
@@ -139,7 +138,7 @@ export const gurgaonSohnaRoad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a flat near Subhash Chowk, the estimator above gives a quick figure; read [how pricing works](/pricing).',
+          body: 'The estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -150,7 +149,7 @@ export const gurgaonSohnaRoad: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early lift slots in Sector 67 to 72 towers keep crews out of the afternoon heat.',
-            'Monsoon (July to September). Gurgaon floods in heavy rain, so we check the Subhash Chowk route the day before.',
+            'Monsoon (July to September). Sohna Road waterlogs in heavy monsoon rain, so we check the Subhash Chowk route the day before.',
             'Winter (December to January). Fog can slow night trucks heading down the elevated corridor to the Delhi-Mumbai Expressway.',
             'Month-end. Lift slots at Sector 47 to 49 societies go first, so book a week or two ahead.',
           ],
@@ -168,7 +167,7 @@ export const gurgaonSohnaRoad: GeoPage = {
     {
       question: 'Will Subhash Chowk traffic delay my move?',
       answer:
-        'It can at peak hours, so the truck crosses Subhash Chowk outside them. We also check for Gurugram Metro Line 2 work near Sector 47 and 48.',
+        'It can at peak hours, so the truck crosses Subhash Chowk outside them. Your coordinator sets the loading time around that.',
     },
     {
       question: 'Can you move me from Sohna Road to Golf Course Extension Road?',

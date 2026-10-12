@@ -18,10 +18,20 @@ interface Props {
   related?: { label: string; href: string }[];
   /** White or tinted surround, to carry on the sections' alternation. */
   tone?: 'white' | 'tint';
+  /** What happens next, when it differs from a home move (an office, a car, a bike). */
+  steps?: string[];
 }
-const { heading, text, labels, checkHref = '#quote', related = [], tone = 'white' } = Astro.props;
-/** How every move goes from here: the same three steps on every page. */
-const STEPS = [
+const {
+  heading,
+  text,
+  labels,
+  checkHref = '#quote',
+  related = [],
+  tone = 'white',
+  steps,
+} = Astro.props;
+/** How a home move goes from here; a service page with another first step passes its own. */
+const STEPS = steps ?? [
   'Share pickup, drop and date',
   'Free video survey of your home',
   'One fixed, written price',

@@ -30,7 +30,6 @@ export const ghaziabadVijayNagar: GeoPage = {
             'Lettered blocks. Sector 9 runs from A Block to K Block, and Sector 12 lies alongside it.',
             'Big roads. NH 24, the Delhi-Meerut Expressway and Vishwakarma Road all pass by, so trucks reach the highway fast.',
             'Busy junctions. Samraat Chowk and Chanakya Chowk are the crossings our drivers plan around.',
-            'Railway close by. Ghaziabad Junction is near, with EMU trains to Delhi stations.',
           ],
         },
       ],
@@ -60,7 +59,7 @@ export const ghaziabadVijayNagar: GeoPage = {
             [
               'Towards Pratap Vihar',
               'Homes near Santosh Medical and Dental College',
-              'College hours checked before loading.',
+              'The college gate helps the driver find the lane.',
             ],
           ],
         },
@@ -123,7 +122,7 @@ export const ghaziabadVijayNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a first figure for a Sector 12 or Maya Puri home, and [how pricing works](/pricing) explains every line.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -162,7 +161,7 @@ export const ghaziabadVijayNagar: GeoPage = {
     {
       question: 'Can you move a workshop in the Vijay Nagar industrial area?',
       answer:
-        'Yes. Racks, tools and stock are listed on the survey and moved for one price; see [office shifting](/services/office-shifting).',
+        'Yes. Racks, tools and stock are listed on the survey and moved for one price, as with any [office shifting](/services/office-shifting) job.',
     },
     {
       question: 'What if something breaks on a Vijay Nagar move?',
@@ -170,9 +169,9 @@ export const ghaziabadVijayNagar: GeoPage = {
         'A Sector 9 or Sector 12 move carries basic liability cover, and [transit insurance](/insurance) is optional. [How claims work](/claims) sets out the steps from Shivpuri to Sector 12.',
     },
     {
-      question: 'Is Vijay Nagar near a metro station?',
+      question: 'Where will the truck park on a Shivpuri or Maya Puri lane?',
       answer:
-        'Not inside it. Shaheed Sthal (New Bus Adda) on the Red Line is the nearest station, and our trucks go by road anyway.',
+        'The spot is fixed on the video survey, before the date is set. Long carry is quoted in advance only if the truck stops more than 50 metres from your door.',
     },
   ],
   servicesHeading: 'Moving services in Vijay Nagar',

@@ -27,7 +27,7 @@ export const delhiPreetVihar: GeoPage = {
           kind: 'list',
           items: [
             'Builder floors. Homes in its lettered blocks, such as C Block and G Block, are mostly builder floors and independent houses, not gated towers.',
-            'Main road. Traffic on Vikas Marg has been thrown out of gear by heavy rain in past monsoons.',
+            'Main road. Vikas Marg is a known monsoon waterlogging stretch, so the truck route is planned around it.',
             'Blue Line. Preet Vihar station sits on Vikas Marg, between Nirman Vihar and Karkarduma.',
             'Community Centre. Metro Hospital and Cancer Institute stands in the Preet Vihar Community Centre, beside shops and offices.',
             'Courts nearby. Karkardooma Courts lie just off Vikas Marg, and Preet Vihar falls under their jurisdiction.',
@@ -127,7 +127,7 @@ export const delhiPreetVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Use the estimator above for a first figure, and see [how pricing works](/pricing) for the method.',
+          body: 'Use the estimator above for a first figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -158,9 +158,9 @@ export const delhiPreetVihar: GeoPage = {
         'We agree a spot outside your gate on the survey. Near Vikas Marg or the Community Centre, an evening slot helps.',
     },
     {
-      question: 'Which metro station is closest?',
+      question: 'Can the truck stop on Vikas Marg itself?',
       answer:
-        'Preet Vihar station on the Blue Line, on Vikas Marg. Karkarduma, the next stop east, links to the Pink Line.',
+        'We avoid it. The truck stands on your block street, and near Preet Vihar metro station we pick a quieter side lane.',
     },
     {
       question: 'Is a move to Laxmi Nagar or Patparganj a local job?',

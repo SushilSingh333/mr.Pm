@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Meerut page, from the owner's brief "Meerut City Page: FINAL" (9 October 2026), round 3: expanded with sourced local facts (Cantonment, Namo Bharat and Meerut Metro, expressways, Nauchandi Mela, Kanwar Yatra closures). */
+/** Meerut page, from the owner's brief "Meerut City Page: FINAL", round 4: evergreen (no years), expanded with sourced local facts (Cantonment, Namo Bharat and Meerut Metro, expressways, Nauchandi Mela, Kanwar Yatra closures). */
 export const meerut: GeoPage = {
   title: 'Packers and Movers in Meerut | Fixed Price | MrMoverPacker',
   metaDescription:
@@ -83,7 +83,7 @@ export const meerut: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'It depends on where you live: the Cantt, a bazaar lane near Begum Bridge or a society on Delhi Road. Your coordinator tells you which rows apply, from Pallavpuram to Partapur.',
+          body: 'It depends on where you live: the Cantt, a bazaar lane near Begum Bridge or a society on Delhi Road. Your coordinator tells you which rows apply to your street.',
         },
         {
           kind: 'table',
@@ -156,7 +156,7 @@ export const meerut: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Nothing outside the written quote is charged, whether the truck stops in Lalkurti or Modipuram. See [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote; nothing outside it is added.',
         },
       ],
     },
@@ -170,9 +170,9 @@ export const meerut: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Wedding season (November to February). Trucks get scarce from Modipuram to Partapur, as across western UP. Book a Shastri Nagar or Ganga Nagar date two to three weeks ahead.',
+            'Wedding season (November to February). Trucks get scarce across the city, as across western UP. Book a Shastri Nagar or Ganga Nagar date two to three weeks ahead.',
             'Sugarcane season (October to April). Tractor-trolleys slow the rural roads beyond Modipuram and Kharkhauda, so we allow for them on routes outside the city.',
-            'Kanwar Yatra (July to August). In 2026, heavy vehicles were stopped from 30 July. NH 58 towards Haridwar then closed fully from 4 to 12 August. Moves to Haridwar or Roorkee are planned around these weeks.',
+            'Kanwar Yatra (July to August). Heavy vehicles are stopped on the yatra routes. NH 58 towards Haridwar can close fully on peak days. Moves to Haridwar or Roorkee are planned around these weeks.',
             'Nauchandi Mela (from the second Sunday after Holi). The fair runs for about a month at Nauchandi Ground on Garh Road, so we check its dates for Garh Road moves.',
             'Winter fog (December to January). Fog on the Delhi-Meerut Expressway and NH 58 slows night and early-morning runs, so intercity departures are planned around it.',
             'Summer (April to June). Meerut can touch 49 degrees, so electronics, medicines and cosmetics ride apart from the main load.',
@@ -186,11 +186,11 @@ export const meerut: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Usually one day on the Delhi-Meerut Expressway, open since April 2021 from the Partapur bypass. Most moves to Ghaziabad or Noida load in the morning and arrive that evening. Others load by 8 PM and reach Delhi or Gurgaon next morning.',
+          body: 'Usually one day on the Delhi-Meerut Expressway, which starts at the Partapur bypass. Most moves to Ghaziabad or Noida load in the morning and arrive that evening. Others load by 8 PM and reach Delhi or Gurgaon next morning.',
         },
         {
           kind: 'text',
-          body: 'The Namo Bharat line to Modipuram has run in full since February 2026, but it carries people, not furniture. Tolls at the Delhi-Meerut Expressway plazas are in your fixed quote.',
+          body: 'The Namo Bharat line runs to Modipuram, but it carries people, not furniture. Tolls at the Delhi-Meerut Expressway plazas are in your fixed quote.',
         },
       ],
     },
@@ -235,7 +235,7 @@ export const meerut: GeoPage = {
     {
       question: 'Is my move insured?',
       answer:
-        'Basic liability cover is on every load, from Lalkurti to Modipuram. Optional [transit insurance](/insurance) covers declared value on a long run to Bangalore or Lucknow.',
+        'Basic liability cover is on every load, Cantt or old city. Optional [transit insurance](/insurance) covers declared value on a long run to Bangalore or Lucknow.',
     },
   ],
   servicesHeading: 'Moving services in Meerut',

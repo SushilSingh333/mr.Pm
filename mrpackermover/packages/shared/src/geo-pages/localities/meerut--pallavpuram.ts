@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Pallavpuram (Meerut) locality page, round 3: rewritten from sourced local facts (Phase 1 and Phase 2, Meerut North metro, Meerut Bypass, Modipuram Tiraha, NH-58 Kanwar diversions). */
+/** Pallavpuram (Meerut) locality page, round 3: rewritten from sourced local facts (Phase 1 and Phase 2, Meerut North metro, Meerut Bypass, NH-58 Kanwar diversions). */
 export const meerutPallavpuram: GeoPage = {
   name: 'Pallavpuram',
   title: 'Movers in Pallavpuram | Fixed Written Quote | MrMoverPacker',
@@ -21,7 +21,7 @@ export const meerutPallavpuram: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Pallavpuram sits at the north end of Meerut, beside Modipuram and the Meerut Bypass. Since February 2026 it has its own metro stop, Meerut North.',
+          body: 'Pallavpuram sits at the north end of Meerut, beside Modipuram and the Meerut Bypass. Most homes are independent houses, with some apartments in Phase 1.',
         },
         {
           kind: 'list',
@@ -30,7 +30,7 @@ export const meerutPallavpuram: GeoPage = {
             'Lettered pockets. Phase 2 is laid out in pockets such as Q, R, S and T Pocket, each with its own park.',
             'Meerut North metro. The station stands on NH-334B, the road to Roorkee, just south of the turning into Pallavpuram. Its line runs south through Begumpul to Meerut South.',
             'Meerut Bypass. Old NH-58, the Meerut Bypass, passes about 750 metres south of Meerut North station. It takes a truck round the old city towards Partapur.',
-            'Kanwar watch. Modipuram Tiraha chowki falls under Pallavpuram police station, and a control room there keeps watch over the Kanwar Yatra.',
+            'Kanwar route. NH-58 traffic is diverted during the Kanwar Yatra in Sawan, which changes the way out of Pallavpuram towards Modipuram.',
           ],
         },
       ],
@@ -140,7 +140,7 @@ export const meerutPallavpuram: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Sawan (July to August). Traffic on NH-58 is diverted during the Kanwar Yatra, and Modipuram Tiraha has a control room for it. We fix a Pallavpuram date around those weeks.',
+            'Sawan (July to August). Traffic on NH-58 is diverted during the Kanwar Yatra. We fix a Pallavpuram date around those weeks.',
             'Summer (April to June). Morning loading suits stair carries in Phase 2 houses.',
             'Wedding season (November to February). Trucks across western Uttar Pradesh book up, so give a Phase 1 or Phase 2 move two to three weeks.',
             'Winter (December to January). Intercity trucks from Pallavpuram leave once fog lifts on the Meerut Bypass.',

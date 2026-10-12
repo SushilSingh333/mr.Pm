@@ -28,7 +28,7 @@ export const greaterNoidaAlpha: GeoPage = {
           items: [
             'Room to load. The main roads have GNIDA service lanes, so a truck can usually stand near your gate.',
             'Stairs, not lifts. Plotted houses and low-rise flats here often have no lift, so heavy items come down by hand.',
-            'Metro in Block E. Alpha 1 station, opened in 2019, sits in Block E between Pari Chowk and Delta 1.',
+            'Metro in Block E. Alpha 1 station sits in Block E between Pari Chowk and Delta 1, so keep the truck clear of its entry.',
             'Pari Chowk next door. The Jaypee Greens Pari Chowk station is one stop north, with the Ansal Plaza market beside it.',
             'Jagat Farm close by. Jagat Farm market in Gamma 1, among the busiest in the city, has Alpha 1 as its nearest metro.',
           ],
@@ -50,7 +50,7 @@ export const greaterNoidaAlpha: GeoPage = {
             [
               'Alpha 2',
               'Houses, low-rise flats',
-              'Ganga water line digging on the route checked first.',
+              'Lane width outside the gate checked on the video survey.',
             ],
             [
               'Around the Alpha 1 roundabout',
@@ -124,7 +124,7 @@ export const greaterNoidaAlpha: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Details: [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -135,7 +135,7 @@ export const greaterNoidaAlpha: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Load early, before the heat.',
-            'Monsoon (July to September). Leaks on the Ganga water line near the Alpha 1 roundabout have made roads unsafe before. We check it that morning.',
+            'Monsoon (July to September). The Ganga water line runs under the roads near the Alpha 1 roundabout, and a leak in the rain can close a lane. We check the route that morning.',
             'Winter (December to January). Early fog can slow trucks on the Noida-Greater Noida Expressway, so long runs leave later.',
             'Any month, locally. Overnight moves to Beta, Gamma or Greater Noida West load by 8 PM and arrive next morning.',
           ],
@@ -160,9 +160,9 @@ export const greaterNoidaAlpha: GeoPage = {
         'Yes. Packers and movers in Alpha can load by 8 PM for [Greater Noida West](/packers-and-movers/greater-noida/greater-noida-west) or [Gaur City](/packers-and-movers/greater-noida/gaur-city) and unload next morning.',
     },
     {
-      question: 'My papers may show a new sector number. Does that matter?',
+      question: 'How much do packers and movers in Alpha charge?',
       answer:
-        'In 2022 GNIDA weighed replacing Greek-letter names such as Alpha with numbers. Your quote uses whichever name your papers show.',
+        'It depends on volume, your floor in Alpha 1 or Alpha 2 and the distance. The price check above gives a first figure, and the video survey fixes it in writing.',
     },
     {
       question: 'Can you move a shop near Ansal Plaza or Jagat Farm?',

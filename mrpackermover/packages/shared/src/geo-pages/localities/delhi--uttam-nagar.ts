@@ -121,7 +121,7 @@ export const delhiUttamNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure; [how pricing works](/pricing) shows how a Hastsal hand carry is counted.',
+          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -157,13 +157,14 @@ export const delhiUttamNagar: GeoPage = {
         'Yes. Moves to [Dwarka](/packers-and-movers/delhi/dwarka) or [Janakpuri](/packers-and-movers/delhi/janakpuri) are short hops along the Blue Line corridor.',
     },
     {
-      question: 'Which metro stations serve Uttam Nagar?',
-      answer: 'The Blue Line stops at Dwarka Mor, Nawada, Uttam Nagar West and Uttam Nagar East.',
+      question: 'Is any day too busy to move near the market lanes?',
+      answer:
+        'The weekly Shukkar Bazar fills the lanes on its market day. We avoid that day for homes near it and fix the slot on the survey.',
     },
     {
       question: 'Do you move students near NSUT or Deen Dayal Upadhyaya College?',
       answer:
-        'Yes, small room moves too. Dwarka Mor is the nearest metro station to both campuses.',
+        'Yes, small room moves too, including rooms on the Dwarka Mor side of Najafgarh Road.',
     },
     {
       question: 'Do you move shops on Arya Samaj Road?',

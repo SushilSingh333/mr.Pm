@@ -26,7 +26,7 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
         {
           kind: 'list',
           items: [
-            "Golf course core. The 18-hole course opened in 2000 as Greg Norman's only Indian design. Villas and towers overlook it.",
+            "Golf course core. The 18-hole course is Greg Norman's only Indian design. Villas and towers overlook it.",
             'Lakes and woodland. Water, woodland and wetland break up the Greg Norman course. We agree where the truck waits.',
             'Villa or tower. Jaiprakash Associates built both semi-detached villas and condominium towers, and each moves differently.',
             'Metro next door. The nearest Aqua Line station carries the name Jaypee Greens Pari Chowk.',
@@ -122,7 +122,7 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure; [how pricing works](/pricing) breaks down each line, Yamuna Expressway tolls included.',
+          body: 'Golf-side villas and tower flats get the same written quote format. [How pricing works](/pricing) explains each line of it.',
         },
       ],
     },
@@ -133,7 +133,7 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
           kind: 'list',
           items: [
             'Winter (December to February). Fog brings lower Yamuna Expressway speed limits from 15 December to 15 February. Runs to Jewar or Agra leave later in the morning.',
-            'Show weeks (all year). India Expo Mart events in Knowledge Park II bring police diversions. Pari Chowk lies between the Expo Mart and the township.',
+            'Show weeks (all year). Big India Expo Mart shows in Knowledge Park II bring diversions around Pari Chowk, so we check show dates first.',
             'Any month. Where the tower allows evening loading, moves to Noida load by 8 PM and arrive next morning.',
           ],
         },
@@ -158,14 +158,14 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
         'Yes. Golf bags and clubs from the Greg Norman course get their own padding, and garden furniture is wrapped and listed.',
     },
     {
-      question: 'Is the Jaypee Greens Pari Chowk metro station inside the township?',
+      question: 'How much do packers and movers in Jaypee Greens charge?',
       answer:
-        'No. It is an NMRC Aqua Line station named under a naming-rights deal, standing in Knowledge Park I beside Ansal Plaza.',
+        'It depends on villa or tower, lift or stairs, garden pieces and the distance from Pari Chowk. The estimator above gives a first figure, and the video survey fixes it.',
     },
     {
       question: 'Can you move me to a Yamuna Expressway sector?',
       answer:
-        'Yes. The expressway begins at Pari Chowk next door; see [Yamuna Expressway moves](/packers-and-movers/greater-noida/yamuna-expressway).',
+        'Yes. Moves to the [Yamuna Expressway](/packers-and-movers/greater-noida/yamuna-expressway) sectors leave from Pari Chowk next door, where the expressway begins.',
     },
     {
       question: 'Is my move insured?',

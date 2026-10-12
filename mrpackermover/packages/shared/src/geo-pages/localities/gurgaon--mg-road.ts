@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** MG Road (Gurgaon) locality page, round 3: rewritten from sourced local facts (NH 148A, Yellow Line stations, Sikanderpur Rapid Metro interchange, malls and towers by MG Road station, IFFCO Chowk rain reports). */
+/** MG Road (Gurgaon) locality page, round 3: rewritten from sourced local facts (NH 148A, Yellow Line stations, Sikanderpur Rapid Metro interchange, malls and towers by MG Road station, IFFCO Chowk monsoon waterlogging). */
 export const gurgaonMgRoad: GeoPage = {
   name: 'MG Road',
   title: 'Packers and Movers on MG Road | Fixed Price | MrMoverPacker',
@@ -141,7 +141,7 @@ export const gurgaonMgRoad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a home figure fast. [How pricing works](/pricing) shows how a quote near IFFCO Chowk or Sikanderpur is built.',
+          body: 'The estimator above gives a home figure fast. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -151,8 +151,7 @@ export const gurgaonMgRoad: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Monsoon (July to September). In July 2021, rain jammed MG Road and shut the IFFCO Chowk underpass. A second route to Sikanderpur is kept ready.',
-            'Late rains (October). Heavy rain in October 2025 slowed IFFCO Chowk and Sikanderpur to a crawl, so we watch the forecast until the day.',
+            'Monsoon (July to September). The IFFCO Chowk underpass is a known waterlogging spot in heavy rain. A second route to Sikanderpur is kept ready.',
             'Winter (December to February). Overnight moves to South Delhi load by 8 PM and head up NH 148A as traffic thins.',
           ],
         },

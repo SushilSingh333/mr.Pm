@@ -37,7 +37,7 @@ export const bikeTransport: ServicePage = {
             },
             {
               title: 'Transit',
-              body: 'Loaded on ramps and strapped upright in a closed vehicle, tracked live.',
+              body: 'Loaded on ramps and strapped upright in a closed vehicle, with progress updates on WhatsApp.',
             },
             {
               title: 'Delivery',

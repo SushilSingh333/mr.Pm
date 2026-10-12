@@ -30,7 +30,6 @@ export const delhiLajpatNagar: GeoPage = {
             'Taller old plots. Plots in Lajpat Nagar I to IV began as single-storey homes, and most are now built up several storeys.',
             'Central Market. Garments and textiles at Central Market draw big crowds, so loading near Lajpat Nagar II is timed with care.',
             'Two metro lines. Lajpat Nagar station on Lala Lajpat Rai Marg serves the Violet Line and the Pink Line.',
-            'Monsoon water. In July 2015, Lajpat Nagar was among the South Delhi areas hit by heavy waterlogging.',
           ],
         },
       ],
@@ -141,7 +140,7 @@ export const delhiLajpatNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a flat in Amar Colony or Lajpat Nagar IV, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of an Amar Colony quote.',
+          body: 'For a flat in Amar Colony or Lajpat Nagar IV, the estimator above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -177,9 +176,9 @@ export const delhiLajpatNagar: GeoPage = {
         'No. It sits south of the Ring Road, so we plan the crossing to Lajpat Nagar I, II or III.',
     },
     {
-      question: 'Which metro stations are closest for visiting my new home?',
+      question: 'Do the built-up houses in Lajpat Nagar III have lifts?',
       answer:
-        'Lajpat Nagar station on Lala Lajpat Rai Marg serves the Violet and Pink Lines. Moolchand station on the Violet Line is one stop away.',
+        'Some do and many do not. These plots began as single-storey homes, so the survey checks your stairs and any lift.',
     },
     {
       question: 'What do packers and movers in Lajpat Nagar charge?',

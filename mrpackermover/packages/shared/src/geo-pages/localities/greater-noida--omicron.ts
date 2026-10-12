@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Omicron (Greater Noida) locality page, round 3: rewritten from sourced local facts (Omicron 1, 1A, 2 and 3; Gaur Atulyam; Aqua Line depot; neighbouring Mu, Sigma, Pi; GNIDA renaming committee). */
+/** Omicron (Greater Noida) locality page, round 3: rewritten from sourced local facts (Omicron 1, 1A, 2 and 3; Gaur Atulyam; Aqua Line depot; neighbouring Mu, Sigma, Pi). */
 export const greaterNoidaOmicron: GeoPage = {
   name: 'Omicron',
   title: 'Packers and Movers in Omicron | Fixed Price | MrMoverPacker',
@@ -30,7 +30,7 @@ export const greaterNoidaOmicron: GeoPage = {
             'Towers and villas. Gaur Atulyam stands at plot GH-01 in Omicron 1, while Omicron 3 mixes Migsun and Stellar projects with villas.',
             'Metro depot. The Aqua Line depot and its Depot station, the Greater Noida end of the line, lie just north of Omicron 3.',
             'Neighbours. Mu 1 lies to the north-east, the Sigma sectors to the south-west and Pi to the west.',
-            'Renaming talk. In 2022 GNIDA set up a committee to consider swapping Greek-letter names like Omicron for numbers.',
+            'Lift or stairs. Tower flats in Omicron 1 and 1A move by lift, while villas in Omicron 3 mean a stair carry from the lane.',
           ],
         },
       ],
@@ -130,7 +130,7 @@ export const greaterNoidaOmicron: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Get a first figure from the estimator above; [how pricing works](/pricing) explains the lines on an Omicron quote.',
+          body: 'Get a first figure from the estimator above; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -162,17 +162,17 @@ export const greaterNoidaOmicron: GeoPage = {
         'Maps list Omicron 3 as Sector 34, and some GNIDA sectors carry both names. Give us either on the call.',
     },
     {
-      question: 'Will the GNIDA renaming change my address?',
+      question: 'Can the truck park inside a Migsun or Stellar society in Omicron 3?',
       answer:
-        'GNIDA formed a committee in 2022 to consider numbering the Greek-letter sectors. We use whichever name your papers show.',
+        'That depends on the society, so we check the truck spot on the video survey. Long carry applies only past 50 metres from your tower lobby.',
     },
     {
       question: 'Can you move me from Omicron to a Yamuna Expressway sector?',
       answer:
-        'Yes; see [Yamuna Expressway moves](/packers-and-movers/greater-noida/yamuna-expressway). Expressway tolls for our truck are inside the fixed quote.',
+        'Yes. Moves to the [Yamuna Expressway](/packers-and-movers/greater-noida/yamuna-expressway) sectors are planned like local moves, with tolls for our truck inside the fixed quote.',
     },
     {
-      question: 'Can packers and movers in Omicron move me overnight to Noida?',
+      question: 'Can you move me overnight to Noida?',
       answer:
         'Yes, if Gaur Atulyam or your Omicron 3 society allows evening loading. The truck loads by 8 PM and reaches Noida via Zero Point next morning.',
     },

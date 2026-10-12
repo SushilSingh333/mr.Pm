@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Pratap Vihar (Ghaziabad) locality page, round 3: rewritten from sourced local facts (GDA scheme, DPS Chauraha to Leelawati Chowk works, ward 51 Sector 11, Vishwakarma Road, Delhi-Meerut Expressway, Santosh hospital). */
+/** Pratap Vihar (Ghaziabad) locality page, round 3: rewritten from sourced local facts (GDA scheme, DPS Chauraha and Leelawati Chowk, ward 51 Sector 11, Vishwakarma Road, Delhi-Meerut Expressway, Santosh hospital). */
 export const ghaziabadPratapVihar: GeoPage = {
   name: 'Pratap Vihar',
   title: 'Movers in Pratap Vihar | One Written Price | MrMoverPacker',
@@ -27,9 +27,9 @@ export const ghaziabadPratapVihar: GeoPage = {
           kind: 'list',
           items: [
             'Expressway close by. The Delhi-Meerut Expressway passes Pratap Vihar on its way from UP Gate towards Dasna. A truck for Delhi or Meerut joins it near home.',
-            'Vishwakarma Road. This road links Pratap Vihar with Vijay Nagar and Siddharth Vihar. A Ghaziabad to Jewar rapid rail line has been proposed along it, so we check for site work.',
+            'Vishwakarma Road. This road links Pratap Vihar with Vijay Nagar and Siddharth Vihar. The run along it is checked the evening before.',
             'A big hospital. Santosh Medical and Dental College and its 900-bed hospital sit in the Pratap Vihar area, so the truck stays clear of its gates.',
-            'Fresh roadworks. In April 2026 the GDA opened beautification work from DPS Chauraha to Leelawati Chowk. Loading points on that stretch are fixed on the survey.',
+            'Two junctions. DPS Chauraha and Leelawati Chowk help the driver find your lane. The exact loading point is fixed on the survey.',
             'Its own ward. Sector 11 is ward 51 of Ghaziabad Nagar Nigam, so civic dues are settled there.',
           ],
         },
@@ -40,7 +40,7 @@ export const ghaziabadPratapVihar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'All of it, from Sector 11 to the stretch the GDA is improving near Leelawati Chowk.',
+          body: 'All of it, from Sector 11 to the homes between DPS Chauraha and Leelawati Chowk.',
         },
         {
           kind: 'table',
@@ -53,7 +53,7 @@ export const ghaziabadPratapVihar: GeoPage = {
             ],
             [
               'DPS Chauraha to Leelawati Chowk',
-              'Homes along the GDA works stretch',
+              'Homes between the two junctions',
               'Truck spot agreed before the day.',
             ],
             [
@@ -129,7 +129,7 @@ export const ghaziabadPratapVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of a Pratap Vihar quote.',
+          body: 'Use the estimator above for a first figure; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -155,9 +155,9 @@ export const ghaziabadPratapVihar: GeoPage = {
         'Yes, and in every other part of the GDA scheme. The floor count and the truck spot outside your gate go on the quote.',
     },
     {
-      question: 'Will the Leelawati Chowk works affect my move?',
+      question: 'Can the truck stand in my Sector 11 lane?',
       answer:
-        'The GDA works from DPS Chauraha to Leelawati Chowk were inaugurated in April 2026. If your lane is on that stretch, the survey fixes a loading point clear of them.',
+        'Usually, yes. The survey checks the lane width near DPS Chauraha or Leelawati Chowk, and long carry is added only past 50 metres from your door.',
     },
     {
       question: 'Which road does the truck take to Delhi?',

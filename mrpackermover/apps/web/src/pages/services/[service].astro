@@ -97,6 +97,29 @@ const faqs = page.faqs.map((f) => ({
 }));
 
 const image = heroForService(row.slug);
+/** The closing panel's next steps, where the first look is not a survey of a home. */
+const CTA_STEPS: Record<string, string[]> = {
+  'office-shifting': [
+    'Share seats, both addresses and the date',
+    'Free survey of both office floors',
+    'One fixed, written price',
+  ],
+  'car-transport': [
+    'Share pickup, drop and date',
+    'Car model and photos on WhatsApp',
+    'One fixed, written price',
+  ],
+  'bike-transport': [
+    'Share pickup, drop and date',
+    'Bike model and photos on WhatsApp',
+    'One fixed, written price',
+  ],
+  'loading-unloading': [
+    'Share the address, floor and date',
+    'Free video look at the load',
+    'One fixed, written price',
+  ],
+};
 // The photo: the one uploaded in the CMS (Cloudinary, sized for a banner), or the built-in
 // files for this service. Both slots - the strip and the photo under the heading - use it.
 const photo = page.photo
@@ -178,6 +201,7 @@ const extraJsonLd = [
       labels={{ check: L.ctaCheck, call: L.ctaCall, whatsapp: L.ctaWhatsapp }}
       related={page.related}
       tone={tones.cta}
+      steps={CTA_STEPS[row.slug]}
     />
   </GPage>
 </BaseLayout>

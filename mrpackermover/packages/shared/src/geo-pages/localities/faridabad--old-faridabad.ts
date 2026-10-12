@@ -26,8 +26,8 @@ export const faridabadOldFaridabad: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Railway station. Faridabad railway station stands in Sector 20A, Old Faridabad, on the New Delhi to Mumbai main line. The Sector 20A station was redeveloped in 2025 to 2026, with a multi-level car park.',
-            'Metro on Mathura Road. Old Faridabad metro station opened on the Violet Line in September 2015. It stands on the Delhi-Mathura Road in Sector 16A, between Badkhal Mor and Neelam Chowk Ajronda.',
+            'Railway station. Faridabad railway station stands in Sector 20A, Old Faridabad, on the New Delhi to Mumbai main line. Its approach is kept clear when the truck spot is chosen.',
+            'Metro on Mathura Road. Old Faridabad metro station is on the Violet Line. It stands on the Delhi-Mathura Road in Sector 16A, between Badkhal Mor and Neelam Chowk Ajronda.',
             "The founder's tomb. Sheikh Farid's tomb still stands on Talab Road near Gopi Colony. Homes around Gopi Colony are seen on video first, so the truck spot is fixed before the day.",
             'Skyway to Delhi. The Delhi-Faridabad Skyway runs from Badarpur to Sector 37, with an Old Faridabad exit.',
             'Neighbouring sectors. The metro station also serves Sectors 16, 17 and 18, so many short moves stay inside this belt.',

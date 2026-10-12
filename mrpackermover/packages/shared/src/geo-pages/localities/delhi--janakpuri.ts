@@ -26,7 +26,7 @@ export const delhiJanakpuri: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Lettered blocks. Homes sit in A, B and C blocks, with C split into C1, C3 and C4. We note your block and floor on the survey.',
+            'Lettered blocks. Homes sit in lettered blocks such as A, B and C, some split into numbered parts like C3 and C4. We note your block and floor on the survey.',
             'Saturday market. A large weekly market fills blocks C4-B to C4-G and C3 on Ram Mandir Marg. We avoid Saturday loading there.',
             'District Centre. Janakpuri District Centre holds company offices and shops, beside Janakpuri West station.',
             'Three metro stations. Janakpuri East is on the Blue Line, Janakpuri West links the Blue and Magenta Lines, and Dabri Mor-Janakpuri South is on the Magenta Line.',
@@ -52,7 +52,7 @@ export const delhiJanakpuri: GeoPage = {
               'Stairs and any lift counted on the survey.',
             ],
             [
-              'C1 and C3 blocks',
+              'C3 and nearby C blocks',
               'Homes near Ram Mandir Marg',
               'No Saturday loading during the weekly market.',
             ],
@@ -163,12 +163,12 @@ export const delhiJanakpuri: GeoPage = {
         'Yes. We count the floors on the survey, and the stair carry is on the quote before you book.',
     },
     {
-      question: 'Which metro stations serve Janakpuri?',
+      question: 'How much do packers and movers charge in Janakpuri?',
       answer:
-        'Janakpuri East on the Blue Line, Janakpuri West on the Blue and Magenta Lines, and Dabri Mor-Janakpuri South on the Magenta Line.',
+        'It depends on your load, the stairs in your block and where the truck can stand, for example off Ram Mandir Marg. The survey ends in one fixed, written price.',
     },
     {
-      question: 'Are packers and movers in Janakpuri able to do a short move to Dwarka?',
+      question: 'Is a move to Dwarka or Uttam Nagar a short local job?',
       answer:
         'Yes. [Dwarka](/packers-and-movers/delhi/dwarka) and [Uttam Nagar](/packers-and-movers/delhi/uttam-nagar) are short local jobs via Pankha Road.',
     },

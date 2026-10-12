@@ -132,7 +132,7 @@ export const faridabadSainikColony: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Sector 49 house, the estimator above gives a figure in seconds; see [how pricing works](/pricing).',
+          body: 'The estimator above gives a figure in seconds, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -178,9 +178,9 @@ export const faridabadSainikColony: GeoPage = {
         'Yes. Packers and movers in Sainik Colony reach Gurugram on Faridabad-Gurgaon Road, often overnight with loading by 8 PM.',
     },
     {
-      question: 'Which metro stations are near Sainik Colony?',
+      question: 'Can you shift me within Sector 49 or to Sector 48 on the same day?',
       answer:
-        'Neelam Chowk Ajronda, Bata Chowk and Old Faridabad on the Violet Line are the closest.',
+        'Yes. A short hop inside Sector 49 or to Sector 48 next door can be a day move, planned around your stairs.',
     },
     {
       question: 'Can you move a whole house with a terrace and storeroom?',

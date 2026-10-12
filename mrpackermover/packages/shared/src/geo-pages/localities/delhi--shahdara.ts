@@ -27,10 +27,10 @@ export const delhiShahdara: GeoPage = {
           kind: 'list',
           items: [
             'Old lanes. In Old Shahdara, homes can sit in lanes too tight for a truck, so the survey checks yours.',
-            'GT Road. Welcome and Jhilmil metro stations both stand on this road, and Shyam Lal College has its address on it.',
+            'GT Road. Welcome and Jhilmil metro stations both stand on this road, the main way in for a truck.',
             'Shahdara Flyover. Mansarovar Park station on the Red Line is listed at the flyover, so trucks are timed around its traffic.',
-            'Railway hub. Delhi Shahdara Junction stands about 100 metres from Shahdara metro station.',
-            'District seat. Shahdara district, formed in 2012, has its headquarters at Nand Nagri.',
+            'Railway hub. Delhi Shahdara Junction stands beside Shahdara metro station, so the truck keeps clear of the station approach.',
+            'East bank. Shahdara lies east of the Yamuna, so a move to central Delhi crosses the river by bridge.',
           ],
         },
       ],
@@ -124,7 +124,7 @@ export const delhiShahdara: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) shows how a GT Road hand carry is counted.',
+          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -157,12 +157,12 @@ export const delhiShahdara: GeoPage = {
     {
       question: 'Is a move to Ghaziabad from Shahdara a local job?',
       answer:
-        'Yes, though it crosses into Uttar Pradesh. See [packers and movers in Ghaziabad](/packers-and-movers/ghaziabad).',
+        'Yes, though it crosses into Uttar Pradesh. Moves to [Ghaziabad](/packers-and-movers/ghaziabad) leave by GT Road on one fixed price.',
     },
     {
-      question: 'Which metro stations serve Shahdara?',
+      question: 'Can you load in the evening after the shops close?',
       answer:
-        'The Red Line stops at Welcome, Shahdara and Mansarovar Park. Welcome is also on the Pink Line.',
+        'Yes. Evening loading suits homes above shops between Welcome and Jhilmil, and the slot is fixed on the survey.',
     },
     {
       question: 'Is a move to Laxmi Nagar or Mayur Vihar short?',

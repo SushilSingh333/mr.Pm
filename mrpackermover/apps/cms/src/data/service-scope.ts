@@ -46,11 +46,12 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Open or enclosed carrier as chosen',
       'Wheel-lock and soft-tie securing',
       'Condition report at pickup',
-      'Transit insurance option',
     ],
     // No fuel or toll lines (car brief, Oct 2026): tolls are in the quote, and running
-    // the tank low is on the handover checklist rather than an extra.
+    // the tank low is on the handover checklist rather than an extra. Transit insurance is
+    // optional, so it is listed as an extra, not as included.
     exclusions: [
+      'Optional transit insurance, priced on your declared value',
       'Aftermarket accessories unless declared',
       'RTO paperwork or registration changes',
     ],
@@ -61,9 +62,9 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Wooden crating on request',
       'Loading with ramps, no drops',
       'Condition report at pickup',
-      'Transit insurance option',
     ],
     exclusions: [
+      'Optional transit insurance, priced on your declared value',
       'Aftermarket accessories unless declared',
       'Registration transfer',
       'Storage beyond the quoted period',
@@ -104,12 +105,13 @@ export const SERVICE_SCOPE: Record<string, ServiceScope> = {
       'Customs documentation support',
       'Sea / air freight booking',
       'Destination clearance coordination',
-      'Marine transit insurance option',
     ],
+    // Prohibited items are not an extra (they cannot ship at all): the page has its own
+    // "What cannot be shipped" section.
     exclusions: [
+      'Optional marine transit insurance, priced on your declared value',
       'Duties and taxes at destination',
       'Demurrage from delayed clearance',
-      'Prohibited or restricted items',
       'Storage beyond the quoted period',
     ],
   },

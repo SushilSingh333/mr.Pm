@@ -29,8 +29,8 @@ export const delhiPunjabiBagh: GeoPage = {
             'Large plots. Homes here are mostly private bungalows and kothis on big plots, with a few apartment complexes.',
             'Ring Road. The road between East and West Punjabi Bagh decides which side the truck comes in from.',
             'Rohtak Road. Punjabi Bagh metro station on the Green Line stands on Rohtak Road, in East Punjabi Bagh.',
-            'Two metro lines. Punjabi Bagh West links the Green and Pink Lines by a 212 metre foot overbridge.',
-            'Club and temple. Punjabi Bagh Club and the ISKCON temple, opened in 2007, are well-known meeting points.',
+            'Two metro lines. Punjabi Bagh West links the Green and Pink Lines, so the station approach is a busy spot to keep the truck clear of.',
+            'Club and temple. Punjabi Bagh Club and the ISKCON temple are the landmarks crews use to find your road.',
           ],
         },
       ],
@@ -154,9 +154,9 @@ export const delhiPunjabiBagh: GeoPage = {
         'Yes, in East or West Punjabi Bagh. We survey every room on video, usually pack the day before, and load the next day.',
     },
     {
-      question: 'Which metro stations serve Punjabi Bagh?',
+      question: 'Can the truck park on Ring Road outside my house?',
       answer:
-        'Madipur, Shivaji Park and Punjabi Bagh on the Green Line, and Punjabi Bagh West on the Green and Pink Lines.',
+        'No, we keep it off Ring Road and Rohtak Road. The truck stands on your inner road in East or West Punjabi Bagh, agreed on the survey.',
     },
     {
       question: 'Do you crate glass tops and mirrors?',

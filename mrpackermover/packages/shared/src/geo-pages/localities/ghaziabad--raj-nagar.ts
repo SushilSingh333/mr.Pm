@@ -26,10 +26,10 @@ export const ghaziabadRajNagar: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Stairs, not lifts. A plotted house in Sector 5 or Sector 7 seldom has a lift, so the crew carries every almirah down by hand.',
+            'Stairs, not lifts. A plotted house in Sector 5 or Sector 7 seldom has a lift. The crew carries every almirah down by hand.',
             'Truck at the gate. A house near Sector 4 Central Park has no loading bay, so the truck parks on the sector road outside.',
             'Offices in RDC. The district centre known as RDC holds offices, shops and Gaur Central Mall. Moves there are timed around working hours.',
-            'Schools and colleges. Ingraham Institute, founded in 1926, stands at Raj Nagar and GB Road, and the International Women Polytechnic has a campus here.',
+            'Schools and colleges. Ingraham Institute, founded in 1926, stands at Raj Nagar and GB Road. The International Women Polytechnic has a campus here too.',
             'Private buses. The ALT Bus Stand near the ALT training centre serves private bus operators, so our route avoids it at busy times.',
           ],
         },
@@ -130,7 +130,7 @@ export const ghaziabadRajNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure in seconds. Then [how pricing works](/pricing) shows each line of a Sector 5 or RDC quote.',
+          body: 'Use the estimator above for a figure in seconds; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -159,7 +159,7 @@ export const ghaziabadRajNagar: GeoPage = {
     {
       question: 'Can you shift an office in RDC?',
       answer:
-        'Yes. RDC offices are usually moved after closing or at a weekend, within the building rules; see [office shifting](/services/office-shifting).',
+        'Yes. RDC offices are usually moved after closing or at a weekend, within the building rules, by our [office shifting](/services/office-shifting) crew.',
     },
     {
       question: 'Can you move me from Raj Nagar to Raj Nagar Extension?',
@@ -174,7 +174,7 @@ export const ghaziabadRajNagar: GeoPage = {
     {
       question: 'Is my old wooden furniture covered?',
       answer:
-        'Basic liability cover comes with every Sector 7 or Sector 11 move. Add optional [transit insurance](/insurance) on declared value, and see [how claims work](/claims).',
+        'Basic liability cover comes with every Sector 7 or Sector 11 move. Add optional [transit insurance](/insurance) on declared value; [how claims work](/claims) explains the steps.',
     },
     {
       question: 'Will buses near the ALT Bus Stand slow the truck?',

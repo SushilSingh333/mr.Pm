@@ -11,7 +11,7 @@ export const internationalRelocation: ServicePage = {
   trust: [
     'Export-grade packing and crating',
     'Customs documents prepared with you',
-    'Marine transit insurance option',
+    'Optional marine transit insurance',
     'One written, itemised quote',
   ],
   quoteMode: 'international',
@@ -150,11 +150,46 @@ export const internationalRelocation: ServicePage = {
             'Valued inventory: every carton and item, with its value, matching the numbers on the cartons',
             'Proof of address at the destination (lease, employer letter or similar)',
             'Destination customs forms, which differ by country',
+            'For export clearance in India: self-signed copies of your passport and visa, your travel date, and an authority letter for the customs broker who files the shipping bill',
           ],
         },
         {
           kind: 'text',
           body: 'Most shipments that get stuck at customs are stuck on paperwork, usually because the inventory and the declaration do not match. We prepare both together so they do.',
+        },
+      ],
+    },
+    {
+      heading: 'What happens at Indian customs before your goods leave?',
+      blocks: [
+        {
+          kind: 'text',
+          body: 'Household goods leave India on a shipping bill, the export declaration filed with Indian customs. A licensed customs broker files it for you against the valued inventory, which is why an authority letter is on the document list.',
+        },
+        {
+          kind: 'steps',
+          items: [
+            {
+              title: 'Declaration',
+              body: 'The shipping bill is filed with your passport and visa copies and the valued inventory.',
+            },
+            {
+              title: 'Inspection',
+              body: 'Customs can open the shipment and check it against the inventory, so every carton number has to match the list.',
+            },
+            {
+              title: 'Clearance and loading',
+              body: 'Once cleared, the shipment is loaded and the carrier issues a bill of lading for sea or an air waybill for air.',
+            },
+            {
+              title: 'Your copy',
+              body: 'You get a copy of that document. Clearance at the destination needs it.',
+            },
+          ],
+        },
+        {
+          kind: 'text',
+          body: 'Many countries release household goods only after you have arrived and shown your passport and visa. Many also let used goods in duty-free for people taking up residence, within set time limits, so we check the rules for your country before packing.',
         },
       ],
     },
@@ -276,6 +311,11 @@ export const internationalRelocation: ServicePage = {
       question: 'Who pays customs duty at the destination?',
       answer:
         "You do, to the destination country. Many countries allow used personal effects in duty-free or at a reduced rate when you are taking up residence; your destination's rules decide.",
+    },
+    {
+      question: 'Do I need to be in the new country when my goods arrive?',
+      answer:
+        'Often, yes. Many countries clear household goods only after you have arrived with a valid visa, so the shipment is timed to your travel date.',
     },
     {
       question: 'Can I send some things by air and the rest by sea?',

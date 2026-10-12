@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Ganga Nagar (Meerut) locality page, round 3: rewritten from sourced local facts (MDA scheme in three phases, Pockets A to P, Ganga Nagar Extension, Mawana Road on NH-34, IIMT University, the Cantt edge, Metro Line 3 plan). */
+/** Ganga Nagar (Meerut) locality page, round 3: rewritten from sourced local facts (MDA scheme in three phases, Pockets A to P, Ganga Nagar Extension, Mawana Road on NH-34, IIMT University, the Cantt edge); round 4: dated items and metro FAQ removed. */
 export const meerutGangaNagar: GeoPage = {
   name: 'Ganga Nagar',
   title: 'Movers in Ganga Nagar, Meerut | Fixed Price | MrMoverPacker',
@@ -62,7 +62,7 @@ export const meerutGangaNagar: GeoPage = {
             ],
             [
               'Ganga Nagar Extension',
-              'About 200 acres the MDA set out to develop after a 2017 Supreme Court ruling',
+              'About 200 acres the MDA has set out for new plots',
               'New roads and plots checked on video before the date.',
             ],
             [
@@ -131,7 +131,7 @@ export const meerutGangaNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) shows how the MDA pocket and your floor enter the written quote.',
+          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -141,7 +141,7 @@ export const meerutGangaNagar: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Winter smog (November). In November 2022 the UP Pollution Control Board rated the air in Ganga Nagar very poor.',
+            'Winter smog (November). Air in Ganga Nagar can turn very poor in early winter. Sofas and mattresses are wrapped indoors before they go out.',
             'Wedding season (November to February). Trucks across western UP are scarce, so fix a Ganga Nagar date two to three weeks ahead.',
             'Fog (December to January). Runs up NH-34 to Mawana and Bijnor leave once the highway is clear enough to see.',
           ],
@@ -171,9 +171,9 @@ export const meerutGangaNagar: GeoPage = {
         'The truck loads by 8 PM, crosses Meerut to the Delhi-Meerut Expressway and unloads in Delhi next morning.',
     },
     {
-      question: 'Will a metro line reach Ganga Nagar?',
+      question: 'Can the truck park inside my pocket lane?',
       answer:
-        'A third Meerut Metro line, from CCS University to Begumpul via Ganga Nagar, is planned. Until it is built, packers and movers in Ganga Nagar plan around Mawana Road traffic.',
+        'Usually, yes. Packers and movers in Ganga Nagar check your pocket lane on the video call and load there, not on the Mawana Road carriageway.',
     },
     {
       question: 'What if something breaks on the way?',

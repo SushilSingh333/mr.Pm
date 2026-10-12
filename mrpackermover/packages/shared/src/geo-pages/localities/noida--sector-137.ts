@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Sector 137 (Noida) locality page, round 3: rewritten from sourced local facts (Noida Sector 137 Aqua Line station and its neighbours, the societies, Felix Hospital and KPMG office listed near it, the Expressway corridor). */
+/** Sector 137 (Noida) locality page, round 4: evergreen copy from sourced local facts (Noida Sector 137 Aqua Line station, the societies near it, Felix Hospital, the Expressway corridor). */
 export const noidaSector137: GeoPage = {
   name: 'Sector 137',
   title: 'Movers in Sector 137 | Fixed Written Quote | MrMoverPacker',
@@ -26,11 +26,10 @@ export const noidaSector137: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Station traffic. We fix a loading spot clear of the Noida Sector 137 station, open since 25 January 2019.',
+            'Station traffic. We fix a loading spot clear of the Noida Sector 137 station entry.',
             'Many societies. Paras Tierra, Logix Blossom County, Exotica Fresco and Gulshan Vivante stand near the station, each with its own move rules.',
             'More towers. Ajnara Daffodil, Paramount Floraville, Purvanchal Royal Park and Supertech Ecocity are close by too.',
-            'Hospital road. Felix Hospital stands about 200 metres from the station, and we never park across its approach.',
-            'Office neighbours. A KPMG office stands about 400 metres from the station, so weekday office moves happen here too.',
+            'Hospital road. Felix Hospital is near the station, and we never park across its approach.',
           ],
         },
       ],
@@ -40,7 +39,7 @@ export const noidaSector137: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'All of it, from the societies around the metro station to the offices nearby.',
+          body: 'All of it, from the societies around the metro station to the towers further back.',
         },
         {
           kind: 'table',
@@ -65,11 +64,6 @@ export const noidaSector137: GeoPage = {
               'Purvanchal Royal Park and Supertech Ecocity',
               'Society flats',
               'Move window matched at your new address.',
-            ],
-            [
-              'Offices near the station, such as KPMG',
-              'Office floors',
-              'Weekend moves planned with building management.',
             ],
           ],
         },
@@ -145,7 +139,7 @@ export const noidaSector137: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a first figure; [how pricing works](/pricing) shows how a Sector 137 quote is built.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -167,9 +161,9 @@ export const noidaSector137: GeoPage = {
   faqHeading: 'Packers and movers in Sector 137: questions',
   faqs: [
     {
-      question: 'Which metro station serves Sector 137?',
+      question: 'How early should I book the lift slot?',
       answer:
-        'Noida Sector 137 on the Aqua Line, opened on 25 January 2019. Its neighbours are Sector 83 to the north and Sector 142 to the south.',
+        'As soon as your date is fixed. At Paras Tierra, Logix Blossom County and other societies, book month-end slots well ahead.',
     },
     {
       question: 'Where will the truck stand near the metro station?',
@@ -182,9 +176,9 @@ export const noidaSector137: GeoPage = {
         'Yes. A move from Exotica Fresco to Gulshan Vivante, say, needs a gate pass and lift slot at both ends, and we line them up.',
     },
     {
-      question: 'Do you move offices near the station?',
+      question: 'What if my society allows only day moves?',
       answer:
-        'Yes. Offices near KPMG can move over a weekend; see [office shifting](/services/office-shifting).',
+        'Then we plan a day move. Where Ajnara Daffodil or another tower allows evening loading, we load by 8 PM and deliver next morning.',
     },
     {
       question: 'Can you move me from Sector 137 to Greater Noida?',

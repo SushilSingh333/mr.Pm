@@ -21,7 +21,7 @@ export const ghaziabadShastriNagar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Shastri Nagar in Ghaziabad, next to Kavi Nagar and Chiranjiv Vihar. Meerut has its own Shastri Nagar; for that one, see [packers and movers in Shastri Nagar, Meerut](/packers-and-movers/meerut/shastri-nagar).',
+          body: 'Shastri Nagar in Ghaziabad, next to Kavi Nagar and Chiranjiv Vihar. Meerut has its own [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar), and we cover that colony too.',
         },
       ],
     },
@@ -36,7 +36,7 @@ export const ghaziabadShastriNagar: GeoPage = {
           kind: 'list',
           items: [
             'Lettered blocks. Homes sit in blocks such as E Block and F Block, plus GDA Colony, so the block road is where the truck loads.',
-            'Hockey stadium. Lal Bahadur Shastri Hockey Stadium, a Ghaziabad Development Authority sports complex, is in the colony. We keep trucks clear of its gate.',
+            'Hockey stadium. Lal Bahadur Shastri Hockey Stadium, a Ghaziabad Development Authority sports complex, is in the colony. Its gate is an easy landmark for the crew, and trucks stay clear of it.',
             'Hapur Chungi nearby. The crossing towards Raj Nagar and Kavi Nagar sets the loading hour for runs to NH 24.',
             'Metro and rail. The nearest metro is Shaheed Sthal (New Bus Adda), the Red Line terminus beside the Ghaziabad RRTS station.',
             'Industry next door. Kavi Nagar Industrial Area is close, so we move workshop and office units too.',
@@ -136,7 +136,7 @@ export const ghaziabadShastriNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a GDA Colony house, the price check above gives a first figure, and [how pricing works](/pricing) explains each line.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -174,7 +174,7 @@ export const ghaziabadShastriNagar: GeoPage = {
     {
       question: 'Can you shift a unit in Kavi Nagar Industrial Area?',
       answer:
-        'Yes. Racks and stock are listed on the survey; see [office shifting](/services/office-shifting) for unit moves next to Shastri Nagar.',
+        'Yes. Racks and stock are listed on the survey, as with any [office shifting](/services/office-shifting) job next to Shastri Nagar.',
     },
     {
       question: 'What if something breaks on my Shastri Nagar move?',

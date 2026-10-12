@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Gaur City (Greater Noida West) locality page, round 3: rewritten from sourced local facts (Gaursons township, Gaur City and Gaur City 2, Sector 4, numbered avenues, Gaur Chowk, Gaur City Mall and Center, Gaurs International School). */
+/** Gaur City (Greater Noida West) locality page, round 3: rewritten from sourced local facts (Gaursons township, Gaur City and Gaur City 2, Sector 4, numbered avenues, Gaur Chowk, Gaur City Mall and Center, Gaurs International School). Round 4: the TOWNSHIP page (avenues, Gaur City 1 vs 2, Gaur Chowk, gates, own facilities, moves inside one township); area facts (sectors, Hindon crossing, Link Road, possession waves) live on the Greater Noida West page. */
 export const greaterNoidaGaurCity: GeoPage = {
   name: 'Gaur City',
   title: 'Movers in Gaur City | Fixed Written Quote | MrMoverPacker',
@@ -121,18 +121,18 @@ export const greaterNoidaGaurCity: GeoPage = {
               'Long carry applies only if the truck stands over 50 metres from your tower door.',
             ],
             [
-              'Route out',
-              'Noida trips leave past Gaur Chowk on the road that crosses the Hindon to Sector 121.',
+              'Gate to tower',
+              'The truck enters at your avenue gate, and the walk on to the tower door is checked on video.',
             ],
             [
               'Distance',
-              'A hop to Techzone 4 or Sector 1 is shorter than a run to Alpha or Delhi.',
+              'A move inside the township is shorter than a run past Gaur Chowk to Alpha or Delhi.',
             ],
           ],
         },
         {
           kind: 'text',
-          body: 'Read [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -145,7 +145,7 @@ export const greaterNoidaGaurCity: GeoPage = {
             'Monsoon (July to September). Goods are wrapped for the walk from tower door to truck across the avenue road.',
             'Winter (December to January). Long-distance loads start after the morning fog, then leave by Gaur Chowk.',
             'Weekends. Lift slots in 7th Avenue or 14th Avenue towers go first on Saturdays, so a weekday is easier.',
-            'Possession days. When a new avenue hands over flats, many families want the same weekends.',
+            'Summer (April to June). A loaded truck waiting at an avenue gate gets hot, so electronics and medicines are packed apart.',
           ],
         },
       ],

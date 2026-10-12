@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** DLF Phase 1 (Gurgaon) locality page, round 3: rewritten from sourced local facts (DLF Qutab Enclave, Rapid Metro, Sikanderpur, Qutab Plaza, DTCP drive). */
+/** DLF Phase 1 (Gurgaon) locality page, round 3: rewritten from sourced local facts (DLF Qutab Enclave, Rapid Metro, Sikanderpur, Qutab Plaza). */
 export const gurgaonDlfPhase1: GeoPage = {
   name: 'DLF Phase 1',
   title: 'Movers in DLF Phase 1 | Fixed Written Quote | MrMoverPacker',
@@ -75,7 +75,7 @@ export const gurgaonDlfPhase1: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'In January 2025 the DTCP began action against unauthorised floors and commercial use across DLF Phases 1 to 5. If you rent a DLF Phase 1 floor, settle handover terms with the owner early.',
+          body: 'If you rent a DLF Phase 1 floor, agree the key handover with your owner early. Lanes near Qutab Plaza fill with parked cars, so the truck spot is planned first.',
         },
         {
           kind: 'table',
@@ -135,7 +135,7 @@ export const gurgaonDlfPhase1: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a DLF Phase 1 floor, the estimator above gives a first figure; see [how pricing works](/pricing).',
+          body: 'The estimator above gives a first figure for a DLF Phase 1 floor. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -146,7 +146,7 @@ export const gurgaonDlfPhase1: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early or late loading suits the stair carries in DLF Phase 1 builder floors.',
-            'Monsoon (July to September). Heavy rain in July 2024 jammed nearby Golf Course Road. We check the route the day before.',
+            'Monsoon (July to September). Nearby Golf Course Road waterlogs in heavy monsoon rain, so we check the route the day before.',
             'Festive season (October to November). Qutab Plaza gets busier, so trucks for nearby blocks load after shop hours.',
             'Winter (December to February). Overnight moves to Golf Course Extension Road load by 8 PM and arrive next morning.',
           ],
@@ -162,9 +162,9 @@ export const gurgaonDlfPhase1: GeoPage = {
         'Yes, from A Block to the blocks near Qutab Plaza. The stair count sets the crew size.',
     },
     {
-      question: 'Is the metro useful on moving day?',
+      question: 'Where does the truck park on a narrow block lane?',
       answer:
-        'For you, yes: DLF Phase 1 Rapid Metro station links to the Yellow Line at Sikanderpur.',
+        'As close to your gate as the lane allows, so ask neighbours to keep it clear the evening before. Near Qutab Plaza we load outside shop hours.',
     },
     {
       question: 'Can you move me from DLF Phase 1 to a Golf Course Road tower?',

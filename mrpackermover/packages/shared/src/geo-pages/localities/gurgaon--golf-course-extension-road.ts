@@ -28,8 +28,8 @@ export const gurgaonGolfCourseExtensionRoad: GeoPage = {
           items: [
             'Possession rush. When a tower in Sectors 58 to 66 hands over, new owners want the same weekends and the same lift.',
             'AIT Chowk. This signal-controlled roundabout links Sectors 53 to 56 and jams at peak hours, so trucks cross it off-peak.',
-            'Rough stretch. A GMDA inspection found deep potholes and uncovered drains between Vatika Chowk and Ghata.',
-            'Vatika Chowk underpass. Opened in November 2023, it links the road with the Southern Peripheral Road.',
+            'Rough stretch. The road between Vatika Chowk and Ghata has potholes and uncovered drains in places, so the truck spot is checked.',
+            'Vatika Chowk underpass. An underpass at Vatika Chowk links the road with the Southern Peripheral Road.',
             'Metro at one end. The Rapid Metro ends at Sector 55-56 station, near the AIT Chowk end.',
           ],
         },
@@ -135,7 +135,7 @@ export const gurgaonGolfCourseExtensionRoad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a new flat off the Southern Peripheral Road side, the estimator above gives a first figure; see [how pricing works](/pricing).',
+          body: 'The estimator above gives a first figure for a new flat near Vatika Chowk. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -146,7 +146,7 @@ export const gurgaonGolfCourseExtensionRoad: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early lift slots in Sectors 58 to 66 towers keep the crew out of the midday heat.',
-            'Monsoon (July to September). Heavy rain in July 2024 waterlogged this road and Golf Course Road. We check the AIT Chowk route the day before.',
+            'Monsoon (July to September). This road and nearby Golf Course Road waterlog in heavy monsoon rain. We check the AIT Chowk route the day before.',
             'Festive season (October to November). Possession weekends in new Sector 63 and 65 towers fill fast, so book early.',
             'Winter (December to February). Overnight moves from DLF Phase 1 load by 8 PM and unload next morning.',
           ],
@@ -170,7 +170,7 @@ export const gurgaonGolfCourseExtensionRoad: GeoPage = {
     {
       question: 'Will AIT Chowk traffic hold up my move?',
       answer:
-        'We time the truck to cross AIT Chowk outside its peak hours. An underpass there has been proposed by GMDA, so we watch for roadworks.',
+        'We time the truck to cross AIT Chowk outside its morning and evening peaks. Any roadworks at the roundabout show up on our route check the day before.',
     },
     {
       question: 'Can you move me from Sohna Road to the Extension?',

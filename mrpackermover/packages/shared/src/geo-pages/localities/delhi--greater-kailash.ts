@@ -29,7 +29,7 @@ export const delhiGreaterKailash: GeoPage = {
             'Builder floors. Homes include builder floors and independent villas in lettered blocks, such as C Block and E Block of GK I. A typical job is one floor of one building.',
             'Market blocks. The M Block and N Block markets of GK I draw shoppers, diners and tourists. M Block in GK I is prone to jams from roadside parking.',
             'Sanitary ware hub. M Block market in GK II mixes restaurants and coffee shops with sanitary ware shops. It is one of the largest sanitary ware hubs in North India.',
-            'Outer Ring Road. Heavy rain in September 2024 disrupted traffic between Savitri Flyover and Paras Chowk.',
+            'Outer Ring Road. The stretch between Savitri Flyover and Paras Chowk slows badly in heavy rain, so the route is checked on wet days.',
           ],
         },
       ],
@@ -169,9 +169,9 @@ export const delhiGreaterKailash: GeoPage = {
         'If your block RWA allows it, yes, with delivery across South Delhi next morning. If it does not, we plan a daytime move.',
     },
     {
-      question: 'Which metro stations are closest for visiting my new home?',
+      question: 'How much do packers and movers charge in Greater Kailash?',
       answer:
-        'Greater Kailash station on the Magenta Line is at Masjid Moth, by GK III. Kailash Colony station on the Violet Line is on Lala Lajpat Rai Road.',
+        'It depends on your load, the floor and lift of your GK I or GK II building, and how near M Block traffic lets the truck stand. The survey fixes one written price.',
     },
     {
       question: 'Do you move from Greater Kailash to Gurgaon, or abroad?',

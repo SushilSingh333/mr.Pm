@@ -142,7 +142,7 @@ export const noidaSector62: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Sector 62 flat, the estimator above gives a first figure, and [how pricing works](/pricing) lists every line.',
+          body: 'Start with the estimator above for a rough figure, then read [how pricing works](/pricing) for every line of the written quote.',
         },
       ],
     },
@@ -170,7 +170,7 @@ export const noidaSector62: GeoPage = {
     {
       question: 'Can you shift my flat from Sector 62 to Indirapuram overnight?',
       answer:
-        'Yes, where both societies allow evening loading. Packers and movers in Sector 62 load by 8 PM, cross NH 24 and unload in [Indirapuram](/packers-and-movers/ghaziabad/indirapuram) next morning.',
+        'Yes, where both societies allow evening loading. Packers and movers in Sector 62 load by 8 PM. We cross NH 24 and unload in [Indirapuram](/packers-and-movers/ghaziabad/indirapuram) next morning.',
     },
     {
       question: 'Who books the service lift in my society?',

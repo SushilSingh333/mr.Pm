@@ -21,7 +21,7 @@ export const ghaziabadIndirapuram: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Indirapuram was founded in 1996 as a Ghaziabad sub-city by the Delhi border. Its group housing towers are split into Khands, such as Niti Khand, Gyan Khand, Ahinsa Khand, Shakti Khand and Vaibhav Khand.',
+          body: 'Indirapuram was founded in 1996 as a Ghaziabad sub-city by the Delhi border. Its group housing towers are split into Khands. Niti Khand, Gyan Khand, Ahinsa Khand, Shakti Khand and Vaibhav Khand are the best known.',
         },
         {
           kind: 'list',
@@ -29,7 +29,7 @@ export const ghaziabadIndirapuram: GeoPage = {
             'Khand by Khand. Gyan Khand, Ahinsa Khand, Shakti Khand, Abhay Khand and Vaibhav Khand are separate Nagar Nigam wards. Each society inside them keeps its own move rules.',
             'Mall stretch. Shipra Mall stands on the DME Service Road, and North India Mall sits at Saya Gold Avenue next door.',
             'Two metro stations. Noida Electronic City and Vaishali, both on the Blue Line, serve Indirapuram from opposite sides.',
-            'Elevated road. The Hindon Elevated Road links UP Gate with Raj Nagar Extension, but our trucks keep to NH 9 and the main roads.',
+            'Elevated road. The Hindon Elevated Road links UP Gate with Raj Nagar Extension. Our trucks keep to NH 9 and the main roads.',
             'Sector 62 across the highway. Noida Sector 62 faces Indirapuram across NH 9, so many moves cross into Gautam Buddh Nagar.',
           ],
         },
@@ -143,7 +143,7 @@ export const ghaziabadIndirapuram: GeoPage = {
             'Monsoon (July to September). Sofas from Ahinsa Khand towers are wrapped for rain before they cross the lobby.',
             'Summer (April to June). Morning loading suits top floors in Vaibhav Khand, and medicines ride with you.',
             'Winter (December to February). Overnight moves to Delhi load by 8 PM and cross UP Gate on emptier roads.',
-            'Weekdays all year. The DME Service Road by Shipra Mall is calmer for loading midweek than at weekends.',
+            'Weekdays all year. Shipra Mall draws weekend crowds, so midweek loading near the DME Service Road is easier.',
           ],
         },
       ],

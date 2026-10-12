@@ -27,9 +27,9 @@ export const delhiVasantKunj: GeoPage = {
           kind: 'list',
           items: [
             'Pockets and blocks. Each pocket holds lettered blocks, so the Sector, pocket and block go on every booking.',
-            'DDA housing. DDA built flats here, and its 2019 housing scheme offered flats in Vasant Kunj and Narela.',
-            'Mall cluster. DLF Emporio, DLF Promenade and Ambience Mall stand on land auctioned by DDA, with Vasant Square Mall nearby.',
-            'Nelson Mandela Marg. The Grand hotel stands on this main road, the route most trucks take past Vasant Kunj.',
+            'DDA housing. DDA built most flats here, and a block without a lift means a stair carry, so your floor sets the crew size.',
+            'Mall cluster. DLF Emporio, DLF Promenade and Ambience Mall stand together, with Vasant Square Mall nearby, so their car traffic is planned around.',
+            'Nelson Mandela Marg. Most trucks reach the Sectors by this main road, and The Grand hotel is a handy landmark on it.',
             'Hospital belt. ILBS sits in D-1, and Fortis Flt Lt Rajan Dhall Hospital also serves Vasant Kunj.',
           ],
         },
@@ -128,7 +128,7 @@ export const delhiVasantKunj: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure; [how pricing works](/pricing) shows how a DDA stair carry is priced.',
+          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -169,14 +169,14 @@ export const delhiVasantKunj: GeoPage = {
         'Yes, from campus housing at JNU or the Indian Institute of Mass Communication. Campus security may ask for vehicle and crew details, which we share.',
     },
     {
-      question: 'Which metro station is nearest for visitors?',
+      question: 'Can the truck come inside my pocket?',
       answer:
-        'Vasant Vihar station on the Magenta Line is the nearest listed one. It is underground, in the CGHS Colony of Vasant Vihar.',
+        'Usually, with your pocket RWA agreeing. The truck parks by your block in Sectors A to E, and the gate rules are checked on the survey.',
     },
     {
       question: 'Do you move cars from Vasant Kunj too?',
       answer:
-        'Yes, from any pocket in Sectors A to E. See [car transport](/services/car-transport) and [bike transport](/services/bike-transport).',
+        'Yes, from any pocket in Sectors A to E. [Car transport](/services/car-transport) and [bike transport](/services/bike-transport) go on the same written quote.',
     },
   ],
   servicesHeading: 'Moving services in Vasant Kunj',

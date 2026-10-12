@@ -1,8 +1,8 @@
 import type { GeoPage } from '../types.js';
 
 /**
- * Noida city page, from the owner's brief "Noida City Page: FINAL" (9 October 2026),
- * round 3: expanded with sourced local facts (Noida Authority, DND Flyway, Chilla and
+ * Noida city page, from the owner's brief "Noida City Page: FINAL",
+ * round 4: evergreen (no dates); expanded with sourced local facts (Noida Authority, DND Flyway, Chilla and
  * Kalindi Kunj crossings, Blue, Magenta and Aqua lines, Mahamaya Flyover, Sector 95
  * underpass, Film City, Mall of India, Noida International Airport).
  */
@@ -141,7 +141,7 @@ export const noida: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Nothing outside your written quote is charged, in Sector 18 or across the DND Flyway. See [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of your written quote, and nothing outside it is charged.',
         },
       ],
     },
@@ -169,7 +169,7 @@ export const noida: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'A move between Delhi and Noida usually takes one day, or runs overnight with delivery next morning. We pick the crossing by time and address: the DND Flyway from Maharani Bagh to Sector 15A, Chilla, or Kalindi Kunj.\n\nAny Delhi-side toll is already in your quote. The move crosses into Uttar Pradesh, so we carry the papers a household move needs at the border.\n\nTravelling ahead by metro? The Blue Line runs from Delhi through Sector 18 and Noida City Centre to Electronic City. The Magenta Line stops at Botanical Garden.',
+          body: 'A move between Delhi and Noida usually takes one day, or runs overnight with delivery next morning. We pick the crossing by time and address: the DND Flyway from Maharani Bagh to Sector 15A, Chilla, or Kalindi Kunj.\n\nAny Delhi-side toll is already in your quote. The move crosses into Uttar Pradesh, so we carry the papers a household move needs at the border.\n\nMetro stations help fix the truck spot. The Blue Line runs through Sector 18 and Noida City Centre to Electronic City. The Magenta Line stops at Botanical Garden.',
         },
       ],
     },
@@ -178,7 +178,7 @@ export const noida: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The six-lane Noida-Greater Noida Expressway runs about 24.5 km from the Mahamaya Flyover to Pari Chowk. Packers and movers in Noida use it for most [Greater Noida](/packers-and-movers/greater-noida) moves. The Aqua Line follows it from Sector 51 to Depot station.\n\nBeyond Pari Chowk, the Yamuna Expressway leads to Noida International Airport at Jewar, open for flights since 15 June 2026. Home, office, car and bike moves to Greater Noida are all among [our moving services](/services).',
+          body: 'The six-lane Noida-Greater Noida Expressway runs about 24.5 km from the Mahamaya Flyover to Pari Chowk. Packers and movers in Noida use it for most [Greater Noida](/packers-and-movers/greater-noida) moves. The Aqua Line follows it from Sector 51 to Depot station.\n\nBeyond Pari Chowk, the Yamuna Expressway leads to Noida International Airport at Jewar. Home, office, car and bike moves to Greater Noida are all among [our moving services](/services).',
         },
       ],
     },
@@ -217,7 +217,7 @@ export const noida: GeoPage = {
     {
       question: 'Do you move offices in Sector 62, 63 or the 120s?',
       answer:
-        'Yes, around dock timings and freight lifts in the Sector 62 and 63 IT parks, including weekend and night moves. See [office shifting in Noida](/packers-and-movers/noida/office-shifting).',
+        'Yes, around dock timings and freight lifts in the Sector 62 and 63 IT parks, including weekend and night moves by our [office shifting in Noida](/packers-and-movers/noida/office-shifting) crews.',
     },
     {
       question: 'Is my move insured?',

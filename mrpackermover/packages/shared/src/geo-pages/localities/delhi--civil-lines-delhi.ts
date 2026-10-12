@@ -136,7 +136,7 @@ export const delhiCivilLines: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Try the estimator above for a first figure. Each Civil Lines quote follows [how pricing works](/pricing).',
+          body: 'Try the estimator above for a first figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -147,7 +147,7 @@ export const delhiCivilLines: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early starts suit homes on Sham Nath Marg, before IP College and the hospital gates fill.',
-            "Monsoon (July to September). In the July 2023 Yamuna floods, water reached the street outside the Chief Minister's residence. We watch river levels before a wet-season date.",
+            'Monsoon (July to September). Civil Lines lies close to the Yamuna, and a high river can push water onto roads near the bank. We watch river levels before a wet-season date.',
             'Winter (December to February). Short hops to Mukherjee Nagar or Model Town can run overnight: loaded by 8 PM, delivered next morning.',
           ],
         },
@@ -162,9 +162,9 @@ export const delhiCivilLines: GeoPage = {
         'Yes. We send the truck number and crew IDs ahead for checks near Lok Niwas or the Old Secretariat, and time the move to your handover.',
     },
     {
-      question: 'Which metro stations serve Civil Lines?',
+      question: 'How much do packers and movers charge in Civil Lines?',
       answer:
-        'Civil Lines station on Sham Nath Marg and Vidhan Sabha station on Mahatma Gandhi Road, both on the Yellow Line. Kashmere Gate interchange is close by.',
+        'It depends on your load, the floor and the truck spot on Alipore Road or Sham Nath Marg. A video survey ends in one fixed, written price.',
     },
     {
       question: 'Is a move to Mukherjee Nagar or Model Town a local job?',
@@ -177,7 +177,7 @@ export const delhiCivilLines: GeoPage = {
         'Not at its gate. We fix a nearby spot on the survey, and any carry past 50 metres is on the quote.',
     },
     {
-      question: 'Are packers and movers in Civil Lines able to protect heirloom pieces?',
+      question: 'How do you pack old cabinets and paintings?',
       answer:
         'Yes. Old cabinets and paintings from Alipore Road homes are crated, and [how claims work](/claims) explains what happens if one is damaged.',
     },

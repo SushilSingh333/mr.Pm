@@ -35,6 +35,7 @@ import { noidaSector137 } from './localities/noida--sector-137.js';
 import { noidaSector150 } from './localities/noida--sector-150.js';
 import { noidaSector18 } from './localities/noida--sector-18.js';
 import { noidaSector50 } from './localities/noida--sector-50.js';
+import { noidaSector52 } from './localities/noida--sector-52.js';
 import { noidaSector62 } from './localities/noida--sector-62.js';
 import { noidaSector63 } from './localities/noida--sector-63.js';
 import { greaterNoidaAlpha } from './localities/greater-noida--alpha.js';
@@ -149,6 +150,7 @@ export const LOCALITY_PAGES: Record<string, GeoPage> = {
   'noida/sector-150': noidaSector150,
   'noida/sector-18': noidaSector18,
   'noida/sector-50': noidaSector50,
+  'noida/sector-52': noidaSector52,
   'noida/sector-62': noidaSector62,
   'noida/sector-63': noidaSector63,
   'greater-noida/alpha': greaterNoidaAlpha,

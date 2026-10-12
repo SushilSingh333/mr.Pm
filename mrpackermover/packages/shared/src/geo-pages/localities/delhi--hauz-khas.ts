@@ -146,9 +146,9 @@ export const delhiHauzKhas: GeoPage = {
         'Some do, from A Block to Z Block. We give you the vehicle number and crew IDs they ask for.',
     },
     {
-      question: 'Which metro station is closest?',
+      question: 'How much do packers and movers charge in Hauz Khas?',
       answer:
-        'Hauz Khas station, an interchange of the Yellow and Magenta Lines near the Outer Ring Road.',
+        'It depends on your load, the stairs and how far the truck stands from your door. A carry down the village lane from Deer Park road is priced on the survey.',
     },
     {
       question: 'Do you shift homes near IIT Delhi or Green Park?',
@@ -156,7 +156,7 @@ export const delhiHauzKhas: GeoPage = {
         'Yes, as short local moves. If campus housing at IIT Delhi controls its gate, we share vehicle and crew details first.',
     },
     {
-      question: 'Are packers and movers in Hauz Khas able to move me to Saket or Malviya Nagar?',
+      question: 'Can you move me to Saket or Malviya Nagar?',
       answer:
         'Yes. [Saket](/packers-and-movers/delhi/saket) and [Malviya Nagar](/packers-and-movers/delhi/malviya-nagar) are short local jobs from the Enclave.',
     },

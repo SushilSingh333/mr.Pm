@@ -123,6 +123,7 @@ const extraJsonLd = isService
           intro={`${cs!.serviceName} in ${cityName} with one fixed, written quote and our own trained crews.`}
           image={heroImage}
           imageUrl={cs!.heroImage?.url}
+          imageAlt={cs!.heroImage?.alt ?? `A view of ${cityName}`}
           prefillCity={cityName}
           prefillService={cs!.serviceName}
           bands={cs!.rateBands ?? []}
@@ -166,12 +167,18 @@ const extraJsonLd = isService
           intro={plainText(page!.subhead)}
           image={heroImage}
           imageUrl={loc!.heroImage?.url}
+          imageAlt={loc!.heroImage?.alt ?? `A view of ${cityName}`}
           prefillCity={cityName}
           bands={loc!.rateBands ?? []}
         />
 
         <GPage>
-          <GeoPageBody page={page!} serviceLinks={serviceLinks} nearbyLinks={nearbyLinks} />
+          <GeoPageBody
+            page={page!}
+            place={loc!.localityName}
+            serviceLinks={serviceLinks}
+            nearbyLinks={nearbyLinks}
+          />
         </GPage>
       </>
     )

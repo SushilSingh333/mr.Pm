@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Jagriti Vihar (Meerut) locality page, round 3: rewritten from sourced local facts (UP Awas Vikas Parishad extension scheme, numbered sectors, LLRM Medical College on Garh Road, the 2020 vegetable market, Metro Line 2 plan). */
+/** Jagriti Vihar (Meerut) locality page, round 3: rewritten from sourced local facts (UP Awas Vikas Parishad extension scheme, numbered sectors, LLRM Medical College on Garh Road, Nauchandi Ground); round 4: dated news and metro FAQ removed. */
 export const meerutJagritiVihar: GeoPage = {
   name: 'Jagriti Vihar',
   title: 'Movers in Jagriti Vihar | One Written Price | MrMoverPacker',
@@ -30,7 +30,6 @@ export const meerutJagritiVihar: GeoPage = {
             'The medical college edge. LLRM Medical College sits on Garh Road at the north of the colony. Loading never blocks the LLRM hospital gates or its ambulance lanes.',
             'Garh Road traffic. Garh Road runs past the north of the colony and on to the Tejgarhi crossing. Loading happens inside the sector lane, not on Garh Road.',
             'Housing board land. The Jagriti Vihar Extension scheme belongs to UP Awas Vikas Parishad, on land acquired from farmers. Newer plots there may still have building work nearby.',
-            'Rain on open ground. In June 2020 the Times of India reported a vegetable market in Jagriti Vihar standing in knee-deep water after rain.',
           ],
         },
       ],
@@ -137,7 +136,7 @@ export const meerutJagritiVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) shows how your sector and floor enter the written quote.',
+          body: 'The estimator above gives a quick figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -148,7 +147,7 @@ export const meerutJagritiVihar: GeoPage = {
           kind: 'list',
           items: [
             'Nauchandi Mela (March to April). The fair at Nauchandi Ground on Garh Road runs about a month after Holi. Evening routes out of Jagriti Vihar skip the Nauchandi stretch.',
-            'Monsoon (July to September). The temporary Sabzi Mandi ground here flooded after rain in June 2020. We look at your sector lane the day before and wrap goods against the wet.',
+            'Monsoon (July to September). Open ground in the colony can stand in water after heavy rain. We look at your sector lane the day before and wrap goods against the wet.',
             'Wedding season (November to February). Western UP runs short of trucks then, so a Jagriti Vihar date is best fixed two to three weeks early.',
             'Winter fog (December to January). Runs to Delhi on the Delhi-Meerut Expressway leave once the haze clears.',
           ],
@@ -168,19 +167,19 @@ export const meerutJagritiVihar: GeoPage = {
         'Usually, through your sector lane off Garh Road. If it must stop more than 50 metres away, the carry is priced before you book.',
     },
     {
-      question: 'Do you move staff of LLRM Medical College?',
+      question: 'Can you load on the LLRM Medical College side?',
       answer:
         'Yes, packers and movers in Jagriti Vihar keep the truck off the LLRM approach at busy hours.',
     },
     {
       question: 'Can you move me to Shastri Nagar or along Garh Road?',
       answer:
-        'Yes, both are next door; see our [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) and [Garh Road](/packers-and-movers/meerut/garh-road) pages.',
+        'Yes. [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) and [Garh Road](/packers-and-movers/meerut/garh-road) are next door, so either is a short local move.',
     },
     {
-      question: 'Will a metro line reach Jagriti Vihar?',
+      question: 'Which hours suit loading in Jagriti Vihar?',
       answer:
-        'A second Meerut Metro line, from Shradhapuri Phase II to Jagriti Vihar, has been proposed. Until it is built, trucks use Garh Road.',
+        'Evening loads by 8 PM suit most sector lanes. In Nauchandi Mela weeks, the route out skips the Nauchandi stretch of Garh Road.',
     },
     {
       question: 'What if something breaks on the way?',

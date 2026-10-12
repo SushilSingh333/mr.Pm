@@ -1,9 +1,9 @@
 import type { GeoPage } from '../types.js';
 
 /**
- * Gurgaon city page, from the owner's brief "Gurgaon City Page: FINAL" (9 October 2026),
- * round 3: expanded with sourced local facts (Yellow Line and Rapid Metro stations, NH-48,
- * Dwarka Expressway, Sohna Elevated Corridor, July 2026 waterlogging, Sheetla Mata Mela).
+ * Gurgaon city page, from the owner's brief "Gurgaon City Page: FINAL",
+ * round 4: evergreen (no dated news); sourced local facts (Yellow Line and Rapid Metro
+ * stations, NH-48, Dwarka Expressway, Sohna Elevated Corridor, monsoon waterlogging, Sheetla Mata Mela).
  */
 export const gurgaon: GeoPage = {
   title: 'Movers in Gurgaon (Gurugram) | Fixed Price | MrMoverPacker',
@@ -32,7 +32,7 @@ export const gurgaon: GeoPage = {
             'Service lift slots. Towers along Golf Course Road and its Extension usually allow moves only in booked, padded service lift slots. Miss one and the next may be days away.',
             'Move-in charges and deposits. From DLF Phase 5 condos to New Gurgaon towers, many societies and their maintenance agencies charge a move-in fee or a refundable damage deposit. Lobby and lift protection is how you get that deposit back.',
             'Fixed loading hours. Weekday daytime is common; some towers do not allow moves on Sundays or after dark. That window decides when the truck joins NH-48 or the Sohna Elevated Corridor.',
-            'Expressway towers. New Gurgaon societies sit off the Dwarka Expressway, whose 19 km Haryana section opened in March 2024 and ends at Kherki Daula. Some approach roads there are still being built.',
+            'Expressway towers. New Gurgaon societies sit off the Dwarka Expressway, whose Haryana section meets NH-48 at Kherki Daula. Some approach roads there are still being built.',
             'Old Gurgaon is different again. In the older sectors around Sadar Bazaar and the Sheetla Mata Mandir, builder floors, small lifts and narrow lanes mean stair carries and a truck parked at the main road.',
           ],
         },
@@ -140,7 +140,7 @@ export const gurgaon: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a figure in seconds.\n\nNothing outside the written quote is charged, from Sector 4 to Sector 113. See [how pricing works](/pricing).',
+          body: 'The estimator above gives a figure in seconds.\n\n[How pricing works](/pricing) explains each line of the written quote, and nothing outside it is charged.',
         },
       ],
     },
@@ -155,10 +155,10 @@ export const gurgaon: GeoPage = {
           kind: 'list',
           items: [
             'Overnight local moves. We load by 8 PM, take NH-48 or the Sohna Elevated Corridor when they are clear, and unload when your tower opens. If a tower bars evening loading, we plan a day move.',
-            'Spring (March to April). The Chaitra Mela at Sheetla Mata Mandir brings crowds. During the mela, heavy vehicles have been barred on Sheetla Mata Road from Sector 5 chowk to CRPF camp chowk.',
+            'Spring (March to April). The Chaitra Mela at Sheetla Mata Mandir brings crowds. During the mela, heavy vehicles can be barred on Sheetla Mata Road from Sector 5 chowk to CRPF camp chowk, so we check dates.',
             'Summer (April to June). A closed truck on NH-48 gets very hot, so electronics, medicines and cosmetics travel apart.',
-            'Monsoon (July to September). On 8 July 2026, rain flooded Hero Honda Chowk and Golf Course Extension Road. Part of NH-48 caved in near Narsinghpur. We wrap for water and avoid spots such as Rajiv Chowk.',
-            'Winter fog (December to January). In January 2025, fog slowed NH-48 from Kherki Daula to Vatika Chowk and IFFCO Chowk to Sirhaul. Intercity delivery windows allow for it.',
+            'Monsoon (July to September). Golf Course Road and Sohna Road waterlog in heavy monsoon rain, and Hero Honda Chowk is a known flooding spot. We wrap for water and route around such points.',
+            'Winter fog (December to January). Winter fog slows early runs on NH-48 past Kherki Daula and IFFCO Chowk. Intercity delivery windows allow for it.',
             'Month-end and weekends. Popular towers on Golf Course Road and the Dwarka Expressway give these slots away first, so book early.',
           ],
         },
@@ -169,7 +169,7 @@ export const gurgaon: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: "Gurgaon is one of India's biggest corporate hubs, from Cyber City and Udyog Vihar to IMT Manesar. Employers pay for many moves here. Our itemised GST invoice matches the quote, as reimbursement desks ask.\n\nUdyog Vihar is an HSIIDC industrial estate near the Delhi border, so office moves there need vehicle passes and dock times. For office moves in Cyber City, Udyog Vihar or Golf Course Road, see [office shifting in Gurgaon](/packers-and-movers/gurgaon/office-shifting). A car or bike going to a posting in Pune can join the quote; see [all our services](/services).",
+          body: "Gurgaon is one of India's biggest corporate hubs, from Cyber City and Udyog Vihar to IMT Manesar. Employers pay for many moves here. Our itemised GST invoice matches the quote, as reimbursement desks ask.\n\nUdyog Vihar is an HSIIDC industrial estate near the Delhi border, so office moves there need vehicle passes and dock times. Our [office shifting in Gurgaon](/packers-and-movers/gurgaon/office-shifting) crews handle Cyber City, Udyog Vihar and Golf Course Road offices. A car or bike going to a posting in Pune can join the same quote, as can any of our [moving services](/services).",
         },
       ],
     },
@@ -179,12 +179,12 @@ export const gurgaon: GeoPage = {
     {
       question: 'How much do packers and movers charge in Gurgaon?',
       answer:
-        'It depends on home size, distance, lift access, tower rules and date, from Palam Vihar to Sector 113. The estimator gives a quick figure; the survey quote is final.',
+        'It depends on home size, distance, lift access, tower rules and date, so a Palam Vihar floor and a Sector 113 tower differ. The estimator gives a quick figure; the survey quote is final.',
     },
     {
       question: 'Do Gurgaon societies charge a move-in fee?',
       answer:
-        'Many do, from DLF Phase 5 condos to new Dwarka Expressway towers, as a fee or a refundable deposit. It goes to the society, not us.',
+        'Many do, in DLF Phase 5 condos and new Dwarka Expressway towers alike, as a fee or a refundable deposit. It goes to the society, not us.',
     },
     {
       question: 'Can I move on a weekend or Sunday?',
@@ -204,17 +204,17 @@ export const gurgaon: GeoPage = {
     {
       question: 'Is Gurugram the same as Gurgaon?',
       answer:
-        'Yes. The Union Government approved the new name Gurugram in September 2016, and packers and movers in Gurgaon serve the same city, from Sadar Bazaar to Sector 113.',
+        'Yes. Gurugram is the official name of the same city, from the old town around Sadar Bazaar to the new sectors.',
     },
     {
       question: 'Do you move offices in Cyber City or Udyog Vihar?',
       answer:
-        'Yes, including weekend and night office moves in Cyber City, Udyog Vihar and IMT Manesar. See [office shifting in Gurgaon](/packers-and-movers/gurgaon/office-shifting).',
+        'Yes, including weekend and night office moves in Cyber City, Udyog Vihar and IMT Manesar, by our [office shifting in Gurgaon](/packers-and-movers/gurgaon/office-shifting) crews.',
     },
     {
       question: 'Is my move insured?',
       answer:
-        'Basic liability cover comes with every move, from an Old Gurgaon builder floor to a Golf Course Road tower. Optional [transit insurance](/insurance) adds full cover on declared value, and [how claims work](/claims) sets out the steps.',
+        'Basic liability cover comes with every move, Old Gurgaon floors and Golf Course Road towers alike. Optional [transit insurance](/insurance) adds full cover on declared value, and [how claims work](/claims) sets out the steps.',
     },
   ],
   servicesHeading: 'Moving services in Gurgaon',

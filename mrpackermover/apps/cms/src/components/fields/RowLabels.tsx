@@ -21,3 +21,15 @@ export function FaqRowLabel(): React.JSX.Element {
   const q = data?.question?.trim();
   return <span>{q ? `${n} · ${clip(q)}` : `Question ${n}`}</span>;
 }
+
+/** Locations → "Customer reviews": the customer's name and stars, e.g. "02 · Priya S. · 5★". */
+export function ReviewRowLabel(): React.JSX.Element {
+  const { data, rowNumber } = useRowLabel<{ name?: string; rating?: string }>();
+  const n = String((rowNumber ?? 0) + 1).padStart(2, '0');
+  const name = data?.name?.trim();
+  return (
+    <span>
+      {name ? `${n} · ${clip(name, 40)}${data?.rating ? ` · ${data.rating}★` : ''}` : `Review ${n}`}
+    </span>
+  );
+}

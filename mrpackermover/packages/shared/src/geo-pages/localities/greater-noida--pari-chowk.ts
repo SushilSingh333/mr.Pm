@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Pari Chowk (Greater Noida) locality page, round 3: rewritten from sourced local facts (Yamuna Expressway start, Aqua Line station, India Expo Mart diversions, P-3 roundabout, Hawalia drain bridge). */
+/** Pari Chowk (Greater Noida) locality page, round 3: rewritten from sourced local facts (Yamuna Expressway start, Aqua Line station, India Expo Mart diversions, P-3 roundabout). */
 export const greaterNoidaPariChowk: GeoPage = {
   name: 'Pari Chowk',
   title: 'Movers in Pari Chowk | Fixed Written Quote | MrMoverPacker',
@@ -27,10 +27,10 @@ export const greaterNoidaPariChowk: GeoPage = {
           kind: 'list',
           items: [
             'Expressway start. Trucks bound for Jewar, Mathura or Agra join the Yamuna Expressway at the roundabout itself.',
-            'Metro station. Pari Chowk station opened on the Aqua Line in January 2019, between Knowledge Park II and Alpha 1. Its formal name is Jaypee Greens Pari Chowk.',
-            'Exhibition traffic. Shows at India Expo Centre and Mart in Knowledge Park II bring police diversions. One example was the UP International Trade Show in September 2025.',
+            'Metro station. Pari Chowk station sits on the Aqua Line, between Knowledge Park II and Alpha 1. Its formal name is Jaypee Greens Pari Chowk.',
+            'Exhibition traffic. Big shows at India Expo Centre and Mart in Knowledge Park II bring police diversions around the venue, so show dates are checked.',
             'Police detours. Police route traffic from P-3 via the IFS Villa roundabout when Pari Chowk is blocked.',
-            'A wider bridge. GNIDA approved a new bridge over the Hawalia drain near P-3 in September 2025. It should ease travel to Swarn Nagari and Knowledge Park.',
+            'Meeting point. The metro station and the Ansal Plaza market beside it help a crew find a pickup in Knowledge Park I.',
           ],
         },
       ],
@@ -133,7 +133,7 @@ export const greaterNoidaPariChowk: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a first figure from Pari Chowk, use the estimator above; [how pricing works](/pricing) explains every line.',
+          body: 'For a first figure, use the estimator above; [how pricing works](/pricing) explains every line of the written quote.',
         },
       ],
     },
@@ -145,7 +145,7 @@ export const greaterNoidaPariChowk: GeoPage = {
           items: [
             'Winter (December to February). Lower speed limits apply on the Yamuna Expressway from 15 December to 15 February because of fog.',
             'Semester ends (June to July, and December). Knowledge Park hostel rooms empty out together, so book a slot early.',
-            'Show weeks (all year). IHE, BIOFACH India and Fan Expo ran at India Expo Mart from 5 to 8 August 2026. Police set diversions near the Expo Mart roundabout.',
+            'Show weeks (all year). A large India Expo Mart show means diversions near the Expo Mart roundabout, so your date avoids the busiest show days.',
             'Monsoon (July to September). Sofas and mattresses are wrapped before the carry from a Jaypee Greens or Omega II tower.',
           ],
         },
@@ -172,7 +172,7 @@ export const greaterNoidaPariChowk: GeoPage = {
     {
       question: 'Can you move me from Pari Chowk to a Yamuna Expressway sector?',
       answer:
-        'Yes. The expressway begins at the roundabout, so the run to the YEIDA sectors or Jewar is direct; see [Yamuna Expressway moves](/packers-and-movers/greater-noida/yamuna-expressway).',
+        'Yes. The expressway begins at the roundabout, so the run to the [Yamuna Expressway](/packers-and-movers/greater-noida/yamuna-expressway) sectors or Jewar is direct.',
     },
     {
       question: 'Can you move me overnight to Noida?',

@@ -1,0 +1,173 @@
+---
+import type { GeoReview } from '@mpm/shared';
+
+/**
+ * Customer reviews an editor added to the place in the CMS (Locations → Page content →
+ * Customer reviews), as a band on the page's centre line like the FAQs: the heading, then
+ * one card per review, two across on a laptop. Nothing renders without a review - the
+ * site shows real reviews or none.
+ *
+ * No Review / AggregateRating schema: Google does not show stars for reviews a business
+ * publishes about itself, and marking them up anyway reads as self-serving.
+ */
+interface Props {
+  heading: string;
+  reviews: GeoReview[];
+  tone?: 'white' | 'tint';
+}
+const { heading, reviews, tone = 'white' } = Astro.props;
+const SOURCE: Record<string, string> = {
+  Google: 'on Google',
+  Justdial: 'on Justdial',
+  Facebook: 'on Facebook',
+  Direct: 'sent to us',
+};
+---
+
+{
+  reviews.length > 0 && (
+    <section class:list={['gr', { 'gr--tint': tone === 'tint' }]} aria-labelledby="reviews">
+      <h2 class="gr-h2" id="reviews">
+        {heading}
+      </h2>
+      <ul class:list={['gr-list', { 'gr-list--one': reviews.length === 1 }]}>
+        {reviews.map((r) => (
+          <li class="gr-card">
+            {r.rating && (
+              <p class="gr-stars" aria-label={`${r.rating} out of 5 stars`}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    aria-hidden="true"
+                    class:list={{ 'gr-star--off': i > r.rating! }}
+                  >
+                    <path
+                      fill="currentColor"
+                      d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                    />
+                  </svg>
+                ))}
+              </p>
+            )}
+            <blockquote class="gr-text">{r.text}</blockquote>
+            <p class="gr-who">
+              <span class="gr-name">{r.name}</span>
+              {r.move && <span class="gr-move">{r.move}</span>}
+            </p>
+            {(r.date || r.source) && (
+              <p class="gr-meta">
+                {[r.date, r.source ? (SOURCE[r.source] ?? r.source) : undefined]
+                  .filter(Boolean)
+                  .join(', ')}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .gr {
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
+  }
+  .gr--tint {
+    background: var(--g-surface-2);
+  }
+  .gr-h2 {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: clamp(1.625rem, 3vw, 2.375rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gr-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin: 2rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gr-list--one {
+    grid-template-columns: minmax(0, 40rem);
+    justify-content: center;
+  }
+  .gr-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.35rem 1.5rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.25rem;
+    background: #fff;
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gr-card:hover {
+    border-color: var(--color-brand-100);
+    box-shadow:
+      0 2px 4px rgb(60 64 67 / 0.06),
+      0 8px 20px rgb(60 64 67 / 0.08);
+    transform: translateY(-2px);
+  }
+  .gr-stars {
+    display: flex;
+    gap: 0.1rem;
+    margin: 0;
+    color: #f9ab00;
+  }
+  .gr-star--off {
+    color: var(--g-outline);
+  }
+  .gr-text {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--g-ink);
+  }
+  .gr-who {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.6rem;
+    margin: auto 0 0;
+  }
+  .gr-name {
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .gr-move {
+    font-size: 0.875rem;
+    color: var(--g-ink-2);
+  }
+  .gr-meta {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--g-ink-2);
+  }
+  @media (max-width: 900px) {
+    .gr-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gr-card {
+      transition: none;
+    }
+    .gr-card:hover {
+      transform: none;
+    }
+  }
+</style>

@@ -28,9 +28,9 @@ export const delhiPatparganj: GeoPage = {
           items: [
             'Society flats. Homes in IP Extension are mostly cooperative group housing society flats in multi-storey blocks.',
             'Industrial Area. The Patparganj Industrial Area is known for manufacturing, so business moves mean machines, stock and files.',
-            'Flyover traffic. A six-lane flyover opened in 2010 near the Industrial Area, between Anand Vihar and the Ghazipur crossing.',
+            'Flyover traffic. A six-lane flyover runs near the Industrial Area, between Anand Vihar and the Ghazipur crossing.',
             'Pink Line. IP Extension and Mandawali-West Vinod Nagar stations on the Pink Line serve the area.',
-            'Hospital zone. Max Hospital Patparganj, opened in 2005, was the first multi-specialty tertiary centre in East Delhi.',
+            'Max Hospital. Max Hospital Patparganj is a handy landmark for guiding the truck to your block.',
           ],
         },
       ],
@@ -168,9 +168,9 @@ export const delhiPatparganj: GeoPage = {
         'Yes. Industrial Area moves often run on a Saturday evening or Sunday, so work restarts on Monday.',
     },
     {
-      question: 'Which metro stations are closest to Patparganj?',
+      question: 'Will the truck fit through my IP Extension society gate?',
       answer:
-        'IP Extension and Mandawali-West Vinod Nagar on the Pink Line. Anand Vihar is the next Pink Line stop east.',
+        'We check your society gate and the path to the lift on the video survey. If the truck must stand outside, any carry past 50 metres is priced up front.',
     },
     {
       question: 'Is a move to Mayur Vihar or Laxmi Nagar a local job?',
@@ -183,9 +183,9 @@ export const delhiPatparganj: GeoPage = {
         'Yes, door to door. A move to [Noida](/packers-and-movers/noida) or [Ghaziabad](/packers-and-movers/ghaziabad) crosses the Uttar Pradesh border, so the papers travel with the truck.',
     },
     {
-      question: 'I am moving closer to Max Hospital. Can you shift an elderly parent’s room first?',
+      question: 'Can my IP Extension flat move on a weekday evening?',
       answer:
-        'Yes. We can load that room first and set it up first at your new flat near Max Hospital Patparganj.',
+        'Yes, if your society allows it: we load by 8 PM and deliver next morning. If evening loading is not allowed, we plan a day move.',
     },
   ],
   servicesHeading: 'Moving services in Patparganj',

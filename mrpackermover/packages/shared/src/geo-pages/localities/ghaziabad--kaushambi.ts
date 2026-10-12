@@ -142,7 +142,7 @@ export const ghaziabadKaushambi: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a quick figure, and [how pricing works](/pricing) explains each line of a Kaushambi quote.',
+          body: 'The price check above gives a quick figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -169,9 +169,9 @@ export const ghaziabadKaushambi: GeoPage = {
         'Ghaziabad, in Uttar Pradesh. It touches the Delhi border at Anand Vihar, so a move into Delhi crosses the state line.',
     },
     {
-      question: 'Which metro station serves Kaushambi?',
+      question: 'Can I load in the evening at a Kaushambi society?',
       answer:
-        'Kaushambi station, on the Blue Line branch between Anand Vihar and Vaishali, opened in July 2011. We keep the truck away from its entry at commuter peaks.',
+        'It depends on the society. Girnar Apartments, Sumeru Apartments and their neighbours set their own move hours, and your coordinator confirms them before the date is fixed.',
     },
     {
       question: 'Can you move me overnight to Vaishali or Indirapuram?',
@@ -181,7 +181,7 @@ export const ghaziabadKaushambi: GeoPage = {
     {
       question: 'Can you move an office near EDM Mall?',
       answer:
-        'Yes. Desks, files and IT near EDM Mall or the metro station move after hours; see [office shifting](/services/office-shifting).',
+        'Yes. Desks, files and IT near EDM Mall or the metro station move after hours with our [office shifting](/services/office-shifting) crew.',
     },
     {
       question: 'Where does the truck stand near Yashoda hospital?',

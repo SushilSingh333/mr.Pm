@@ -30,7 +30,7 @@ export const delhiRohini: GeoPage = {
             'Bhagwan Mahavir Marg. The Red Line runs along this road, with Rohini station between Sectors 8 and 14.',
             'Unity One Mall. Dr Baba Saheb Ambedkar Hospital station faces this mall, between Sectors 6 and 10.',
             'Outer Ring Road. Rohini Sector 18, 19 station on the Yellow Line stands by this road, next to Paradise Apartments.',
-            'Rithala end. Rithala station in Sector 5 ends the Red Line, near Metro Walk and Adventure Island.',
+            'Rithala end. Rithala station in Sector 5 ends the Red Line and makes a clear landmark for fixing the truck spot.',
           ],
         },
       ],
@@ -59,7 +59,7 @@ export const delhiRohini: GeoPage = {
             [
               'Sector 5 and Rithala',
               'Flats near the Red Line terminus',
-              'Loading timed around visitors to Metro Walk and Adventure Island.',
+              'Truck spot fixed on an inner road near Rithala station.',
             ],
             [
               'Sectors 3, 16 and 25',
@@ -132,7 +132,7 @@ export const delhiRohini: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Try the estimator above for a first figure; [how pricing works](/pricing) shows how a DDA walk-up is priced.',
+          body: 'Try the estimator above for a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -168,9 +168,9 @@ export const delhiRohini: GeoPage = {
         'Yes. Moves to [Pitampura](/packers-and-movers/delhi/pitampura), Shalimar Bagh or Budh Vihar are short local jobs on one fixed price.',
     },
     {
-      question: 'Which metro stations help family members reach my new Rohini home?',
+      question: 'Can you clear a top-floor DDA flat in one day?',
       answer:
-        'The Red Line serves Rithala, Dr Baba Saheb Ambedkar Hospital and Rohini stations. The Yellow Line stops at Rohini Sector 18, 19.',
+        'Usually, yes. For a walk-up in Sectors 6 to 14, the survey counts the stairs and sets the crew size.',
     },
     {
       question: 'Do you move from Rohini to Gurgaon or Noida?',
@@ -180,7 +180,7 @@ export const delhiRohini: GeoPage = {
     {
       question: 'Do you move flats near Rithala station?',
       answer:
-        'Yes, including Sector 5 near the Red Line terminus. We time loading around visitors to Metro Walk and Adventure Island.',
+        'Yes, including Sector 5 near the Red Line terminus. The truck waits on an inner sector road, not the station approach.',
     },
   ],
   servicesHeading: 'Moving services in Rohini',

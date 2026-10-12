@@ -29,8 +29,8 @@ export const delhiKalkaji: GeoPage = {
             'Navratri crowds. During Navratri, the Outer Ring Road from Nehru Place to Modi Mill slows with crowds heading to Kalkaji Mandir.',
             'Metro interchange. Kalkaji Mandir station links the elevated Violet Line and the underground Magenta Line, joined by a footbridge.',
             'Nehru Place next door. The DDA built this commercial centre in the 1970s, and it is now an IT and electronics hub beside the Outer Ring Road.',
-            'Lotus Temple nearby. The Lotus Temple, open since 1987, stands in Bahapur near Kalkaji Mandir.',
-            'High-rise Kalkaji Extension. The DDA rehoused families from camps in Govindpuri and Kalkaji in 14-storey blocks here, opened in November 2022.',
+            'Twice a year. Kalkaji Mandir fills at Chaitra Navratri in spring and at Sharad Navratri in autumn. We check your date against both.',
+            'High-rise Kalkaji Extension. The DDA rehoused families from camps in Govindpuri and Kalkaji in 14-storey blocks here, so the lift decides the plan.',
           ],
         },
       ],
@@ -137,9 +137,9 @@ export const delhiKalkaji: GeoPage = {
         'Yes. We book the lift in your 14-storey block and plan a stair carry in case it is down.',
     },
     {
-      question: 'Which metro stations serve Kalkaji?',
+      question: 'How much do packers and movers charge in Kalkaji?',
       answer:
-        'Kalkaji Mandir links the Violet and Magenta Lines, and Govind Puri station is on the Violet Line. Nehru Place station is one stop away.',
+        'It depends on your load and floor. The lift in a Kalkaji Extension block and the truck spot near Kalkaji Mandir count too.',
     },
     {
       question: 'Can you move our office at Nehru Place over a weekend?',
@@ -147,7 +147,7 @@ export const delhiKalkaji: GeoPage = {
         'Yes. Nehru Place offices are planned around your working week, with lift and loading rules checked first.',
     },
     {
-      question: 'Are packers and movers in Kalkaji able to do a short move to Greater Kailash?',
+      question: 'Is a move to Greater Kailash a short local job?',
       answer:
         'Yes. [Greater Kailash](/packers-and-movers/delhi/greater-kailash) and [Lajpat Nagar](/packers-and-movers/delhi/lajpat-nagar) are short local jobs from Kalkaji.',
     },

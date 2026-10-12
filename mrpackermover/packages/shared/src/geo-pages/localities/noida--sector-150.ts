@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Sector 150 (Noida) locality page, round 3: rewritten from sourced local facts (Hindon and Yamuna confluence, Knowledge Park II and Chi V next door, ATS Kingston Heath and ATS Pious Orchards on Pushta Road, the planned FNG bridge, the Expressway corridor). */
+/** Sector 150 (Noida) locality page, round 3: rewritten from sourced local facts (Hindon and Yamuna confluence, Knowledge Park II and Chi V next door, ATS Kingston Heath and ATS Pious Orchards on Pushta Road, the Expressway corridor). Round 4: evergreen only. */
 export const noidaSector150: GeoPage = {
   name: 'Sector 150',
   title: 'Movers in Sector 150 | Fixed, Written Price | MrMoverPacker',
@@ -30,7 +30,6 @@ export const noidaSector150: GeoPage = {
             'Pushta Road. ATS Pious Orchards stands on Pushta Road, and we confirm where a truck may stop outside it.',
             'Greater Noida next door. Knowledge Park II, home to Galgotias College and GNIOT, lies along the eastern edge.',
             'Two authorities. Knowledge Park II and Chi V come under GNIDA, not the Noida authority.',
-            'A planned bridge. A Yamuna bridge is planned to link the FNG Expressway from Sector 150 to Faridabad.',
           ],
         },
       ],
@@ -140,7 +139,7 @@ export const noidaSector150: GeoPage = {
         },
         {
           kind: 'text',
-          body: '[How pricing works](/pricing) explains each line of a Sector 150 quote; the price check above gives a first figure.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -170,9 +169,9 @@ export const noidaSector150: GeoPage = {
   faqHeading: 'Packers and movers in Sector 150: questions',
   faqs: [
     {
-      question: 'Is there a metro station in Sector 150?',
+      question: 'Can you move me on a weekend?',
       answer:
-        'Not one named for it. Knowledge Park II station, in the Greater Noida sector next door, is on the Aqua Line.',
+        'Yes, if your ATS or other Sector 150 society allows weekend moves. Book the weekend lift slot with your tower office early.',
     },
     {
       question: 'Can you handle a flat on the 35th floor?',

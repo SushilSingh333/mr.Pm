@@ -132,7 +132,7 @@ export const meerutKankerKhera: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first Kanker Khera figure. Then [how pricing works](/pricing) shows how the Sardhana Road carry is counted.',
+          body: 'The estimator above gives a first Kanker Khera figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -166,7 +166,7 @@ export const meerutKankerKhera: GeoPage = {
     {
       question: 'Can you move me from Kanker Khera to Shastri Nagar?',
       answer:
-        'Yes. Packers and movers in Kanker Khera plan it as a short city move; see our [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) page.',
+        'Yes. Packers and movers in Kanker Khera plan a move to [Shastri Nagar](/packers-and-movers/meerut/shastri-nagar) as a short city run.',
     },
     {
       question: 'Will a lorry fit near Kaushik Inter College?',

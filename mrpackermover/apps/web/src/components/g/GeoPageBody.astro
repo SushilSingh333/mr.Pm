@@ -3,6 +3,7 @@ import type { GeoPage } from '@mpm/shared';
 import { SERVICE_PAGE_LABELS, plainText } from '@mpm/shared';
 import GBody from './GBody.astro';
 import GFaqBand from './GFaqBand.astro';
+import GReviewsBand from './GReviewsBand.astro';
 import GLinkBand from './GLinkBand.astro';
 import GCtaPanel from './GCtaPanel.astro';
 import { bandTones, tocOf, withIds } from '../../lib/page-sections.js';
@@ -32,16 +33,29 @@ interface Props {
   };
   /** Nearby cities, or a locality's sibling areas. */
   nearbyLinks: Link[];
+  /** The city or area's name, for the reviews heading. */
+  place?: string;
 }
-const { page, serviceLinks, areas, nearbyLinks } = Astro.props;
+const { page, serviceLinks, areas, nearbyLinks, place } = Astro.props;
+const reviews = page.reviews ?? [];
+const reviewsHeading =
+  page.reviewsHeading || (place ? `What customers in ${place} say` : 'What our customers say');
 
 const sections = withIds(page.sections);
 const toc = tocOf(sections);
 const faqs = page.faqs.map((f) => ({ question: f.question, html: paragraphsHtml(f.answer) }));
+/** "Delhi to Mumbai" opens the quote form with both cities filled in; other text stays a chip. */
+const routeChip = (route: string): string | { label: string; href: string } => {
+  const m = /^(.+?)\s+to\s+(.+)$/i.exec(route.trim());
+  if (!m) return route;
+  const q = new URLSearchParams({ from: m[1]!, to: m[2]! });
+  return { label: route, href: `/get-quote?${q.toString()}` };
+};
 // The bands after the sections carry on their white / tinted alternation.
 const tone = bandTones(sections.length);
 const showAreas = Boolean(areas && areas.links.length > 0);
 const tones = {
+  reviews: reviews.length > 0 ? tone() : 'white',
   faq: faqs.length > 0 ? tone() : 'white',
   services: serviceLinks.length > 0 ? tone() : 'white',
   areas: showAreas ? tone() : 'white',
@@ -90,6 +104,8 @@ const labels = {
 
 <GBody sections={sections} toc={toc} priceCta={priceCta} />
 
+<GReviewsBand heading={reviewsHeading} reviews={reviews} tone={tones.reviews} />
+
 <GFaqBand heading={page.faqHeading} faqs={faqs} tone={tones.faq} />
 
 <GLinkBand
@@ -119,7 +135,7 @@ const labels = {
   intro={page.nearbyIntro}
   links={nearbyLinks}
   notesLabel={nearbyLinks.length ? 'Popular routes' : undefined}
-  notes={page.routes}
+  notes={page.routes.map(routeChip)}
   tone={tones.nearby}
 />
 

@@ -21,12 +21,12 @@ export const ghaziabadMohanNagar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Mohan Nagar holds the Mohan Nagar Industrial Estate, set up in 1949, and is the base of Mohan Meakin, maker of Old Monk rum. It also names one of the five zones of Ghaziabad Nagar Nigam.',
+          body: 'Mohan Nagar holds the Mohan Nagar Industrial Estate, set up in 1949. Mohan Meakin, maker of Old Monk rum, is based here. It also names one of the five zones of Ghaziabad Nagar Nigam.',
         },
         {
           kind: 'list',
           items: [
-            'GT Road. The Red Line station, opened in March 2019, stands on GT Road between Shyam Park and Arthala. We time loading around its busy hours.',
+            'GT Road. The Red Line station stands on GT Road between Shyam Park and Arthala. We time loading around its busy hours.',
             'Roads that meet here. Wazirabad Road, Loni Road and the Ghaziabad Bypass run close by, and a flyover crosses the railway line.',
             'Industry next door. Sahibabad, Anand and Rajendra Nagar industrial areas hold units with racks, machines and stock.',
             'Hospital and college. Narinder Mohan Hospital and the Institute of Technology and Science sit near the station, so we keep clear of their gates.',
@@ -136,7 +136,7 @@ export const ghaziabadMohanNagar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a first figure; [how pricing works](/pricing) lists what a Mohan Nagar quote covers.',
+          body: 'The price check above gives a first figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -158,14 +158,14 @@ export const ghaziabadMohanNagar: GeoPage = {
   faqHeading: 'Packers and movers in Mohan Nagar: questions',
   faqs: [
     {
-      question: 'Which metro station is closest?',
+      question: 'Do societies like Parsvnath Paradise need a move pass?',
       answer:
-        'Mohan Nagar, on the Red Line, between Shyam Park and Arthala. It opened in March 2019 on GT Road.',
+        'Most ask for one. Your coordinator applies with the Parsvnath Paradise or Saviour Park office. Crew IDs and the truck number go ahead, and the lift slot is booked.',
     },
     {
       question: 'Can you move a factory unit in Sahibabad Industrial Area?',
       answer:
-        'Yes. Machines, racks and stock are listed on the survey and moved for one fixed price; see [office shifting](/services/office-shifting).',
+        'Yes. Machines, racks and stock are listed on the survey and moved for one fixed price by our [office shifting](/services/office-shifting) crew.',
     },
     {
       question: 'Where will the truck stand if I live on GT Road?',

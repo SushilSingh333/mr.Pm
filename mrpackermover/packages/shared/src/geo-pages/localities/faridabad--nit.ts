@@ -28,8 +28,8 @@ export const faridabadNit: GeoPage = {
           items: [
             'Old, close-built blocks. Like Old Faridabad, NIT 1 to NIT 5 have close-built houses and lanes too narrow for a truck.',
             'Named for Badshah Khan. BK Chowk and BK Hospital, the civil district hospital, are named after Khan Abdul Ghaffar Khan. He opened BK Hospital with Nehru in June 1951.',
-            "Choking points. The Tribune listed Neelam flyover, the Bata crossing and NIT areas among the city's main choking points in 2024.",
-            'Metro on Mathura Road. Bata Chowk station sits in Sector 12 on Mathura Road. It and Neelam Chowk Ajronda station opened on the Violet Line in 2015.',
+            "Choking points. Neelam flyover, the Bata crossing and the NIT roads are among the city's main choking points at rush hour.",
+            'Metro on Mathura Road. Bata Chowk station sits in Sector 12 on Mathura Road, with Neelam Chowk Ajronda next on the Violet Line. Both help fix the truck spot.',
           ],
         },
       ],
@@ -130,7 +130,7 @@ export const faridabadNit: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Each NIT quote line, from stairs to the Mathura Road run, is set out on [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -158,7 +158,7 @@ export const faridabadNit: GeoPage = {
     {
       question: 'Will the Neelam flyover or Bata crossing delay my move?',
       answer:
-        'They can at peak hours, as The Tribune named both among the main choking points in 2024. Packers and movers in NIT Faridabad load early or overnight to miss them.',
+        'They can at peak hours, as both are among the main choking points in the city. Packers and movers in NIT Faridabad load early or overnight to miss them.',
     },
     {
       question: 'Can I move my shop stock with my household goods?',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Shastri Nagar (Meerut) locality page, round 3: rewritten from sourced local facts (Awas Vikas Parishad Scheme No. 7, Sectors 1 to 13, Central Market in Sector 2, Gol Mandir, 2026 court-ordered demolitions). */
+/** Shastri Nagar (Meerut) locality page, round 3: rewritten from sourced local facts (Awas Vikas Parishad Scheme No. 7, Sectors 1 to 13, Central Market in Sector 2, Gol Mandir, E Block off Nai Sadak). */
 export const meerutShastriNagar: GeoPage = {
   name: 'Shastri Nagar',
   title: 'Movers in Shastri Nagar, Meerut | One Price | MrMoverPacker',
@@ -27,9 +27,9 @@ export const meerutShastriNagar: GeoPage = {
           kind: 'list',
           items: [
             'Thirteen sectors. Scheme No. 7 runs from Sector 1 to Sector 13, so we note your sector before fixing the truck spot.',
-            'Central Market. The market in Sector 2 has seen court-ordered sealing and demolition in 2026. We check the lanes around it the day before.',
+            'Central Market. Sector 2 holds the colony market, with shops in converted homes. A truck for a house nearby is placed clear of the shop fronts.',
             'Gol Mandir crossing. The Gol Mandir stands where Sector 3 meets Sector 4, and Gol Mandir Road runs past it.',
-            'Housing board checks. Awas Vikas Parishad teams ran a setback survey here in June 2026. We plan around any work on your lane.',
+            'Nai Sadak. E Block sits off Nai Sadak, and the truck stands on the block road rather than the main road.',
             "School runs. Vidya Mandir Inter College and Meerut Public Girls' School sit inside the colony, so we load outside school hours.",
           ],
         },
@@ -49,7 +49,7 @@ export const meerutShastriNagar: GeoPage = {
             [
               'Sector 2, around Central Market',
               'Houses and shops, some converted from homes',
-              'Lanes checked for demolition work first.',
+              'Truck placed clear of the shop fronts.',
             ],
             [
               'Sectors 3 and 4, by the Gol Mandir',
@@ -151,9 +151,9 @@ export const meerutShastriNagar: GeoPage = {
   faqHeading: 'Shastri Nagar moves: questions',
   faqs: [
     {
-      question: 'Will the Central Market demolitions affect my move?',
+      question: 'Where does the truck park near Central Market?',
       answer:
-        'They can block a lane for a day. We check the lanes around Sector 2 the day before and fix the truck spot around any work.',
+        'On the nearest Sector 2 road, clear of the shop fronts. A Central Market house is charged long carry only if that spot is over 50 metres away.',
     },
     {
       question: 'Do you move houses in every sector of Shastri Nagar?',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Siddharth Vihar (Ghaziabad) locality page, round 3: rewritten from sourced local facts (NH 24 corridor, Prateek Grand City with Grand Paeonia and Grand Carnesia, Grand Begonia launched January 2025, 75-metre and 50-metre roads to NH 58). */
+/** Siddharth Vihar (Ghaziabad) locality page, round 3: rewritten from sourced local facts (NH 24 corridor, Prateek Grand City with Grand Paeonia and Grand Carnesia, Grand Begonia, 75-metre and 50-metre roads to NH 58). */
 export const ghaziabadSiddharthVihar: GeoPage = {
   name: 'Siddharth Vihar',
   title: 'Movers in Siddharth Vihar | Fixed Price | MrMoverPacker',
@@ -26,11 +26,11 @@ export const ghaziabadSiddharthVihar: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Township towers. Prateek Grand City, launched in 2014, holds Grand Paeonia and Grand Carnesia, with shops and banks inside the township.',
-            'New launches. Prateek Grand Begonia opened for booking in January 2025 with 2, 3 and 4 BHK flats.',
-            'Wide link roads. The 75-metre and 50-metre roads here connect NH 24 with NH 58, so a truck reaches either highway.',
+            'Township towers. Prateek Grand City holds Grand Paeonia and Grand Carnesia, with shops and banks inside the township.',
+            'Newer towers. Prateek Grand Begonia has 2, 3 and 4 BHK flats. Possession papers and lift status are checked before a date is fixed.',
+            'Wide link roads. The 75-metre and 50-metre roads here connect NH 24 with NH 58. A truck reaches either highway quickly.',
             'Expressway next door. NH 24 carries the Delhi-Meerut Expressway between UP Gate and Dasna, which helps runs to Delhi or Meerut.',
-            'Hafeez Contractor design. Prateek Grand City was planned with high-speed lifts and covered parking, so the lift slot is the key booking.',
+            'Lifts and covered parking. Prateek Grand City was planned with high-speed lifts and covered parking, so the lift slot is the key booking.',
           ],
         },
       ],
@@ -128,7 +128,7 @@ export const ghaziabadSiddharthVihar: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The price check above gives a first figure for a Prateek Grand City flat, and [how pricing works](/pricing) explains every line.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -162,7 +162,7 @@ export const ghaziabadSiddharthVihar: GeoPage = {
     {
       question: 'Which road do you take to Delhi from Siddharth Vihar?',
       answer:
-        'NH 24 to UP Gate, timed outside the peak hours. Tolls for our truck are already in the quote.',
+        'Usually NH 24 to UP Gate, or the Delhi-Meerut Expressway beside it. The truck leaves outside the morning and evening peaks.',
     },
     {
       question: 'Can you move me to Vijay Nagar or Crossings Republik?',
@@ -177,7 +177,7 @@ export const ghaziabadSiddharthVihar: GeoPage = {
     {
       question: 'Can you set up beds in my new Grand Begonia flat?',
       answer:
-        'Yes. The crew refits what it took apart; see [packing and unpacking](/services/packing-unpacking) for full unpacking in your Grand Begonia rooms.',
+        'Yes. The crew refits what it took apart, and [packing and unpacking](/services/packing-unpacking) can cover full unpacking in your Grand Begonia rooms.',
     },
   ],
   servicesHeading: 'Moving services in Siddharth Vihar',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Partapur (Meerut) locality page, round 3: rewritten from sourced local facts (Delhi-Meerut Expressway end, Meerut South and Partapur stations, Sector 2 industrial area, UPSIDC estate, airport, MDA township). */
+/** Partapur (Meerut) locality page, round 3: rewritten from sourced local facts (Delhi-Meerut Expressway end, Meerut South and Partapur stations, Sector 2 industrial area, UPSIDC estate, airport). */
 export const meerutPartapur: GeoPage = {
   name: 'Partapur',
   title: 'Packers and Movers in Partapur | Fixed Price | MrMoverPacker',
@@ -21,16 +21,15 @@ export const meerutPartapur: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Partapur is the southern gateway to Meerut. Namo Bharat trains have stopped at Meerut South here since August 2024, and the Meerut Metro followed in February 2026.',
+          body: 'Partapur is the southern gateway to Meerut. Meerut South station here serves both Namo Bharat trains and the Meerut Metro.',
         },
         {
           kind: 'list',
           items: [
-            'Expressway end. The Delhi-Meerut Expressway ends at Partapur, on the Meerut Bypass. Its six-lane Dasna to Meerut section opened on 1 April 2021.',
+            'Expressway end. The Delhi-Meerut Expressway ends at Partapur, on the Meerut Bypass, so trucks to Delhi start their run here.',
             'Industrial estate. UPSIDC runs an industrial estate at Partapur, and Partapur metro station stands beside the Sector 2 industrial area.',
             'Old Delhi road. Partapur and Rithani metro stations sit on the old Delhi road, which runs from here into the historic centre of Meerut.',
             'Rail and air. Partapur railway station is on the Delhi-Meerut-Saharanpur line, and Dr. Bhim Rao Ambedkar Airport lies at Partapur too.',
-            'New township. In September 2023 the state approved a 750-acre Meerut Development Authority township at Partapur, planned around the rapid rail.',
           ],
         },
       ],
@@ -162,7 +161,7 @@ export const meerutPartapur: GeoPage = {
     {
       question: 'Can you shift a factory in the Partapur industrial area?',
       answer:
-        'Yes. Machines, racks and stock in Sector 2 or the UPSIDC estate are listed on the survey and moved on one fixed price; see [office shifting](/services/office-shifting).',
+        'Yes. Machines, racks and stock in Sector 2 or the UPSIDC estate are listed on the survey and moved on one fixed price under [office shifting](/services/office-shifting).',
     },
     {
       question: 'Can you move me from Partapur to Modipuram?',
@@ -170,9 +169,9 @@ export const meerutPartapur: GeoPage = {
         'Yes. The truck takes the Meerut Bypass north to [Modipuram](/packers-and-movers/meerut/modipuram) and unloads the same day.',
     },
     {
-      question: 'Do you work near Meerut South station?',
+      question: 'Can you load a Sector 2 unit outside shift hours?',
       answer:
-        'Yes. Homes and shops around the Namo Bharat and metro interchange on NH 34 are part of our Partapur area.',
+        'Yes. You fix the slot with the unit owner, and we plan the crew and truck around it.',
     },
     {
       question: 'Can you move me from Partapur to Ghaziabad or Noida?',

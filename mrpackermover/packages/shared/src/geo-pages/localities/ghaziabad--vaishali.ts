@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Vaishali (Ghaziabad) locality page, round 3: rewritten from sourced local facts (Blue Line terminus in Sector 4, Max Hospital in Sector 1, Mahagun Metro Mall in Sector 3, 2021 waterlogging in Sectors 1 to 4). */
+/** Vaishali (Ghaziabad) locality page, round 3: rewritten from sourced local facts (Blue Line terminus in Sector 4, Max Hospital in Sector 1, Mahagun Metro Mall in Sector 3, monsoon waterlogging in Sectors 1 to 4). */
 export const ghaziabadVaishali: GeoPage = {
   name: 'Vaishali',
   title: 'Packers and Movers in Vaishali | Fixed Price | MrMoverPacker',
@@ -29,7 +29,7 @@ export const ghaziabadVaishali: GeoPage = {
             'Metro terminus. Vaishali station on Madan Mohan Malviya Marg in Sector 4 is the last stop of the Blue Line branch.',
             'Hospital approach. Max Super Speciality Hospital sits at W-3 in Sector 1, near the Radisson Blu hotel. Ambulances need that road, so we never park on it.',
             'Mall roads. Mahagun Metro Mall in Sector 3 brings shoppers and parked cars to its roads.',
-            'Rain in Sectors 1 to 4. Hindustan Times reported waterlogging in Sectors 1, 2, 3 and 4 after heavy rain in September 2021.',
+            'Rain in Sectors 1 to 4. Sectors 1, 2, 3 and 4 are known to waterlog after heavy monsoon rain, so the truck spot is checked that morning.',
             'Shared station. Vaishali station also serves Vasundhara, Indirapuram, Maharajpur and Khora, so moves between them are short.',
           ],
         },
@@ -130,7 +130,7 @@ export const ghaziabadVaishali: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a Sector 4 flat or a Sector 1 house, the price check above gives a first figure, and [how pricing works](/pricing) explains each line of it.',
+          body: 'The price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },

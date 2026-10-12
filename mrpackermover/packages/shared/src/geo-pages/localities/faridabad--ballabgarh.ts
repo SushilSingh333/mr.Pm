@@ -26,10 +26,10 @@ export const faridabadBallabgarh: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Mathura Road. The national highway runs through Ballabgarh, so most trucks join it to head north to Delhi.',
-            'End of the Violet Line. Raja Nahar Singh station, once called Ballabgarh metro station, is the last stop of the Violet Line. It opened in November 2018, with Sant Surdas (Sihi) in Sector 6.',
-            'Railway overbridge. The two-lane overbridge to the Sohna highway is slow at peak hours, The Tribune reported in 2022.',
-            'Sohna highway. The Ballabgarh to Sohna highway opened in 2012 and is the second-busiest road in the district after Mathura Road.',
+            'Mathura Road. Mathura Road runs through Ballabgarh, so most trucks join it to head north to Delhi.',
+            'End of the Violet Line. Raja Nahar Singh station, once called Ballabgarh metro station, is the last stop of the Violet Line. Sant Surdas (Sihi) station, one stop north, serves Sector 6.',
+            'Railway overbridge. The two-lane overbridge to the Sohna highway is slow at peak hours.',
+            'Sohna highway. The Ballabgarh to Sohna highway is the second-busiest road in the district after Mathura Road.',
             'Old town. Balramgarh Fort, Nahar Singh Mahal and Rani ki Chhatri mark the historic core.',
           ],
         },
@@ -132,7 +132,7 @@ export const faridabadBallabgarh: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'The Mathura Road run and every other line are explained on [how pricing works](/pricing).',
+          body: '[How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -143,7 +143,7 @@ export const faridabadBallabgarh: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Old-town stair carries near Nahar Singh Mahal start early, before the midday heat.',
-            'Monsoon (July to September). Faridabad traffic police list the Ballabgarh bus stand among their monsoon dark spots. The Tribune reported in 2020 that the Sohna highway turns to slush after heavy rain.',
+            'Monsoon (July to September). Faridabad traffic police list the Ballabgarh bus stand among their monsoon dark spots. The Sohna highway can turn to slush after heavy rain.',
             'Winter (December to February). Overnight moves load by 8 PM and run up Mathura Road to the Badarpur border after the evening rush.',
           ],
         },
@@ -154,7 +154,7 @@ export const faridabadBallabgarh: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Delhi lies straight up Mathura Road, past [Old Faridabad](/packers-and-movers/faridabad/old-faridabad) to the Badarpur border.\n\nFor [Greater Faridabad](/packers-and-movers/faridabad/greater-faridabad), trucks use the Agra canal road. A plan to widen it to four lanes names Ballabgarh among the places it serves.',
+          body: 'Delhi lies straight up Mathura Road, past [Old Faridabad](/packers-and-movers/faridabad/old-faridabad) to the Badarpur border.\n\nFor [Greater Faridabad](/packers-and-movers/faridabad/greater-faridabad), trucks use the Agra canal road.',
         },
       ],
     },

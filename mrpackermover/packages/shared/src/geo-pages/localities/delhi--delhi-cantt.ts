@@ -21,7 +21,7 @@ export const delhiDelhiCantt: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'The Cantonment Board was set up in 1914 and runs the area under the Cantonments Act, 2006. It is one of three local bodies in Delhi, beside the MCD and the NDMC.',
+          body: 'The Cantonment Board was set up in 1914 and runs the area under the Cantonments Act. It is one of three local bodies in Delhi, beside the MCD and the NDMC.',
         },
         {
           kind: 'list',
@@ -167,14 +167,14 @@ export const delhiDelhiCantt: GeoPage = {
         'Yes. Shankar Vihar lies inside a military zone, so entry is arranged before we fix the date.',
     },
     {
-      question: 'Which metro stations serve Delhi Cantt?',
+      question: 'How much do packers and movers charge in Delhi Cantt?',
       answer:
-        'Delhi Cantt and Sadar Bazaar Cantt on the Pink Line, Shankar Vihar on the Magenta Line and Dhaula Kuan on the Airport Express Line.',
+        'It depends on your load, the floor, the truck spot and any wait at a Shankar Vihar gate. All of it is set on the video survey and written into one price.',
     },
     {
-      question: 'Are packers and movers in Delhi Cantt able to move a posting to another state?',
+      question: 'Can you move my posting to another state?',
       answer:
-        'Yes, door to door from any Cantonment block. See [home shifting](/services/home-shifting) for what a long move includes.',
+        'Yes, door to door from any Cantonment block. [Home shifting](/services/home-shifting) sets out what a long move includes.',
     },
     {
       question: 'Is a move to Janakpuri or Dwarka a local job?',

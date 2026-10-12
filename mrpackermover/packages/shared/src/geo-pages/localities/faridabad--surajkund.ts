@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Surajkund (Faridabad) locality page, round 3: rewritten from sourced local facts (the 10th-century reservoir, the Crafts Mela of 1 to 15 February, the Tughlaqabad and Faridabad approach roads, Lakkarpur and Anangpur). */
+/** Surajkund (Faridabad) locality page, round 3: rewritten from sourced local facts (the 10th-century reservoir, the Crafts Mela each February, the Tughlaqabad and Faridabad approach roads, Lakkarpur and Anangpur). */
 export const faridabadSurajkund: GeoPage = {
   name: 'Surajkund',
   title: 'Movers in Surajkund | Fixed Written Quote | MrMoverPacker',
@@ -27,10 +27,9 @@ export const faridabadSurajkund: GeoPage = {
           kind: 'list',
           items: [
             'Two approach roads. The Tughlaqabad-Surajkund Road comes in from Delhi and the Surajkund-Faridabad Road from the city. We pick the one that suits your drop.',
-            'The February Mela. The Surajkund International Crafts Mela runs from 1 to 15 February each year. Its 2015 edition drew about 1.2 million visitors.',
+            'The February Mela. The Surajkund International Crafts Mela runs for about a fortnight each February. Its dates are checked before your move is fixed.',
             'Delhi close by. Tughlaqabad is about 3 km away, so a South Delhi move is a short run.',
             'Aravalli villages. Lakkarpur and Anangpur share the ridge, and Anangpur lies south of the Surajkund-Faridabad Road.',
-            'Ridge country. Surajkund sits on the Northern Aravalli leopard corridor, which links Sariska with Delhi.',
           ],
         },
       ],
@@ -40,7 +39,7 @@ export const faridabadSurajkund: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'It can, for homes near the Mela grounds. The fair drew 1.3 million visitors in 2020, so we plan around it.\n\nMoving in early February? We suggest a date before 1 February or after 15 February, or an evening load on the Tughlaqabad side.',
+          body: "It can, for homes near the Mela grounds. The fair has drawn more than a million visitors in a season, and its crowds fill the roads to the venue.\n\nMoving in February? We check that year's Mela dates first. Then we suggest a date either side, or an evening load on the Tughlaqabad side.",
         },
       ],
     },
@@ -99,13 +98,13 @@ export const faridabadSurajkund: GeoPage = {
               'Route',
               'Delhi runs take the Tughlaqabad-Surajkund Road; city runs take the Surajkund-Faridabad Road.',
             ],
-            ['Date', 'A move from 1 to 15 February is planned around Mela traffic.'],
+            ['Date', 'A move while the February Mela runs is planned around its traffic.'],
             ['Distance', 'A hop to Badkhal is shorter than a run to Greater Faridabad.'],
           ],
         },
         {
           kind: 'text',
-          body: 'The estimator above gives a first figure; read [how pricing works](/pricing) for the rest.',
+          body: 'The estimator above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -115,9 +114,9 @@ export const faridabadSurajkund: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Spring (February). The Crafts Mela runs from 1 to 15 February, so a quieter date either side is easier.',
-            'Summer (April to June). The Surajkund reservoir is dry before the monsoon and Faridabad heat reaches about 40°C, so loading starts early.',
-            'Monsoon (June to September). Rain refills the Surajkund reservoir, so goods are wrapped before the carry to the truck.',
+            'Spring (February). The Crafts Mela fills a fortnight of February, so a quieter date either side is easier.',
+            'Summer (April to June). Faridabad heat reaches about 40°C, so loading at ridge homes in Lakkarpur and Anangpur starts early.',
+            'Monsoon (June to September). Lanes in Anangpur and Lakkarpur are seen on video first, and goods are wrapped before the carry to the truck.',
             'Winter (December to January). With occasional fog in Faridabad winters, a Tughlaqabad run leaves after it lifts.',
           ],
         },
@@ -129,7 +128,7 @@ export const faridabadSurajkund: GeoPage = {
     {
       question: 'Should I avoid shifting during the Surajkund Mela?',
       answer:
-        'Not necessarily. From 1 to 15 February we plan an evening load for homes near the Mela grounds, or suggest a date just outside the fair.',
+        'Not necessarily. While the Mela runs, we plan an evening load for homes near its grounds, or suggest a date just outside the fair.',
     },
     {
       question: 'Which route do you take from Surajkund to Delhi?',

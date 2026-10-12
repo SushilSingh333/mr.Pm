@@ -81,6 +81,7 @@ const extraJsonLd = [
     intro={plainText(page.subhead)}
     image={heroImage}
     imageUrl={data.heroImage?.url}
+    imageAlt={data.heroImage?.alt ?? `A view of ${data.cityName}`}
     prefillCity={data.cityName}
     bands={data.rateBands}
   />
@@ -88,6 +89,7 @@ const extraJsonLd = [
   <GPage>
     <GeoPageBody
       page={page}
+      place={data.cityName}
       serviceLinks={serviceLinks}
       areas={{
         heading: `Which areas of ${data.cityName} do you cover?`,

@@ -33,6 +33,7 @@ export const LIVE_BEFORE_RELEASE: readonly string[] = [
   'gurgaon/sohna-road',
   'meerut/pallavpuram',
   'meerut/shastri-nagar',
+  'noida/sector-52',
   'noida/sector-62',
 ];
 

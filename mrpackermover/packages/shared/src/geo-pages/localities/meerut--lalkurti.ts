@@ -27,7 +27,7 @@ export const meerutLalkurti: GeoPage = {
           kind: 'list',
           items: [
             'Bazaar hours. Lal Kurti Bazar and nearby Sadar Bazar fill up once trading starts. We load before the shutters go up or after they come down.',
-            'Cantonment roads. The Cantonment Board maintains roads such as Abu Lane and Mall Road. On Abu Lane it moved electric poles to one side of the widened road.',
+            'Cantonment roads. The Cantonment Board maintains roads such as Abu Lane and Mall Road. The survey notes which of these roads the truck will use to reach your lane.',
             'Begum Bridge signals. The Board put traffic signals at Begum Bridge and at the Delhi Roorkee road crossing on Mall Road. Our route out of Lalkurti is timed around them.',
             'The Roorkee highway. The national highway between Delhi and Roorkee runs through the Cantonment. The Board notes heavy regional traffic on it, so trucks join it outside rush hours.',
             'Shop and home together. When a Lal Kurti shop moves with the house, its stock gets separate boxes and truck space.',
@@ -141,7 +141,7 @@ export const meerutLalkurti: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Try the estimator above for a first Lalkurti figure. Then [how pricing works](/pricing) shows how the Lal Kurti carry is counted.',
+          body: 'Try the estimator above for a first Lalkurti figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -167,9 +167,9 @@ export const meerutLalkurti: GeoPage = {
         'Yes, Lal Kurti Bazar is part of Meerut Cantonment, close to Sadar Bazar. Our [Meerut Cantt](/packers-and-movers/meerut/meerut-cantt) page covers the rest of the Cantonment.',
     },
     {
-      question: 'Why is it called Lal Kurti?',
+      question: 'What time do you load in Lal Kurti Bazar?',
       answer:
-        'The name means red shirt and comes from the red uniforms of the Presidency armies once based in Meerut Cantonment. Ambala, Kanpur and Delhi have Lalkurti areas for the same reason.',
+        'Before the shutters go up or after they come down. Lal Kurti and Sadar Bazar fill with shoppers once trading starts.',
     },
     {
       question: 'Can a truck reach my door in Lal Kurti Bazar?',

@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Mukherjee Nagar (Delhi) locality page, round 3: rewritten from sourced local facts (Batra Cinema and Batra Complex, GTB Nagar on the Yellow Line, DDA colonies such as Nehru Vihar, Signature View Apartments). */
+/** Mukherjee Nagar (Delhi) locality page, round 3: rewritten from sourced local facts (Batra Cinema and Batra Complex, GTB Nagar on the Yellow Line, DDA colonies such as Nehru Vihar and Gandhi Vihar). */
 export const delhiMukherjeeNagar: GeoPage = {
   name: 'Mukherjee Nagar',
   title: 'Movers in Mukherjee Nagar | Fixed Price | MrMoverPacker',
@@ -21,14 +21,14 @@ export const delhiMukherjeeNagar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Mukherjee Nagar in North West Delhi is known as the UPSC coaching hub, with coaching centres, libraries, bookshops and hostels. The DDA developed it after Partition, alongside Outram Lines, Indira Vihar, Gandhi Vihar and Nehru Vihar.',
+          body: 'Mukherjee Nagar in North West Delhi is the UPSC coaching hub. Its lanes hold coaching centres, libraries, bookshops and hostels. The DDA developed it after Partition, alongside Outram Lines, Indira Vihar, Gandhi Vihar and Nehru Vihar.',
         },
         {
           kind: 'list',
           items: [
             'Student rooms. Most loads around Batra Cinema are one room of books, a bed and a cooler from a PG or hostel.',
-            'Crowded coaching blocks. Batra Complex holds coaching floors full of students. Its Bhandari House made news after a fire in June 2023.',
-            'DDA family flats. The DDA declared its Signature View Apartments dangerous, and the High Court upheld their demolition.',
+            'Crowded coaching blocks. Batra Complex holds coaching floors full of students, so the truck parks clear of its lanes.',
+            'DDA colonies. Nehru Vihar, Gandhi Vihar and Indira Vihar are DDA colonies, so family floors move here too.',
             'Metro and bus. GTB Nagar on the Yellow Line is the nearest metro, and the Mukherjee Nagar Bus Stand serves the colony.',
           ],
         },
@@ -61,9 +61,9 @@ export const delhiMukherjeeNagar: GeoPage = {
               'Short hops towards the North Campus colleges.',
             ],
             [
-              'Signature View Apartments',
-              'DDA flats under a demolition order',
-              'Planned around your vacate date.',
+              'Near the Mukherjee Nagar Bus Stand',
+              'Rooms and family floors',
+              'Bus stand used as the landmark for the truck.',
             ],
           ],
         },
@@ -88,9 +88,9 @@ export const delhiMukherjeeNagar: GeoPage = {
               'Before the truck reaches Nehru Vihar or your lane.',
             ],
             [
-              'Flat handover papers for Signature View Apartments',
-              'You, with the DDA',
-              'Before the vacate date.',
+              'Landlord note for a Gandhi Vihar or Indira Vihar floor',
+              'You; we share the vehicle number and crew IDs',
+              'Before the date is fixed.',
             ],
           ],
         },
@@ -150,14 +150,14 @@ export const delhiMukherjeeNagar: GeoPage = {
         'Yes, from Batra Complex to Nehru Vihar and beyond. We see the room and stairs on video and price the books and bed in writing.',
     },
     {
-      question: 'We live in Signature View Apartments. Can you move us out?',
+      question: 'My PG room is on the top floor with no lift. Is that fine?',
       answer:
-        'Yes. The DDA has asked residents of these flats to vacate, and we plan your move around the date you are given.',
+        'Yes. The video survey counts the flights up to your room near Batra Cinema, and the quote includes that carry.',
     },
     {
-      question: 'Which metro is closest for visiting my new place?',
+      question: 'Where does the truck park for a room near Batra Complex?',
       answer:
-        'GTB Nagar on the Yellow Line is the nearest station. The Mukherjee Nagar Bus Stand also serves the colony.',
+        'Clear of the coaching crowd, on the nearest road it can stand on. Any carry past 50 metres is priced up front.',
     },
     {
       question: 'Can you send my books and scooter home to another state?',

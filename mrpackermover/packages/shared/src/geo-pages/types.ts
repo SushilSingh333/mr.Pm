@@ -45,6 +45,28 @@ export interface GeoPage {
   routes: string[];
   ctaHeading: string;
   ctaText: string;
+  /**
+   * Customer reviews an editor adds in the CMS (Locations → Page content → Customer
+   * reviews). The briefs carry none: the page shows a reviews section only once a real
+   * review is added.
+   */
+  reviewsHeading?: string;
+  reviews?: GeoReview[];
+}
+
+/** One customer review, as the customer agreed to have it shown. */
+export interface GeoReview {
+  /** As shown, e.g. "Priya S.". */
+  name: string;
+  text: string;
+  /** Their move, e.g. "2 BHK, Rohini to Dwarka". */
+  move?: string;
+  /** 1 to 5 stars. */
+  rating?: number;
+  /** When, e.g. "March 2026". */
+  date?: string;
+  /** Where it was first posted: Google, Justdial, Facebook… */
+  source?: string;
 }
 
 /** The parts an editor has filled in; blank keeps the built-in copy. */
@@ -62,5 +84,7 @@ export type GeoPageOverrides = Partial<
     | 'routes'
     | 'ctaHeading'
     | 'ctaText'
+    | 'reviewsHeading'
+    | 'reviews'
   >
 >;

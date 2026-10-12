@@ -71,7 +71,7 @@ export const greaterNoidaBeta: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'In 2025 Beta 1 residents complained to GNIDA about sewer overflows in some blocks, so walk your lane the day before.',
+          body: 'Drains overflow in some Beta 1 blocks onto the GNIDA service road. Check yours the day before.',
         },
         {
           kind: 'table',
@@ -117,7 +117,7 @@ export const greaterNoidaBeta: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Use the price check above. Then see [how pricing works](/pricing).',
+          body: 'Use the price check above. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -153,9 +153,9 @@ export const greaterNoidaBeta: GeoPage = {
         'Yes. Packers and movers in Beta can load by 8 PM for [Greater Noida West](/packers-and-movers/greater-noida/greater-noida-west) and unload next morning.',
     },
     {
-      question: 'My lease deed may show a sector number, not Beta. Is that a problem?',
+      question: 'How much do packers and movers in Beta charge?',
       answer:
-        'No. GNIDA proposed numbered names for the Greek-letter sectors in 2022, with the old names kept in brackets on lease deeds. We use whichever name your papers carry.',
+        'It depends on your goods, the stairs in your Beta 1 or Beta 2 house and the distance. The price check above gives a first figure, and the survey fixes it.',
     },
     {
       question: 'My upper floor has no lift. Is that extra?',

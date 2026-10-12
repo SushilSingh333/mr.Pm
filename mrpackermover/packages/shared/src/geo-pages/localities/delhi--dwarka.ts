@@ -29,7 +29,7 @@ export const delhiDwarka: GeoPage = {
             'Society gates. A group housing society in Sector 6 or Sector 12 runs its own gate. Your coordinator checks its pass and lift rules with you.',
             'Blue Line spine. The Blue Line runs through the sectors, and Dwarka Sector 21 is its interchange with the Airport Express Line.',
             'Wide arterial roads. Najafgarh Road and Pankha Road link the sub-city to Janakpuri, Uttam Nagar and the Outer Ring Road.',
-            'Dwarka Expressway. The full road from Shiv Murti in Mahipalpur to Kherki Daula in Gurgaon opened in June 2025.',
+            'Dwarka Expressway. The road links Shiv Murti in Mahipalpur to Kherki Daula in Gurgaon, the quick way out for Gurgaon moves.',
             'Campus sectors. GGSIPU has its main campus in Sector 16-C, and NSUT is reached from Dwarka Mor station.',
           ],
         },
@@ -136,7 +136,7 @@ export const delhiDwarka: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Try the estimator above for a first figure, and see [how pricing works](/pricing) for the method.',
+          body: 'The estimator above gives a quick first figure. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -162,9 +162,9 @@ export const delhiDwarka: GeoPage = {
         'Most societies from Sector 1 to Sector 29 do. We give you the vehicle number and crew IDs for it.',
     },
     {
-      question: 'Which metro stations serve Dwarka?',
+      question: 'How much do packers and movers charge in Dwarka?',
       answer:
-        'The Blue Line runs through the sectors to Dwarka Mor. Dwarka Sector 21 also connects to the Airport Express Line.',
+        'It turns on your load, the tower floor, the service lift and how close the truck stands to your Sector 12 or Sector 22 gate. The survey sets one fixed, written price.',
     },
     {
       question: 'Can you move me from Dwarka to Gurgaon?',
@@ -177,7 +177,7 @@ export const delhiDwarka: GeoPage = {
         'Yes. Small loads from Sector 16-C or the Dwarka Mor side often fit a mini truck, priced on the survey.',
     },
     {
-      question: 'Are packers and movers in Dwarka able to do a short move to Janakpuri?',
+      question: 'Can you do a short move to Janakpuri?',
       answer:
         'Yes. [Janakpuri](/packers-and-movers/delhi/janakpuri) and [Uttam Nagar](/packers-and-movers/delhi/uttam-nagar) are short local jobs on one fixed price.',
     },

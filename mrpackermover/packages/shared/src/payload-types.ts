@@ -132,14 +132,22 @@ export interface Config {
   globals: {
     'org-profile': OrgProfile;
     'home-content': HomeContent;
+    'services-page': ServicesPage;
     'seo-defaults': SeoDefault;
     integrations: Integration;
+    'lead-routing': LeadRouting;
+    'sales-messages': SalesMessage;
+    'schedule-settings': ScheduleSetting;
   };
   globalsSelect: {
     'org-profile': OrgProfileSelect<false> | OrgProfileSelect<true>;
     'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
+    'services-page': ServicesPageSelect<false> | ServicesPageSelect<true>;
     'seo-defaults': SeoDefaultsSelect<false> | SeoDefaultsSelect<true>;
     integrations: IntegrationsSelect<false> | IntegrationsSelect<true>;
+    'lead-routing': LeadRoutingSelect<false> | LeadRoutingSelect<true>;
+    'sales-messages': SalesMessagesSelect<false> | SalesMessagesSelect<true>;
+    'schedule-settings': ScheduleSettingsSelect<false> | ScheduleSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -240,6 +248,145 @@ export interface Location {
     totalDocs?: number;
   };
   /**
+   * Everything on the city or locality page below the heading. Leave a field blank, or a list empty, to show the text from the page brief.
+   */
+  body?: {
+    subhead?: string | null;
+    trust?:
+      | {
+          item: string;
+          id?: string | null;
+        }[]
+      | null;
+    sections?:
+      | {
+          /**
+           * Blank for opening paragraphs with no heading.
+           */
+          heading?: string | null;
+          blocks?:
+            | (
+                | {
+                    /**
+                     * A blank line starts a new paragraph. [words](/path) makes a link.
+                     */
+                    body: string;
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcText';
+                  }
+                | {
+                    items: {
+                      /**
+                       * The bold start of the step, e.g. "Pickup".
+                       */
+                      title: string;
+                      /**
+                       * A blank line starts a new paragraph. [words](/path) makes a link.
+                       */
+                      body?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcSteps';
+                  }
+                | {
+                    items: {
+                      text: string;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcList';
+                  }
+                | {
+                    /**
+                     * Leave blank for a comparison table ("| | Train | Carrier |").
+                     */
+                    h1?: string | null;
+                    h2: string;
+                    /**
+                     * Blank for a two-column table.
+                     */
+                    h3?: string | null;
+                    /**
+                     * Blank for two or three columns.
+                     */
+                    h4?: string | null;
+                    rows: {
+                      c1: string;
+                      c2: string;
+                      c3?: string | null;
+                      c4?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcTable';
+                  }
+              )[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    faqHeading?: string | null;
+    faqs?:
+      | {
+          question: string;
+          /**
+           * A blank line starts a new paragraph. [words](/path) makes a link.
+           */
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Blank shows "What customers in <place> say".
+     */
+    reviewsHeading?: string | null;
+    /**
+     * Real reviews only, shown with the customer’s permission. The page shows a reviews section only when at least one review is here; with none, there is no section at all.
+     */
+    reviews?:
+      | {
+          /**
+           * As they agreed to be shown, e.g. "Priya S."
+           */
+          name: string;
+          /**
+           * e.g. "2 BHK, Rohini to Dwarka"
+           */
+          move?: string | null;
+          text: string;
+          rating?: ('5' | '4' | '3' | '2' | '1') | null;
+          /**
+           * e.g. "March 2026"
+           */
+          date?: string | null;
+          source?: ('Google' | 'Justdial' | 'Facebook' | 'Direct') | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The service links under it are built from the live pages.
+     */
+    servicesHeading?: string | null;
+    nearbyHeading?: string | null;
+    nearbyIntro?: string | null;
+    /**
+     * Shown as text, e.g. "Delhi to Bangalore", until each route has a page.
+     */
+    routes?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    ctaHeading?: string | null;
+    ctaText?: string | null;
+  };
+  /**
    * Overrides the title template for this city or locality. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
    */
   metaTitle?: string | null;
@@ -281,9 +428,6 @@ export interface Service {
    */
   isCorporate?: boolean | null;
   summary?: string | null;
-  /**
-   * The prose that runs on the national service page: how the job actually works, what decides the price, what to have ready. Written per service, not templated.
-   */
   editorialNote?: {
     root: {
       type: string;
@@ -313,6 +457,150 @@ export interface Service {
     | null;
   typicalDuration?: string | null;
   insuranceTerms?: string | null;
+  /**
+   * Leave any field blank to keep the current text (see the live page). The meta description is in the SEO section below.
+   */
+  card?: {
+    h1?: string | null;
+    lines?: string | null;
+    bestFor?: string | null;
+    homeLine?: string | null;
+    /**
+     * Name the service - never "Learn more" (search engines read this).
+     */
+    linkText?: string | null;
+  };
+  /**
+   * Everything on the service page below the heading. Leave a field blank, or a list empty, to show the text from the page brief.
+   */
+  body?: {
+    /**
+     * Shown in the strip at the top and under the heading. Wide (landscape) photos work best. Leave empty to keep the built-in photo for this service.
+     */
+    photo?: (number | null) | Media;
+    /**
+     * On a phone only the part before " · " shows.
+     */
+    chip?: string | null;
+    subhead?: string | null;
+    trust?:
+      | {
+          item: string;
+          id?: string | null;
+        }[]
+      | null;
+    cardTitle?: string | null;
+    quoteNote?: string | null;
+    sections?:
+      | {
+          /**
+           * Blank for the opening paragraphs straight under the hero.
+           */
+          heading?: string | null;
+          blocks?:
+            | (
+                | {
+                    /**
+                     * A blank line starts a new paragraph. [words](/path) makes a link.
+                     */
+                    body: string;
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcText';
+                  }
+                | {
+                    items: {
+                      /**
+                       * The bold start of the step, e.g. "Pickup".
+                       */
+                      title: string;
+                      /**
+                       * A blank line starts a new paragraph. [words](/path) makes a link.
+                       */
+                      body?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcSteps';
+                  }
+                | {
+                    items: {
+                      text: string;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcList';
+                  }
+                | {
+                    /**
+                     * Leave blank for a comparison table ("| | Train | Carrier |").
+                     */
+                    h1?: string | null;
+                    h2: string;
+                    /**
+                     * Blank for a two-column table.
+                     */
+                    h3?: string | null;
+                    /**
+                     * Blank for two or three columns.
+                     */
+                    h4?: string | null;
+                    rows: {
+                      c1: string;
+                      c2: string;
+                      c3?: string | null;
+                      c4?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcTable';
+                  }
+                | {
+                    note?: string | null;
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcScope';
+                  }
+              )[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    faqHeading?: string | null;
+    faqs?:
+      | {
+          question: string;
+          /**
+           * A blank line starts a new paragraph. [words](/path) makes a link.
+           */
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * {count} = the number of live cities.
+     */
+    citiesHeading?: string | null;
+    /**
+     * {count} = the number of live cities.
+     */
+    citiesIntro?: string | null;
+    ctaHeading?: string | null;
+    ctaText?: string | null;
+    ctaCheck?: string | null;
+    ctaCall?: string | null;
+    ctaWhatsapp?: string | null;
+    related?:
+      | {
+          label: string;
+          href: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   /**
    * Overrides the title template for this service page. Aim for 60 characters or fewer. Blank = use Settings → SEO defaults.
    */
@@ -836,7 +1124,7 @@ export interface User {
   id: number;
   name: string;
   /**
-   * Handler sees every lead and distributes them. Sales sees only their own.
+   * Handler sees every lead and distributes them. Sales sees only their own. Only an admin can change this; a handler always creates salespeople.
    */
   role: 'admin' | 'editor' | 'ops' | 'handler' | 'sales';
   /**
@@ -898,6 +1186,26 @@ export interface Lead {
   noteLog?:
     | {
         body: string;
+        /**
+         * Typed entries are written by the app.
+         */
+        kind?:
+          | (
+              | 'note'
+              | 'call-answered'
+              | 'call-no-answer'
+              | 'call-later'
+              | 'quote-sent'
+              | 'competitor'
+              | 'price'
+              | 'stage'
+              | 'handover'
+            )
+          | null;
+        /**
+         * The figure this entry is about, if any.
+         */
+        amount?: number | null;
         author?: (number | null) | User;
         authorName?: string | null;
         at?: string | null;
@@ -912,11 +1220,32 @@ export interface Lead {
    * How this lead came in.
    */
   source?: ('quote-form' | 'price-check' | 'facebook-ad' | 'webhook') | null;
-  status: 'new' | 'assigned' | 'reassigned' | 'contacted' | 'call-not-picked' | 'quoted' | 'won' | 'lost';
+  status:
+    | 'new'
+    | 'assigned'
+    | 'reassigned'
+    | 'contacted'
+    | 'call-not-picked'
+    | 'call-later'
+    | 'follow-up'
+    | 'quoted'
+    | 'scheduled'
+    | 'won'
+    | 'lost'
+    | 'invalid'
+    | 'duplicate';
   /**
    * Setting this moves the lead to Assigned, or Reassigned if it changes hands.
    */
   assignedTo?: (number | null) | User;
+  /**
+   * When this is due. A callback time, the day to chase a quote, or the day of the move. The lead stays quiet on the board until then. On a Won or Lost lead it is the day of the move, and puts it on the calendar.
+   */
+  dueAt?: string | null;
+  /**
+   * When the clock in the dashboard’s Waiting column started. Stamped automatically.
+   */
+  waitingSince?: string | null;
   /**
    * When this lead was handed to its current owner. Stamped automatically.
    */
@@ -949,8 +1278,8 @@ export interface Lead {
     | null;
   sourceIp?: string | null;
   sourcePage?: string | null;
-  updatedAt: string;
   createdAt: string;
+  updatedAt: string;
 }
 /**
  * Every contact-form submission lands here.
@@ -984,6 +1313,7 @@ export interface ContactMessage {
 export interface Proposal {
   id: number;
   status: 'draft' | 'sent' | 'accepted' | 'lost';
+  updatedAt: string;
   quoteNo?: string | null;
   /**
    * The lead this proposal is for (optional).
@@ -1069,7 +1399,6 @@ export interface Proposal {
     gst?: string | null;
     rep?: string | null;
   };
-  updatedAt: string;
   createdAt: string;
 }
 /**
@@ -1291,6 +1620,109 @@ export interface LocationsSelect<T extends boolean = true> {
   heroImage?: T;
   editorialNote?: T;
   sublocations?: T;
+  body?:
+    | T
+    | {
+        subhead?: T;
+        trust?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        sections?:
+          | T
+          | {
+              heading?: T;
+              blocks?:
+                | T
+                | {
+                    svcText?:
+                      | T
+                      | {
+                          body?: T;
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcSteps?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                title?: T;
+                                body?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcList?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                text?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcTable?:
+                      | T
+                      | {
+                          h1?: T;
+                          h2?: T;
+                          h3?: T;
+                          h4?: T;
+                          rows?:
+                            | T
+                            | {
+                                c1?: T;
+                                c2?: T;
+                                c3?: T;
+                                c4?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                  };
+              id?: T;
+            };
+        faqHeading?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        reviewsHeading?: T;
+        reviews?:
+          | T
+          | {
+              name?: T;
+              move?: T;
+              text?: T;
+              rating?: T;
+              date?: T;
+              source?: T;
+              id?: T;
+            };
+        servicesHeading?: T;
+        nearbyHeading?: T;
+        nearbyIntro?: T;
+        routes?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        ctaHeading?: T;
+        ctaText?: T;
+      };
   metaTitle?: T;
   metaDescription?: T;
   serviceSeo?:
@@ -1329,6 +1761,120 @@ export interface ServicesSelect<T extends boolean = true> {
       };
   typicalDuration?: T;
   insuranceTerms?: T;
+  card?:
+    | T
+    | {
+        h1?: T;
+        lines?: T;
+        bestFor?: T;
+        homeLine?: T;
+        linkText?: T;
+      };
+  body?:
+    | T
+    | {
+        photo?: T;
+        chip?: T;
+        subhead?: T;
+        trust?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        cardTitle?: T;
+        quoteNote?: T;
+        sections?:
+          | T
+          | {
+              heading?: T;
+              blocks?:
+                | T
+                | {
+                    svcText?:
+                      | T
+                      | {
+                          body?: T;
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcSteps?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                title?: T;
+                                body?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcList?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                text?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcTable?:
+                      | T
+                      | {
+                          h1?: T;
+                          h2?: T;
+                          h3?: T;
+                          h4?: T;
+                          rows?:
+                            | T
+                            | {
+                                c1?: T;
+                                c2?: T;
+                                c3?: T;
+                                c4?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcScope?:
+                      | T
+                      | {
+                          note?: T;
+                          id?: T;
+                          blockName?: T;
+                        };
+                  };
+              id?: T;
+            };
+        faqHeading?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        citiesHeading?: T;
+        citiesIntro?: T;
+        ctaHeading?: T;
+        ctaText?: T;
+        ctaCheck?: T;
+        ctaCall?: T;
+        ctaWhatsapp?: T;
+        related?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              id?: T;
+            };
+      };
   metaTitle?: T;
   metaDescription?: T;
   updatedAt?: T;
@@ -1592,6 +2138,8 @@ export interface LeadsSelect<T extends boolean = true> {
     | T
     | {
         body?: T;
+        kind?: T;
+        amount?: T;
         author?: T;
         authorName?: T;
         at?: T;
@@ -1601,6 +2149,8 @@ export interface LeadsSelect<T extends boolean = true> {
   source?: T;
   status?: T;
   assignedTo?: T;
+  dueAt?: T;
+  waitingSince?: T;
   assignedAt?: T;
   assignedBy?: T;
   assignedByName?: T;
@@ -1610,8 +2160,8 @@ export interface LeadsSelect<T extends boolean = true> {
   rawPayload?: T;
   sourceIp?: T;
   sourcePage?: T;
-  updatedAt?: T;
   createdAt?: T;
+  updatedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1636,6 +2186,7 @@ export interface ContactMessagesSelect<T extends boolean = true> {
  */
 export interface ProposalsSelect<T extends boolean = true> {
   status?: T;
+  updatedAt?: T;
   quoteNo?: T;
   lead?: T;
   createdBy?: T;
@@ -1712,7 +2263,6 @@ export interface ProposalsSelect<T extends boolean = true> {
         gst?: T;
         rep?: T;
       };
-  updatedAt?: T;
   createdAt?: T;
 }
 /**
@@ -1854,13 +2404,111 @@ export interface HomeContent {
    * The grey text under the title in Google. Aim for 140–160 characters. Blank = the built-in description.
    */
   metaDescription?: string | null;
-  taglineLine1?: string | null;
-  taglineLine2?: string | null;
-  heroSubtext?: string | null;
   /**
    * Background photo for the home page hero banner. Uploaded to Cloudinary and served through the hero transform. Leave empty to use the built-in /images/hero/home.jpg file.
    */
   heroImage?: (number | null) | Media;
+  /**
+   * The page from top to bottom. Leave blank to keep the text shown in grey. {count} = number of live cities.
+   */
+  page?: {
+    tagline?: string | null;
+    h1?: string | null;
+    subhead?: string | null;
+    /**
+     * Empty = the built-in 4: Fixed written quote · ID-verified crews · Claims data published · Pickup in {count} cities. Add items to replace the whole list.
+     */
+    trust?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    promisesHeading?: string | null;
+    /**
+     * Empty = the built-in 3: One price, in writing · Every item photographed · Our own verified crew. Add items to replace the whole list.
+     */
+    promises?:
+      | {
+          title: string;
+          text: string;
+          linkLabel?: string | null;
+          linkHref?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    stepsHeading?: string | null;
+    /**
+     * Empty = the built-in 4: Video survey · Fixed quote · Pack and load · Deliver and check. Add items to replace the whole list.
+     */
+    steps?:
+      | {
+          title: string;
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    compareHeading?: string | null;
+    /**
+     * Empty = the built-in 6: Price · Crew · Inventory · Damage · Invoice · Timing. Add items to replace the whole list.
+     */
+    compare?:
+      | {
+          label: string;
+          them: string;
+          us: string;
+          id?: string | null;
+        }[]
+      | null;
+    nightHeading?: string | null;
+    nightText?: string | null;
+    packingHeading?: string | null;
+    /**
+     * Empty = the built-in 4: Glassware and crockery · TV and monitors · Fridge and washing machine · Sofa, beds, glass tops. Add items to replace the whole list.
+     */
+    packing?:
+      | {
+          item: string;
+          how: string;
+          id?: string | null;
+        }[]
+      | null;
+    chargesHeading?: string | null;
+    chargesIntro?: string | null;
+    /**
+     * Empty = the built-in 4: What you own · Distance · Access · Packing. Add items to replace the whole list.
+     */
+    chargesFactors?:
+      | {
+          title: string;
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    chargesIncluded?: string | null;
+    chargesPromise?: string | null;
+    servicesHeading?: string | null;
+    citiesHeading?: string | null;
+    citiesIntro?: string | null;
+    faqHeading?: string | null;
+    /**
+     * Empty = the built-in 7: Will the bill match the quote? · Are my goods insured? · What if something gets damaged? · Do you dismantle and refit furniture? · Why do you shift homes at night? · Are prices higher at month-end? · How do I choose the best packers and movers in India?. Add items to replace the whole list.
+     */
+    faqs?:
+      | {
+          question: string;
+          answer: string;
+          linkLabel?: string | null;
+          linkHref?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    closingHeading?: string | null;
+    closingText?: string | null;
+  };
+  taglineLine1?: string | null;
+  taglineLine2?: string | null;
+  heroSubtext?: string | null;
   servicesHeading?: string | null;
   servicesIntro?: string | null;
   trustHeading?: string | null;
@@ -1870,21 +2518,12 @@ export interface HomeContent {
   citiesHeading?: string | null;
   citiesIntro?: string | null;
   faqHeading?: string | null;
-  /**
-   * Leave empty to use the built-in four pillars.
-   */
   pillars?:
     | {
         icon?: ('fixed-quote' | 'verified-crew' | 'claims' | 'insurance' | 'shield-check' | 'check' | 'clock') | null;
         title: string;
         body: string;
-        /**
-         * Bento position. A good set is one Lead + one Dark + two Default.
-         */
         variant?: ('default' | 'lead' | 'dark') | null;
-        /**
-         * Optional link under the card (e.g. the claims card → /claims).
-         */
         link?: {
           label?: string | null;
           href?: string | null;
@@ -1892,6 +2531,80 @@ export interface HomeContent {
         id?: string | null;
       }[]
     | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The /services page, top to bottom. Leave blank to keep the text shown in grey. {count} = number of live cities.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services-page".
+ */
+export interface ServicesPage {
+  id: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  h1?: string | null;
+  intro?: string | null;
+  /**
+   * Empty = the built-in 4: Own trained crews · Photo inventory on every job · GST invoice · Claims data published. Add items to replace the whole list.
+   */
+  trust?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  cardsHeading?: string | null;
+  chooserHeading?: string | null;
+  /**
+   * Empty = the built-in 7: Moving a 2 BHK across the city · Moving to another city with your car · Relocating a 40-desk office · Hiring your own tempo, short of hands · Short on time, not on transport · Sending only a bike to a new city · Moving to Dubai, Singapore or the UK. Add items to replace the whole list.
+   */
+  chooser?:
+    | {
+        situation: string;
+        /**
+         * Two or more services read as "A + B, one quote".
+         */
+        need: (number | Service)[];
+        id?: string | null;
+      }[]
+    | null;
+  chooserNoteLead?: string | null;
+  chooserNoteLink?: string | null;
+  chooserNoteTail?: string | null;
+  standardsHeading?: string | null;
+  standardsIntro?: string | null;
+  /**
+   * Empty = the built-in 5: A written, itemised quote · Our own trained crew, · A photo inventory · Basic liability cover, · One GST invoice. Add items to replace the whole list.
+   */
+  standards?:
+    | {
+        lead: string;
+        rest: string;
+        linkLabel?: string | null;
+        linkHref?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  combineHeading?: string | null;
+  combineText?: string | null;
+  combineButton?: string | null;
+  faqHeading?: string | null;
+  /**
+   * Empty = the built-in 5: Can I book only packing, or only labour? · Do you store goods between moves? · Is my car or bike insured in transit? · How early should I book? · Which cities do you serve?. Add items to replace the whole list.
+   */
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        linkLabel?: string | null;
+        linkHref?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  closingHeading?: string | null;
+  closingText?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1985,6 +2698,87 @@ export interface Integration {
   createdAt?: string | null;
 }
 /**
+ * Share new leads out automatically instead of assigning each one by hand. Off unless you turn it on.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-routing".
+ */
+export interface LeadRouting {
+  id: number;
+  /**
+   * When on, each new lead goes to the next person on the list. A lead that already has an owner is left alone.
+   */
+  autoAssign?: boolean | null;
+  /**
+   * Leads go to these people in turn, then back to the first. The dashboard card is the easier way to change this.
+   */
+  members?: (number | User)[] | null;
+  /**
+   * The rotation continues from here. Set automatically.
+   */
+  lastAssignedTo?: (number | null) | User;
+  /**
+   * How many leads this has routed so far.
+   */
+  assignedCount?: number | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * What the WhatsApp button writes for your team. One message for a first contact, one for chasing a quote, one for a booked move.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-messages".
+ */
+export interface SalesMessage {
+  id: number;
+  /**
+   * Printed wherever a message uses {site}. No https:// — customers read it, they do not type it.
+   */
+  siteUrl: string;
+  /**
+   * The opener for a lead nobody has spoken to yet. Use *asterisks* around a word to make it bold in WhatsApp.
+   *
+   * Placeholders you can use:
+   * {name} — the customer's name
+   * {service} — what they asked for, e.g. Home Shifting
+   * {size} — truck size, e.g. 14 ft
+   * {from} — pickup city
+   * {to} — drop city
+   * {agent} — you - whoever is sending it
+   * {brand} — the company name
+   * {site} — the website
+   *
+   * A line whose placeholder has no value is left out completely — so a lead with no drop city simply does not get that sentence, rather than getting a gap. Keep anything you cannot afford to lose on its own line.
+   */
+  firstContact: string;
+  /**
+   * Used once the lead has been quoted, so it does not re-introduce somebody the customer has already spoken to.
+   */
+  quoteFollowUp: string;
+  /**
+   * Sent for a lead that is Scheduled or Won — a confirmation, not a pitch.
+   */
+  booked: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * How the move calendar judges a day as quiet, filling up or full.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedule-settings".
+ */
+export interface ScheduleSetting {
+  id: number;
+  /**
+   * Count every crew you can send out on a normal day. The calendar colours a day green below 60% of this, amber from 60% to 85%, and red above 85% - so sales can steer a customer to a quieter date before it is too late to.
+   */
+  movesPerDay: number;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "org-profile_select".
  */
@@ -2016,10 +2810,86 @@ export interface OrgProfileSelect<T extends boolean = true> {
 export interface HomeContentSelect<T extends boolean = true> {
   metaTitle?: T;
   metaDescription?: T;
+  heroImage?: T;
+  page?:
+    | T
+    | {
+        tagline?: T;
+        h1?: T;
+        subhead?: T;
+        trust?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        promisesHeading?: T;
+        promises?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              linkLabel?: T;
+              linkHref?: T;
+              id?: T;
+            };
+        stepsHeading?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+            };
+        compareHeading?: T;
+        compare?:
+          | T
+          | {
+              label?: T;
+              them?: T;
+              us?: T;
+              id?: T;
+            };
+        nightHeading?: T;
+        nightText?: T;
+        packingHeading?: T;
+        packing?:
+          | T
+          | {
+              item?: T;
+              how?: T;
+              id?: T;
+            };
+        chargesHeading?: T;
+        chargesIntro?: T;
+        chargesFactors?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+            };
+        chargesIncluded?: T;
+        chargesPromise?: T;
+        servicesHeading?: T;
+        citiesHeading?: T;
+        citiesIntro?: T;
+        faqHeading?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              linkLabel?: T;
+              linkHref?: T;
+              id?: T;
+            };
+        closingHeading?: T;
+        closingText?: T;
+      };
   taglineLine1?: T;
   taglineLine2?: T;
   heroSubtext?: T;
-  heroImage?: T;
   servicesHeading?: T;
   servicesIntro?: T;
   trustHeading?: T;
@@ -2044,6 +2914,63 @@ export interface HomeContentSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services-page_select".
+ */
+export interface ServicesPageSelect<T extends boolean = true> {
+  metaTitle?: T;
+  metaDescription?: T;
+  h1?: T;
+  intro?: T;
+  trust?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  cardsHeading?: T;
+  chooserHeading?: T;
+  chooser?:
+    | T
+    | {
+        situation?: T;
+        need?: T;
+        id?: T;
+      };
+  chooserNoteLead?: T;
+  chooserNoteLink?: T;
+  chooserNoteTail?: T;
+  standardsHeading?: T;
+  standardsIntro?: T;
+  standards?:
+    | T
+    | {
+        lead?: T;
+        rest?: T;
+        linkLabel?: T;
+        linkHref?: T;
+        id?: T;
+      };
+  combineHeading?: T;
+  combineText?: T;
+  combineButton?: T;
+  faqHeading?: T;
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        linkLabel?: T;
+        linkHref?: T;
+        id?: T;
+      };
+  closingHeading?: T;
+  closingText?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2097,6 +3024,42 @@ export interface IntegrationsSelect<T extends boolean = true> {
   leadWebhookLastAt?: T;
   leadWebhookCount?: T;
   leadWebhookLastError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-routing_select".
+ */
+export interface LeadRoutingSelect<T extends boolean = true> {
+  autoAssign?: T;
+  members?: T;
+  lastAssignedTo?: T;
+  assignedCount?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-messages_select".
+ */
+export interface SalesMessagesSelect<T extends boolean = true> {
+  siteUrl?: T;
+  firstContact?: T;
+  quoteFollowUp?: T;
+  booked?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedule-settings_select".
+ */
+export interface ScheduleSettingsSelect<T extends boolean = true> {
+  movesPerDay?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

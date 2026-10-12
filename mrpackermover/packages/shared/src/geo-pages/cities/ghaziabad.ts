@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Ghaziabad city page, from the owner's brief "Ghaziabad City Page: FINAL" (9 October 2026), round 3: expanded with sourced local facts (Hindon, GDA, Nagar Nigam zones, metro, RRTS, Kanwar Yatra closures). */
+/** Ghaziabad city page, from the owner's brief "Ghaziabad City Page: FINAL" (9 October 2026), round 3: expanded with sourced local facts (Hindon, GDA, Nagar Nigam zones, metro, RRTS, Kanwar Yatra closures). Round 4: no source wording, real customer FAQs. */
 export const ghaziabad: GeoPage = {
   title: 'Packers and Movers in Ghaziabad | One Price | MrMoverPacker',
   metaDescription:
@@ -28,7 +28,7 @@ export const ghaziabad: GeoPage = {
             'Society approvals. Most societies in Indirapuram, Vaishali, Vasundhara and Raj Nagar Extension want mover entry approved a day ahead. They ask for a crew ID list and a booked lift.',
             'Truck routes. Trucks use NH 9, the old NH 24, and the main roads. The Hindon Elevated Road to Raj Nagar Extension is for light vehicles. UP Gate and the Delhi border jam at peak hours, so timing matters.',
             'Plotted colonies. In Raj Nagar, Kavi Nagar, Nehru Nagar and the older city, houses without lifts mean stair carries and a truck parked outside the gate.',
-            'Monsoon underpasses. Underpasses around Vaishali and a few other low stretches flood after heavy rain. Waterlogging has also been reported in Indirapuram, Govindpuram and on GT Road, so we plan routes around them.',
+            'Monsoon underpasses. Underpasses around Vaishali and a few other low stretches flood after heavy rain. Indirapuram, Govindpuram and GT Road are also known monsoon waterlogging spots, so we plan routes around them.',
             'Kanwar Yatra closures. In the yatra weeks of July and August, the Delhi-Meerut Expressway shuts to trucks and buses. Heavy vehicles are sent round by NH 9 and the Eastern Peripheral Expressway instead.',
           ],
         },
@@ -158,7 +158,7 @@ export const ghaziabad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Ours puts material, labour, stairs, tolls and GST in writing, so the number you approve is the number you pay. [How pricing works](/pricing) and [how to spot a moving scam](/fraud-check) show what a fair Ghaziabad quote lists.',
+          body: 'Ours puts material, labour, stairs, tolls and GST in writing, so the number you approve is the number you pay. [How pricing works](/pricing) and [how to spot a moving scam](/fraud-check) show what a fair quote lists.',
         },
       ],
     },
@@ -173,7 +173,7 @@ export const ghaziabad: GeoPage = {
           kind: 'list',
           items: [
             'Overnight local moves. We load by 8 PM, cross UP Gate when the border is clear, and unload next morning. If your Indirapuram or Vasundhara society does not allow evening loading, we plan a day move.',
-            'Monsoon (July to September). Vaishali Sectors 1 to 4, Indirapuram, Govindpuram and GT Road have all reported waterlogging after heavy rain. Sofas and mattresses are wrapped for water, and the truck avoids the Vaishali underpasses.',
+            'Monsoon (July to September). Vaishali Sectors 1 to 4, Indirapuram, Govindpuram and GT Road waterlog after heavy rain. Sofas and mattresses are wrapped for water, and the truck avoids the Vaishali underpasses.',
             'Kanwar Yatra (July to August). Many pilgrims carry Ganga water to the Dudheshwar Nath temple in Ghaziabad. The Delhi-Meerut Expressway closes to trucks for those weeks. Intercity moves towards Meerut are dated around the closure.',
             'Summer (April to June). A closed truck heats up while it waits for a lift slot at a Crossings Republik tower. Electronics, medicines and cosmetics are packed apart.',
             'Winter fog (December to January). Departures on NH 9 towards Hapur and on the Delhi-Meerut Expressway can be slow at night and early morning.',
@@ -204,9 +204,9 @@ export const ghaziabad: GeoPage = {
         'It depends on home size, distance, lifts or stairs, and the date. The price check gives an instant figure; the quote after a video survey of your Vasundhara flat is final.',
     },
     {
-      question: 'Are you the cheapest packers and movers in Ghaziabad?',
+      question: 'Another mover quoted less on the phone. Why is yours higher?',
       answer:
-        'We aim for the clearest quote, not the lowest phone number. Ours lists material, labour, stairs, any Delhi-Meerut Expressway toll and GST, so you can compare fairly.',
+        'A phone quote often leaves out stairs in a Kavi Nagar house or an Indirapuram lift fee. Ours lists material, labour, stairs, any Delhi-Meerut Expressway toll and GST, so you can compare fairly.',
     },
     {
       question: 'Do Ghaziabad societies need mover approval?',
@@ -214,9 +214,9 @@ export const ghaziabad: GeoPage = {
         'Most in Indirapuram, Vaishali, Vasundhara and Raj Nagar Extension do, usually a day ahead. We send the crew ID list and vehicle number to the maintenance office.',
     },
     {
-      question: 'Do you shift in Indirapuram, Vaishali and Vasundhara?',
+      question: 'How early should I book a lift slot in Indirapuram or Vaishali?',
       answer:
-        'Yes. These Trans-Hindon societies have short loading windows, so we book the lift slot early. See [packers and movers in Indirapuram](/packers-and-movers/ghaziabad/indirapuram).',
+        'As early as you can. These Trans-Hindon societies have short loading windows, and weekend slots go first. A midweek date in an [Indirapuram](/packers-and-movers/ghaziabad/indirapuram) or Vaishali tower is usually easier to get.',
     },
     {
       question: 'Can a truck use the Raj Nagar Extension elevated road?',
@@ -236,7 +236,7 @@ export const ghaziabad: GeoPage = {
     {
       question: 'Is my move insured?',
       answer:
-        'Basic liability cover runs from loading in your Ghaziabad home to the new door. Full cover is optional [transit insurance](/insurance) on declared value; see [how claims work](/claims).',
+        'Basic liability cover runs from loading in your Ghaziabad home to the new door. Full cover is optional [transit insurance](/insurance) on declared value, and [how claims work](/claims) sets out the steps.',
     },
   ],
   servicesHeading: 'Moving services in Ghaziabad',

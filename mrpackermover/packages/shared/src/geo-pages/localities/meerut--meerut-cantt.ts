@@ -8,7 +8,7 @@ export const meerutMeerutCantt: GeoPage = {
     'Packers and movers in Meerut Cantt for Mall Road bungalows and homes in Sadar Bazar and Lal Kurti. Entry details sent ahead, one fixed written price.',
   h1: 'Packers and movers in Meerut Cantt with one fixed, written price',
   subhead:
-    'Packers and movers in Meerut Cantt work in both the bungalow area and the civil area of the Cantonment. A bungalow off Mall Road and a house in Sadar Bazar need different crews. A video survey tells us which, and the price comes back fixed in writing.',
+    'Packers and movers in Meerut Cantt work in the bungalow area and the civil area. A bungalow off Mall Road and a house in Sadar Bazar need different crews. A video survey tells us which, and the price comes back fixed in writing.',
   trust: [
     'Truck and crew details sent before the day',
     'Mall Road bungalows and bazaar homes',
@@ -30,7 +30,7 @@ export const meerutMeerutCantt: GeoPage = {
             'Entry details in advance. For a house inside the Cantonment, we send the truck number and crew names ahead.',
             'Old bazaars. Sadar Bazar and Lal Kurti Bazar are the main markets inside the Cantonment. Lal Kurti is named after the red coats of the Presidency armies.',
             'Abu Ka Nallah. This old drain splits the Cantonment into two halves, so the route between them is fixed on the survey.',
-            "New stations. Begumpul, an underground Namo Bharat and metro stop, opened on 22 February 2026. So did MES Colony station near St John's Church.",
+            "Station landmarks. Begumpul, an underground Namo Bharat and metro stop, and MES Colony station near St John's Church help the driver find your lane.",
           ],
         },
       ],
@@ -147,9 +147,9 @@ export const meerutMeerutCantt: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Sawan (July to August). Augharnath temple is a main Kanwar Yatra shrine, and NH-58 traffic is diverted for the yatra. We keep moves near the temple off those weeks.',
+            'Sawan (July to August). Augharnath temple is a main Kanwar Yatra shrine. NH-58 traffic is diverted for the yatra. We keep moves near the temple off those weeks.',
             'Summer (April to June). Morning loading suits the long carry across a Mall Road bungalow plot.',
-            'Wedding season (November to February). Trucks across western Uttar Pradesh book up, so give a Cantonment move two to three weeks.',
+            'Wedding season (November to February). Trucks across western Uttar Pradesh book up. Give a Cantonment move two to three weeks.',
             'Winter (December to January). Long posting moves leave once fog lifts on the expressway at Partapur.',
           ],
         },
@@ -166,7 +166,7 @@ export const meerutMeerutCantt: GeoPage = {
     {
       question: 'Do you shift bungalows off Mall Road?',
       answer:
-        'Yes. Packers and movers in Meerut Cantt measure the Mall Road drive on the survey, and long carry is charged only past 50 metres.',
+        'Yes. Packers and movers in Meerut Cantt measure the Mall Road drive on the survey. Long carry is charged only past 50 metres.',
     },
     {
       question: 'Can you move a posting from Meerut Cantt to another state?',
@@ -174,9 +174,9 @@ export const meerutMeerutCantt: GeoPage = {
         'Yes, anywhere in India. Optional [transit insurance](/insurance) covers declared value, and [how claims work](/claims) sets out the steps.',
     },
     {
-      question: 'Is there a metro near the Cantonment now?',
+      question: 'How early do you load a house in Lal Kurti Bazar?',
       answer:
-        'Yes. Begumpul and MES Colony stations on the Meerut Metro opened on 22 February 2026.',
+        'Before the shops open, while the lanes are clear. The truck spot is fixed on the survey.',
     },
     {
       question: 'Can you move me from Sadar Bazar to Pallavpuram?',

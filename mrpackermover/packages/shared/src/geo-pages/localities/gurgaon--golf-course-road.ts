@@ -26,11 +26,11 @@ export const gurgaonGolfCourseRoad: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Rapid Metro overhead. Since March 2017 the Rapid Metro has run along most of the road, from Sikanderpur to Sector 55-56.',
+            'Rapid Metro overhead. The Rapid Metro runs along most of the road, from Sikanderpur to Sector 55-56, so trucks park clear of its pillars.',
             'AIT Chowk. This signal-controlled roundabout joins MG Road and Golf Course Extension Road. It jams at peak hours.',
             'Tower rules. Societies in Sectors 42 to 54 usually want booked lift slots, a deposit and lobby protection.',
-            'DLF Golf and Country Club. The club in Sector 42 opened in 1999, among towers full of large furniture.',
-            'Monsoon jams. Heavy rain waterlogged the road and Sohna Road in July 2024. Traffic police blamed poor drainage.',
+            'DLF Golf and Country Club. The club in Sector 42 is the easy landmark for fixing the truck spot at nearby towers.',
+            'Monsoon jams. Golf Course Road and Sohna Road waterlog in heavy monsoon rain, which can slow a loaded truck.',
           ],
         },
       ],
@@ -133,7 +133,7 @@ export const gurgaonGolfCourseRoad: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a flat near Sector 53-54 station, the estimator above gives a quick figure; see [how pricing works](/pricing).',
+          body: 'The estimator above gives a quick figure for a flat near Sector 53-54 station. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -144,7 +144,7 @@ export const gurgaonGolfCourseRoad: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Early or late lift slots in Sector 42 and 54 towers suit the heat.',
-            'Monsoon (July to September). After the July 2024 waterlogging, we check the route past AIT Chowk the day before.',
+            'Monsoon (July to September). The road is a known waterlogging spot in heavy rain, so we check the route past AIT Chowk the day before.',
             'Festive season (October to November). Lift slots at Sector 53 and 54 towers fill fast, so book two weeks ahead.',
             'Winter (December to February). Overnight moves to Golf Course Extension Road load by 8 PM and unload next morning.',
           ],
@@ -167,7 +167,7 @@ export const gurgaonGolfCourseRoad: GeoPage = {
     {
       question: 'Will AIT Chowk traffic hold up my move?',
       answer:
-        'We time the truck to cross AIT Chowk outside the morning and evening peaks. An underpass there has been proposed by GMDA, so we also check for roadworks.',
+        'From Sectors 53 to 56, loading is timed so the truck clears AIT Chowk before the evening peak. We also check the roundabout for roadworks the day before.',
     },
     {
       question: 'Can you move me from DLF Phase 1 to a Sector 54 tower?',
@@ -177,7 +177,7 @@ export const gurgaonGolfCourseRoad: GeoPage = {
     {
       question: 'Do you move homes from Golf Course Road to other cities?',
       answer:
-        'Yes. Packers and movers on Golf Course Road load in Sectors 42 to 56 for anywhere in India; see [home shifting](/services/home-shifting).',
+        'Yes. Packers and movers on Golf Course Road load in Sectors 42 to 56 for anywhere in India. [Home shifting](/services/home-shifting) lists what the packing covers.',
     },
     {
       question: 'What if something is damaged in a Golf Course Road move?',

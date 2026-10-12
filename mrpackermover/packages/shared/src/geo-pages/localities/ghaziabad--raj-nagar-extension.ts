@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Raj Nagar Extension (Ghaziabad) locality page, round 3: rewritten from sourced local facts (Hindon and NH 58 tower belt, Hindon Elevated Road to UP Gate, Hindon River metro station, DPS Rajnagar Guldhar Namo Bharat station, KW Delhi 6 Mall, Raj Nagar Extension Road). */
+/** Raj Nagar Extension (Ghaziabad) locality page, round 4: societies from OpenStreetMap and project listings (KW Srishti, Charms Castle, Ajnara Integrity, Gaur Cascades, KDP Grand Savanna, River Heights), plus Hindon and NH 58 tower belt, Hindon Elevated Road to UP Gate, Hindon River metro station, DPS Rajnagar Guldhar Namo Bharat station, KW Delhi 6 Mall, Raj Nagar Extension Road). */
 export const ghaziabadRajNagarExtension: GeoPage = {
   name: 'Raj Nagar Extension',
   title: 'Movers in Raj Nagar Extension | Fixed Price | MrMoverPacker',
@@ -26,10 +26,10 @@ export const ghaziabadRajNagarExtension: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Lifts still settling. Some towers along the Hindon are still finishing common areas. There, lift availability changes week to week. Your coordinator reconfirms it the day before loading.',
-            'Loading at the gate. Basements in NH 58 towers rarely fit a truck, so the loading point is agreed with the guard desk first.',
+            'Tall towers. Charms Castle rises to 23 floors and Gaur Cascades to 14, so the service lift sets the pace. Your coordinator books it and reconfirms it the day before.',
+            'Loading at the gate. Basements in NH 58 towers rarely fit a truck. The guard desk agrees the loading point first.',
             'Trucks off the elevated road. The Hindon Elevated Road runs 10.3 km from here to UP Gate, but it is for light vehicles. Our trucks take NH 58 and the main roads.',
-            'Entry approval. A society on NH 58 usually wants the crew list and truck number a day ahead, with the service lift booked.',
+            'Entry approval. A society such as KW Srishti or Ajnara Integrity usually wants the crew list and truck number a day ahead.',
             'Metro and rail. Hindon River station on the Red Line serves the area. Namo Bharat trains stop at DPS Rajnagar Guldhar on Meerut Road.',
           ],
         },
@@ -47,19 +47,24 @@ export const ghaziabadRajNagarExtension: GeoPage = {
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
             [
-              'Towers along NH 58',
-              'High-rise group housing',
-              'Truck entry and loading point agreed with the guard desk.',
+              'KW Srishti and Charms Castle, off NH 58',
+              'Towers up to 23 floors',
+              'Loading point agreed with the guard desk.',
             ],
             [
-              'Societies near the Hindon',
-              'Newer towers, some still finishing common areas',
-              'Lift status reconfirmed a day before.',
+              'Ajnara Integrity, NH 58 Bypass at Noor Nagar',
+              '13-floor towers',
+              'Right gate fixed by tower number.',
             ],
             [
-              'Around KW Delhi 6 Mall',
-              'Flats near the mall and its shops',
-              'Loading timed outside the mall rush.',
+              'Gaur Cascades',
+              '14-floor towers',
+              'Service lift slot booked with the maintenance office.',
+            ],
+            [
+              'KDP Grand Savanna and River Heights',
+              'Towers at the western end of the belt',
+              'Inner road checked on the survey.',
             ],
             [
               'Raj Nagar Extension Road, by the river',
@@ -82,7 +87,7 @@ export const ghaziabadRajNagarExtension: GeoPage = {
           columns: ['What', 'Who arranges it', 'When'],
           rows: [
             [
-              'Mover entry approval at your NH 58 society',
+              'Mover entry approval at a society such as Charms Castle',
               'You apply; we send crew IDs and the truck number',
               'A day ahead.',
             ],
@@ -97,7 +102,7 @@ export const ghaziabadRajNagarExtension: GeoPage = {
               'Before the day.',
             ],
             [
-              'Maintenance dues cleared before you leave a Hindon-side tower',
+              'Maintenance dues cleared before you leave Gaur Cascades or KDP Grand Savanna',
               'You',
               'The week before.',
             ],
@@ -118,11 +123,11 @@ export const ghaziabadRajNagarExtension: GeoPage = {
           rows: [
             [
               'Lifts',
-              'A working service lift in a Hindon-side tower is quick; one shared lift takes more crew time.',
+              'A booked service lift at Gaur Cascades is quick; one shared lift takes longer.',
             ],
             [
               'Loading point',
-              'Long carry applies only if the truck must stand over 50 metres from your door, say outside an NH 58 gate.',
+              'Long carry applies only past 50 metres from your door, say outside an NH 58 gate.',
             ],
             [
               'Route',
@@ -136,7 +141,7 @@ export const ghaziabadRajNagarExtension: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a quick figure, use the estimator above; [how pricing works](/pricing) breaks down a quote for a tower on NH 58.',
+          body: 'For a quick figure, use the estimator above; [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -147,7 +152,7 @@ export const ghaziabadRajNagarExtension: GeoPage = {
           kind: 'list',
           items: [
             'Summer (April to June). Morning loading suits the long corridors of Hindon-side towers in the heat.',
-            'Monsoon (July to September). Raj Nagar Extension Road runs along the Hindon, so we check it after heavy rain. Everything leaving a Hindon-side tower is wrapped for water.',
+            'Monsoon (July to September). Raj Nagar Extension Road runs along the Hindon, so we check it after heavy rain.',
             'Winter (December to February). Overnight moves to Vaishali or Indirapuram load by 8 PM, and the truck reaches you next morning.',
           ],
         },
@@ -167,13 +172,14 @@ export const ghaziabadRajNagarExtension: GeoPage = {
         'Yes. Packers and movers in Raj Nagar Extension check the lifts on the survey and reconfirm them a day before.',
     },
     {
-      question: 'Do societies on NH 58 need mover approval?',
-      answer: 'Most NH 58 societies do, with a crew ID list and the truck number a day ahead.',
+      question: 'Do NH 58 societies like KW Srishti need mover approval?',
+      answer:
+        'Most do, with a crew ID list and the truck number a day ahead. Your coordinator checks your own society office rule first.',
     },
     {
       question: 'Can the truck go into my tower basement?',
       answer:
-        'Rarely, as basements in towers along the Hindon seldom fit one, so the guard desk agrees a gate spot instead.',
+        'Rarely. At Charms Castle or Ajnara Integrity, the guard desk agrees a gate spot instead.',
     },
     {
       question: 'How do you move me from Raj Nagar Extension to Delhi?',

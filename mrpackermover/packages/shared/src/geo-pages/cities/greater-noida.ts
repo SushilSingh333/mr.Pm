@@ -4,7 +4,8 @@ import type { GeoPage } from '../types.js';
  * Greater Noida city page, from the owner's brief "Greater Noida City Page: FINAL"
  * (9 October 2026), round 3: expanded with sourced local facts (GNIDA, Greek-letter
  * sectors, Aqua Line stations, Pari Chowk, the Hindon crossing to Greater Noida West,
- * Yamuna Expressway, Noida International Airport, Hawalia drain bridge, universities).
+ * Yamuna Expressway, Noida International Airport, universities). Round 4: evergreen only,
+ * dated news (metro extension, bridge approval, airport opening date) removed.
  */
 export const greaterNoida: GeoPage = {
   title: 'Movers in Greater Noida | One Written Price | MrMoverPacker',
@@ -149,7 +150,7 @@ export const greaterNoida: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'Nothing outside your written quote is charged, in Beta or in Gaur City. See [how pricing works](/pricing).',
+          body: 'If it is not on your written quote, you do not pay it. [How pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -186,7 +187,7 @@ export const greaterNoida: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'From Noida, trucks take the six-lane Expressway from the Mahamaya Flyover to Pari Chowk.\n\nGreater Noida West is reached from Noida Sector 121 by the road across the Hindon. An 8.4 km Aqua Line extension from Sector 51 to Greater Noida West Sector 4 was cleared in July 2026.\n\nIn September 2025, GNIDA approved a new bridge over the Hawalia drain near the Sector P-3 roundabout. It eases trips between Knowledge Park, Pari Chowk, Swarn Nagari and the Yamuna Expressway. Office moves from Surajpur, Kasna or Ecotech are among [our moving services](/services).',
+          body: 'From Noida, trucks take the six-lane Expressway from the Mahamaya Flyover to Pari Chowk. Pari Chowk itself is busy at peak hours, so a Delhi or Noida truck aims to clear it early.\n\nGreater Noida West is reached from Noida Sector 121 by the road across the Hindon. It is a separate run from the Expressway, so a Gaur City pickup and a Pari Chowk drop are planned as two legs.\n\nThe Aqua Line runs from Noida Sector 51 to Depot station, with stops at Knowledge Park II, Pari Chowk and Alpha 1. In the lettered sectors, Alpha 1 and Delta 1 stations are easy landmarks for fixing the truck spot. Office moves from Surajpur, Kasna or Ecotech are among [our moving services](/services).',
         },
       ],
     },
@@ -226,7 +227,7 @@ export const greaterNoida: GeoPage = {
     {
       question: 'Do you cover the Yamuna Expressway townships?',
       answer:
-        'Yes, out to Jewar, where Noida International Airport opened for flights on 15 June 2026. Longer runs on the Yamuna Expressway are planned ahead and priced on the quote.',
+        'Yes, out to Jewar and the sectors around Noida International Airport. Longer runs on the Yamuna Expressway are planned ahead and priced on the quote.',
     },
     {
       question: 'Is my move insured?',

@@ -29,8 +29,7 @@ export const noidaSector18: GeoPage = {
             'Street market. Atta Market is a street shopping hub just off the Noida Sector 18 metro station, so daytime parking is scarce.',
             'Two malls. The DLF Mall of India stands in Sector 18, and The Great India Place sits beside the station in Sector 38A.',
             'Metro overhead. The elevated station stands on Captain Vijayant Thapar Marg, with the Sector 18 market below it.',
-            'Entertainment City. Worlds of Wonder and Gardens Galleria Mall share the Sector 38A complex, so weekends bring crowds.',
-            'Stations both ways. Noida Sector 16 is the next stop toward Delhi. Botanical Garden, a Magenta Line interchange, is the next stop south.',
+            'Stations both ways. Noida Sector 16 and Botanical Garden stations sit either side, useful markers for fixing a pickup spot.',
           ],
         },
       ],
@@ -59,7 +58,7 @@ export const noidaSector18: GeoPage = {
             ],
             [
               'The Great India Place side, Sector 38A',
-              'Stores beside Worlds of Wonder',
+              'Mall stores',
               'Mall rules confirmed before the date is fixed.',
             ],
             [
@@ -123,7 +122,7 @@ export const noidaSector18: GeoPage = {
         },
         {
           kind: 'text',
-          body: 'For a home near Atta Market, the price check above gives a first figure, and [how pricing works](/pricing) explains each line.',
+          body: 'For a flat, the price check above gives a first figure, and [how pricing works](/pricing) explains each line of the written quote.',
         },
       ],
     },
@@ -133,7 +132,7 @@ export const noidaSector18: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Summer (April to June). We pack in the morning and load in the evening, away from the midday heat on Captain Vijayant Thapar Marg.',
+            'Summer (April to June). Packing starts in the morning. Loading waits for the evening, once the Atta Market lanes cool down.',
             'Monsoon (July to September). Sofas are wrapped indoors before the walk to a truck parked off the Atta Market lanes.',
             'Festive season (October to November). Diwali shopping fills Atta Market and both malls, so we avoid daytime loading.',
             'Winter (December to February). A short move to Mayur Vihar can load by 8 PM and unload the next morning.',

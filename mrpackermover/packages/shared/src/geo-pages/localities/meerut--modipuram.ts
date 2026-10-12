@@ -1,6 +1,6 @@
 import type { GeoPage } from '../types.js';
 
-/** Modipuram (Meerut) locality page, round 3: rewritten from sourced local facts (NH-58, Modipuram RRTS terminal and depot, Modi Industries, CPRI regional station, Kanwar Yatra diversions, logistics hub). */
+/** Modipuram (Meerut) locality page, round 3: rewritten from sourced local facts (NH-58, Modipuram RRTS terminal and depot, Modi Industries, CPRI regional station, Kanwar Yatra diversions, Meerut Bypass junction). */
 export const meerutModipuram: GeoPage = {
   name: 'Modipuram',
   title: 'Packers and Movers in Modipuram | One Price | MrMoverPacker',
@@ -8,7 +8,7 @@ export const meerutModipuram: GeoPage = {
     'Packers and movers in Modipuram, Meerut, for homes along NH-58 near the Namo Bharat terminal and Modi Colony. One fixed, written price for your move.',
   h1: 'Packers and movers in Modipuram with one fixed, written price',
   subhead:
-    'Packers and movers in Modipuram plan around NH-58 and the new Modipuram terminal of the Namo Bharat line. We see your home on a video survey and send one fixed price in writing.',
+    'Packers and movers in Modipuram plan around NH-58 and the Modipuram terminal of the Namo Bharat line. We see your home on a video survey and send one fixed price in writing.',
   trust: [
     'Route planned around NH-58',
     'Kanwar Yatra dates checked',
@@ -21,7 +21,7 @@ export const meerutModipuram: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Modipuram is the northern edge of Meerut, on NH-58 beyond Pallavpuram. Since 22 February 2026 it has been the end of the line for Namo Bharat trains from Delhi and for the Meerut Metro.',
+          body: 'Modipuram is the northern edge of Meerut, on NH-58 beyond Pallavpuram. It is the end of the line for Namo Bharat trains from Delhi and for the Meerut Metro.',
         },
         {
           kind: 'list',
@@ -29,8 +29,8 @@ export const meerutModipuram: GeoPage = {
             'The terminal. Modipuram RRTS station stands on NH-58, with Modipuram Depot beside it for the metro. Begumpul is the previous Namo Bharat stop towards Delhi.',
             'Modi Industries. The Modi Industries works and Modi Colony lie on the west side, near G M Modi Hospital.',
             'Research campus. The Central Potato Research Institute of ICAR runs a regional station in Modipuram.',
-            'Kanwar route. NH-58 is the Delhi-Haridwar highway, and its traffic is diverted during the Kanwar Yatra. A police control room at Modipuram Tiraha watches the yatra.',
-            'Logistics hub. The Uttar Pradesh government has allotted land for a large logistics hub in the Modipuram area.',
+            'Kanwar route. NH-58 is the Delhi-Haridwar highway, and its traffic is diverted during the Kanwar Yatra in Sawan.',
+            'Bypass junction. The Meerut Bypass meets NH-58 at Modipuram, so a truck bound for Delhi skips the old city.',
           ],
         },
       ],
@@ -58,8 +58,8 @@ export const meerutModipuram: GeoPage = {
             ],
             [
               'Modipuram Tiraha and the Meerut Bypass',
-              'Homes near the police chowki and the bypass flyover',
-              'Loading timed away from the junction rush.',
+              'Homes near the junction and the bypass flyover',
+              'Truck spot fixed off the junction.',
             ],
             [
               '[Pallavpuram](/packers-and-movers/meerut/pallavpuram) Phase-2, to the south',
@@ -144,9 +144,9 @@ export const meerutModipuram: GeoPage = {
   faqHeading: 'Modipuram moves: questions',
   faqs: [
     {
-      question: 'Is Modipuram on the Namo Bharat line?',
+      question: 'Where does the truck stand for a home on NH-58?',
       answer:
-        'Yes. Modipuram RRTS station on NH-58 is the northern end of the Delhi-Meerut corridor and opened on 22 February 2026.',
+        'In a side lane off the highway, fixed on the survey. Long carry applies only past 50 metres from your door.',
     },
     {
       question: 'Will the Kanwar Yatra affect my move from Modipuram?',

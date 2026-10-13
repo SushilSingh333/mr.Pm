@@ -8,6 +8,8 @@ export default [
     // '.next-*/**' covers a second dev server's output via NEXT_DIST_DIR (see
     // next.config.mjs). Without it, linting the repo after such a run reports hundreds of
     // errors in generated vendor chunks and buries anything real.
-    ignores: ['.next/**', '.next-*/**', 'src/payload-types.ts', 'src/app/**'],
+    // 'migrations/**' is written by `migrate:create` on the server and committed as-is;
+    // its up/down functions always declare `payload` and `req`, used or not.
+    ignores: ['.next/**', '.next-*/**', 'src/payload-types.ts', 'src/app/**', 'migrations/**'],
   },
 ];

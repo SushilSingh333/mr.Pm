@@ -15,6 +15,13 @@ export const delhiPunjabiBagh: GeoPage = {
     'ID-verified crew of our own',
     'Fixed written quote, GST shown',
   ],
+  societies: [
+    'Punjabi Bagh Co-operative Housing Society',
+    'Punjabi Bagh Apartments',
+    'Indo Rang Homes',
+    'Prabhatam Victoria 55',
+    'Punjabi Bagh Railway Colony',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Punjabi Bagh different?',
@@ -63,7 +70,7 @@ export const delhiPunjabiBagh: GeoPage = {
             ],
             [
               'Apartment complexes',
-              'Flats with a shared lift',
+              'Flats such as Indo Rang Homes and Prabhatam Victoria 55',
               'Lift slot confirmed with the building.',
             ],
           ],

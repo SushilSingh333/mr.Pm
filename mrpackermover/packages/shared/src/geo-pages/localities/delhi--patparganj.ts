@@ -15,6 +15,48 @@ export const delhiPatparganj: GeoPage = {
     'Fixed written quote, GST shown',
     'Crew with verified IDs',
   ],
+  societies: [
+    'Pharma Apartments',
+    'Kanungo Apartments',
+    'Sahyadri Apartment',
+    'Kamayani Kunj',
+    "Engineer's Estate",
+    'Aakash Bharti Apartments',
+    'Agrasen Awas',
+    'Ajanta Apartments',
+    'Aruna Apartments',
+    'Balco Apartments',
+    'Delhi Rajdhani Apartments',
+    'Dhruva Apartments',
+    'Him Vihar Apartments',
+    'Himalaya Apartments',
+    'Kallol Apartments',
+    'Maitri Apartments',
+    'Maurya Apartments',
+    'Milan Vihar',
+    'Mithila Apartments',
+    'Narwana Apartments',
+    'Nav Kranti Apartments',
+    'Navkunj Apartments',
+    'Oriental Enclave',
+    'Panchmahal Awas',
+    'Paradise Apartments',
+    'Press Apartment',
+    'Ras Vihar',
+    'Sadbhavna Apartments',
+    'Sanchar Lok',
+    'Saraswati Kunj',
+    'Shree Ganesh Apartments',
+    'Shubham Apartments',
+    'Sukhsagar Apartments',
+    'Swati Apartments',
+    'Takshila Apartments',
+    'Technology Apartment',
+    'Trilok Apartments',
+    'UNESCO Apartment',
+    'Vardan Apartments',
+    'Vidyut Nikunj',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Patparganj different?',
@@ -48,7 +90,7 @@ export const delhiPatparganj: GeoPage = {
           rows: [
             [
               'IP Extension',
-              'Cooperative group housing society flats',
+              'Society flats such as Pharma Apartments and Kanungo Apartments',
               'Society office rules checked before booking.',
             ],
             [
@@ -170,7 +212,7 @@ export const delhiPatparganj: GeoPage = {
     {
       question: 'Will the truck fit through my IP Extension society gate?',
       answer:
-        'We check your society gate and the path to the lift on the video survey. If the truck must stand outside, any carry past 50 metres is priced up front.',
+        'In societies such as Sahyadri Apartment or Kamayani Kunj, we check the gate and the path to the lift on the video survey. If the truck must stand outside, any carry past 50 metres is priced up front.',
     },
     {
       question: 'Is a move to Mayur Vihar or Laxmi Nagar a local job?',
@@ -185,7 +227,7 @@ export const delhiPatparganj: GeoPage = {
     {
       question: 'Can my IP Extension flat move on a weekday evening?',
       answer:
-        'Yes, if your society allows it: we load by 8 PM and deliver next morning. If evening loading is not allowed, we plan a day move.',
+        'Yes, if your society allows it: we load by 8 PM and deliver next morning. Where a Patparganj society bars evening loading, the truck comes in the day instead.',
     },
   ],
   servicesHeading: 'Moving services in Patparganj',

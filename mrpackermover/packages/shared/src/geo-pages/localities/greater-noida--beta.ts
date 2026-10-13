@@ -15,6 +15,17 @@ export const greaterNoidaBeta: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Tata Steel Officers Enclave',
+    'AVJ Homes',
+    'Chitvan Estate',
+    'Hi Castle',
+    'Mitra CHS',
+    'Sigma Apartments',
+    'Spark Divine',
+    'SS Enclave',
+    'Vraddhi Venetia',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Beta different?',
@@ -46,10 +57,14 @@ export const greaterNoidaBeta: GeoPage = {
           kind: 'table',
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
-            ['Beta 1', 'Houses, low-rise flats in blocks', 'Truck on the block service road.'],
+            [
+              'Beta 1',
+              'Houses, and societies such as Tata Steel Officers Enclave',
+              'Truck on the block service road.',
+            ],
             [
               'Beta 2',
-              'Houses, low-rise flats',
+              'Houses, and societies such as AVJ Homes',
               'Below Gamma 2 and DPS Greater Noida, so school hours are avoided.',
             ],
             [

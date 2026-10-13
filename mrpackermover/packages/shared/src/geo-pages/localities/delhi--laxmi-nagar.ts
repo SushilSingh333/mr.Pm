@@ -15,6 +15,14 @@ export const delhiLaxmiNagar: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Colonies we move in and around Laxmi Nagar',
+  societies: [
+    'Bank Enclave',
+    'Krishna Kunj',
+    'Priyadarshini Colony',
+    'West Angad Nagar',
+    'Vir Savarkar Block',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Laxmi Nagar different?',

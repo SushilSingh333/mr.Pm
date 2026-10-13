@@ -4,6 +4,7 @@ import { SERVICE_PAGE_LABELS, plainText } from '@mpm/shared';
 import GBody from './GBody.astro';
 import GFaqBand from './GFaqBand.astro';
 import GReviewsBand from './GReviewsBand.astro';
+import GSocietiesBand from './GSocietiesBand.astro';
 import GLinkBand from './GLinkBand.astro';
 import GCtaPanel from './GCtaPanel.astro';
 import { bandTones, tocOf, withIds } from '../../lib/page-sections.js';
@@ -35,9 +36,21 @@ interface Props {
   nearbyLinks: Link[];
   /** The city or area's name, for the reviews heading. */
   place?: string;
+  /** A city × service page's "What's included / What costs extra", for its scope block. */
+  inclusions?: string[];
+  exclusions?: string[];
 }
-const { page, serviceLinks, areas, nearbyLinks, place } = Astro.props;
+const {
+  page,
+  serviceLinks,
+  areas,
+  nearbyLinks,
+  place,
+  inclusions = [],
+  exclusions = [],
+} = Astro.props;
 const reviews = page.reviews ?? [];
+const societies = page.societies ?? [];
 const reviewsHeading =
   page.reviewsHeading || (place ? `What customers in ${place} say` : 'What our customers say');
 
@@ -55,6 +68,7 @@ const routeChip = (route: string): string | { label: string; href: string } => {
 const tone = bandTones(sections.length);
 const showAreas = Boolean(areas && areas.links.length > 0);
 const tones = {
+  societies: societies.length > 0 ? tone() : 'white',
   reviews: reviews.length > 0 ? tone() : 'white',
   faq: faqs.length > 0 ? tone() : 'white',
   services: serviceLinks.length > 0 ? tone() : 'white',
@@ -102,7 +116,20 @@ const labels = {
   )
 }
 
-<GBody sections={sections} toc={toc} priceCta={priceCta} />
+<GBody
+  sections={sections}
+  toc={toc}
+  priceCta={priceCta}
+  inclusions={inclusions}
+  exclusions={exclusions}
+/>
+
+<GSocietiesBand
+  place={place ?? ''}
+  societies={societies}
+  heading={page.societiesHeading}
+  tone={tones.societies}
+/>
 
 <GReviewsBand heading={reviewsHeading} reviews={reviews} tone={tones.reviews} />
 

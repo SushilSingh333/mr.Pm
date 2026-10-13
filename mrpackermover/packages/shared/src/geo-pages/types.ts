@@ -52,6 +52,19 @@ export interface GeoPage {
    */
   reviewsHeading?: string;
   reviews?: GeoReview[];
+  /**
+   * The housing societies, apartment complexes and named blocks in a locality, as people
+   * write them ("Supertech Capetown", "Gaur Saundaryam"). Shown as a band of chips, each
+   * opening the quote form with that society filled in. People search for movers by
+   * their society's name, so every real one listed is a way in.
+   */
+  societies?: string[];
+  /**
+   * The societies band's heading, when the list is the area's neighbours rather than the
+   * area itself ("Homes we move in and around Udyog Vihar"). Blank: "Societies we move in
+   * <Place>".
+   */
+  societiesHeading?: string;
 }
 
 /** One customer review, as the customer agreed to have it shown. */
@@ -86,5 +99,6 @@ export type GeoPageOverrides = Partial<
     | 'ctaText'
     | 'reviewsHeading'
     | 'reviews'
+    | 'societies'
   >
 >;

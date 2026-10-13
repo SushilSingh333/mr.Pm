@@ -15,13 +15,36 @@ export const meerutGangaNagar: GeoPage = {
     'ID-verified crew',
     'Only what is on the written quote',
   ],
+  societies: [
+    'Navkar Kunj Vatika',
+    'Needhi Shree Paradise Apartment',
+    'Vaishno Ganga Dham',
+    'Vaishno Daffodil Phase 3',
+    'Ajanta DownTown',
+    'Alaknanda Dham',
+    'Annie JP Residency',
+    'ASG Panache',
+    'Daivya RPG Heights',
+    'Ganga Dham Royal Regency',
+    'Ganga Greencity',
+    'Ganga Vatika Colony',
+    'HAS Raj Heights',
+    'Inprosper New Saket',
+    'Relpro East Defence Colony',
+    'Riddhi Vardhman Golden Park',
+    'Sagar Vatika',
+    'Saraswati Sagar',
+    'Shakuntalam Fairfield Residency',
+    'Shri Ganga City',
+    'Yashoda Kunj',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Ganga Nagar different?',
       blocks: [
         {
           kind: 'text',
-          body: 'Ganga Nagar is a Meerut Development Authority colony in the north-east of the city, named after the Ganges. The MDA built homes here for lower, middle and higher income groups. One lane can hold very different loads.',
+          body: 'Ganga Nagar is a Meerut Development Authority colony in the north-east of the city, named after the Ganges. The MDA built homes here for lower, middle and higher income groups. Private projects such as Vaishno Ganga Dham and Navkar Kunj Vatika add villas and flats.',
         },
         {
           kind: 'list',
@@ -67,7 +90,7 @@ export const meerutGangaNagar: GeoPage = {
             ],
             [
               'Towards Abdullapur and Buxar',
-              'Homes at the eastern and northern edges',
+              'Edge homes and Inprosper New Saket',
               'Village lanes measured before the truck is sent.',
             ],
           ],
@@ -173,7 +196,7 @@ export const meerutGangaNagar: GeoPage = {
     {
       question: 'Can the truck park inside my pocket lane?',
       answer:
-        'Usually, yes. Packers and movers in Ganga Nagar check your pocket lane on the video call and load there, not on the Mawana Road carriageway.',
+        'Usually, yes. Packers and movers in Ganga Nagar check your pocket lane on the video call and load there, not on the Mawana Road carriageway. In blocks such as HAS Raj Heights, the survey also checks the gate and lift.',
     },
     {
       question: 'What if something breaks on the way?',

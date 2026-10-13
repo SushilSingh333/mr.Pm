@@ -15,6 +15,18 @@ export const greaterNoidaOmicron: GeoPage = {
     'Own crew, ID-verified',
     'One fixed price in writing',
   ],
+  societies: [
+    'Gaur Atulyam',
+    'Migsun Ultimo',
+    'Stellar MI Citihomes',
+    'GNIDA Lohiya Enclave',
+    'Eldeco 7 Peaks Residences',
+    'Eldeco Mystic Greens',
+    'Migsun Mannat',
+    'Supertech Czar Suites',
+    'Supertech Czar Villas',
+    'Uppal Plumeria Garden Estate',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Omicron different?',
@@ -44,12 +56,12 @@ export const greaterNoidaOmicron: GeoPage = {
           rows: [
             [
               'Omicron 1',
-              'Gaur Atulyam and other group housing, off Mathurapur Road',
+              'Gaur Atulyam, Supertech Czar and Migsun Mannat, off Mathurapur Road',
               'Lift slot and society pass checked.',
             ],
             [
               'Omicron 1A',
-              'Newer projects such as Eldeco 7 Peaks Residences',
+              'Eldeco 7 Peaks Residences and GNIDA Lohiya Enclave',
               'Possession status confirmed before booking.',
             ],
             [
@@ -59,7 +71,7 @@ export const greaterNoidaOmicron: GeoPage = {
             ],
             [
               'Omicron 3 (Sector 34)',
-              'Migsun and Stellar projects plus villas',
+              'Migsun Ultimo and Stellar MI Citihomes, plus villas',
               'Stairs or lift planned for each home.',
             ],
           ],

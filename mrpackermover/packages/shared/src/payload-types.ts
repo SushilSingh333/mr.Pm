@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     locations: Location;
+    'city-service-pages': CityServicePage;
     services: Service;
     lanes: Lane;
     'rate-cards': RateCard;
@@ -96,10 +97,12 @@ export interface Config {
   collectionsJoins: {
     locations: {
       sublocations: 'locations';
+      servicePages: 'city-service-pages';
     };
   };
   collectionsSelect: {
     locations: LocationsSelect<false> | LocationsSelect<true>;
+    'city-service-pages': CityServicePagesSelect<false> | CityServicePagesSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
     lanes: LanesSelect<false> | LanesSelect<true>;
     'rate-cards': RateCardsSelect<false> | RateCardsSelect<true>;
@@ -248,6 +251,14 @@ export interface Location {
     totalDocs?: number;
   };
   /**
+   * The text of this city’s “{Service} in {City}” pages. Open one to edit it; blank fields show the written page.
+   */
+  servicePages?: {
+    docs?: (number | CityServicePage)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
    * Everything on the city or locality page below the heading. Leave a field blank, or a list empty, to show the text from the page brief.
    */
   body?: {
@@ -342,6 +353,15 @@ export interface Location {
         }[]
       | null;
     /**
+     * Housing societies, apartment complexes and named blocks in this area, as people write them. Each shows as a chip that opens the quote form with the society filled in. Blank keeps the list from the page brief.
+     */
+    societies?:
+      | {
+          name: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
      * Blank shows "What customers in <place> say".
      */
     reviewsHeading?: string | null;
@@ -395,7 +415,7 @@ export interface Location {
    */
   metaDescription?: string | null;
   /**
-   * Optional. Override the title/description of one “{Service} in {City}” page. Leave empty and those pages use Settings → SEO defaults.
+   * Optional. Override the title/description of one “{Service} in {City}” page. Leave empty and the page uses its written title and description (or Settings → SEO defaults when it has none).
    */
   serviceSeo?:
     | {
@@ -636,6 +656,173 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * The text of each "{Service} in {City}" page, e.g. Home Shifting in Noida. Blank fields show the written page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "city-service-pages".
+ */
+export interface CityServicePage {
+  id: number;
+  /**
+   * Filled in from the city and the service.
+   */
+  name?: string | null;
+  city: number | Location;
+  service: number | Service;
+  /**
+   * Blank shows the written heading. Keep the service and the city in it, e.g. "Home shifting in Noida".
+   */
+  h1?: string | null;
+  /**
+   * Everything on the page below the heading. Leave a field blank, or a list empty, to show the written page. A list with rows replaces the whole written list.
+   */
+  body?: {
+    subhead?: string | null;
+    trust?:
+      | {
+          item: string;
+          id?: string | null;
+        }[]
+      | null;
+    sections?:
+      | {
+          /**
+           * Blank for opening paragraphs with no heading.
+           */
+          heading?: string | null;
+          blocks?:
+            | (
+                | {
+                    /**
+                     * A blank line starts a new paragraph. [words](/path) makes a link.
+                     */
+                    body: string;
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcText';
+                  }
+                | {
+                    items: {
+                      /**
+                       * The bold start of the step, e.g. "Pickup".
+                       */
+                      title: string;
+                      /**
+                       * A blank line starts a new paragraph. [words](/path) makes a link.
+                       */
+                      body?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcSteps';
+                  }
+                | {
+                    items: {
+                      text: string;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcList';
+                  }
+                | {
+                    /**
+                     * Leave blank for a comparison table ("| | Train | Carrier |").
+                     */
+                    h1?: string | null;
+                    h2: string;
+                    /**
+                     * Blank for a two-column table.
+                     */
+                    h3?: string | null;
+                    /**
+                     * Blank for two or three columns.
+                     */
+                    h4?: string | null;
+                    rows: {
+                      c1: string;
+                      c2: string;
+                      c3?: string | null;
+                      c4?: string | null;
+                      id?: string | null;
+                    }[];
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcTable';
+                  }
+                | {
+                    note?: string | null;
+                    id?: string | null;
+                    blockName?: string | null;
+                    blockType: 'svcScope';
+                  }
+              )[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    faqHeading?: string | null;
+    faqs?:
+      | {
+          question: string;
+          /**
+           * A blank line starts a new paragraph. [words](/path) makes a link.
+           */
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Blank shows "What customers in <place> say".
+     */
+    reviewsHeading?: string | null;
+    /**
+     * Real reviews only, shown with the customer’s permission. The page shows a reviews section only when at least one review is here; with none, there is no section at all.
+     */
+    reviews?:
+      | {
+          /**
+           * As they agreed to be shown, e.g. "Priya S."
+           */
+          name: string;
+          /**
+           * e.g. "2 BHK, Rohini to Dwarka"
+           */
+          move?: string | null;
+          text: string;
+          rating?: ('5' | '4' | '3' | '2' | '1') | null;
+          /**
+           * e.g. "March 2026"
+           */
+          date?: string | null;
+          source?: ('Google' | 'Justdial' | 'Facebook' | 'Direct') | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The service links under it are built from the live pages.
+     */
+    servicesHeading?: string | null;
+    nearbyHeading?: string | null;
+    nearbyIntro?: string | null;
+    /**
+     * Shown as text, e.g. "Delhi to Bangalore", until each route has a page.
+     */
+    routes?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
+    ctaHeading?: string | null;
+    ctaText?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1480,6 +1667,10 @@ export interface PayloadLockedDocument {
         value: number | Location;
       } | null)
     | ({
+        relationTo: 'city-service-pages';
+        value: number | CityServicePage;
+      } | null)
+    | ({
         relationTo: 'services';
         value: number | Service;
       } | null)
@@ -1620,6 +1811,7 @@ export interface LocationsSelect<T extends boolean = true> {
   heroImage?: T;
   editorialNote?: T;
   sublocations?: T;
+  servicePages?: T;
   body?:
     | T
     | {
@@ -1699,6 +1891,12 @@ export interface LocationsSelect<T extends boolean = true> {
               answer?: T;
               id?: T;
             };
+        societies?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
         reviewsHeading?: T;
         reviews?:
           | T
@@ -1732,6 +1930,129 @@ export interface LocationsSelect<T extends boolean = true> {
         metaTitle?: T;
         metaDescription?: T;
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "city-service-pages_select".
+ */
+export interface CityServicePagesSelect<T extends boolean = true> {
+  name?: T;
+  city?: T;
+  service?: T;
+  h1?: T;
+  body?:
+    | T
+    | {
+        subhead?: T;
+        trust?:
+          | T
+          | {
+              item?: T;
+              id?: T;
+            };
+        sections?:
+          | T
+          | {
+              heading?: T;
+              blocks?:
+                | T
+                | {
+                    svcText?:
+                      | T
+                      | {
+                          body?: T;
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcSteps?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                title?: T;
+                                body?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcList?:
+                      | T
+                      | {
+                          items?:
+                            | T
+                            | {
+                                text?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcTable?:
+                      | T
+                      | {
+                          h1?: T;
+                          h2?: T;
+                          h3?: T;
+                          h4?: T;
+                          rows?:
+                            | T
+                            | {
+                                c1?: T;
+                                c2?: T;
+                                c3?: T;
+                                c4?: T;
+                                id?: T;
+                              };
+                          id?: T;
+                          blockName?: T;
+                        };
+                    svcScope?:
+                      | T
+                      | {
+                          note?: T;
+                          id?: T;
+                          blockName?: T;
+                        };
+                  };
+              id?: T;
+            };
+        faqHeading?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+        reviewsHeading?: T;
+        reviews?:
+          | T
+          | {
+              name?: T;
+              move?: T;
+              text?: T;
+              rating?: T;
+              date?: T;
+              source?: T;
+              id?: T;
+            };
+        servicesHeading?: T;
+        nearbyHeading?: T;
+        nearbyIntro?: T;
+        routes?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        ctaHeading?: T;
+        ctaText?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2367,8 +2688,18 @@ export interface OrgProfile {
   id: number;
   brandName: string;
   legalName: string;
+  /**
+   * As on the GST certificate. Blank shows the legal name.
+   */
+  tradeName?: string | null;
+  /**
+   * All 15 characters, as on the GST certificate. A wrong check character is not shown on the site.
+   */
   gstin: string;
-  cin: string;
+  /**
+   * For a company or LLP. Leave blank for a partnership firm or proprietorship.
+   */
+  cin?: string | null;
   yearsOperating: number;
   insurancePartner?: string | null;
   registeredOffice: string;
@@ -2785,6 +3116,7 @@ export interface ScheduleSetting {
 export interface OrgProfileSelect<T extends boolean = true> {
   brandName?: T;
   legalName?: T;
+  tradeName?: T;
   gstin?: T;
   cin?: T;
   yearsOperating?: T;

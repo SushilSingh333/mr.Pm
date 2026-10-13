@@ -15,6 +15,34 @@ export const ghaziabadVaishali: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Gaur Ganga 1',
+    'Gaur Ganga 2',
+    'Gaur Heights',
+    'Gaurs Galaxy',
+    'Rishabh Cloud 9',
+    'Neel Padam Kunj',
+    'Unitech Sunbreeze Towers',
+    'Supertech Residency',
+    'Mahagun Villa',
+    'Ahlcon Apartments',
+    'Amravati Apartments',
+    'Deepsons Atulya Heights',
+    'Devika Apartments',
+    'Eldeco Apartments',
+    'Gaur Anchal Apartments',
+    'Hindon Heights',
+    'Kalpana Apartments',
+    'Kamra Apartments',
+    'Kansal Kartikey Apartments',
+    'Mandakini Apartments',
+    'Media Enclave',
+    'Modi Residency',
+    'Niharika Heights',
+    'Prangan Tower',
+    'Ramprastha Alaknanda Apartments',
+    'Ramprastha Attalika',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Vaishali different?',
@@ -48,7 +76,7 @@ export const ghaziabadVaishali: GeoPage = {
           rows: [
             [
               'Sector 1',
-              'Homes around Max Super Speciality Hospital',
+              'Rishabh Cloud 9 and Neel Padam Kunj',
               'Truck kept off the hospital approach.',
             ],
             [
@@ -58,7 +86,7 @@ export const ghaziabadVaishali: GeoPage = {
             ],
             [
               'Sector 4',
-              'Societies such as Gaur Ganga 2 beside the metro',
+              'Gaur Ganga 2 and Gaur Heights by the metro',
               'Loading away from the station gate.',
             ],
             [

@@ -15,6 +15,15 @@ export const delhiHauzKhas: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societies: [
+    'Hauz Khas Enclave',
+    'Hauz Khas Apartments',
+    'Mayfair Gardens',
+    'Padmini Enclave',
+    'Bhavishya Nidhi Enclave',
+    'Kaushalya Park',
+    'Sarvapriya Vihar',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Hauz Khas different?',

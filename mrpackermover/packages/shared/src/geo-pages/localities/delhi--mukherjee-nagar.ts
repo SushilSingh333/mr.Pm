@@ -15,6 +15,7 @@ export const delhiMukherjeeNagar: GeoPage = {
     'Our own ID-verified crew',
     'One written price, nothing added',
   ],
+  societies: ['Mukherjee Apartments', 'HIG Flats', 'Nehru Vihar', 'Gandhi Vihar', 'Indira Vihar'],
   sections: [
     {
       heading: 'What makes shifting in Mukherjee Nagar different?',

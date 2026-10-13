@@ -1,0 +1,152 @@
+---
+/**
+ * The housing societies and apartment complexes in a locality, as a band of chips on the
+ * page's centre line. Each chip opens the quote form with the society filled in as the
+ * pickup, so a visitor from "Supertech Capetown" starts with their own address. People
+ * search for movers by their society's name; every name here is in the HTML from the
+ * start (crawlable), and a long list opens with its first two dozen and a "Show all"
+ * button.
+ */
+interface Props {
+  place: string;
+  city?: string;
+  societies: string[];
+  /** Overrides "Societies we move in <Place>" (a list of the area's neighbours). */
+  heading?: string;
+  tone?: 'white' | 'tint';
+}
+const { place, city, societies, heading, tone = 'white' } = Astro.props;
+const FIRST = 24;
+const hrefFor = (name: string): string => {
+  const q = new URLSearchParams({ from: [name, place, city].filter(Boolean).join(', ') });
+  return `/get-quote?${q.toString()}`;
+};
+---
+
+{
+  societies.length > 0 && (
+    <section
+      class:list={['gso', { 'gso--tint': tone === 'tint' }]}
+      aria-labelledby="societies"
+      data-gso
+    >
+      <h2 class="gso-h2" id="societies">
+        {heading || `Societies we move in ${place}`}
+      </h2>
+      <p class="gso-intro">
+        Pick your society to start a quote with it filled in. Not listed? We cover every society and
+        lane in {place}.
+      </p>
+      <ul class="gso-list">
+        {societies.map((s, i) => (
+          <li hidden={i >= FIRST}>
+            <a href={hrefFor(s)}>{s}</a>
+          </li>
+        ))}
+      </ul>
+      {societies.length > FIRST && (
+        <p class="gso-more">
+          <button type="button" data-gso-more>
+            Show all {societies.length} societies
+          </button>
+        </p>
+      )}
+    </section>
+  )
+}
+
+<script>
+  for (const band of document.querySelectorAll<HTMLElement>('[data-gso]')) {
+    band.querySelector('[data-gso-more]')?.addEventListener('click', (e) => {
+      band.querySelectorAll('.gso-list li[hidden]').forEach((li) => li.removeAttribute('hidden'));
+      (e.currentTarget as HTMLElement).closest('.gso-more')?.remove();
+    });
+  }
+</script>
+
+<style>
+  .gso {
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
+    text-align: center;
+  }
+  .gso--tint {
+    background: var(--g-surface-2);
+  }
+  .gso-h2 {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: clamp(1.625rem, 3vw, 2.375rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gso-intro {
+    max-width: 40rem;
+    margin: 0.85rem auto 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+  .gso-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin: 1.75rem auto 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gso-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0.35rem 1rem;
+    border: 1px solid #c4c7c5;
+    border-radius: 0.5rem;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--g-ink-2);
+    text-decoration: none;
+    transition:
+      border-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+      color 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .gso-list a:hover,
+  .gso-list a:focus-visible {
+    border-color: var(--color-brand-600);
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+  }
+  .gso-list a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .gso-more {
+    margin: 1.25rem 0 0;
+  }
+  .gso-more button {
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid var(--g-outline-strong);
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-weight: 500;
+    color: var(--color-brand-700);
+    cursor: pointer;
+  }
+  .gso-more button:hover {
+    background: var(--color-brand-50);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gso-list a {
+      transition: none;
+    }
+  }
+</style>

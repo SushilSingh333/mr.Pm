@@ -15,6 +15,22 @@ export const delhiKarolBagh: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Apartments and pockets we move in Karol Bagh',
+  societies: [
+    'Unity The Amaryllis',
+    'Unity Premium Residences',
+    'Prasad Nagar DDA MIG Flats',
+    'Prasad Nagar LIG Flats',
+    'Bapa Nagar',
+    'Beadon Pura',
+    'Dev Nagar',
+    'Guru Nanak Complex',
+    'Kohli Niwas',
+    'Rahul Palace',
+    'Regharpura',
+    'Than Singh Nagar',
+    'WEA Karol Bagh',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Karol Bagh different?',
@@ -27,7 +43,7 @@ export const delhiKarolBagh: GeoPage = {
           kind: 'list',
           items: [
             'Market streets. Ajmal Khan Road and Ghaffar Market are busy shopping streets, so the truck often waits nearby while the crew carries.',
-            'Residential pockets. WEA, Beadon Pura, Regharpura, Dev Nagar and Bapa Nagar are the main residential parts, each with its own lanes.',
+            'Residential pockets. WEA, Beadon Pura, Regharpura, Dev Nagar and Bapa Nagar are the main residential parts, each with its own lanes. Flats include Unity The Amaryllis and the Prasad Nagar DDA flats.',
             'Metro and rail. Karol Bagh station is on the Blue Line. Delhi Sarai Rohilla railway station is about 1 km away.',
             'Pusa Road. The wide road beside the market is where the truck usually waits while the crew carries from the lanes.',
             'Leather trade. Hardhyan Singh Road is known for leather goods, so a home there often sits above or beside a busy shop front.',

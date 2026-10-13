@@ -11,7 +11,13 @@ import Faq from '../../components/sections/Faq.astro';
 import QuoteWidget from '../../components/quote/QuoteWidget.astro';
 import { staticRow, editorialFor } from '../../lib/page.js';
 import { heroAlt } from '../../lib/hero.js';
-import { PHONE_DISPLAY, PHONE_TEL, SITE_ORIGIN, WHATSAPP_NUMBER } from '../../lib/site.js';
+import {
+  PHONE_DISPLAY,
+  PHONE_TEL,
+  SITE_ORIGIN,
+  SUPPORT_HOURS,
+  WHATSAPP_NUMBER,
+} from '../../lib/site.js';
 
 /**
  * /services - the hub that sends people to the seven service pages.
@@ -245,7 +251,7 @@ const extraJsonLd = [itemList, jsonld.faqPage(faqs)];
           href={whatsapp('Hi MrMoverPacker, I would like a fixed quote for my move.')}
           target="_blank"
           rel="noopener noreferrer">WhatsApp</a
-        > · 8 AM to 10 PM, every day
+        > · {SUPPORT_HOURS}
       </p>
     </div>
   </Band>

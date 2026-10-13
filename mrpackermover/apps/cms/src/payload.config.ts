@@ -12,6 +12,7 @@ import { LoginEvents } from './collections/LoginEvents.js';
 import { Users } from './collections/Users.js';
 import { Media } from './collections/Media.js';
 import { Locations } from './collections/Locations.js';
+import { CityServicePages } from './collections/CityServicePages.js';
 import { Services } from './collections/Services.js';
 import { Lanes } from './collections/Lanes.js';
 import { OperatingBases } from './collections/OperatingBases.js';
@@ -102,6 +103,7 @@ export default buildConfig({
   collections: [
     // Geography & catalogue
     Locations,
+    CityServicePages,
     Services,
     Lanes,
     // Pricing & trust

@@ -16,10 +16,35 @@ export const OrgProfile: GlobalConfig = {
     { name: 'brandName', type: 'text', required: true, defaultValue: 'MrMoverPacker' },
     { name: 'legalName', type: 'text', required: true },
     {
+      name: 'tradeName',
+      type: 'text',
+      label: 'Trade name (GST)',
+      admin: { description: 'As on the GST certificate. Blank shows the legal name.' },
+    },
+    {
       type: 'row',
       fields: [
-        { name: 'gstin', type: 'text', required: true, admin: { width: '50%' } },
-        { name: 'cin', type: 'text', required: true, admin: { width: '50%' } },
+        {
+          name: 'gstin',
+          type: 'text',
+          required: true,
+          label: 'GSTIN',
+          admin: {
+            width: '50%',
+            description:
+              'All 15 characters, as on the GST certificate. A wrong check character is not shown on the site.',
+          },
+        },
+        {
+          name: 'cin',
+          type: 'text',
+          label: 'CIN or LLPIN',
+          admin: {
+            width: '50%',
+            description:
+              'For a company or LLP. Leave blank for a partnership firm or proprietorship.',
+          },
+        },
       ],
     },
     { name: 'yearsOperating', type: 'number', required: true },

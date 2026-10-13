@@ -15,6 +15,25 @@ export const ghaziabadSahibabad: GeoPage = {
     'ID-verified crew',
     'Nothing extra beyond the quote',
   ],
+  societies: [
+    'Gaur Airocity',
+    'Gaur Aero Heights',
+    'Panchsheel Ashok Vatika',
+    'SVP Doodeshwar Apartments',
+    'Aman Swarn Residency',
+    'Anjali Apartments',
+    'Durgampuram Apartment',
+    'J P Apartments',
+    'Javin Raj Enclave',
+    'Raman Apartment',
+    'Rishis Milan',
+    'S N Residency',
+    'Shiv Ashirvad',
+    'Shyam Park Residency',
+    'Surajmal Apartment',
+    'Surya Uday',
+    'Ved Kunj',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sahibabad different?',
@@ -30,7 +49,7 @@ export const ghaziabadSahibabad: GeoPage = {
             'GT Road and the Red Line. Raj Bagh, Major Mohit Sharma Rajendra Nagar, Shyam Park and Mohan Nagar stations all stand on GT Road. Trucks share that road with its traffic, so loading is timed around it.',
             'Namo Bharat at Site 4. Sahibabad RRTS station stands on Madan Mohan Malviya Marg. Its gates face the Sahibabad Bus Depot and the Mohan Nagar side, a clear spot to meet the crew.',
             'Older industry at Mohan Nagar. Mohan Nagar Industrial Estate dates from 1949, and Anand Industrial Area lies nearby. Unit moves there are planned around working hours.',
-            'Hindon Airport. Its civil terminal at Sikandarpur village is a handy landmark when giving the truck directions.',
+            'Hindon Airport. Its civil terminal at Sikandarpur village is a handy landmark for the driver, and Gaur Airocity stands near the airport.',
           ],
         },
       ],
@@ -48,7 +67,7 @@ export const ghaziabadSahibabad: GeoPage = {
           rows: [
             [
               'Rajendra Nagar and Lajpat Nagar',
-              'Flats and builder floors',
+              'Flats such as Panchsheel Ashok Vatika, and builder floors',
               'Stairs counted on the survey.',
             ],
             [

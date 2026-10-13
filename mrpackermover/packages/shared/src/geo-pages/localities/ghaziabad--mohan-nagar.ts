@@ -15,6 +15,23 @@ export const ghaziabadMohanNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Parsvnath Paradise',
+    'Saviour Park',
+    'SVP Gulmohur Greens',
+    'Indira Garden',
+    'Proview Delhi 99',
+    'Amaan Apartments',
+    'Angel Green Homez',
+    'Asanchal Apartments',
+    'Javin Raj Avenue',
+    'Javin Raj Retreat',
+    'Kanha Upvan Residency',
+    'Karmchari CHS',
+    'Park View Complex',
+    'Sagar Vatika',
+    'Shiv Vansh Apartments',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Mohan Nagar different?',
@@ -51,7 +68,7 @@ export const ghaziabadMohanNagar: GeoPage = {
               'Truck parked in a side lane off GT Road.',
             ],
             [
-              'Societies such as Parsvnath Paradise and Saviour Park',
+              'Societies such as Parsvnath Paradise, Saviour Park and SVP Gulmohur Greens',
               'Homes in named societies',
               'Lift slot and entry pass booked first.',
             ],

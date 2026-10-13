@@ -15,6 +15,13 @@ export const gurgaonCyberCity: GeoPage = {
     'One itemised GST invoice',
     'ID-verified crew for building security',
   ],
+  societies: [
+    'DLF Belvedere Park',
+    'DLF Belvedere Towers',
+    'DLF Oakwood Estate',
+    'DLF Pink Town House',
+    'National Media Centre',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Cyber City different?',
@@ -58,8 +65,8 @@ export const gurgaonCyberCity: GeoPage = {
             ],
             [
               'Near Belvedere Towers station',
-              'Belvedere Towers and nearby office blocks',
-              'Truck kept clear of the metro pillars.',
+              'Flats in DLF Belvedere Towers and DLF Belvedere Park',
+              'Lift slot booked; truck kept clear of the metro pillars.',
             ],
             [
               'Around Cyber Hub',
@@ -184,7 +191,7 @@ export const gurgaonCyberCity: GeoPage = {
     {
       question: 'Can you move my home near Cyber City too?',
       answer:
-        'Yes. Packers and movers in Cyber City also shift homes in [DLF Phase 1](/packers-and-movers/gurgaon/dlf-phase-1), [MG Road](/packers-and-movers/gurgaon/mg-road) and [Golf Course Road](/packers-and-movers/gurgaon/golf-course-road).',
+        'Yes. Packers and movers in Cyber City also shift flats in societies such as DLF Oakwood Estate and DLF Belvedere Park, and homes in [DLF Phase 1](/packers-and-movers/gurgaon/dlf-phase-1).',
     },
     {
       question: 'My new job is in Cyber City. Can you move me from another city?',

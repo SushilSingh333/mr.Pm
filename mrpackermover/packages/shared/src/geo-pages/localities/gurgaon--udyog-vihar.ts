@@ -15,6 +15,18 @@ export const gurgaonUdyogVihar: GeoPage = {
     'Cartons labelled to each seat',
     'GST invoice that matches the quote',
   ],
+  societiesHeading: 'Homes we move in and around Udyog Vihar',
+  societies: [
+    'Ambience Island',
+    'Ambience Creacions',
+    'DLF Belvedere Park',
+    'DLF Belvedere Towers',
+    'Ambience Caitriona',
+    'Ambience Lagoon',
+    'Gautam Enclave',
+    'National Media Centre',
+    'Surya Vihar',
+  ],
   sections: [
     {
       heading: 'What makes a move in Udyog Vihar different?',
@@ -64,6 +76,11 @@ export const gurgaonUdyogVihar: GeoPage = {
               'Phase 6, near Sector 19',
               'Offices and units',
               'Gate and lift rules checked on the survey.',
+            ],
+            [
+              'Sector 22 and Sector 24, next door',
+              'Societies such as Ambience Creacions and Ambience Island',
+              'Lift slot and gate entry fixed with the society.',
             ],
             [
               'Dundahera, Sector 19 and Sector 20',
@@ -176,7 +193,7 @@ export const gurgaonUdyogVihar: GeoPage = {
     {
       question: 'Do you also move homes near Udyog Vihar?',
       answer:
-        'Yes, from Dundahera and Sectors 19 and 20, on a separate [home shifting](/services/home-shifting) survey.',
+        'Yes, from Dundahera, Sectors 19 and 20, and societies such as Ambience Creacions, on a separate [home shifting](/services/home-shifting) survey.',
     },
     {
       question: 'Is stock from our Phase 4 unit covered in transit?',

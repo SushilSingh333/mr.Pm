@@ -291,6 +291,9 @@ export function geoPageOverrides(body: unknown): GeoPageOverrides {
       .filter((t): t is string => Boolean(t)),
     ctaHeading: str(d.ctaHeading),
     ctaText: str(d.ctaText),
+    societies: rows(d.societies)
+      .map((r) => str(r.name))
+      .filter((t): t is string => Boolean(t)),
     reviewsHeading: str(d.reviewsHeading),
     reviews: rows(d.reviews).flatMap((r) => {
       const name = str(r.name);

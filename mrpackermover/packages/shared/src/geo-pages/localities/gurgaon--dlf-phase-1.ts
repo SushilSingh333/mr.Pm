@@ -15,6 +15,18 @@ export const gurgaonDlfPhase1: GeoPage = {
     'Overnight local moves: loaded by 8 PM',
     'ID-verified crew',
   ],
+  societiesHeading: 'Blocks and societies we move in DLF Phase 1',
+  societies: [
+    'DLF Silver Oaks',
+    'A Block',
+    'A Block Extension',
+    'B Block',
+    'C Block',
+    'F Block',
+    'G Block',
+    'H Block',
+    'Perch Arbor',
+  ],
   sections: [
     {
       heading: 'What makes shifting in DLF Phase 1 different?',
@@ -27,7 +39,7 @@ export const gurgaonDlfPhase1: GeoPage = {
           kind: 'list',
           items: [
             'Builder floors. Most DLF Phase 1 homes are builder floors, often up stairs to the second or third floor.',
-            'A few towers. DLF Phase 1 also has some condominium towers with a service lift that is booked ahead.',
+            'A few towers. Condominiums such as DLF Silver Oaks have a service lift that is booked ahead.',
             'Narrow block lanes. Some DLF Phase 1 lanes are tight, so the truck may park a short carry away.',
             'Rapid Metro next door. DLF Phase 1 station sits on the Golf Course Road line, one stop from the Sikanderpur interchange.',
             'Qutab Plaza. The main DLF Phase 1 market draws daytime parking, so trucks for nearby blocks avoid shop hours.',
@@ -57,7 +69,7 @@ export const gurgaonDlfPhase1: GeoPage = {
               'Loading kept clear of market hours.',
             ],
             [
-              'Condominium towers in DLF Phase 1',
+              'DLF Silver Oaks and other towers',
               'Flats with a service lift',
               'Lift slot booked with the tower office.',
             ],
@@ -159,7 +171,7 @@ export const gurgaonDlfPhase1: GeoPage = {
     {
       question: 'Do you move builder floors in DLF Phase 1?',
       answer:
-        'Yes, from A Block to the blocks near Qutab Plaza. The stair count sets the crew size.',
+        'Yes, from A Block and A Block Extension to F and H Block. The stair count sets the crew size.',
     },
     {
       question: 'Where does the truck park on a narrow block lane?',

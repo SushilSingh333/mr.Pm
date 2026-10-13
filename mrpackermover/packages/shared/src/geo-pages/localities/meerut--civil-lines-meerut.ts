@@ -15,6 +15,8 @@ export const meerutCivilLines: GeoPage = {
     'ID-verified crew',
     'Only what is on the written quote',
   ],
+  societiesHeading: 'Homes we move in and around Civil Lines',
+  societies: ['Sunview Apartments', 'Nandan Apartments', 'Brahma Palace'],
   sections: [
     {
       heading: 'What makes shifting in Civil Lines different?',

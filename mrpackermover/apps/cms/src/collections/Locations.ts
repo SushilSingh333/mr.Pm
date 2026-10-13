@@ -172,6 +172,19 @@ export const Locations: CollectionConfig = {
         condition: (data) => data?.type !== 'locality',
       },
     },
+    {
+      name: 'servicePages',
+      type: 'join',
+      collection: 'city-service-pages',
+      on: 'city',
+      label: 'Service pages',
+      admin: {
+        defaultColumns: ['name', 'updatedAt'],
+        description:
+          'The text of this city’s “{Service} in {City}” pages. Open one to edit it; blank fields show the written page.',
+        condition: (data) => data?.type === 'city',
+      },
+    },
     geoPageField,
     seoOverrideFields('this city or locality'),
     cityServiceSeoField,

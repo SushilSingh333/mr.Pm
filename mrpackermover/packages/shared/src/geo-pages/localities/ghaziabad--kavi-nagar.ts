@@ -15,6 +15,16 @@ export const ghaziabadKaviNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'NRI Complex',
+    'AG Apartments',
+    'Shivam Apartments',
+    'Kala Enclave',
+    'Pratishtha Apartments',
+    'Pushpak Apartments',
+    'Samridhi Apartments',
+    'Tirupati Garden',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Kavi Nagar different?',
@@ -47,7 +57,7 @@ export const ghaziabadKaviNagar: GeoPage = {
           rows: [
             [
               'Residential blocks (C, E, J, M and others)',
-              'Independent houses, some apartments',
+              'Independent houses and apartments such as NRI Complex and Kala Enclave',
               'Floors counted on the survey.',
             ],
             [

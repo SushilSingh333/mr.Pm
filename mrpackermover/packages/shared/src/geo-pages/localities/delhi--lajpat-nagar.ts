@@ -15,6 +15,21 @@ export const delhiLajpatNagar: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Colonies and blocks we move in Lajpat Nagar',
+  societies: [
+    'Amar Colony',
+    'Double Storey',
+    'Vikram Vihar',
+    'National Park',
+    'Dayanand Colony',
+    'Vinoba Puri',
+    'Chawla Sadan',
+    'Devjyoti',
+    'Dhall Niwas',
+    'Satyaram House',
+    'Shri Ram Ashray',
+    'Usha Niwas',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Lajpat Nagar different?',

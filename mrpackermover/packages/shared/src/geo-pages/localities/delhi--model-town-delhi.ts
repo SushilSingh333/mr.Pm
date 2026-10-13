@@ -15,6 +15,8 @@ export const delhiModelTown: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Parts of Model Town we move in',
+  societies: ['Model Town I', 'Model Town II', 'Model Town III'],
   sections: [
     {
       heading: 'What makes shifting in Model Town different?',

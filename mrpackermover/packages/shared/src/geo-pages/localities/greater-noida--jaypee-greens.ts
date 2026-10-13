@@ -15,6 +15,21 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
     'ID-verified crew',
     'Tolls included in the fixed quote',
   ],
+  societies: [
+    'Jaypee Greens Sea Court',
+    'Jaypee Greens Star Court',
+    'Jaypee Greens Sun Court',
+    'Jaypee Greens The Castille',
+    'Jaypee Greens Estate Homes',
+    'Jaypee Greens Ashok Residences',
+    'Jaypee Greens Crescent Court',
+    'Jaypee Greens Cypress Court',
+    'Jaypee Greens Earth Court',
+    'Jaypee Greens Jade Apartments',
+    'Jaypee Greens Moon Court',
+    'Jaypee Greens Spa Court',
+    'Jaypee Greens Town Homes',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Jaypee Greens different?',
@@ -49,7 +64,7 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
             ],
             [
               'Condominium towers',
-              'Apartments overlooking the Greg Norman course',
+              'Apartments in Sea Court, Star Court or Sun Court, over the Greg Norman course',
               'Service lift slot booked and lobby padded.',
             ],
             [
@@ -145,7 +160,7 @@ export const greaterNoidaJaypeeGreens: GeoPage = {
     {
       question: 'Will security let your truck into the township?',
       answer:
-        'Yes, once entry is approved; we send the truck number and crew IDs for the township office.',
+        'Yes, once entry is approved. We send the truck number and crew IDs for the township office, whether you live in Sea Court, Star Court or The Castille.',
     },
     {
       question: 'Do you move villas as well as tower flats?',

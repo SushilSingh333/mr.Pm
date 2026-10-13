@@ -15,13 +15,20 @@ export const meerutPallavpuram: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Meerut Bhoomi Dwarika Dham',
+    'Akansha Ambience',
+    'Indus Sheel Kunj',
+    'Uday Park Society',
+    'Vijayata Apartments',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Pallavpuram different?',
       blocks: [
         {
           kind: 'text',
-          body: 'Pallavpuram sits at the north end of Meerut, beside Modipuram and the Meerut Bypass. Most homes are independent houses, with some apartments in Phase 1.',
+          body: 'Pallavpuram sits at the north end of Meerut, beside Modipuram and the Meerut Bypass. Most homes are independent houses, with some apartments in Phase 1. Apartment blocks include Vijayata Apartments and Akansha Ambience.',
         },
         {
           kind: 'list',

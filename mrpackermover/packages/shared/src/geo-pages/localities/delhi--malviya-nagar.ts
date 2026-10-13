@@ -15,6 +15,15 @@ export const delhiMalviyaNagar: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Colonies and blocks we move in Malviya Nagar',
+  societies: [
+    'Geetanjali Enclave',
+    'Navjeevan Vihar',
+    'Sarvodaya Enclave',
+    'Shivalik',
+    'Bhavishya Nidhi Enclave',
+    'MMTC Colony',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Malviya Nagar different?',

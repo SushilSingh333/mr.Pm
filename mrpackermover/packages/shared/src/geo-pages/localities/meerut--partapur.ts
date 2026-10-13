@@ -15,6 +15,14 @@ export const meerutPartapur: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societiesHeading: 'Homes we move in and around Partapur',
+  societies: [
+    'The Grande',
+    'Silver Lune Urbe',
+    'Ansal Panchvati Enclave',
+    'Ansal Sushant City',
+    'Supertech Green Village',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Partapur different?',
@@ -59,6 +67,11 @@ export const meerutPartapur: GeoPage = {
               'Old Delhi road towards Rithani',
               'Homes and shops near Partapur and Rithani stations',
               'Truck kept clear of the station approach.',
+            ],
+            [
+              'Apartment societies',
+              'Flats in The Grande and Silver Lune Urbe',
+              'Lift slot fixed with the society.',
             ],
             [
               'Around Meerut South station on NH 34',

@@ -15,6 +15,13 @@ export const greaterNoidaSwarnNagari: GeoPage = {
     'Overnight local moves: loaded by 8 PM',
     'ID-verified crew',
   ],
+  societies: [
+    'Parsvnath Platinum',
+    'Parsvnath Panorama',
+    'Jaypee Greens Star Court',
+    'Jaypee Greens Sea Court',
+    'Jaypee Greens The Castille',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Swarn Nagari different?',
@@ -56,6 +63,11 @@ export const greaterNoidaSwarnNagari: GeoPage = {
               'Whole villa',
               'Several rooms, terrace and garden',
               'Room-by-room packing over more hours.',
+            ],
+            [
+              'Group housing',
+              'Towers such as Parsvnath Platinum and Parsvnath Panorama',
+              'Service lift slot booked with the society office.',
             ],
             [
               'New house near Sectors 36 and 37',

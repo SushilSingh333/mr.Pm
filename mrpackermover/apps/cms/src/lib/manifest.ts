@@ -21,6 +21,7 @@ import {
   CLD_TRANSFORM,
   SERVICES,
   CITY_PAGES,
+  CITY_SERVICE_PAGES,
   LOCALITY_PAGES,
   LOCALITY_REDIRECTS,
   isLocalityReleased,
@@ -90,6 +91,15 @@ interface LocationDoc {
   serviceSeo?: ServiceSeoRow[] | null;
   editorialNote?: unknown;
   /** "Page content" (field `body`): overrides for the city or locality brief. */
+  body?: unknown;
+  updatedAt: string;
+}
+/** City service pages: the editor's text for one “{Service} in {City}” page. */
+interface CityServicePageDoc {
+  city?: Id | { id: Id } | null;
+  service?: Id | { id: Id } | null;
+  h1?: string | null;
+  /** "Page content": overrides for the page written in city-service-pages. */
   body?: unknown;
   updatedAt: string;
 }
@@ -282,6 +292,16 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       loadAll<FaqDoc>(payload, 'faqs'),
       loadAll<MediaDoc>(payload, 'media'),
     ]);
+
+  // City service pages (the editor's text for each “{Service} in {City}” page), keyed
+  // "<cityId>:<serviceId>". Empty before the collection's migration has run.
+  const cityServiceText = new Map(
+    (
+      await loadAll<CityServicePageDoc>(payload, 'city-service-pages').catch(
+        () => [] as CityServicePageDoc[],
+      )
+    ).map((d) => [`${refId(d.city)}:${refId(d.service)}`, d] as const),
+  );
 
   // Settings → SEO defaults. `.catch(() => null)` so a database without the global
   // (fresh install, or before the migration runs) builds with the code fallbacks.
@@ -564,17 +584,31 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         ? idx.serviceRateBands(svcId)
         : idx.cityRateBands(cid);
       const priceFrom = idx.priceFrom(bands);
+      // The page written for this service in this city (city-service-pages), when there is
+      // one: its title, description and H1 lead, and its sections replace the generic body.
+      // Anything filled in on its CMS record (City service pages) replaces that text.
+      const csBrief = CITY_SERVICE_PAGES[`${city.slug}/${service.slug}`];
+      const csText = cityServiceText.get(`${cid}:${svcId}`);
+      const csPage = csBrief
+        ? geoPageWithCount(
+            {
+              ...mergeGeoPage(csBrief, geoPageOverrides(csText?.body)),
+              h1: csText?.h1?.trim() || csBrief.h1,
+            },
+            liveCityCount,
+          )
+        : undefined;
       rows.push(
         makeRow(
           'city-service',
           paths.cityService(city.slug, service.slug),
           `${city.slug}/${service.slug}`,
-          city.updatedAt,
+          laterOf(city.updatedAt, csText?.updatedAt),
           siteOrigin,
           {
             ...resolveSeo({
               override: serviceSeoFor(city, svcId),
-              template: seoDefaults.cityService,
+              template: csPage ? undefined : seoDefaults.cityService,
               tokens: {
                 service: service.name,
                 city: city.name,
@@ -583,16 +617,19 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
                 jobs12m: csStats.jobs12m,
                 onTimePct: csStats.onTimePct,
               },
-              fallbackTitle: titleFor.cityService(service.name, city.name, { brand: BRAND }),
-              fallbackDescription: cityServiceMeta({
-                service: service.name,
-                locality: city.name,
-                priceFrom,
-                jobs12m: csStats.jobs12m,
-                onTimePct: csStats.onTimePct,
-              }),
+              fallbackTitle:
+                csPage?.title ?? titleFor.cityService(service.name, city.name, { brand: BRAND }),
+              fallbackDescription:
+                csPage?.metaDescription ??
+                cityServiceMeta({
+                  service: service.name,
+                  locality: city.name,
+                  priceFrom,
+                  jobs12m: csStats.jobs12m,
+                  onTimePct: csStats.onTimePct,
+                }),
             }),
-            h1: `${service.name} in ${city.name}`,
+            h1: csPage?.h1 ?? `${service.name} in ${city.name}`,
             breadcrumbs: [
               { path: '/', anchor: 'Home' },
               { path: cityPath, anchor: city.name },
@@ -615,6 +652,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
               editorial: idx.editorialParagraphs(city.editorialNote).slice(0, 2),
               rateBands: bands,
               faqs: csFaqs,
+              ...(csPage ? geoPageData(csPage) : {}),
               inclusions: (service.inclusions ?? []).map((i) => i.item),
               exclusions: (service.exclusions ?? []).map((i) => i.item),
               priceFrom,
@@ -1085,7 +1123,8 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           brandName: org.brandName,
           legalName: org.legalName,
           gstin: org.gstin,
-          cin: org.cin,
+          cin: org.cin ?? '',
+          tradeName: org.tradeName || undefined,
           yearsOperating: org.yearsOperating,
           insurancePartner: org.insurancePartner ?? undefined,
           registeredOffice: org.registeredOffice,

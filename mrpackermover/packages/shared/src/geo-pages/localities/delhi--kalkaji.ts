@@ -15,6 +15,22 @@ export const delhiKalkaji: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Pockets and blocks we move in Kalkaji',
+  societies: [
+    'Kalkaji DDA Flats',
+    'Amichand Khand',
+    'Giri Nagar',
+    'Kalkaji Extension Pocket 3',
+    'Kalkaji Extension Pocket 4',
+    'Kalkaji Extension Pocket 9',
+    'Kalkaji Extension Pocket 10',
+    'Kalkaji Extension Pocket 11',
+    'Kalkaji Extension Pocket 13',
+    'Kalkaji Extension Pocket 14',
+    'Rampuri',
+    'Subhash Khand',
+    'Tilak Khand',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Kalkaji different?',
@@ -63,7 +79,7 @@ export const delhiKalkaji: GeoPage = {
             ],
             [
               'Govindpuri side',
-              'Homes near Ma Anandmayee Marg and Govind Puri station',
+              'Giri Nagar and Tilak Khand, near Govind Puri station',
               'Truck access checked on the survey.',
             ],
             [

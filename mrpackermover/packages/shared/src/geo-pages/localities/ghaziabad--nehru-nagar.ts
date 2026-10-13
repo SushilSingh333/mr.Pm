@@ -15,6 +15,24 @@ export const ghaziabadNehruNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'GDA Chandrashila Apartments',
+    'SVP Gulmohur Enclave',
+    'SVP Krishna Kunj',
+    'SVP The Imperial',
+    'Aakriti Apartment',
+    'Atma Ram Apartment',
+    'Ganesh Vaishno Residency',
+    'GIPL Park View Apartment',
+    'GIPL Sri Ganesh Enclave',
+    'Gopal Palace',
+    'Nehru Apartments',
+    'Satyam Enclave',
+    'Shree Balaji Apartments',
+    'Shreeshesh Apartment',
+    'Silver Land Apartment',
+    'Suryasheesh Apartment',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Nehru Nagar different?',
@@ -59,6 +77,11 @@ export const ghaziabadNehruNagar: GeoPage = {
               'III-M along Ambedkar Road',
               'Houses and clinics on a main road',
               'Truck parked in a side lane.',
+            ],
+            [
+              'Societies such as GDA Chandrashila Apartments and SVP Gulmohur Enclave',
+              'Flats',
+              'Stairs or lift checked.',
             ],
             [
               'Towards New Gandhi Nagar and Model Town East',
@@ -142,7 +165,7 @@ export const ghaziabadNehruNagar: GeoPage = {
     {
       question: 'Do I need a society pass to leave a Nehru Nagar house?',
       answer:
-        'Rarely, since homes in the II and III blocks are mostly plotted houses. If you rent, settle the handover with your landlord.',
+        'Rarely, since homes in the II and III blocks are mostly plotted houses. In a society such as SVP Krishna Kunj, check the gate pass rule with its office.',
     },
     {
       question: 'Can the truck stand outside my house in III-M?',

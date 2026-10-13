@@ -15,6 +15,7 @@ export const greaterNoidaGamma: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: ['Ashiana Orchid', 'Kailash Nath The Kings Reserve', 'Shram Vihar'],
   sections: [
     {
       heading: 'What makes shifting in Gamma different?',
@@ -58,7 +59,7 @@ export const greaterNoidaGamma: GeoPage = {
             ],
             [
               'Gamma 2, near DPS Greater Noida',
-              'Houses, low-rise flats',
+              'Houses, and societies such as Ashiana Orchid',
               'School gate kept clear.',
             ],
             [
@@ -157,7 +158,7 @@ export const greaterNoidaGamma: GeoPage = {
     {
       question: 'I study in Knowledge Park and rent a room in Gamma 1. Is my move too small?',
       answer:
-        'No. A room near Knowledge Park can go with [packing and unpacking](/services/packing-unpacking), and a bike can ride on the same quote.',
+        'No. A room near Knowledge Park can go with [packing and unpacking](/services/packing-unpacking). A bike can ride on the same quote.',
     },
     {
       question: 'Can you move me from Gamma to Greater Noida West overnight?',

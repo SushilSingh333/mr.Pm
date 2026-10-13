@@ -86,6 +86,8 @@ export interface CityServiceData {
   priceFrom?: number;
   /** Inherited from the parent city — a service page has no upload of its own. */
   heroImage?: HeroImage;
+  /** The page written for this service in this city (city-service-pages), when there is one. */
+  page?: import('./geo-pages/types.js').GeoPage;
 }
 
 export interface LocalityData {

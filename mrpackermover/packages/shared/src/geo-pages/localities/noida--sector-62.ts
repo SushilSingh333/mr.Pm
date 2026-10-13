@@ -15,6 +15,33 @@ export const noidaSector62: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Shatabdi Rail Vihar',
+    'Telecom City',
+    'GAIL Apartments',
+    'BPCL Apartments',
+    'Bhagirathi Apartments',
+    'Yarrows Apartments',
+    'Akansha Apartments',
+    'Designers Park Apartments',
+    'Kendriya Bank Apartments',
+    'Lavanya Apartments',
+    'Mecon Apartments',
+    'Neelkanth Apartments',
+    'Oriental Insurance Apartments',
+    'Pathik Vihar',
+    'PMO Apartments',
+    'Prangan Apartments',
+    'Prithvi Vihar',
+    'Reserve Bank Aashiana Apartments',
+    'Salora Vihar',
+    'Sanchar Vihar',
+    'Shakti Kunj Apartments',
+    'Shaurya Apartments',
+    'Shramdeep Apartments',
+    'Srijan Apartments',
+    'Vidyut Vihar',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sector 62 different?',
@@ -27,7 +54,7 @@ export const noidaSector62: GeoPage = {
           kind: 'list',
           items: [
             'IT parks. Logix Cyber Park, Stellar IT Park, Candor Techspaces and I-Thum Tower all stand in the sector. An office move out of any of them needs a dock slot and a gate pass first.',
-            'Society blocks. The residential towers here are mid-rise, with service lifts booked through the society office.',
+            'Society blocks. At Shatabdi Rail Vihar, Telecom City or BPCL Apartments, the society office sets the lift and gate slots.',
             'Institutes. JIIT, JSS Academy of Technical Education and the Noida campus of IIM Lucknow are all here.',
             'Fortis Hospital. Fortis stands at B-22, so we keep the truck clear of its approach road.',
             'Two metro stations. The Blue Line stops at Noida Sector 62 and ends next door at Noida Electronic City.',
@@ -47,8 +74,8 @@ export const noidaSector62: GeoPage = {
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
             [
-              'Residential society blocks',
-              'Mid-rise society flats',
+              'Societies such as GAIL Apartments and Srijan Apartments',
+              'Group housing flats',
               'Lift and gate timing agreed with the society office.',
             ],
             [

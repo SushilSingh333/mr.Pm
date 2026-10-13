@@ -49,7 +49,7 @@ export const cityServiceSeoField: Field = {
   admin: {
     initCollapsed: true,
     description:
-      'Optional. Override the title/description of one “{Service} in {City}” page. Leave empty and those pages use Settings → SEO defaults.',
+      'Optional. Override the title/description of one “{Service} in {City}” page. Leave empty and the page uses its written title and description (or Settings → SEO defaults when it has none).',
     condition: (data) => data?.type === 'city',
   },
   fields: [

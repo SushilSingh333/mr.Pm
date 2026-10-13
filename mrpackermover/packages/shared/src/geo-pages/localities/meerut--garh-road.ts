@@ -15,6 +15,14 @@ export const meerutGarhRoad: GeoPage = {
     'ID-verified crew',
     'Only what is on the written quote',
   ],
+  societies: [
+    'Gokul Dham',
+    'Golf Live',
+    'Somdutt City',
+    'Anuyogipuram',
+    'Jyoti Vihar',
+    'Taru Kunj',
+  ],
   sections: [
     {
       heading: 'What makes shifting on Garh Road different?',
@@ -30,7 +38,7 @@ export const meerutGarhRoad: GeoPage = {
             'Tejgarhi crossing. Garh Road meets PVS Road at Tejgarhi, close to Shastri Nagar. The crossing is a known snarl point, so loads near it are kept short.',
             'Nauchandi Ground. The Nauchandi Mela fills this ground for about a month after Holi. Moves near Nauchandi are dated around the fair.',
             'Private hospitals. Bhagyashree Hospital also stands on Garh Road, so a load near it is kept short.',
-            'Colonies behind the road. Jagriti Vihar lies beside LLRM Medical College, and its lanes are quieter than Garh Road itself.',
+            'Colonies behind the road. Jagriti Vihar lies beside LLRM Medical College, and Gokulpur projects such as Gokul Dham and Golf Live sit further out.',
           ],
         },
       ],

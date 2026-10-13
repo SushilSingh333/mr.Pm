@@ -15,6 +15,39 @@ export const ghaziabadRajendraNagar: GeoPage = {
     'ID-verified crew',
     'One price, in writing',
   ],
+  societies: [
+    'Panchsheel Euro Apartment',
+    'Panchsheel SPS Apartment',
+    'Sanskar Sadan',
+    'Jay Bharat Enclave',
+    'Tirumala Apartments',
+    'Aakash III Apartments',
+    'Aashirwad Homes',
+    'Ananda Homes',
+    'Ankush Apartment',
+    'Auro Apartment',
+    'Ganesh Apartments',
+    'Javin Raj View',
+    'Kamakhya Homes',
+    'Krishna Kripa Apartments',
+    'Palm Wood Royal',
+    'Pooja Apartment',
+    'Pushpa Apartment',
+    'Raj Deep',
+    'Rajkamal Apartments',
+    'Sai Om Apartments',
+    'Saket Enclave',
+    'Saket Kunj',
+    'Sheetala Kunj',
+    'Shefali Apartments',
+    'Shilpa Apartment',
+    'Shivalik Apartment',
+    'Shri Ram Kunj',
+    'Sri Krishna Lok',
+    'Surya Apartment',
+    'Swastik Apartments',
+    'Ved Homes',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Rajendra Nagar different?',
@@ -45,7 +78,11 @@ export const ghaziabadRajendraNagar: GeoPage = {
           kind: 'table',
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
-            ['Sector 2', 'Flats and builder floors', 'Floors counted on the survey.'],
+            [
+              'Sector 2',
+              'Flats such as Tirumala Apartments, and builder floors',
+              'Floors counted on the survey.',
+            ],
             [
               'Sector 3, numbered blocks',
               'Flats in blocks such as Block 8 and Block 10',
@@ -156,7 +193,7 @@ export const ghaziabadRajendraNagar: GeoPage = {
     {
       question: 'Do you move walk-up flats in Sector 3 blocks?',
       answer:
-        'Yes, in every numbered block of Sector 3, and in Sector 2 and Sector 4. Your floor sets the crew size on the quote.',
+        'Yes, in every numbered block of Sector 3, and in Sector 2 and Sector 4. Societies such as Panchsheel Euro Apartment are covered too. Your floor sets the crew size on the quote.',
     },
     {
       question: 'Will GT Road traffic delay my move?',

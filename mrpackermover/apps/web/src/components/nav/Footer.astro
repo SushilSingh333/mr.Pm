@@ -1,5 +1,6 @@
 ---
-import { rowsOfType } from '../../data/manifest.js';
+import { manifest, rowsOfType } from '../../data/manifest.js';
+import { isPlaceholder, shownGstin } from '@mpm/seo/jsonld';
 import type { CityHubData } from '@mpm/shared';
 import {
   FOOTER_SERVICES,
@@ -17,6 +18,19 @@ import { isPageHidden } from '../../lib/page.js';
 // the rest are crawlable but collapsed behind the toggle so the footer stays
 // short as the serviceable list grows.
 const VISIBLE_CITIES = 6;
+/**
+ * The legal line under the copyright, from the home brief: brand · registered name ·
+ * registered address · GSTIN, then Licences and Raise a complaint. Only real details
+ * show (a placeholder or an invalid GSTIN is left out), so a blank never reads "upcoming".
+ */
+const org = manifest().org;
+const legalParts = [
+  org && !isPlaceholder(org.legalName) && org.legalName !== org.brandName ? org.legalName : '',
+  org && !isPlaceholder(org.registeredOffice)
+    ? org.registeredOffice.split(/\s*[\r\n]+\s*/).join(', ')
+    : '',
+  shownGstin(org?.gstin) ? `GSTIN ${shownGstin(org?.gstin)}` : '',
+].filter(Boolean);
 import Logo from './Logo.astro';
 
 /**
@@ -207,6 +221,11 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
   <div class="footer-bottom-wrap">
     <div class="container-page footer-bottom">
       <span class="fb-copy">© {year} MrMoverPacker. All rights reserved.</span>
+      <p class="fb-legal">
+        {['MrMoverPacker', ...legalParts].join(' · ')} · <a href="/company/licences">Licences</a> · <a
+          href="/raise-a-complaint">Raise a complaint</a
+        >
+      </p>
     </div>
   </div>
 </footer>
@@ -346,6 +365,19 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
 
   .footer-bottom-wrap {
     border-top: 1px solid color-mix(in oklab, white 12%, #0f0063);
+  }
+  .fb-legal {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  .fb-legal a {
+    color: color-mix(in oklab, white 80%, #0f0063);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .fb-legal a:hover {
+    color: #fff;
   }
   .footer-bottom {
     display: flex;

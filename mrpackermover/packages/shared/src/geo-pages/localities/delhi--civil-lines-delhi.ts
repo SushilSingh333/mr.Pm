@@ -15,6 +15,20 @@ export const delhiCivilLines: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societies: [
+    'Parsvnath La Tropicana',
+    'Oberoi Apartments',
+    'Delhi Police Housing Colony',
+    'Daya Apartments',
+    'Mall Apartments',
+    'Nitin Apartments',
+    'Prem Shanti Kunj',
+    'Rishi Apartments',
+    'Riviera Apartments',
+    'Rohtagi Apartments',
+    'Satyam Apartments',
+    'Shiv Flats',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Civil Lines different?',
@@ -53,8 +67,13 @@ export const delhiCivilLines: GeoPage = {
             ],
             [
               'Sham Nath Marg',
-              'Homes by the Yellow Line station',
+              'Oberoi Apartments, by the Yellow Line station',
               'Truck kept off the Sant Parmanand Hospital gate.',
+            ],
+            [
+              'Khyber Pass',
+              'Flats such as Parsvnath La Tropicana',
+              'Gate and lift rules checked with the society.',
             ],
             [
               'Timarpur',

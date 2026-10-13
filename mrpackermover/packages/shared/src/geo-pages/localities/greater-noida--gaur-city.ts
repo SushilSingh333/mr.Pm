@@ -15,6 +15,21 @@ export const greaterNoidaGaurCity: GeoPage = {
     'ID-verified crew',
     'Overnight local moves: loaded by 8 PM',
   ],
+  societies: [
+    'Gaur City 2 14th Avenue',
+    'Gaur City 2 16th Avenue',
+    'Gaur City 7th Avenue',
+    'Gaur City 2 10th Avenue',
+    'Gaur City 2 Sanskriti Vihar',
+    'Gaur City 1st Avenue',
+    'Gaur City 3rd Avenue',
+    'Gaur City 4th Avenue',
+    'Gaur City 5th Avenue',
+    'Gaur City 6th Avenue',
+    'Gaur City 2 11th Avenue',
+    'Gaur City 2 12th Avenue',
+    'Gaurs Smart Homes',
+  ],
   sections: [
     {
       heading: 'What makes a move inside Gaur City different?',
@@ -48,10 +63,14 @@ export const greaterNoidaGaurCity: GeoPage = {
           rows: [
             [
               'Gaur City, Sector 4',
-              'High-rise avenues',
+              'High-rise avenues such as 1st Avenue',
               'Tower entrance and lift slot fixed at survey.',
             ],
-            ['Gaur City 2', 'High-rise avenues', 'Walk from truck to tower checked on video.'],
+            [
+              'Gaur City 2, Sector 16C',
+              'Avenues such as 16th Avenue',
+              'Walk from truck to tower checked on video.',
+            ],
             [
               '7th Avenue and 14th Avenue',
               '2 and 3 BHK towers',

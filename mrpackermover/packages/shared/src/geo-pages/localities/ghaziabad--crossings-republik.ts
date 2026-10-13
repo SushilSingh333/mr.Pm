@@ -15,6 +15,29 @@ export const ghaziabadCrossingsRepublik: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Gaur Global Village',
+    'Paramount Symphony',
+    'Mahagun Mascot',
+    'Panchsheel Wellington',
+    'Ajnara Gen X',
+    'Supertech Livingston',
+    'Assotech The Nest',
+    'Saviour Greenisle',
+    'Mahagun Montage',
+    'Amrapali Empire',
+    'Arihant Ambience',
+    'Balaji Foster Heights',
+    'Cosmos Golden Heights',
+    'Divyansh Fabio',
+    'Exotica Eastern Court',
+    'Kingswood Court',
+    'Prateek The Royal Cliff',
+    'Proview Laboni',
+    'Renowned Srishti',
+    'Sam Residency',
+    'Skytech Merion Residency',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Crossings Republik different?',
@@ -53,7 +76,7 @@ export const ghaziabadCrossingsRepublik: GeoPage = {
             ],
             [
               'Central towers',
-              'Ajnara Gen X, Supertech Livingston, Gaur Global Village',
+              'Ajnara Gen X, Supertech Livingston, Paramount Symphony, Gaur Global Village',
               'Service lift booked with each tower office.',
             ],
             [

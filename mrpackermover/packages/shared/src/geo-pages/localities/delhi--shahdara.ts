@@ -15,6 +15,17 @@ export const delhiShahdara: GeoPage = {
     'Homes, shops and small offices',
     'Our own ID-verified crew',
   ],
+  societies: [
+    'Jhilmil DDA Flats',
+    'Dilshad Colony',
+    'Dilshad Garden Pocket A',
+    'Dilshad Garden Pocket F',
+    'Chetak Complex',
+    'Meru East Avenue',
+    'Satyam Enclave',
+    'Usha Apartment',
+    'Vivek Vihar Police Residential Area',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Shahdara different?',
@@ -62,8 +73,13 @@ export const delhiShahdara: GeoPage = {
               'Truck spot agreed away from the flyover ramp.',
             ],
             [
+              'Jhilmil, off GT Road',
+              'Jhilmil DDA Flats and Satyam Enclave',
+              'Stairs and gate checked on the survey.',
+            ],
+            [
               'Dilshad Garden and Vivek Vihar',
-              'Colonies near GTB Hospital',
+              'Dilshad Colony and the Dilshad Garden pockets, near GTB Hospital',
               'Road width to the gate checked on the survey.',
             ],
           ],

@@ -15,6 +15,25 @@ export const greaterNoidaAlpha: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Parsvnath Edens',
+    'Harmukh Apartment',
+    'MSX Alpha Homes',
+    'Spacetech Edana',
+    'Assotech Golf Vista',
+    'Golf Gardenia',
+    'Amaltash Estate',
+    'Ashirwad Apartments',
+    'Gharonda Apartments',
+    'IRWO Palm Court Apartments',
+    'Jalvayu Apartment',
+    'Migsun Alpha Central',
+    'Millenium Village',
+    'Om Tower',
+    'Pink Mohar Estate',
+    'Rail Vihar',
+    'Samvad Apartment',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Alpha different?',
@@ -46,10 +65,14 @@ export const greaterNoidaAlpha: GeoPage = {
           kind: 'table',
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
-            ['Alpha 1', 'Houses, low-rise flats', 'Truck kept clear of the Block E metro entry.'],
+            [
+              'Alpha 1',
+              'Houses, and societies such as Harmukh Apartment',
+              'Truck kept clear of the Block E metro entry.',
+            ],
             [
               'Alpha 2',
-              'Houses, low-rise flats',
+              'Houses, and societies such as Parsvnath Edens',
               'Lane width outside the gate checked on the video survey.',
             ],
             [

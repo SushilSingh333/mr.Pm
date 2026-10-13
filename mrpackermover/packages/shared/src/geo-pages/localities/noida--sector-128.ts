@@ -15,6 +15,27 @@ export const noidaSector128: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Jaypee Wish Town',
+    'Jaypee Kalypso Court',
+    'Jaypee Pavilion Court',
+    'Jaypee Pavilion Heights',
+    'Jaypee Imperial Court',
+    'Jaypee Kristal Court',
+    'Estate 128',
+    'Mahagun Manorialle',
+    'Kalpataru Vista',
+    'Jaypee Augusta Town Homes',
+    'Jaypee Hazel Villas',
+    'Jaypee Kallisto Town Homes',
+    'Jaypee Kingswood Oriental Villas',
+    'Jaypee Knights Court',
+    'Jaypee Kube',
+    'Jaypee Pebble Court',
+    'Jaypee Pelican Villas',
+    'Jaypee Valencia Villas',
+    'L&T Green Reserve',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sector 128 different?',
@@ -46,8 +67,8 @@ export const noidaSector128: GeoPage = {
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
             [
-              'Jaypee Wish Town towers',
-              'High-rise flats in a large township',
+              'Wish Town towers such as Kalypso Court and Pavilion Heights',
+              'High-rise township flats',
               'Gate pass and drive-in route agreed with the township office.',
             ],
             [
@@ -61,9 +82,9 @@ export const noidaSector128: GeoPage = {
               'Small loads, some bound for the main JIIT campus in Sector 62.',
             ],
             [
-              'Wish Town phases in Sectors 129, 131, 133 and 134',
-              'More township towers',
-              'Planned like Sector 128, with each phase office checked.',
+              'Wish Town villas such as Pelican Villas and Valencia Villas',
+              'Villas and town homes',
+              'Lane width and gate timing checked with the Wish Town office.',
             ],
           ],
         },

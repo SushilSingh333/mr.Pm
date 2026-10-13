@@ -5,7 +5,7 @@ export const noidaSector137: GeoPage = {
   name: 'Sector 137',
   title: 'Movers in Sector 137 | Fixed Written Quote | MrMoverPacker',
   metaDescription:
-    'Packers and movers in Sector 137, Noida, for Paras Tierra, Logix Blossom County and other towers by the Aqua Line station. One fixed, written price.',
+    'Packers and movers in Sector 137, Noida, for Paras Tierea, Logix Blossom County and other towers by the Aqua Line station. One fixed, written price.',
   h1: 'Packers and movers in Sector 137 with one fixed, written price',
   subhead:
     'Packers and movers in Sector 137 plan around society towers by the Aqua Line station on the Noida-Greater Noida Expressway. We see your flat on a video survey, then send one fixed, written price.',
@@ -14,6 +14,18 @@ export const noidaSector137: GeoPage = {
     'Truck kept clear of the metro entry',
     'ID-verified crew',
     'Nothing charged that is not on the quote',
+  ],
+  societies: [
+    'Paras Tierea',
+    'Supertech Ecociti',
+    'Logix Blossom County',
+    'Gulshan Vivante',
+    'Exotica Fresco',
+    'Ajnara Daffodil',
+    'Purvanchal Royal Park',
+    'Paramount Floraville',
+    'Ajnara Elements',
+    'Shubhkamna Techomes',
   ],
   sections: [
     {
@@ -27,7 +39,7 @@ export const noidaSector137: GeoPage = {
           kind: 'list',
           items: [
             'Station traffic. We fix a loading spot clear of the Noida Sector 137 station entry.',
-            'Many societies. Paras Tierra, Logix Blossom County, Exotica Fresco and Gulshan Vivante stand near the station, each with its own move rules.',
+            'Many societies. Paras Tierea, Logix Blossom County, Exotica Fresco and Gulshan Vivante stand near the station, each with its own move rules.',
             'More towers. Ajnara Daffodil, Paramount Floraville, Purvanchal Royal Park and Supertech Ecocity are close by too.',
             'Hospital road. Felix Hospital is near the station, and we never park across its approach.',
           ],
@@ -46,7 +58,7 @@ export const noidaSector137: GeoPage = {
           columns: ['Part', 'Homes', 'What to expect'],
           rows: [
             [
-              'Paras Tierra and Logix Blossom County',
+              'Paras Tierea and Logix Blossom County',
               'Society flats',
               'Gate pass and lift slot booked with each society office.',
             ],
@@ -81,7 +93,7 @@ export const noidaSector137: GeoPage = {
           columns: ['What', 'Who arranges it', 'When'],
           rows: [
             [
-              'Move-out permission from your Paras Tierra, Logix or other society office',
+              'Move-out permission from your Paras Tierea, Logix or other society office',
               'You apply; we send truck and crew details',
               'A few days before.',
             ],
@@ -121,7 +133,7 @@ export const noidaSector137: GeoPage = {
             ],
             [
               'Lift',
-              'A booked service lift in Paras Tierra or Logix Blossom County keeps the day short.',
+              'A booked service lift in Paras Tierea or Logix Blossom County keeps the day short.',
             ],
             [
               'Truck spot',
@@ -150,7 +162,7 @@ export const noidaSector137: GeoPage = {
           kind: 'list',
           items: [
             'Summer (March to June). Heat builds by midday, so we load Sector 137 towers in the morning.',
-            'Monsoon (late June to mid-September). Cartons are wrapped before the walk from a Logix or Paras Tierra lobby to the truck.',
+            'Monsoon (late June to mid-September). Cartons are wrapped before the walk from a Logix or Paras Tierea lobby to the truck.',
             'Winter (December and January). January fog can slow the Expressway, so runs to Greater Noida start once it lifts.',
             'Month end. Lease changes cluster then, so book your Sector 137 lift slot early.',
           ],
@@ -163,7 +175,7 @@ export const noidaSector137: GeoPage = {
     {
       question: 'How early should I book the lift slot?',
       answer:
-        'As soon as your date is fixed. At Paras Tierra, Logix Blossom County and other societies, book month-end slots well ahead.',
+        'As soon as your date is fixed. At Paras Tierea, Logix Blossom County and other societies, book month-end slots well ahead.',
     },
     {
       question: 'Where will the truck stand near the metro station?',
@@ -188,7 +200,7 @@ export const noidaSector137: GeoPage = {
     {
       question: 'Is my furniture covered?',
       answer:
-        'Basic liability cover is included whether you leave Paras Tierra, Logix or another tower. Valuables leaving Sector 137 can add [transit insurance](/insurance); see [how claims work](/claims).',
+        'Basic liability cover is included whether you leave Paras Tierea, Logix or another tower. Valuables leaving Sector 137 can add [transit insurance](/insurance); see [how claims work](/claims).',
     },
   ],
   servicesHeading: 'Moving services in Sector 137',

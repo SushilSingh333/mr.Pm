@@ -15,6 +15,25 @@ export const gurgaonPalamVihar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Celebrity Homes',
+    'Bestech Park View Residency',
+    'Ansal Lemon Grove',
+    'Celebrity Suites',
+    'A3S Homes',
+    'Ansal Cozy Homes',
+    'Ansal Spanish Court',
+    'Ompee Astra Floors',
+    'Ompee Dream Homes',
+    'Ompee Nirmal Homes',
+    'Ompee Residency',
+    'Ompee Rudra Homes',
+    'PVR Residency',
+    'Rama Apartments',
+    'RK Residency',
+    'Sai Kunj',
+    'Today Elegancy',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Palam Vihar different?',
@@ -26,7 +45,7 @@ export const gurgaonPalamVihar: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Builder floors. As across old Gurgaon, many homes here are builder floors, so stairs matter more than lifts.',
+            'Builder floors and towers. Many homes here are builder floors, so stairs matter, while Bestech Park View Residency has 14-storey towers.',
             'Block addresses. Homes are found by block, such as Block C 1, where SCR Public School stands.',
             'A mall junction. Ansal Plaza stands near Rezang La Chowk in Sector 23, so we keep loading clear of its shopping crowd.',
             'A bus terminus. City buses run between Krishna Chowk and Sector 55-56, so the truck never parks at that stop.',
@@ -53,7 +72,7 @@ export const gurgaonPalamVihar: GeoPage = {
             ],
             [
               'Around Rezang La Chowk and Ansal Plaza, Sector 23',
-              'Homes near a mall junction',
+              'Societies such as Ansal Lemon Grove, near a mall junction',
               'Truck spot planned clear of mall traffic.',
             ],
             [

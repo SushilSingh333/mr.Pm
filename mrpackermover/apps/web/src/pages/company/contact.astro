@@ -6,7 +6,8 @@ import Band from '../../components/ui/Band.astro';
 import Faq from '../../components/sections/Faq.astro';
 import { iconSvg } from '../../lib/icons.js';
 import { staticRow, org, editorialFor, isPageHidden } from '../../lib/page.js';
-import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from '../../lib/site.js';
+import { isPlaceholder, shownGstin } from '@mpm/seo/jsonld';
+import { PHONE_DISPLAY, PHONE_TEL, EMAIL, SUPPORT_HOURS } from '../../lib/site.js';
 
 const ed = editorialFor('contact');
 const row = staticRow({
@@ -20,6 +21,26 @@ const row = staticRow({
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
+/**
+ * The response promise from the organisation profile, as one clean sentence. A clause that
+ * points at a raw path ("published on /claims") is dropped: it read as broken text, and
+ * the claims page is where those figures live.
+ */
+const sla = ((): string => {
+  const parts = (o?.complaintSla ?? 'First response within 24 hours.')
+    .split(';')
+    .map((p) => p.trim().replace(/\.+$/, ''))
+    .filter((p) => p && !/\/claims\b/.test(p));
+  const text = parts.join('; ') || 'First response within 24 hours';
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}.`;
+})();
+/** The registered business behind the site: only real details show. */
+const gstin = shownGstin(o?.gstin);
+const legalName = o && !isPlaceholder(o.legalName) ? o.legalName : undefined;
+const office =
+  o && !isPlaceholder(o.registeredOffice)
+    ? o.registeredOffice.split(/\s*[\r\n]+\s*/).join(', ')
+    : undefined;
 
 const phoneRaw = PHONE_DISPLAY;
 const tel = PHONE_TEL;
@@ -58,7 +79,7 @@ const faqs = [
   },
   {
     question: 'How quickly will I get a reply?',
-    answer: `We aim for a first response ${o?.complaintSla ? o.complaintSla.toLowerCase() : 'within 24 hours'}. During a live move, your coordinator is reachable directly on the number they share with you.`,
+    answer: `${sla} During a live move, your coordinator is reachable directly on the number they share with you.`,
   },
   {
     question: 'Can I get a quote without a call?',
@@ -121,7 +142,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
         />
         <div>
           <strong>Support hours</strong>
-          <span>Mon–Sat, 9:00 am – 8:00 pm IST. Live-move support runs on your move day too.</span>
+          <span>{SUPPORT_HOURS} (IST). Live-move support runs on your move day too.</span>
         </div>
       </div>
       <div class="cm-item">
@@ -131,12 +152,39 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
         />
         <div>
           <strong>Response time</strong>
-          <span
-            >{o?.complaintSla ?? 'First response within 24 hours.'} During a live move, your coordinator
-            is a call away.</span
-          >
+          <span>{sla} During a live move, your coordinator is a call away.</span>
         </div>
       </div>
+      {
+        (legalName || gstin || office) && (
+          <div class="cm-item cm-item--wide">
+            <span
+              class="cm-icon"
+              set:html={`<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'>${iconSvg('building')}</svg>`}
+            />
+            <div>
+              <strong>Registered business</strong>
+              {legalName && <span>{legalName}</span>}
+              {gstin && (
+                <span>
+                  GSTIN {gstin} ·{' '}
+                  <a
+                    href="https://services.gst.gov.in/services/searchtp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Check it on the GST portal
+                  </a>
+                </span>
+              )}
+              {office && <span>{office}</span>}
+              <span>
+                <a href="/company/licences">All registration details</a>
+              </span>
+            </div>
+          </div>
+        )
+      }
     </div>
   </Band>
 
@@ -455,6 +503,14 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     display: flex;
     flex-direction: column;
     gap: 0.15rem;
+  }
+  /* The registered details run the full width under the two cards above. */
+  .cm-item--wide {
+    grid-column: 1 / -1;
+  }
+  .cm-item a {
+    color: var(--color-brand-600);
+    font-weight: 500;
   }
   .cm-item strong {
     color: var(--color-ink-900);

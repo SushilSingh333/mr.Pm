@@ -15,6 +15,15 @@ export const greaterNoidaDelta: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Omaxe Green Avenue',
+    'Baba Delta Square',
+    'Laxmi Kourtyard',
+    'Levante City Vista',
+    'Levante Metro Walk',
+    'Migsun Delta Street',
+    'Sukadiv Divyarv Grande',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Delta different?',
@@ -50,8 +59,16 @@ export const greaterNoidaDelta: GeoPage = {
               'Houses, low-rise flats',
               'Truck kept clear of the Aqua Line station entry.',
             ],
-            ['Delta 1, other blocks', 'Houses, low-rise flats', 'Truck on the block road.'],
-            ['Delta 2', 'Houses, low-rise flats', 'RWA told of the date if it asks.'],
+            [
+              'Delta 1, other blocks',
+              'Houses, and societies such as Omaxe Green Avenue',
+              'Truck on the block road.',
+            ],
+            [
+              'Delta 2',
+              'Houses, and newer towers such as Laxmi Kourtyard',
+              'RWA told of the date if it asks.',
+            ],
             [
               'Delta 3, Gamma 2 edge',
               'Houses, low-rise flats',

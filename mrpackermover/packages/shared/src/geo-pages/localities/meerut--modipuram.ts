@@ -15,6 +15,16 @@ export const meerutModipuram: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Supertech Meerut Sports City',
+    'Ansal Town',
+    'Alpha Corp MeerutOne',
+    'Ansal Courtyard',
+    'A2Z Green Estate',
+    'Kanha Greens',
+    'Modi Colony',
+    'Shree Ganpati Enclave',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Modipuram different?',
@@ -60,6 +70,11 @@ export const meerutModipuram: GeoPage = {
               'Modipuram Tiraha and the Meerut Bypass',
               'Homes near the junction and the bypass flyover',
               'Truck spot fixed off the junction.',
+            ],
+            [
+              'Gated societies such as Supertech Meerut Sports City and Ansal Town',
+              'Apartments in gated townships',
+              'Lift and gate timings confirmed with the society office.',
             ],
             [
               '[Pallavpuram](/packers-and-movers/meerut/pallavpuram) Phase-2, to the south',

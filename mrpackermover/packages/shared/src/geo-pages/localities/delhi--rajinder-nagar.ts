@@ -15,6 +15,15 @@ export const delhiRajinderNagar: GeoPage = {
     'ID-verified crew',
     'One fixed quote, GST shown',
   ],
+  societiesHeading: 'Blocks and societies we move in Rajinder Nagar',
+  societies: [
+    'New Rajinder Nagar A Block',
+    'New Rajinder Nagar B Block',
+    'New Rajinder Nagar C Block',
+    'New Rajinder Nagar D Block',
+    'New Rajinder Nagar F Block',
+    'New Rajinder Nagar R Block',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Rajinder Nagar different?',
@@ -89,7 +98,7 @@ export const delhiRajinderNagar: GeoPage = {
               'Before the truck reaches Shankar Road.',
             ],
             [
-              'Guard note for a New Rajinder Nagar block, if your RWA asks',
+              'Guard note for a New Rajinder Nagar block such as R Block, if asked',
               'You; we share the vehicle number and crew IDs',
               'Before the date is fixed.',
             ],

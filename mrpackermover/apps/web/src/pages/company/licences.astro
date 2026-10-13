@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { isPlaceholder } from '@mpm/seo/jsonld';
+import { isPlaceholder, shownGstin } from '@mpm/seo/jsonld';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import Prose from '../../components/page/Prose.astro';
@@ -19,6 +19,19 @@ const row = staticRow({
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
+/**
+ * Only real registration details show: a placeholder ("upcoming", "pending"), or a GSTIN
+ * that fails its check character, is left out rather than printed. A CIN shows only when
+ * there is one: a partnership firm or proprietorship has a GSTIN but no CIN.
+ */
+const gstin = shownGstin(o?.gstin);
+const cin = o && !isPlaceholder(o.cin) ? o.cin : undefined;
+const office =
+  o && !isPlaceholder(o.registeredOffice)
+    ? o.registeredOffice.split(/\s*[\r\n]+\s*/).join(', ')
+    : undefined;
+const legalName = o && !isPlaceholder(o.legalName) ? o.legalName : undefined;
+const pending = !gstin;
 ---
 
 <BaseLayout row={row}>
@@ -39,26 +52,43 @@ const o = org();
           <span class="badge badge-verified">Registered &amp; GST-compliant</span>
           <table class="reg-table">
             <tbody>
+              {legalName && (
+                <tr>
+                  <th scope="row">Legal name</th>
+                  <td>{legalName}</td>
+                </tr>
+              )}
               <tr>
-                <th scope="row">Legal name</th>
-                <td>{o.legalName}</td>
+                <th scope="row">Trade name</th>
+                <td>{o.tradeName || legalName || o.brandName}</td>
               </tr>
-              <tr>
-                <th scope="row">Trading as</th>
-                <td>{o.brandName}</td>
-              </tr>
-              <tr>
-                <th scope="row">GSTIN</th>
-                <td>{isPlaceholder(o.gstin) ? 'Pending' : o.gstin}</td>
-              </tr>
-              <tr>
-                <th scope="row">CIN</th>
-                <td>{isPlaceholder(o.cin) ? 'Pending' : o.cin}</td>
-              </tr>
-              <tr>
-                <th scope="row">Registered office</th>
-                <td>{isPlaceholder(o.registeredOffice) ? 'Pending' : o.registeredOffice}</td>
-              </tr>
+              {gstin && (
+                <tr>
+                  <th scope="row">GSTIN</th>
+                  <td>
+                    {gstin} ·{' '}
+                    <a
+                      href="https://services.gst.gov.in/services/searchtp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Check on the GST portal
+                    </a>
+                  </td>
+                </tr>
+              )}
+              {cin && (
+                <tr>
+                  <th scope="row">CIN</th>
+                  <td>{cin}</td>
+                </tr>
+              )}
+              {office && (
+                <tr>
+                  <th scope="row">Registered office</th>
+                  <td>{office}</td>
+                </tr>
+              )}
               <tr>
                 <th scope="row">Insurance partner</th>
                 <td>{o.insurancePartner ?? 'IRDAI-licensed insurer (named on your policy)'}</td>
@@ -67,7 +97,7 @@ const o = org();
           </table>
           <p class="reg-note">
             These are the details that appear on your invoice and contract. If a quote you receive
-            elsewhere shows a different name for the "same" company, treat it as a red flag, and
+            elsewhere shows a different name for the "same" business, treat it as a red flag, and
             read our <a href="/fraud-check">fraud-check guide</a>.
           </p>
         </div>
@@ -93,11 +123,13 @@ const o = org();
                 <span class="muted">services.gst.gov.in → Search Taxpayer</span>). It should return
                 our legal name and status as <strong>Active</strong>.
               </li>
-              <li>
-                <strong>CIN</strong>, look up the company on the MCA portal (
-                <span class="muted">mca.gov.in → MCA Services → View Company Master Data</span>) to
-                confirm incorporation and directors.
-              </li>
+              {cin && (
+                <li>
+                  <strong>CIN</strong>, look up the company on the MCA portal (
+                  <span class="muted">mca.gov.in → MCA Services → View Company Master Data</span>)
+                  to confirm incorporation and directors.
+                </li>
+              )}
               <li>
                 <strong>Insurance</strong>, transit cover is placed with a licensed insurer and the
                 policy names them in full. Ask for the certificate before goods are loaded.
@@ -106,14 +138,14 @@ const o = org();
 
             <h2>What we are, and what we are not</h2>
             <p>
-              We are a single registered company that plans, packs and moves with its own trained
+              We are a single registered business that plans, packs and moves with its own trained
               crews. We are <strong>not</strong> a directory of franchisees trading under a shared
               name, and we do not operate walk-in "branch offices" in every city. Our serviceability
               is proven by the jobs we complete, not by pins on a map.
             </p>
             <p>
               This matters for you practically: one entity means one invoice, one point of
-              accountability, and one contract, the same company that quoted you is the company that
+              accountability, and one contract, the same business that quoted you is the one that
               moves you and settles any claim.
             </p>
 
@@ -124,10 +156,12 @@ const o = org();
               <li>The transit insurance certificate (when you opt for cover).</li>
               <li>ID confirmation of the crew and vehicle assigned to your move.</li>
             </ul>
-            <p class="muted">
-              Registration identifiers shown here are being finalised ahead of launch; the live
-              figures will match the official portals exactly.
-            </p>
+            {pending && (
+              <p class="muted">
+                Any registration detail not shown above is being added; every detail shown matches
+                the official portals exactly.
+              </p>
+            )}
           </Fragment>
         )
       }

@@ -15,6 +15,16 @@ export const ghaziabadPratapVihar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Pratap Vihar GDA Flats',
+    'Vishwahari Apartment',
+    'Swastika Residency',
+    'GDA Nalkup Apartment',
+    'Ganesh Apartment',
+    'Mangalam Apartment',
+    'Railway Staff Welfare Society',
+    'Rishab Apartments',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Pratap Vihar different?',
@@ -60,6 +70,11 @@ export const ghaziabadPratapVihar: GeoPage = {
               'Around Santosh Nagar',
               'Homes near the Santosh hospital campus',
               'Loading kept off the hospital approach.',
+            ],
+            [
+              'Societies such as Vishwahari Apartment and Swastika Residency',
+              'Flats among the colony homes',
+              'Gate pass checked with the society office.',
             ],
             [
               'Vishwakarma Road side',

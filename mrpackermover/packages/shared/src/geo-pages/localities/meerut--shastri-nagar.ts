@@ -15,6 +15,16 @@ export const meerutShastriNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Ansals Suryodaya Vihar',
+    'Ansal Iris Garden',
+    'Daivya Golden Tower',
+    'Gayatri Greens',
+    'Koyal Enclave',
+    'Needhishree Cloud 9',
+    'Needhishree Ornate Apartments',
+    'VDV Maple Heights',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Shastri Nagar different?',
@@ -61,6 +71,11 @@ export const meerutShastriNagar: GeoPage = {
               'E Block, off Nai Sadak',
               'Houses near E Block Park',
               'Parking on the block road checked.',
+            ],
+            [
+              'Newer apartment blocks',
+              'Flats in societies such as Needhishree Cloud 9 and Gayatri Greens',
+              'Lift and floor details taken on the video survey.',
             ],
             [
               'EWS and LIG homes of the scheme',

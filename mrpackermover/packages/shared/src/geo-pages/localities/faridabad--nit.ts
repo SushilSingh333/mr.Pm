@@ -15,6 +15,15 @@ export const faridabadNit: GeoPage = {
     'Shop and workshop loads packed separately',
     'ID-verified crew',
   ],
+  societies: [
+    'Central Green Pride',
+    'CDR Green City',
+    'New Press Colony',
+    'Oakland Central Green Avenue',
+    'Om Shubham Tower',
+    'Vishnu Palace',
+    'WG Tower',
+  ],
   sections: [
     {
       heading: 'What makes shifting in NIT Faridabad different?',
@@ -49,6 +58,11 @@ export const faridabadNit: GeoPage = {
               'NIT 1 to NIT 5 inner lanes',
               'Houses without lifts',
               'A carry to the nearest wide road.',
+            ],
+            [
+              'Apartment blocks across NIT',
+              'Flats, as in Central Green Pride and WG Tower',
+              'Stairs or lift checked on the video survey.',
             ],
             [
               'NIT 3, around ESIC Medical College',

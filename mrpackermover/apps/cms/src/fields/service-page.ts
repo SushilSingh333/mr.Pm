@@ -390,6 +390,18 @@ export const geoPageField: Field = {
       ],
     },
     {
+      name: 'societies',
+      type: 'array',
+      label: 'Societies and apartments',
+      labels: { singular: 'Society', plural: 'Societies' },
+      admin: {
+        initCollapsed: true,
+        description:
+          'Housing societies, apartment complexes and named blocks in this area, as people write them. Each shows as a chip that opens the quote form with the society filled in. Blank keeps the list from the page brief.',
+      },
+      fields: [{ name: 'name', type: 'text', required: true }],
+    },
+    {
       name: 'reviewsHeading',
       type: 'text',
       label: 'Reviews heading',

@@ -15,6 +15,14 @@ export const ghaziabadVijayNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Rakmo Vasant Valley',
+    'Aditya Affordable Homes',
+    'NS Boulevard',
+    'Hussain Vihar',
+    'Krishna Vihar Residential Society',
+    'Shree Balbhadra Dham',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Vijay Nagar different?',
@@ -60,6 +68,11 @@ export const ghaziabadVijayNagar: GeoPage = {
               'Towards Pratap Vihar',
               'Homes near Santosh Medical and Dental College',
               'The college gate helps the driver find the lane.',
+            ],
+            [
+              'Rakmo Vasant Valley and NS Boulevard',
+              'Society flats',
+              'Mover entry agreed with the society office.',
             ],
           ],
         },

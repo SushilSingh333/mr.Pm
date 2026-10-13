@@ -15,6 +15,22 @@ export const gurgaonMgRoad: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Essel Towers',
+    'Heritage City',
+    'Beverly Park 1',
+    'Beverly Park 2',
+    'Platinum Towers',
+    'Sahara Grace',
+    'Garden Estate',
+    'MGF The Villas',
+    'Janpratinidhi Apartments',
+    'Laburnum',
+    'Pearl Court',
+    'Pilot Court',
+    'Saraswati Vihar',
+    'The Ivy',
+  ],
   sections: [
     {
       heading: 'What makes shifting on MG Road different?',
@@ -48,7 +64,7 @@ export const gurgaonMgRoad: GeoPage = {
           rows: [
             [
               'Guru Dronacharya end',
-              'Homes near the first Gurugram metro station',
+              'Societies such as Garden Estate',
               'Short run to Arjan Garh and South Delhi.',
             ],
             [
@@ -58,12 +74,12 @@ export const gurgaonMgRoad: GeoPage = {
             ],
             [
               'MG Road station, Sectors 25 and 28',
-              'Towers such as Essel Towers and Heritage City',
+              'Societies such as Essel Towers, Heritage City and Beverly Park',
               'Lift slot and move hours fixed with the society.',
             ],
             [
               'IFFCO Chowk end',
-              'Homes and offices towards NH 48',
+              'Platinum Towers and Laburnum',
               'Loading timed around the IFFCO Chowk junction.',
             ],
           ],

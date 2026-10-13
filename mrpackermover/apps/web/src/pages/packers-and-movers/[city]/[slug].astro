@@ -1,6 +1,7 @@
 ---
 import type { CityServiceData, GeoPage, LocalityData } from '@mpm/shared';
 import {
+  CITY_SERVICE_PAGES,
   LOCALITY_PAGES,
   fallbackGeoPage,
   geoPageWithCount,
@@ -81,13 +82,56 @@ const nearbyLinks = loc
   : [];
 
 // ── City × service ─────────────────────────────────────────────────────────
-const csFaqs = cs?.faqs ?? [];
+// The page written for this service in this city, when there is one: it renders like the
+// city and locality pages. Without one, the older generic template below stays.
+const csPage: GeoPage | null = cs
+  ? (cs.page ??
+    (CITY_SERVICE_PAGES[row.slug]
+      ? geoPageWithCount(CITY_SERVICE_PAGES[row.slug]!, rowsOfType('city-hub').length)
+      : null))
+  : null;
+const citySlug = row.slug.split('/')[0] ?? '';
+const csServiceLinks = csPage
+  ? rowsOfType('city-service')
+      .filter((r) => r.slug.startsWith(`${citySlug}/`) && r.slug !== row.slug)
+      .map((r) => {
+        const slug = r.slug.split('/')[1] ?? '';
+        const name = serviceCopy(slug)?.name ?? dataOf<CityServiceData>(r).serviceName;
+        return {
+          href: r.path,
+          label: name,
+          sub: `in ${cityName}`,
+          image: cardPhoto(slug) ?? undefined,
+        };
+      })
+  : [];
+const csNearbyLinks = csPage
+  ? [
+      { href: `/packers-and-movers/${citySlug}`, label: cityName, sub: 'All moving services' },
+      ...row.relatedLinks
+        .filter((l) => l.group === 'nearby')
+        .map((l) => ({
+          href: l.path,
+          label: l.anchor.replace(/^.* in /, ''),
+          sub: cs!.serviceName,
+        })),
+    ]
+  : [];
+const csAreaLinks = csPage
+  ? row.relatedLinks
+      .filter((l) => l.group === 'localities')
+      .map((l) => ({ href: l.path, label: l.anchor.replace(/^Movers in /, '') }))
+  : [];
+const csFaqs = csPage
+  ? csPage.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) }))
+  : (cs?.faqs ?? []);
 
 const extraJsonLd = isService
   ? [
       jsonld.service({
         siteOrigin: SITE_ORIGIN,
         name: `${cs!.serviceName} in ${cityName}`,
+        ...(csPage ? { description: plainText(csPage.subhead) } : {}),
         areaServed: cityName,
         offer: cs!.priceFrom ? { priceFrom: cs!.priceFrom } : undefined,
       }),
@@ -110,7 +154,42 @@ const extraJsonLd = isService
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
   {
-    isService ? (
+    isService && csPage ? (
+      <>
+        <GeoHero
+          align="split"
+          crumbs={[
+            { href: '/', label: 'Home' },
+            { href: `/packers-and-movers/${citySlug}`, label: cityName },
+            { label: `${cs!.serviceName}` },
+          ]}
+          h1={csPage.h1}
+          intro={plainText(csPage.subhead)}
+          image={heroImage}
+          imageUrl={cs!.heroImage?.url}
+          imageAlt={cs!.heroImage?.alt ?? `A view of ${cityName}`}
+          prefillCity={cityName}
+          prefillService={cs!.serviceName}
+          bands={cs!.rateBands ?? []}
+        />
+
+        <GPage>
+          <GeoPageBody
+            page={csPage}
+            place={cityName}
+            serviceLinks={csServiceLinks}
+            areas={
+              csAreaLinks.length
+                ? { heading: `Areas we cover in ${cityName}`, links: csAreaLinks }
+                : undefined
+            }
+            nearbyLinks={csNearbyLinks}
+            inclusions={cs!.inclusions}
+            exclusions={cs!.exclusions}
+          />
+        </GPage>
+      </>
+    ) : isService ? (
       <>
         <GeoHero
           align="split"

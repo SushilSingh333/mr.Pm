@@ -15,6 +15,14 @@ export const noidaSector52: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Antriksh Nature',
+    'Aravali Apartments',
+    'Shatabdi Vihar',
+    'MMR The Orabella',
+    'Kamath Apartments',
+    'Kaushik Complex',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sector 52 different?',
@@ -29,7 +37,7 @@ export const noidaSector52: GeoPage = {
             'Blue Line station. Noida Sector 52 stands on Captain Shashi Kant Marg, between the Noida Sector 34 and Noida Sector 61 stops.',
             'Aqua Line link. A walkway joins the station to Noida Sector 51, in Block E of Sector 51.',
             'Lettered blocks. Homes sit in A, B, D and E Blocks, and A, B and E Blocks each keep a block park.',
-            'Three kinds of home. Plotted houses and builder floors, compact flats such as Aravali Apartments, and lift societies such as Antriksh Nature.',
+            'Three kinds of home. Plotted houses and builder floors, compact flats such as Aravali Apartments and Shatabdi Vihar, and lift towers such as Antriksh Nature and The Orabella.',
             "Villages alongside. Gijhor village borders the sector, and Hoshiyarpur village faces the station's south gate.",
           ],
         },

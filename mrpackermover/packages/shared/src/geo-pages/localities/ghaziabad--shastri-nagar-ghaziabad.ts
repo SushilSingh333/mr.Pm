@@ -15,6 +15,24 @@ export const ghaziabadShastriNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Gulmohur Tower',
+    'Mahendra Enclave',
+    'Royal Garden',
+    'Narmada Tower',
+    'Soumya Apartments',
+    'Akanksha Homes',
+    'Gyanlok Apartments',
+    'JPV Apartments',
+    'Madhav Apartments',
+    'Maya Kunj',
+    'MP Enclave',
+    'RK Garden',
+    'Sheoran Residency',
+    'Shree Ram Vihar',
+    'Siddhivinayak Home',
+    'SK Homes',
+  ],
   sections: [
     {
       heading: 'Which Shastri Nagar is this page about?',
@@ -30,7 +48,7 @@ export const ghaziabadShastriNagar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'This is a plotted colony of older Ghaziabad with direct access to Hapur Road and GT Road. Its houses, builder floors and low-rise flats mostly mean stairs, not lifts.',
+          body: 'This is a plotted colony of older Ghaziabad with direct access to Hapur Road and GT Road. Its houses, builder floors and low-rise flats mostly mean stairs, not lifts. Apartment buildings such as Gulmohur Tower and Narmada Tower sit among them.',
         },
         {
           kind: 'list',

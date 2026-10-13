@@ -10,7 +10,7 @@ import CitiesGrid from '../components/sections/CitiesGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import Band from '../components/ui/Band.astro';
 import QuoteWidget from '../components/quote/QuoteWidget.astro';
-import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER } from '../lib/site.js';
+import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, SUPPORT_HOURS, WHATSAPP_NUMBER } from '../lib/site.js';
 import { heroAlt } from '../lib/hero.js';
 
 /**
@@ -406,7 +406,7 @@ const extraJsonLd = [
           href={videoHref}
           target="_blank"
           rel="noopener noreferrer">WhatsApp</a
-        > · 8 AM to 10 PM, every day
+        > · {SUPPORT_HOURS}
       </p>
     </div>
   </Band>

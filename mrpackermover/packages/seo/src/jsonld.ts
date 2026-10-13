@@ -39,7 +39,7 @@ export function organization(input: OrgInput): JsonLd {
     // a real business. `seed.ts` ships obvious placeholders so a fresh install boots,
     // and those were reaching production — a fake tax ID in structured data is worse
     // than none. Emit each field only once it holds a real value.
-    ...(isPlaceholder(input.gstin) ? {} : { taxID: input.gstin }),
+    ...(shownGstin(input.gstin) ? { taxID: shownGstin(input.gstin) } : {}),
     ...(isPlaceholder(input.cin) ? {} : { identifier: input.cin }),
     ...(isPlaceholder(input.registeredOffice)
       ? {}
@@ -69,8 +69,37 @@ const PLACEHOLDERS = new Set([
 export function isPlaceholder(value: string | undefined): boolean {
   if (!value) return true;
   const v = value.trim();
-  return v === '' || PLACEHOLDERS.has(v) || /confirm before launch|TODO|XXX/i.test(v);
+  return (
+    v === '' ||
+    PLACEHOLDERS.has(v) ||
+    /confirm before launch|TODO|XXX/i.test(v) ||
+    // Words typed in while a detail is awaited ("upcoming" was live in the schema as the
+    // taxID and the street address).
+    /^(upcoming|pending|tbd|tba|n\/?a|nil|none|coming soon|to be (confirmed|updated|added))\.?$/i.test(
+      v,
+    )
+  );
 }
+
+/**
+ * Whether a GSTIN is well formed: 15 characters (state code, PAN, entity number, Z,
+ * check character) with a correct check character. A typo never reaches the page.
+ */
+export function isValidGstin(value: string | undefined): boolean {
+  const g = (value ?? '').trim().toUpperCase();
+  if (!/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(g)) return false;
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let sum = 0;
+  for (let i = 0; i < 14; i += 1) {
+    const p = chars.indexOf(g[i]!) * (i % 2 === 0 ? 1 : 2);
+    sum += Math.floor(p / 36) + (p % 36);
+  }
+  return chars[(36 - (sum % 36)) % 36] === g[14];
+}
+
+/** A GSTIN to show: real and valid, else nothing. */
+export const shownGstin = (value: string | undefined): string | undefined =>
+  !isPlaceholder(value) && isValidGstin(value) ? value!.trim().toUpperCase() : undefined;
 
 /** WebSite + SearchAction (rendered once, on home). */
 export function website(siteOrigin: string, brandName: string): JsonLd {

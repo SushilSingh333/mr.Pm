@@ -15,6 +15,14 @@ export const meerutMeerutCantt: GeoPage = {
     'Posting moves delivered across India',
     'ID-verified crew',
   ],
+  societies: [
+    'Apex Indra Lok',
+    'Anand Niketan',
+    'Apex Ganga Sagar',
+    'Apex Krishna Lok',
+    'Apex Vijay Lok',
+    'Technocrat Rajkamal Residency',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Meerut Cantt different?',
@@ -53,7 +61,7 @@ export const meerutMeerutCantt: GeoPage = {
             ],
             [
               'Sadar Bazar and Lal Kurti',
-              'Homes above and behind shops in the civil area',
+              'Homes above shops, and flats such as Apex Krishna Lok and Apex Vijay Lok',
               'Early loading before the bazaars open.',
             ],
             [

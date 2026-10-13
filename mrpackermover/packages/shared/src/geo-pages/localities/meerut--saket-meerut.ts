@@ -15,6 +15,18 @@ export const meerutSaket: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Goel Grand Saket',
+    'Saket Kunj',
+    'Aashiana Luxuries',
+    'Brahma Palace',
+    'Nandan Apartments',
+    'Pasricha Apartment',
+    'Rishi Apartments',
+    'Saraswati Tower',
+    'Sunview Apartments',
+    'Vaishno Astha Apartment',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Saket different?',
@@ -166,7 +178,7 @@ export const meerutSaket: GeoPage = {
     {
       question: 'Do you move flats in Saket apartment blocks?',
       answer:
-        'Yes, in blocks such as Nandan Apartments and Brahma Palace. We note the lift or stairs on the survey.',
+        'Yes, in blocks such as Nandan Apartments, Sunview Apartments and Goel Grand Saket. We note the lift or stairs on the survey.',
     },
     {
       question: 'Can you move me from Saket to Shastri Nagar?',

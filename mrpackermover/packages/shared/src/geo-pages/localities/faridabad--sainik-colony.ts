@@ -15,6 +15,28 @@ export const faridabadSainikColony: GeoPage = {
     'Loaded by 8 PM for overnight local moves',
     'ID-verified crew',
   ],
+  societies: [
+    'Achievers Grand Avenue',
+    'Achievers Gardenia Floors',
+    'Achievers Status Enclave',
+    'Aravali Vihar',
+    'Aravali Homes',
+    'Arora Homes',
+    'Astrum Homes Alta Casa',
+    'Batra Homes',
+    'Bhoomi Apnaa Ghar Apartments',
+    'Creative Homes',
+    'Delhi Police Cooperative Society',
+    'Elite Homes',
+    'Police Officers Multi State CHS',
+    'Punit Homes',
+    'Pyramid Homes',
+    'Swatantra Indraprastha Villas',
+    'Trishul Krishna Residency',
+    'Uttam Builder Floors',
+    'Virmani Homes',
+    'VP Apartments',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sainik Colony different?',
@@ -26,7 +48,7 @@ export const faridabadSainikColony: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Builder floors. Many Sector 49 homes are builder floors, so the stairs and a shared entrance set the crew size.',
+            'Builder floors. Many Sector 49 homes are builder floors, as in Achievers Gardenia Floors and Uttam Builder Floors. The stairs and a shared entrance set the crew size.',
             'Two main roads. Faridabad-Gurgaon Road runs along the north edge and the Badkhal-Pali road lies to the west.',
             'Inner lanes. In lanes near Gurudwara Shri Guru Singh Sabha, we check on video where a truck can stand.',
             'Gurgaon in reach. Faridabad-Gurgaon Road, also known as MDR 137, leads out to Gurugram without touching Mathura Road.',

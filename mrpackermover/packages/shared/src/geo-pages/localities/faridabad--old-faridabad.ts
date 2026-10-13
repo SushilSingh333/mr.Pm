@@ -15,6 +15,15 @@ export const faridabadOldFaridabad: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societiesHeading: 'Homes we move in and around Old Faridabad',
+  societies: [
+    'Puran Enclave',
+    'Naval Kunj',
+    'Asha Apartment',
+    'Dwarka Complex',
+    'ESIC Residential Area',
+    'Vetruvia Homes 3',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Old Faridabad different?',
@@ -63,7 +72,7 @@ export const faridabadOldFaridabad: GeoPage = {
             ],
             [
               'Sectors 16, 17 and 18',
-              'Served by the same metro station',
+              'The same metro; Naval Kunj and Dwarka Complex',
               'Floors and lifts counted on the survey.',
             ],
           ],

@@ -15,6 +15,14 @@ export const faridabadSector15: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societiesHeading: 'Homes we move in and around Sector 15',
+  societies: [
+    'Krishna Palace',
+    'RTS Katyani Township',
+    'Kesar High End Luxury Floors',
+    'Dwarka Complex',
+    'Vetruvia Homes 3',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Sector 15 different?',
@@ -53,12 +61,12 @@ export const faridabadSector15: GeoPage = {
             ],
             [
               'Sector 15A',
-              'Crown Plaza and Neelam Chowk Ajronda metro',
+              'Crown Plaza, Krishna Palace and Neelam Chowk Ajronda metro',
               'Loading kept off Mathura Road.',
             ],
             [
               'Sectors 16 and 16A',
-              'Parshvanath Digambar Jain Mandir, Old Faridabad metro',
+              'Dwarka Complex, Parshvanath Digambar Jain Mandir, Old Faridabad metro',
               'Temple and station traffic checked first.',
             ],
             [

@@ -15,13 +15,23 @@ export const meerutJagritiVihar: GeoPage = {
     'ID-verified crew',
     'Only what is on the written quote',
   ],
+  societies: [
+    'Bhagirathi Enclave',
+    'Himalaya Enclave',
+    'Vaishno Somdutt City Villa',
+    'Prasandi Dwarika Height',
+    'Jagriti Vihar Extension',
+    'Aries Imperial Heights',
+    'Kanha Enclave',
+    'Kirti Palace',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Jagriti Vihar different?',
       blocks: [
         {
           kind: 'text',
-          body: 'Jagriti Vihar is a planned colony in Meerut beside LLRM Medical College. It is laid out in numbered sectors, and the Nagar Nigam even names its wards after them.',
+          body: 'Jagriti Vihar is a planned colony in Meerut beside LLRM Medical College. It is laid out in numbered sectors, and the Nagar Nigam even names its wards after them. Awas Vikas flats such as Bhagirathi Enclave and Himalaya Enclave stand beside private projects like Prasandi Dwarika Height.',
         },
         {
           kind: 'list',
@@ -159,7 +169,8 @@ export const meerutJagritiVihar: GeoPage = {
   faqs: [
     {
       question: 'Which sectors of Jagriti Vihar do you cover?',
-      answer: 'All of them, including Sector-3, Sector-8 and the newer Jagriti Vihar Extension.',
+      answer:
+        'All of them, including Sector-3, Sector-8, the newer Jagriti Vihar Extension and projects such as Vaishno Somdutt City Villa.',
     },
     {
       question: 'Can the truck reach my house in Jagriti Vihar?',

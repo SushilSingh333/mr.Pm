@@ -15,6 +15,24 @@ export const greaterNoidaPariChowk: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Omaxe NRI City',
+    'Ansal Golf Links 1',
+    'Parsvnath Estate',
+    'Greenwoods Society',
+    'Eldeco Golf View Apartments',
+    'Alpine Society',
+    'Anand Ashray',
+    'Aryan Residency',
+    'Ashiana Black Gold Apartments',
+    'Divine Grace Housing Society',
+    'Edana Apartment',
+    'Engineers Park',
+    'Gandharva Apartment',
+    'Gharonda Apartment',
+    'Omaxe Putting Greens',
+    'RCM Vatika City',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Pari Chowk different?',
@@ -49,13 +67,18 @@ export const greaterNoidaPariChowk: GeoPage = {
             ],
             [
               '[Knowledge Park](/packers-and-movers/greater-noida/knowledge-park) I and II',
-              'Hostels, PG rooms and staff flats near NIMT, Galgotias College and GNIOT',
+              'Hostels, PG rooms and staff flats near NIMT and GNIOT',
               'Small loads timed around semester dates.',
             ],
             [
               'Omega II',
-              'NRI City homes, south of Knowledge Park I',
+              'Omaxe NRI City homes, south of Knowledge Park I',
               'Society move hours checked before the date.',
+            ],
+            [
+              'Omega I',
+              'Ansal Golf Links 1, Greenwoods Society and Parsvnath Estate',
+              'Lift or stairs noted on the survey.',
             ],
             [
               '[Alpha 1](/packers-and-movers/greater-noida/alpha)',

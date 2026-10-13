@@ -15,6 +15,20 @@ export const delhiGreaterKailash: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societies: [
+    'DLF Queens Court',
+    'Kings Court',
+    'Greater Kailash Enclave I',
+    'Kailash Kunj Apartments',
+    "MCD Officers' Flats",
+    'Anant Niwas',
+    'Bina Villa',
+    'Saraswati Sadan',
+    'Satya Sadan',
+    'Sheel Sadan',
+    'Sunder Niwas',
+    'Swaran Sheel Niwas',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Greater Kailash different?',
@@ -26,7 +40,7 @@ export const delhiGreaterKailash: GeoPage = {
         {
           kind: 'list',
           items: [
-            'Builder floors. Homes include builder floors and independent villas in lettered blocks, such as C Block and E Block of GK I. A typical job is one floor of one building.',
+            'Builder floors. Homes include builder floors and independent villas in lettered blocks, such as C Block and E Block of GK I. A typical job is one floor of one building. GK II also has apartment blocks such as DLF Queens Court and Kings Court.',
             'Market blocks. The M Block and N Block markets of GK I draw shoppers, diners and tourists. M Block in GK I is prone to jams from roadside parking.',
             'Sanitary ware hub. M Block market in GK II mixes restaurants and coffee shops with sanitary ware shops. It is one of the largest sanitary ware hubs in North India.',
             'Outer Ring Road. The stretch between Savitri Flyover and Paras Chowk slows badly in heavy rain, so the route is checked on wet days.',

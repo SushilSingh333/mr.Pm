@@ -15,6 +15,7 @@ export const meerutLalkurti: GeoPage = {
     'Shop stock packed on its own',
     'ID-verified crew',
   ],
+  societies: ['Apex Vijay Lok', 'Apex Krishna Lok', 'Apex Ganga Sagar', 'Apex Panchwati'],
   sections: [
     {
       heading: 'What makes shifting in Lalkurti different?',
@@ -50,6 +51,11 @@ export const meerutLalkurti: GeoPage = {
               'Lal Kurti Bazar',
               'Houses along the bazaar lanes',
               'Loading timed outside shop hours.',
+            ],
+            [
+              'Apartment blocks',
+              'Apex Vijay Lok, Apex Krishna Lok and Apex Ganga Sagar',
+              'Lift and stair access checked on video.',
             ],
             [
               'Sadar Bazar side',

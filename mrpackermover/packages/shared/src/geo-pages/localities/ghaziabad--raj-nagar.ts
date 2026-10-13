@@ -15,6 +15,26 @@ export const ghaziabadRajNagar: GeoPage = {
     'ID-verified crew',
     'Nothing charged that is not on the quote',
   ],
+  societies: [
+    'Deepmala Apartments',
+    'Satyadeep Apartments',
+    'Vandana Apartments',
+    'Raj Kunj',
+    'City Enclave',
+    'Divya Apartment',
+    'KG Raj Villas',
+    'Keshav Villa',
+    'Krishna Awas',
+    'Krishna Residency',
+    'Panchsheel Apartments',
+    'Rahul Enclave Apartments',
+    'Raj Kuteer',
+    'Raj Palace',
+    'Sai Kunj',
+    'Shyama Shyam Apartments',
+    'Unnati Apartments',
+    'Vaishnodevi Apartments',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Raj Nagar different?',
@@ -40,7 +60,7 @@ export const ghaziabadRajNagar: GeoPage = {
       blocks: [
         {
           kind: 'text',
-          body: 'All of it, from the sector lanes to the offices of RDC.',
+          body: 'All of it, from sector lanes and blocks such as Deepmala Apartments and Raj Kunj to the offices of RDC.',
         },
         {
           kind: 'table',

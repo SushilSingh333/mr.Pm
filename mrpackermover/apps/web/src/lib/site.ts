@@ -134,6 +134,11 @@ const WHATSAPP_CORE = mobile(ORG?.whatsapp) ?? PHONE_CORE;
 
 export const PHONE_DISPLAY = `+91 ${PHONE_CORE.slice(0, 5)} ${PHONE_CORE.slice(5)}`;
 export const PHONE_TEL = `+91${PHONE_CORE}`;
+/**
+ * When the phone and WhatsApp are answered, from the owner's home brief. One value, used
+ * on every page that states it, so the home page and the contact page can never disagree.
+ */
+export const SUPPORT_HOURS = '8 AM to 10 PM, every day';
 export const EMAIL = 'shiftwith@mrmoverpacker.com';
 
 /** WhatsApp click-to-chat, digits only (wa.me rejects "+" and spaces). */

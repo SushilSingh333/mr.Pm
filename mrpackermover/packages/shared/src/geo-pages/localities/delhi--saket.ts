@@ -15,6 +15,18 @@ export const delhiSaket: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Blocks and societies we move in Saket',
+  societies: [
+    'Press Enclave',
+    'Anupam Apartments',
+    'Golf View Apartments',
+    'Gaurav Apartments',
+    'Saket D Block',
+    'Saket E Block',
+    'Saket H Block',
+    'Saket K Block',
+    'Saket N Block',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Saket different?',
@@ -58,12 +70,12 @@ export const delhiSaket: GeoPage = {
             ],
             [
               'Press Enclave',
-              'Homes beside Press Enclave Road',
+              'Press Enclave homes and Golf View Apartments',
               'Court and mall traffic; loading kept to quiet hours.',
             ],
             [
               'Near Mehrauli-Badarpur Road',
-              'Blocks on the south side',
+              'Anupam Apartments and the southern blocks',
               'Truck stands on a side lane, off the main road.',
             ],
           ],

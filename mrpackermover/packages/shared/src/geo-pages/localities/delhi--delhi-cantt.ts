@@ -15,6 +15,24 @@ export const delhiDelhiCantt: GeoPage = {
     'ID-verified crew',
     'One fixed price, in writing',
   ],
+  societiesHeading: 'Housing areas we move in Delhi Cantt',
+  societies: [
+    'Shankar Vihar',
+    'Kirby Place',
+    'Arjun Vihar',
+    'Bana Singh Enclave',
+    'Anuj Nayyar Vihar',
+    'Chitral Lines',
+    'Delhi Cantt Police Colony',
+    'Maude Lines',
+    'New Chitral Lines',
+    'Personnel and Training Colony',
+    'Sannaiyat Lines',
+    'Shankar Range Colony',
+    'Shumran Lines',
+    'Subramanian Lines',
+    'Vikram Batra Vihar',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Delhi Cantt different?',
@@ -63,7 +81,7 @@ export const delhiDelhiCantt: GeoPage = {
             ],
             [
               'Towards Dhaula Kuan',
-              'Homes by the Airport Express Line',
+              'Arjun Vihar and homes by the Airport Express Line',
               'Short runs to Moti Bagh and Chanakyapuri.',
             ],
             [
@@ -164,7 +182,7 @@ export const delhiDelhiCantt: GeoPage = {
     {
       question: 'Do you move quarters in Shankar Vihar?',
       answer:
-        'Yes. Shankar Vihar lies inside a military zone, so entry is arranged before we fix the date.',
+        'Yes. Shankar Vihar, which includes Shankar Range Colony, lies inside a military zone, so entry is arranged before we fix the date.',
     },
     {
       question: 'How much do packers and movers charge in Delhi Cantt?',

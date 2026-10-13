@@ -15,6 +15,14 @@ export const meerutKankerKhera: GeoPage = {
     'ID-verified crew',
     'Only what is on the written quote',
   ],
+  societies: [
+    'Apex European Estate',
+    'Defence 64',
+    'Gayatri Heights',
+    'Vaishno Dham Colony',
+    'Lala Mohammadpur',
+    'Subhash Puri',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Kanker Khera different?',
@@ -60,6 +68,11 @@ export const meerutKankerKhera: GeoPage = {
               'Mohammad Pur Road',
               'Homes near the Urban Health Centre',
               'Health centre entrance kept clear.',
+            ],
+            [
+              'Gated projects',
+              'Societies such as Apex European Estate, Gayatri Heights and Defence 64',
+              'Gate entry and lift checked on the survey.',
             ],
             [
               'Towards Meerut Cantt station',

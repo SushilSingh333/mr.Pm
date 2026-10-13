@@ -15,6 +15,15 @@ export const delhiPreetVihar: GeoPage = {
     'Local moves loaded by 8 PM',
     'One written price, GST shown',
   ],
+  societiesHeading: 'Blocks and societies we move in Preet Vihar',
+  societies: [
+    'Bharti Artist Colony',
+    'Preet Vihar C Block',
+    'Preet Vihar D Block',
+    'Preet Vihar E Block',
+    'Preet Vihar F Block',
+    'Preet Vihar G Block',
+  ],
   sections: [
     {
       heading: 'What makes shifting in Preet Vihar different?',
@@ -53,7 +62,7 @@ export const delhiPreetVihar: GeoPage = {
             ],
             [
               'Near Vikas Marg and the metro',
-              'Homes beside the main road',
+              'Bharti Artist Colony, by the main road',
               'Truck timed away from Vikas Marg rush hours.',
             ],
             [
@@ -82,7 +91,7 @@ export const delhiPreetVihar: GeoPage = {
           columns: ['What', 'Who arranges it', 'When'],
           rows: [
             [
-              'Guard note or RWA permission for your E Block or G Block home',
+              'RWA permission for your E Block or G Block home',
               'You; we share the vehicle number and crew IDs',
               'Before the date is fixed.',
             ],

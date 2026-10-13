@@ -81,7 +81,7 @@ const extraJsonLd = [
     intro={plainText(page.subhead)}
     image={heroImage}
     imageUrl={data.heroImage?.url}
-    imageAlt={data.heroImage?.alt ?? `A view of ${data.cityName}`}
+    imageAlt={data.heroImage ? (data.heroImage.alt ?? `A view of ${data.cityName}`) : undefined}
     prefillCity={data.cityName}
     bands={data.rateBands}
   />

@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { manifest } from '../data/manifest.js';
 import { SITE_ORIGIN } from '../lib/site.js';
+import { staticSitemapEntries } from '../lib/sitemap-static.js';
+import { SITEMAP_SHARDS } from '@mpm/shared';
 
 /**
  * Sitemap index (Doc 02 §5). Lists only the shards that actually contain indexable
@@ -13,6 +15,11 @@ export const GET: APIRoute = () => {
     if (page.noindex) continue;
     const current = shards.get(page.sitemapShard);
     if (!current || page.lastmod > current) shards.set(page.sitemapShard, page.lastmod);
+  }
+  // The core shard also carries the hand-built pages; its date is the latest of them too.
+  for (const e of staticSitemapEntries()) {
+    const current = shards.get(SITEMAP_SHARDS.core);
+    if (e.lastmod && (!current || e.lastmod > current)) shards.set(SITEMAP_SHARDS.core, e.lastmod);
   }
 
   const entries = [...shards.entries()]

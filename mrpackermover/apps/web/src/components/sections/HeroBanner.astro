@@ -1,7 +1,9 @@
 ---
-import type { RateBand, CityHubData } from '@mpm/shared';
+import type { RateBand, CityHubData, ServiceQuoteMode } from '@mpm/shared';
 import HeroShell from './HeroShell.astro';
 import QuoteWidget from '../quote/QuoteWidget.astro';
+import ServiceEnquiry from '../services/ServiceEnquiry.astro';
+import { inlineHtml } from '../../lib/rich-text.js';
 import CityModal from '../home/CityModal.astro';
 import { rowsOfType, dataOf } from '../../data/manifest.js';
 
@@ -33,8 +35,15 @@ interface Props {
   align?: 'center' | 'split';
   /** Breadcrumbs in the banner (the split layout). */
   crumbs?: { href?: string; label: string }[];
+  /**
+   * The service's own enquiry form in place of the price check, for a service the price
+   * check does not fit. The check prices a household move by truck size and floors, which
+   * says nothing about shipping a car, a bike or a container abroad, packing on its own, or
+   * hiring a loading crew - the same form the service's national page uses.
+   */
+  enquiry?: { mode: ServiceQuoteMode; serviceName: string; title: string; note?: string };
 }
-const { h1, intro, badge, image, imageUrl, imageAlt, cityLabel, align, crumbs, ...quote } =
+const { h1, intro, badge, image, imageUrl, imageAlt, cityLabel, align, crumbs, enquiry, ...quote } =
   Astro.props;
 
 // City list for the modal (only needed when the chip is shown) — carries each city's
@@ -57,7 +66,48 @@ const cities = cityLabel
   align={align}
   crumbs={crumbs}
 >
-  <QuoteWidget {...quote} cityLabel={cityLabel} eager />
+  {
+    enquiry ? (
+      <div class="hb-enquiry">
+        <p class="hb-enquiry__t">{enquiry.title}</p>
+        {enquiry.note && <p class="hb-enquiry__note" set:html={inlineHtml(enquiry.note)} />}
+        <ServiceEnquiry mode={enquiry.mode} serviceName={enquiry.serviceName} />
+      </div>
+    ) : (
+      <QuoteWidget {...quote} cityLabel={cityLabel} eager />
+    )
+  }
 </HeroShell>
 
 {cityLabel && <CityModal cities={cities} />}
+
+<style>
+  /* The enquiry form's card: the white, softly raised card the service pages use
+     (GHero's gh-card), kept to a readable width under the banner. */
+  .hb-enquiry {
+    max-width: 52rem;
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-radius: 1.75rem;
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgb(60 64 67 / 0.3),
+      0 2px 6px 2px rgb(60 64 67 / 0.15);
+  }
+  .hb-enquiry__t {
+    margin: 0 0 1rem;
+    font-size: 1.375rem;
+    font-weight: 500;
+    color: var(--g-ink);
+  }
+  .hb-enquiry__note {
+    margin: -0.65rem 0 1rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--g-ink-3);
+  }
+  .hb-enquiry__note :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+</style>

@@ -59,7 +59,7 @@ export const HOME_COPY: HomePageCopy = {
   trust: [
     'Fixed written quote',
     'ID-verified crews',
-    'Claims data published',
+    'Written claims process',
     'Pickup in {count} cities',
   ],
   promisesHeading: 'Fixed price packers and movers, with zero compromise on care',
@@ -72,7 +72,7 @@ export const HOME_COPY: HomePageCopy = {
     {
       title: 'Every item photographed',
       text: 'Your inventory reaches WhatsApp before the truck leaves.',
-      link: { href: '/claims', label: 'Our claims data' },
+      link: { href: '/claims', label: 'How claims work' },
     },
     {
       title: 'Our own verified crew',
@@ -106,7 +106,7 @@ export const HOME_COPY: HomePageCopy = {
     {
       label: 'Damage',
       them: '"Normal wear"',
-      us: 'Written claims process, settlement data published',
+      us: 'Written claims process, settled against pickup photos',
     },
     { label: 'Invoice', them: 'Cash, often no bill', us: 'One GST invoice' },
     {
@@ -226,7 +226,7 @@ export const SERVICES_PAGE_COPY: ServicesPageCopy = {
     'Own trained crews',
     'Photo inventory on every job',
     'GST invoice',
-    'Claims data published',
+    'Written claims process',
   ],
   cardsHeading: 'Our relocation services',
   chooserHeading: 'Not sure which shifting service fits? Start here.',

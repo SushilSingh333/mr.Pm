@@ -15,14 +15,16 @@ const row = staticRow({
   h1: ed.title ?? 'Licences, GST & the entity behind your move',
   metaDescription:
     ed.seoDescription ??
-    'The registered company, GSTIN, CIN, insurance partner and compliance details behind MrMoverPacker, with how to independently verify every one of them.',
+    'The registered business behind MrMoverPacker: legal and trade name, our GST registration, and how to check the GSTIN on your quote yourself on the GST portal.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
 /**
- * Only real registration details show: a placeholder ("upcoming", "pending"), or a GSTIN
- * that fails its check character, is left out rather than printed. A CIN shows only when
- * there is one: a partnership firm or proprietorship has a GSTIN but no CIN.
+ * Only real registration details show: a placeholder ("upcoming", "pending") is left out
+ * rather than printed. A CIN shows only when there is one: a partnership firm or
+ * proprietorship has a GSTIN but no CIN. The GSTIN itself is not printed on the site (the
+ * owner's call); the page says where to find it - on every quote and invoice - and how to
+ * check it.
  */
 const gstin = shownGstin(o?.gstin);
 const cin = o && !isPlaceholder(o.cin) ? o.cin : undefined;
@@ -31,7 +33,6 @@ const office =
     ? o.registeredOffice.split(/\s*[\r\n]+\s*/).join(', ')
     : undefined;
 const legalName = o && !isPlaceholder(o.legalName) ? o.legalName : undefined;
-const pending = !gstin;
 ---
 
 <BaseLayout row={row}>
@@ -64,17 +65,8 @@ const pending = !gstin;
               </tr>
               {gstin && (
                 <tr>
-                  <th scope="row">GSTIN</th>
-                  <td>
-                    {gstin} ·{' '}
-                    <a
-                      href="https://services.gst.gov.in/services/searchtp"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Check on the GST portal
-                    </a>
-                  </td>
+                  <th scope="row">GST registration</th>
+                  <td>Registered. Our GSTIN is printed on every written quote and GST invoice.</td>
                 </tr>
               )}
               {cin && (
@@ -89,10 +81,6 @@ const pending = !gstin;
                   <td>{office}</td>
                 </tr>
               )}
-              <tr>
-                <th scope="row">Insurance partner</th>
-                <td>{o.insurancePartner ?? 'IRDAI-licensed insurer (named on your policy)'}</td>
-              </tr>
             </tbody>
           </table>
           <p class="reg-note">
@@ -119,7 +107,8 @@ const pending = !gstin;
             </p>
             <ul>
               <li>
-                <strong>GSTIN</strong>, search the number on the Government of India GST portal (
+                <strong>GSTIN</strong>, it is printed on your written quote and GST invoice. Search
+                it on the Government of India GST portal (
                 <span class="muted">services.gst.gov.in → Search Taxpayer</span>). It should return
                 our legal name and status as <strong>Active</strong>.
               </li>
@@ -130,10 +119,6 @@ const pending = !gstin;
                   to confirm incorporation and directors.
                 </li>
               )}
-              <li>
-                <strong>Insurance</strong>, transit cover is placed with a licensed insurer and the
-                policy names them in full. Ask for the certificate before goods are loaded.
-              </li>
             </ul>
 
             <h2>What we are, and what we are not</h2>
@@ -156,12 +141,6 @@ const pending = !gstin;
               <li>The transit insurance certificate (when you opt for cover).</li>
               <li>ID confirmation of the crew and vehicle assigned to your move.</li>
             </ul>
-            {pending && (
-              <p class="muted">
-                Any registration detail not shown above is being added; every detail shown matches
-                the official portals exactly.
-              </p>
-            )}
           </Fragment>
         )
       }

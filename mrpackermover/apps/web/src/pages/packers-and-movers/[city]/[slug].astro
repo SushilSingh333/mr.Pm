@@ -2,11 +2,13 @@
 import type { CityServiceData, GeoPage, LocalityData } from '@mpm/shared';
 import {
   CITY_SERVICE_PAGES,
+  SERVICE_PAGE_LABELS,
   LOCALITY_PAGES,
   fallbackGeoPage,
   geoPageWithCount,
   plainText,
   serviceCopy,
+  servicePage,
 } from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
 import { rowsOfType, dataOf } from '../../../data/manifest.js';
@@ -44,6 +46,23 @@ const loc = !isService ? dataOf<LocalityData>(row) : null;
 const cityName = cs?.cityName ?? loc?.cityName ?? '';
 // Same banner choice as the city page - see the note there.
 const heroImage = 'home';
+
+// The price check prices a household move (truck size, floors, lifts), so it belongs on
+// home and office moves only. Every other service gets the enquiry form its national
+// page uses: a truck-size estimate for shipping a car or a container abroad would be a
+// wrong answer to the visitor's question.
+const PRICE_CHECK_SERVICES = ['home-shifting', 'office-shifting'];
+const svcSlug = isService ? (row.slug.split('/')[1] ?? '') : '';
+const svcBrief = isService ? servicePage(svcSlug) : undefined;
+const enquiry =
+  svcBrief && cs && !PRICE_CHECK_SERVICES.includes(svcSlug)
+    ? {
+        mode: svcBrief.quoteMode,
+        serviceName: cs.serviceName,
+        title: SERVICE_PAGE_LABELS.cardTitle,
+        note: svcBrief.quoteNote,
+      }
+    : undefined;
 
 // ── Locality ───────────────────────────────────────────────────────────────
 const page: GeoPage | null = loc
@@ -167,10 +186,11 @@ const extraJsonLd = isService
           intro={plainText(csPage.subhead)}
           image={heroImage}
           imageUrl={cs!.heroImage?.url}
-          imageAlt={cs!.heroImage?.alt ?? `A view of ${cityName}`}
+          imageAlt={cs!.heroImage ? (cs!.heroImage.alt ?? `A view of ${cityName}`) : undefined}
           prefillCity={cityName}
           prefillService={cs!.serviceName}
           bands={cs!.rateBands ?? []}
+          enquiry={enquiry}
         />
 
         <GPage>
@@ -202,7 +222,7 @@ const extraJsonLd = isService
           intro={`${cs!.serviceName} in ${cityName} with one fixed, written quote and our own trained crews.`}
           image={heroImage}
           imageUrl={cs!.heroImage?.url}
-          imageAlt={cs!.heroImage?.alt ?? `A view of ${cityName}`}
+          imageAlt={cs!.heroImage ? (cs!.heroImage.alt ?? `A view of ${cityName}`) : undefined}
           prefillCity={cityName}
           prefillService={cs!.serviceName}
           bands={cs!.rateBands ?? []}
@@ -246,7 +266,7 @@ const extraJsonLd = isService
           intro={plainText(page!.subhead)}
           image={heroImage}
           imageUrl={loc!.heroImage?.url}
-          imageAlt={loc!.heroImage?.alt ?? `A view of ${cityName}`}
+          imageAlt={loc!.heroImage ? (loc!.heroImage.alt ?? `A view of ${cityName}`) : undefined}
           prefillCity={cityName}
           bands={loc!.rateBands ?? []}
         />

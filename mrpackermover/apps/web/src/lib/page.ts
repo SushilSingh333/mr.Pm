@@ -37,6 +37,12 @@ export function isPageHidden(key: string): boolean {
   return (manifest().hiddenPages ?? []).includes(key);
 }
 
+/** True when `path` is an editorial page the CMS has unpublished (so it is noindex). */
+export function isPathHidden(path: string): boolean {
+  const key = EDITORIAL_PATH_KEYS[path];
+  return key ? isPageHidden(key) : false;
+}
+
 export interface StaticRowInput {
   path: string;
   title: string;

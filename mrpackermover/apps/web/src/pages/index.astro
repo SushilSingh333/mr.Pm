@@ -10,7 +10,14 @@ import CitiesGrid from '../components/sections/CitiesGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import Band from '../components/ui/Band.astro';
 import QuoteWidget from '../components/quote/QuoteWidget.astro';
-import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, SUPPORT_HOURS, WHATSAPP_NUMBER } from '../lib/site.js';
+import {
+  FOUNDER,
+  FOUNDER_NAME,
+  PHONE_DISPLAY,
+  PHONE_TEL,
+  SUPPORT_HOURS,
+  WHATSAPP_NUMBER,
+} from '../lib/site.js';
 import { heroAlt } from '../lib/hero.js';
 
 /**
@@ -108,6 +115,7 @@ const extraJsonLd = [
     image="home"
     imageUrl={data.content?.heroImage?.url}
     intro={C.subhead}
+    introBy={`${FOUNDER_NAME}, Founder`}
   >
     <Fragment slot="heading">
       <p class="home-tagline">{C.tagline}</p>
@@ -364,7 +372,7 @@ const extraJsonLd = [
       <p><strong>Always included:</strong> {C.chargesIncluded}</p>
       <p class="home-promise-line">{C.chargesPromise}</p>
       <p class="home-more">
-        <a href="/pricing">Full pricing details →</a> · Local rate bands are on each city page.
+        <a href="/pricing">Full pricing details →</a> · Every city page has an instant price check.
       </p>
     </div>
   </Band>

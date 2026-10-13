@@ -5,7 +5,8 @@
  * pickup, so a visitor from "Supertech Capetown" starts with their own address. People
  * search for movers by their society's name; every name here is in the HTML from the
  * start (crawlable), and a long list opens with its first two dozen and a "Show all"
- * button.
+ * button. The chips are nofollow: they open the quote form with a pre-filled address, a
+ * query URL robots.txt keeps out of search, so a crawler has nothing to follow there.
  */
 interface Props {
   place: string;
@@ -40,7 +41,9 @@ const hrefFor = (name: string): string => {
       <ul class="gso-list">
         {societies.map((s, i) => (
           <li hidden={i >= FIRST}>
-            <a href={hrefFor(s)}>{s}</a>
+            <a href={hrefFor(s)} rel="nofollow">
+              {s}
+            </a>
           </li>
         ))}
       </ul>

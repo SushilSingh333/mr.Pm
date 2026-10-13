@@ -24,6 +24,8 @@ interface OrgInput {
   registeredOffice: string;
   logoUrl?: string;
   sameAs?: string[];
+  /** The founder's name, as a Person. */
+  founder?: string;
 }
 
 /** The single Organization node. Rendered once (home), referenced everywhere via @id. */
@@ -52,6 +54,7 @@ export function organization(input: OrgInput): JsonLd {
         }),
     ...(input.logoUrl ? { logo: input.logoUrl } : {}),
     ...(input.sameAs?.length ? { sameAs: input.sameAs } : {}),
+    ...(input.founder ? { founder: { '@type': 'Person', name: input.founder } } : {}),
   };
 }
 

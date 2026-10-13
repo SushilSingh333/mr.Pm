@@ -6,7 +6,7 @@ import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
 import Faq from '../components/sections/Faq.astro';
 import CtaBand from '../components/page/CtaBand.astro';
-import { staticRow, org, editorialFor } from '../lib/page.js';
+import { staticRow, editorialFor } from '../lib/page.js';
 
 const ed = editorialFor('insurance');
 const row = staticRow({
@@ -16,10 +16,9 @@ const row = staticRow({
   h1: ed.title ?? 'Transit insurance, shown as a line, not buried',
   metaDescription:
     ed.seoDescription ??
-    'Optional transit insurance for your move with MrMoverPacker: what it covers, how it is priced as a clear line item, the named insurer, and how a claim is paid.',
+    'Optional transit insurance for your move with MrMoverPacker: what it covers, how it is priced as a clear line item, and how a claim is paid.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
-const o = org();
 
 const faqs = [
   {
@@ -31,10 +30,6 @@ const faqs = [
     question: 'How is the premium calculated?',
     answer:
       'From the declared value of your goods, the total you would want covered if the worst happened. You declare it, we show the premium against it, and that becomes your insured amount.',
-  },
-  {
-    question: 'Who is the insurer?',
-    answer: `Cover is placed with a licensed insurer${o?.insurancePartner ? ` (${o.insurancePartner})` : ''}, and the policy names them in full. You can ask for the certificate before your goods are loaded.`,
   },
   {
     question: 'What is not covered?',
@@ -52,7 +47,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     eyebrow={ed.eyebrow ?? 'Protection'}
     h1={row.h1}
     intro={ed.intro ??
-      'Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, backed by a named insurer, so you decide with your eyes open.'}
+      'Most movers either skip insurance or slip it into the fine print. We put it on the quote as a clear choice, so you decide with your eyes open.'}
     breadcrumbs={row.breadcrumbs}
     current="Transit insurance"
   >
@@ -95,8 +90,8 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
           take it or leave it; the base move price does not change either way.
         </li>
         <li>
-          <strong>Get the certificate.</strong> Opt in and we issue a policy certificate that names the
-          insurer and the insured value. Ask for it before loading day.
+          <strong>Get the certificate.</strong> Opt in and we issue a policy certificate that shows the
+          cover and the insured value. Ask for it before loading day.
         </li>
         <li>
           <strong>Claim, if you ever need to.</strong> Report through your coordinator, and we settle
@@ -104,10 +99,6 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
           <a href="/claims">claims page</a>.
         </li>
       </ol>
-      <p class="muted">
-        Insurance partner and policy wordings are being finalised before launch; your certificate
-        will name the licensed insurer and terms in full.
-      </p>
     </Prose>
   </Band>
 

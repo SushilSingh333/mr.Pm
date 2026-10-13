@@ -180,7 +180,7 @@ export const homeShifting: ServicePage = {
               'Wardrobes that will not come apart, crating, truck parking distance, society truck timings',
               'Only what you do not show us',
             ],
-            ['Accuracy', 'About ±6%, a guide only', 'Fixed, the price you pay'],
+            ['Accuracy', 'About ±12%, a guide only', 'Fixed, the price you pay'],
             ['Use it for', 'A budget', 'Booking'],
           ],
         },
@@ -230,7 +230,7 @@ export const homeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: 'Every move carries basic liability cover. [Optional transit insurance](/insurance) covers up to your declared value, from a licensed insurer named on your certificate. Ask for the certificate and its exclusions before loading day.\n\nRaising a claim is free, and it is assessed against the signed photo inventory:',
+          body: 'Every move carries basic liability cover. [Optional transit insurance](/insurance) covers up to your declared value, with the cover and its exclusions on your certificate. Ask for the certificate before loading day.\n\nRaising a claim is free, and it is assessed against the signed photo inventory:',
         },
         {
           kind: 'list',

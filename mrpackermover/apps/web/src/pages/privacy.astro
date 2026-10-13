@@ -4,6 +4,7 @@ import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
 import { staticRow, org, editorialFor } from '../lib/page.js';
+import { EMAIL } from '../lib/site.js';
 
 const ed = editorialFor('privacy');
 const row = staticRow({
@@ -17,7 +18,8 @@ const row = staticRow({
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
-const legalName = o?.legalName ?? 'the Company';
+const legalName = o?.legalName ?? 'MR MOVER PACKER';
+const brand = o?.brandName ?? 'MrMoverPacker';
 ---
 
 <BaseLayout row={row}>
@@ -38,113 +40,151 @@ const legalName = o?.legalName ?? 'the Company';
           <Fragment set:html={ed.bodyHtml} />
         ) : (
           <Fragment>
-            <div class="legal-notice">
-              <strong>Draft for review.</strong> This template will be finalised with legal counsel
-              before launch to reflect our final data practices under the DPDP Act, 2023.
-              <span class="muted">Effective date: to be set at launch.</span>
-            </div>
+            <p class="legal-updated">Last updated: 13 October 2026</p>
 
             <h2>1. Who we are</h2>
             <p>
-              This policy explains how <strong>{legalName}</strong> (
-              {o?.brandName ?? 'MrMoverPacker'}) handles your personal data as the data fiduciary,
-              in relation to this website and our moving services in India.
+              This policy explains how <strong>{legalName}</strong>, trading as {brand} ("we",
+              "us"), handles your personal data when you use this website or move with us. We decide
+              why and how your data is used, which makes us the data fiduciary under India's Digital
+              Personal Data Protection Act, 2023.
             </p>
 
             <h2>2. What we collect</h2>
             <ul>
               <li>
-                <strong>You give us:</strong> name, phone, email, pickup/drop addresses, move
-                details, and any photos or inventory you share for a quote.
+                <strong>What you give us:</strong> your name, phone number, email, pickup and drop
+                addresses, move date and details, and any photos or video of your home you share for
+                a survey. For a car or bike move, the vehicle details and a copy of its RC and
+                insurance.
               </li>
               <li>
-                <strong>Automatically:</strong> basic device and usage data (e.g. pages viewed) to
-                keep the site working and improve it.
+                <strong>During your move:</strong> the photo inventory, signatures at pickup and
+                delivery, your coordinator's notes, and records of calls and WhatsApp messages with
+                us.
               </li>
               <li>
-                <strong>During a move:</strong> operational records such as your inventory,
-                coordinator notes and packing photos.
+                <strong>Payments:</strong> the amount, date and payment reference. We do not store
+                card numbers or banking passwords.
+              </li>
+              <li>
+                <strong>From your device:</strong> pages visited, the device and browser used, a
+                rough location from your IP address, and cookies (section 7).
               </li>
             </ul>
 
             <h2>3. Why we use it</h2>
             <ul>
-              <li>To prepare quotes and carry out your move.</li>
+              <li>To send you an estimate, survey your goods and prepare your written quote.</li>
+              <li>To plan and carry out your move, and keep you updated on the day.</li>
+              <li>To handle claims, complaints and questions.</li>
+              <li>To issue GST invoices and meet our legal, tax and accounting duties.</li>
+              <li>To keep the website and our records secure and prevent fraud.</li>
               <li>
-                To coordinate crews, provide status and support, and handle claims or complaints.
+                To understand how the website is used and how our advertising performs, so we can
+                improve both.
               </li>
-              <li>To issue GST invoices and meet legal and tax obligations.</li>
-              <li>To improve our services and prevent fraud or misuse.</li>
             </ul>
-
-            <h2>4. Consent and legal basis</h2>
             <p>
-              We process your data on the basis of your consent and for the legitimate uses
-              permitted under the DPDP Act, 2023, principally to provide a service you have
-              requested. Where we rely on consent, you may withdraw it at any time (see section 7);
-              this will not affect processing already carried out.
+              We use your data on the basis of your consent, which you give when you send us a form
+              or contact us, and for the uses the law allows without it, such as meeting tax and
+              legal duties. You can withdraw consent at any time (section 6); this does not affect
+              what was done before.
             </p>
 
-            <h2>5. Who we share it with</h2>
+            <h2>4. Who we share it with</h2>
+            <ul>
+              <li>
+                <strong>Our crew and coordinators,</strong> who see the details they need for your
+                move: your name, phone number, addresses and inventory.
+              </li>
+              <li>
+                <strong>Service providers</strong> who run our website, hosting, email, messaging
+                and records for us, under contract and only to do that work.
+              </li>
+              <li>
+                <strong>Google</strong>, through Google Analytics, which tells us how the website is
+                used.
+              </li>
+              <li>
+                <strong>Meta (Facebook)</strong>, through the Meta pixel, which tells us whether our
+                ads lead to quote requests. When you send a quote request, your phone number and
+                email may be shared with Meta in hashed (scrambled) form to match it to an ad. Meta
+                cannot read them from the hash.
+              </li>
+              <li>
+                <strong>Payment and banking partners</strong>, to process what you pay us.
+              </li>
+              <li>
+                <strong>For transit insurance,</strong> only if you choose it: the details needed to
+                issue the policy and handle a claim.
+              </li>
+              <li>
+                <strong>Authorities</strong>, when the law requires it or to protect someone's
+                safety.
+              </li>
+            </ul>
             <p>
-              We share data only as needed to deliver your move: with our crews and coordinators;
-              with a licensed insurer if you opt for transit insurance; and with payment, IT and
-              communications providers who process data on our behalf under contract. We may
-              disclose data where required by law.{' '}
               <strong>We do not sell your personal data.</strong>
             </p>
 
-            <h2>6. How long we keep it</h2>
+            <h2>5. How long we keep it</h2>
             <p>
-              We keep personal data only as long as needed for the purposes above and to meet legal,
-              tax and accounting requirements, after which it is deleted or anonymised.
+              We keep your data only as long as we need it for the purposes above. Invoices and the
+              records behind them are kept for as long as tax and accounting law requires. After
+              that, data is deleted or anonymised.
             </p>
 
-            <h2>7. Your rights</h2>
-            <p>Under the DPDP Act, 2023, you have the right to:</p>
+            <h2>6. Your rights</h2>
+            <p>Under the Digital Personal Data Protection Act, 2023, you can ask us to:</p>
             <ul>
-              <li>Access a summary of the personal data we hold about you.</li>
-              <li>Correct or update inaccurate or incomplete data.</li>
-              <li>Request erasure of your data where it is no longer needed.</li>
-              <li>Withdraw consent, and nominate another person to exercise your rights.</li>
+              <li>Tell you what personal data we hold about you and how we use it.</li>
+              <li>Correct, complete or update it.</li>
               <li>
-                Raise a grievance with us (section 10) and, if unresolved, with the Data Protection
-                Board of India.
+                Erase it, where we no longer need it and the law does not require us to keep it.
               </li>
+              <li>Stop using it, by withdrawing your consent.</li>
+              <li>Let someone you nominate exercise these rights for you.</li>
             </ul>
-
-            <h2>8. Cookies and analytics</h2>
             <p>
-              We use only the cookies needed to run the site and understand aggregate usage. We keep
-              this minimal and do not use intrusive advertising trackers. You can control cookies
-              through your browser settings.
+              Email <a href={`mailto:${EMAIL}?subject=Privacy`}>{EMAIL}</a> with "Privacy" in the
+              subject. We reply within 30 days. If you are not satisfied with our answer, you can
+              complain to the Data Protection Board of India.
             </p>
 
-            <h2>9. How we protect your data</h2>
+            <h2>7. Cookies and analytics</h2>
             <p>
-              We apply reasonable technical and organisational safeguards to protect your data
-              against loss, misuse and unauthorised access. No system is perfectly secure, but we
-              work to limit what we collect and who can access it.
+              The website uses cookies to work properly, and analytics and advertising cookies from
+              Google Analytics and the Meta pixel (section 4). You can block or delete cookies in
+              your browser settings; the website still works without them. You can also use Google's
+              Analytics opt-out browser add-on and your Facebook ad settings.
             </p>
 
-            <h2>10. Grievance officer</h2>
+            <h2>8. How we protect it</h2>
             <p>
-              For privacy questions or to exercise your rights, contact our grievance officer
-              through the
-              <a href="/company/contact">contact page</a>. The named officer and direct contact
-              details are being finalised before launch and will appear here in full.
+              We use reasonable technical and organisational safeguards, limit who can see your data
+              to the people who need it, and collect only what we need. No system is perfectly
+              secure; if a breach affects you, we will tell you and the authorities as the law
+              requires.
             </p>
 
-            <h2>11. Children</h2>
+            <h2>9. Children</h2>
             <p>
-              Our services are intended for adults. We do not knowingly collect the data of children
-              without verifiable parental consent as required by law.
+              Our services are for adults. We do not knowingly collect personal data from anyone
+              under 18.
             </p>
 
-            <h2>12. Changes to this policy</h2>
+            <h2>10. Changes to this policy</h2>
             <p>
-              We may update this policy as our practices or the law evolve. Material changes will be
-              posted here with a revised effective date.
+              We may update this policy as our practices or the law change. The date at the top
+              shows when it last changed.
+            </p>
+
+            <h2>11. Contact</h2>
+            <p>
+              Questions about your data? Email{' '}
+              <a href={`mailto:${EMAIL}?subject=Privacy`}>{EMAIL}</a> or reach us through the{' '}
+              <a href="/company/contact">contact page</a>.
             </p>
           </Fragment>
         )
@@ -154,16 +194,9 @@ const legalName = o?.legalName ?? 'the Company';
 </BaseLayout>
 
 <style>
-  .legal-notice {
+  .legal-updated {
     margin-bottom: 2rem;
-    padding: 1rem 1.25rem;
-    border-radius: var(--radius-md);
-    border: 1px solid color-mix(in oklab, var(--color-warn-500) 35%, var(--color-line));
-    background: color-mix(in oklab, var(--color-warn-500) 8%, white);
-    font-size: var(--text-base);
-    color: var(--color-ink-700);
-  }
-  .legal-notice strong {
-    color: var(--color-ink-900);
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
   }
 </style>

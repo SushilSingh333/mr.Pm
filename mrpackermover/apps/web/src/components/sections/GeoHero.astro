@@ -1,5 +1,5 @@
 ---
-import type { RateBand } from '@mpm/shared';
+import type { RateBand, ServiceQuoteMode } from '@mpm/shared';
 import HeroBanner from './HeroBanner.astro';
 
 /**
@@ -25,6 +25,8 @@ interface Props {
   roadKm?: number;
   align?: 'center' | 'split';
   crumbs?: { href?: string; label: string }[];
+  /** The service's enquiry form in place of the price check (see HeroBanner). */
+  enquiry?: { mode: ServiceQuoteMode; serviceName: string; title: string; note?: string };
 }
 const props = Astro.props as Props;
 ---

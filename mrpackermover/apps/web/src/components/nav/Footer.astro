@@ -20,8 +20,9 @@ import { isPageHidden } from '../../lib/page.js';
 const VISIBLE_CITIES = 6;
 /**
  * The legal line under the copyright, from the home brief: brand · registered name ·
- * registered address · GSTIN, then Licences and Raise a complaint. Only real details
- * show (a placeholder or an invalid GSTIN is left out), so a blank never reads "upcoming".
+ * registered address · GST registered, then Licences and Raise a complaint. Only real
+ * details show, so a blank never reads "upcoming". The GSTIN itself is not printed on the
+ * site (the owner's call): it is on every written quote and GST invoice.
  */
 const org = manifest().org;
 const legalParts = [
@@ -29,7 +30,7 @@ const legalParts = [
   org && !isPlaceholder(org.registeredOffice)
     ? org.registeredOffice.split(/\s*[\r\n]+\s*/).join(', ')
     : '',
-  shownGstin(org?.gstin) ? `GSTIN ${shownGstin(org?.gstin)}` : '',
+  shownGstin(org?.gstin) ? 'GST registered' : '',
 ].filter(Boolean);
 import Logo from './Logo.astro';
 
@@ -81,8 +82,7 @@ const socialIcon = (name: string): string => ICONS[name] ?? '';
     <div class="footer-brand">
       <Logo light />
       <p class="footer-tagline">
-        Fixed quotes, verified crews, and claims data we actually publish. We serve the areas listed
-        below.
+        Fixed quotes, verified crews, and a written claims process. We serve the areas listed below.
       </p>
 
       <div class="footer-contact">

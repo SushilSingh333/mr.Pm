@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { isPlaceholder } from '@mpm/seo/jsonld';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
 import Prose from '../components/page/Prose.astro';
@@ -14,11 +13,12 @@ const row = staticRow({
   h1: ed.title ?? 'Terms of service',
   metaDescription:
     ed.seoDescription ??
-    'The terms governing quotes, bookings, payments, liability, claims and cancellations for moving services provided by MrMoverPacker across India.',
+    'The terms for quotes, bookings, payments, cancellations, liability and claims when you move with MrMoverPacker, written in plain language.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
-const legalName = o?.legalName ?? 'the Company';
+const legalName = o?.legalName ?? 'MR MOVER PACKER';
+const brand = o?.brandName ?? 'MrMoverPacker';
 ---
 
 <BaseLayout row={row}>
@@ -39,126 +39,253 @@ const legalName = o?.legalName ?? 'the Company';
           <Fragment set:html={ed.bodyHtml} />
         ) : (
           <Fragment>
-            <div class="legal-notice">
-              <strong>Draft for review.</strong> This template will be finalised with legal counsel
-              before launch. The binding terms are those in force on the date you book.{' '}
-              <span class="muted">Effective date: to be set at launch.</span>
-            </div>
+            <p class="legal-updated">Last updated: 13 October 2026</p>
 
             <h2>1. Who these terms are with</h2>
             <p>
-              These terms are an agreement between you and <strong>{legalName}</strong> (
-              {o?.brandName ?? 'MrMoverPacker'}), a company registered in India
-              {o?.gstin && !isPlaceholder(o.gstin) ? `, GSTIN ${o.gstin}` : ''}. By requesting a
-              quote, booking a move, or using this website, you accept these terms.
+              These terms are an agreement between you and <strong>{legalName}</strong>, trading as{' '}
+              {brand}, a GST-registered business in India ("we", "us"). They apply when you use this
+              website, ask for a quote, or book a move with us. Your written quote forms part of
+              these terms; where the two differ, the quote wins for your move.
             </p>
 
-            <h2>2. Our services</h2>
+            <h2>2. What we do</h2>
             <p>
-              We provide packing, loading, transportation, unloading and related relocation services
-              for homes and businesses in the areas we serve. We do not operate walk-in premises;
-              services are delivered at your location and coordinated remotely.
+              We pack, load, move, unload and unpack household and office goods, and transport cars
+              and bikes, for customers in the areas we serve. We have no walk-in branches: our crews
+              come to you, and everything else is handled by phone, WhatsApp and email.
             </p>
 
-            <h2>3. Quotes, surveys and pricing</h2>
-            <p>
-              Quotes are prepared after a survey of your goods (in person or by video). A written,
-              itemised quote is fixed for the scope it describes. If the scope changes, added items,
-              or a service not originally quoted. We will confirm any revised charge with you before
-              doing that work. Indicative prices shown on the site are for guidance only and are not
-              a quote.
-            </p>
-
-            <h2>4. Bookings, payments and GST</h2>
-            <p>
-              A booking is confirmed against an accepted written quote and any token advance. The
-              balance is payable on completion unless agreed otherwise. Applicable GST is shown as a
-              line item, and a GST invoice is issued for every move.
-            </p>
-
-            <h2>5. Your responsibilities</h2>
+            <h2>3. Estimates, surveys and your written quote</h2>
             <ul>
-              <li>Give accurate details of your goods, locations, floors and access.</li>
-              <li>Ensure lawful ownership of, and the right to move, all items handed to us.</li>
-              <li>Personally carry cash, jewellery, documents and other high-value valuables.</li>
-              <li>Declare hazardous, perishable or restricted items in advance.</li>
+              <li>
+                Any price shown on this website, including the instant price check, is an estimate
+                for guidance. It is not an offer or a quote.
+              </li>
+              <li>
+                Your quote is prepared after a survey of your goods, in person or by video, and sent
+                to you in writing. It is fixed for the goods, addresses, floors, access, services
+                and date it describes.
+              </li>
+              <li>
+                A quote is valid for the period printed on it. After that, or if the details you
+                gave were not accurate, we may need to re-quote.
+              </li>
             </ul>
 
-            <h2>6. Items we cannot move</h2>
+            <h2>4. What can change the price</h2>
             <p>
-              For safety and legal reasons we do not transport certain goods, including hazardous or
-              flammable materials, illegal items, firearms and ammunition, and perishables, among
-              others. The full list is confirmed at survey.
+              The quoted price changes only if the job changes. We tell you the extra cost and get
+              your agreement before doing the extra work. Typical reasons:
+            </p>
+            <ul>
+              <li>Goods added that were not in the survey, or an extra pickup or drop point.</li>
+              <li>Floors, stairs or a missing lift that were not declared.</li>
+              <li>A carry of more than 50 metres between your door and the truck.</li>
+              <li>
+                Waiting beyond the agreed time because the site, keys or permissions were not ready.
+              </li>
+              <li>A change of date, time or address after booking.</li>
+              <li>
+                Society, parking, lift or entry charges, tolls and government levies that were not
+                in the quote. These are charged at actual cost, with the receipt where there is one.
+              </li>
+              <li>Crating, dismantling or other services you ask for on the day.</li>
+            </ul>
+
+            <h2>5. Booking and payment</h2>
+            <ul>
+              <li>
+                Your booking is confirmed when you accept the written quote and pay the token
+                advance shown on it.
+              </li>
+              <li>
+                The balance is due on completion of the move, unless your quote says otherwise. We
+                accept UPI, bank transfer and the other methods named on your quote.
+              </li>
+              <li>
+                GST is charged as applicable and shown separately. You receive a GST invoice for
+                every move.
+              </li>
+              <li>
+                We may hold your goods until the agreed charges are paid. We will always tell you
+                first and try to settle any dispute about charges quickly.
+              </li>
+            </ul>
+
+            <h2>6. Cancelling or rescheduling</h2>
+            <ul>
+              <li>
+                Cancel or reschedule at least 48 hours before the pickup time and your token advance
+                is refunded in full, or moved to the new date.
+              </li>
+              <li>
+                Inside 48 hours, we may keep a cancellation fee, as printed on your quote, to cover
+                the crew, vehicle and materials already set aside for you. The rest is refunded.
+              </li>
+              <li>Refunds are paid to your original payment method within 7 working days.</li>
+              <li>
+                If we have to cancel, for safety, legal or other reasons outside your control, we
+                refund everything you paid or move your booking to a date that suits you.
+              </li>
+            </ul>
+
+            <h2>7. What we need from you</h2>
+            <ul>
+              <li>Accurate details of your goods, addresses, floors and access.</li>
+              <li>
+                Society, building and lift permissions, and a place for the truck to stand, unless
+                we agreed to arrange them.
+              </li>
+              <li>
+                You, or someone you name, present at pickup and delivery to check the inventory and
+                sign for it.
+              </li>
+              <li>
+                Appliances switched off, defrosted, drained and disconnected, unless disconnection
+                is in your quote.
+              </li>
+              <li>
+                Cash, jewellery, documents, medicines, data and other valuables carried by you, not
+                packed with your goods.
+              </li>
+              <li>That you own the goods, or have the right to move them.</li>
+            </ul>
+
+            <h2>8. Goods we cannot move</h2>
+            <p>
+              For safety and legal reasons we do not carry: cash, jewellery and precious items;
+              explosives and fireworks; gas cylinders that are not empty; petrol, diesel, kerosene
+              and other flammable liquids; acids, chemicals and battery acid; firearms and
+              ammunition; drugs and anything illegal; perishable food; and pets. Plants are carried
+              only at your risk. If such goods are found among your things, we may refuse to carry
+              them, and you are responsible for any loss or penalty they cause.
             </p>
 
-            <h2>7. Care of your goods</h2>
+            <h2>9. Packing</h2>
             <p>
-              We handle your goods with professional care, using a shared inventory and packing
-              records. Despite this, transit carries inherent risk; sections 8 and 9 explain how
-              liability and insurance work.
+              We are responsible for what our crew packs. Cartons you pack yourself are carried as
+              they are: we cannot answer for damage inside a carton we did not pack or inspect,
+              unless the carton itself was damaged in our care.
             </p>
 
-            <h2>8. Liability and claims</h2>
+            <h2>10. Our liability</h2>
             <p>
-              Our liability for loss or damage caused by our handling is limited to the basic
-              liability cover included with your move, unless you opt for transit insurance (section
-              9), in which case it extends to your declared insured value. We are not liable for
-              pre-existing damage, items you packed yourself without our inspection, or losses
-              outside our reasonable control. Claims must be raised within the window stated on your
-              invoice and are handled as described on our
-              <a href="/claims">claims page</a>.
+              We are responsible for loss of, or damage to, your goods caused while they are in our
+              care. Your quote shows the basic liability cover included with your move, and the
+              option of transit insurance up to the value you declare. Without transit insurance,
+              what we pay for a loss or damage is limited to that basic cover.
+            </p>
+            <p>We are not responsible for:</p>
+            <ul>
+              <li>Damage or wear that was there before the move, as recorded in the inventory.</li>
+              <li>
+                The working of electrical, electronic or mechanical items, unless they were visibly
+                damaged in our care.
+              </li>
+              <li>Goods in cartons you packed yourself (section 9).</li>
+              <li>
+                Loss or delay caused by events outside our reasonable control, such as floods,
+                storms, fire, riots, strikes, road closures, accidents caused by others, or
+                government action.
+              </li>
+              <li>Indirect losses, such as lost earnings, hotel bills or missed appointments.</li>
+            </ul>
+            <p>
+              Nothing in these terms limits your rights under the Consumer Protection Act, 2019, or
+              any other law that cannot be excluded by agreement.
             </p>
 
-            <h2>9. Transit insurance</h2>
+            <h2>11. Claims</h2>
+            <ul>
+              <li>
+                Check your goods at delivery. Note any visible damage or missing item on the
+                delivery inventory before you sign it, and photograph it.
+              </li>
+              <li>
+                Damage you find later, on unpacking, must be reported in writing within 6 days of
+                delivery, or within the longer window printed on your invoice.
+              </li>
+              <li>
+                Keep the item and its packing until the claim is closed, and let us inspect it.
+              </li>
+              <li>
+                Claims are checked against the photo inventory signed at pickup and settled as
+                described on our <a href="/claims">claims page</a>.
+              </li>
+            </ul>
+
+            <h2>12. Transit insurance</h2>
             <p>
-              Transit insurance is optional and, when selected, is placed with a licensed insurer to
-              your declared value. Cover, exclusions and the claims route are set out on our
-              <a href="/insurance">insurance page</a> and in the policy certificate.
+              Transit insurance is optional and is shown on your quote as its own line, priced
+              against the value you declare. When you take it, the policy and its terms decide what
+              is covered and how a claim under it is paid, and we help you make the claim. See our{' '}
+              <a href="/insurance">insurance page</a>.
             </p>
 
-            <h2>10. Cancellation, rescheduling and refunds</h2>
+            <h2>13. Cars and bikes</h2>
+            <ul>
+              <li>
+                At pickup we photograph the vehicle with you and note its condition, odometer and
+                fuel. Claims are assessed against that record.
+              </li>
+              <li>
+                Hand over a copy of the RC and the insurance, and keep the fuel low. Remove personal
+                belongings and loose accessories: they are not covered inside the vehicle.
+              </li>
+              <li>
+                We are responsible for visible damage that happens in our care. Mechanical,
+                electrical and battery faults are not covered.
+              </li>
+            </ul>
+
+            <h2>14. Storage</h2>
             <p>
-              You may cancel or reschedule; any token advance is refundable or adjustable subject to
-              notice given and costs already incurred, as confirmed at booking. We may cancel where
-              a move cannot be performed safely or lawfully, and will refund amounts not yet used.
+              If we store your goods, the charges, period and terms are agreed in writing before
+              storage starts.
             </p>
 
-            <h2>11. Delays and events beyond control</h2>
+            <h2>15. Delivery times</h2>
             <p>
-              We plan realistic timelines, but delays can arise from weather, traffic, strikes,
-              regulatory checks or other events beyond our reasonable control. We are not liable for
-              such delays but will keep you informed and work to minimise disruption.
+              Your quote gives a delivery date or window. It is our honest estimate, and we work to
+              meet it, but traffic, weather, road or permit checks and other events outside our
+              control can delay a move. If that happens we keep you informed.
             </p>
 
-            <h2>12. Complaints and grievances</h2>
+            <h2>16. Contacting you</h2>
             <p>
-              If something goes wrong, please tell us. Our process, response commitment and
-              escalation route are on the <a href="/raise-a-complaint">raise-a-complaint</a> page.
+              When you send a form, request a call or chat with us, you agree that we may call, text
+              or WhatsApp you about your move. We do not send you marketing without your consent.
+              How we handle your details is set out in our <a href="/privacy">privacy policy</a>.
             </p>
 
-            <h2>13. Use of this website</h2>
+            <h2>17. Using this website</h2>
             <p>
-              The content, branding and design of this site are owned by{' '}
-              {o?.brandName ?? 'MrMoverPacker'}
-              and may not be copied or used to impersonate us. Report any impersonation through our
-              <a href="/fraud-check">fraud-check</a> page.
+              We work to keep this website accurate and available, but it is provided as it is, and
+              estimates on it are not quotes. Its content, name, logo and design belong to us and
+              may not be copied or used to pass yourself off as us. Please do not misuse the site,
+              for example by scraping it or trying to break its security. Report anyone pretending
+              to be us through our <a href="/fraud-check">fraud-check page</a>.
             </p>
 
-            <h2>14. Governing law</h2>
+            <h2>18. Complaints and disputes</h2>
             <p>
-              These terms are governed by the laws of India, and disputes are subject to the
-              jurisdiction of the courts at the seat of our registered office.
+              If something goes wrong, tell us first through our{' '}
+              <a href="/raise-a-complaint">complaints page</a>. We aim to settle every complaint
+              within 30 days. These terms are governed by the laws of India. Any dispute is subject
+              to the courts at our principal place of business, without affecting your right to
+              approach a consumer commission.
             </p>
 
-            <h2>15. Changes to these terms</h2>
+            <h2>19. Changes to these terms</h2>
             <p>
-              We may update these terms from time to time. The version in force when you book
-              governs your move. Material changes will be posted on this page.
+              We may update these terms. The version on this page on the day you accept your quote
+              applies to your move.
             </p>
 
-            <h2>16. Contact</h2>
+            <h2>20. Contact</h2>
             <p>
-              Questions about these terms? Reach us via the{' '}
+              Questions about these terms? Reach us through the{' '}
               <a href="/company/contact">contact page</a>.
             </p>
           </Fragment>
@@ -169,16 +296,9 @@ const legalName = o?.legalName ?? 'the Company';
 </BaseLayout>
 
 <style>
-  .legal-notice {
+  .legal-updated {
     margin-bottom: 2rem;
-    padding: 1rem 1.25rem;
-    border-radius: var(--radius-md);
-    border: 1px solid color-mix(in oklab, var(--color-warn-500) 35%, var(--color-line));
-    background: color-mix(in oklab, var(--color-warn-500) 8%, white);
-    font-size: var(--text-base);
-    color: var(--color-ink-700);
-  }
-  .legal-notice strong {
-    color: var(--color-ink-900);
+    font-size: var(--text-sm);
+    color: var(--color-ink-500);
   }
 </style>

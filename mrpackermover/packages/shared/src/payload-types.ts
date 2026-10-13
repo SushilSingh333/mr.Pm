@@ -2748,7 +2748,7 @@ export interface HomeContent {
     h1?: string | null;
     subhead?: string | null;
     /**
-     * Empty = the built-in 4: Fixed written quote · ID-verified crews · Claims data published · Pickup in {count} cities. Add items to replace the whole list.
+     * Empty = the built-in 4: Fixed written quote · ID-verified crews · Written claims process · Pickup in {count} cities. Add items to replace the whole list.
      */
     trust?:
       | {
@@ -2879,7 +2879,7 @@ export interface ServicesPage {
   h1?: string | null;
   intro?: string | null;
   /**
-   * Empty = the built-in 4: Own trained crews · Photo inventory on every job · GST invoice · Claims data published. Add items to replace the whole list.
+   * Empty = the built-in 4: Own trained crews · Photo inventory on every job · GST invoice · Written claims process. Add items to replace the whole list.
    */
   trust?:
     | {

@@ -115,6 +115,8 @@ export const blogPostSchema = z.object({
   tags: z.array(z.string()).default([]),
   /** Rendered HTML body (from the CMS rich-text renderer or authored in-repo). */
   body: z.string(),
+  /** When the post was last edited (ISO), for the sitemap and article:modified_time. */
+  updatedAt: z.string().optional(),
   /** Per-post SEO overrides; blank falls back to the headline and excerpt. */
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -132,6 +134,8 @@ export const editorialSchema = z.object({
   seoDescription: z.string().optional(),
   /** CMS-uploaded hero background for this editorial page. */
   heroImage: z.object({ url: z.string(), alt: z.string().optional() }).optional(),
+  /** When the CMS copy was last edited (ISO), for the sitemap. */
+  updatedAt: z.string().optional(),
 });
 export type EditorialContent = z.infer<typeof editorialSchema>;
 

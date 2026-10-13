@@ -5,6 +5,7 @@ import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
 import { staticRow, org, editorialFor } from '../../lib/page.js';
+import { FOUNDER_NAME } from '../../lib/site.js';
 
 const ed = editorialFor('about');
 const row = staticRow({
@@ -14,7 +15,7 @@ const row = staticRow({
   h1: ed.title ?? 'The movers who publish the numbers others hide',
   metaDescription:
     ed.seoDescription ??
-    'MrMoverPacker moves homes and offices across India with fixed written quotes, ID-verified crews and published claims data, no fake reviews, no phantom branches.',
+    'MrMoverPacker moves homes and offices across India with fixed written quotes, ID-verified crews and a written claims process, no fake reviews, no phantom branches.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
@@ -33,7 +34,7 @@ const differentiators = [
   {
     icon: 'claims',
     title: 'Claims data in the open',
-    body: 'Damage is rare, but when it happens we settle, and we publish our median settlement time. It is the number nobody else in this category shows.',
+    body: 'Damage is rare, but when it happens we settle, and from our first quarterly report we publish our median settlement time. It is the number nobody else in this category shows.',
   },
   {
     icon: 'map-pin',
@@ -46,7 +47,7 @@ const principles = [
   {
     icon: 'scale',
     title: 'One legal identity',
-    body: 'A single registered business stands behind every move, with its GSTIN published on our licences page. No shell of look-alike local names.',
+    body: 'A single GST-registered business stands behind every move, named on every quote and invoice and on our licences page. No shell of look-alike local names.',
   },
   {
     icon: 'shield-check',
@@ -56,7 +57,7 @@ const principles = [
   {
     icon: 'insurance',
     title: 'Protection, itemised',
-    body: 'Transit insurance is offered as a clear line item, backed by a named insurer, never buried in fine print or quietly assumed.',
+    body: 'Transit insurance is offered as a clear line item you choose, never buried in fine print or quietly assumed.',
   },
 ];
 ---
@@ -88,9 +89,15 @@ const principles = [
         <p>
           {o?.brandName ?? 'MrMoverPacker'} was built to be the mover people can actually verify. Fixed
           written quotes. Crews with names and IDs. Coverage tied to jobs we have really completed. And
-          an unusual habit for this industry, publishing the numbers that make us look human, like how
-          long a claim takes us to settle.
+          an unusual habit for this industry: from our first quarterly report, publishing the numbers
+          that make us look human, like how long a claim takes us to settle.
         </p>
+        <p>
+          MrMoverPacker was started by {FOUNDER_NAME} after 15 years in the moving trade. Those years
+          taught him three things: write the price down, photograph every item, and send a careful crew.
+          Everything on this page comes from them.
+        </p>
+        <p class="story-founder">{FOUNDER_NAME}, Founder</p>
       </div>
     </div>
   </Band>
@@ -137,6 +144,13 @@ const principles = [
   }
   .story-copy p + p {
     margin-top: 1rem;
+  }
+  .story-copy .story-founder {
+    font-weight: 600;
+    color: var(--color-ink-700);
+  }
+  .story-founder::before {
+    content: '— ';
   }
   /* Ghost button on the dark hero. */
   :global(.cta-ghost-hero) {

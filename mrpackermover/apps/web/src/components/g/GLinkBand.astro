@@ -160,7 +160,9 @@ const paged = searchable && links.length > PAGE;
                   <li>{n}</li>
                 ) : (
                   <li class="gl-notes__link">
-                    <a href={n.href}>{n.label}</a>
+                    <a href={n.href} rel={n.href.includes('?') ? 'nofollow' : undefined}>
+                      {n.label}
+                    </a>
                   </li>
                 ),
               )}

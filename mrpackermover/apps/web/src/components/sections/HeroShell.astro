@@ -14,6 +14,8 @@ import { heroAlt } from '../../lib/hero.js';
 interface Props {
   h1: string;
   intro?: string;
+  /** Who the intro is in the voice of, signed under it ("Sachin Kumar, Founder"). */
+  introBy?: string;
   badge?: string;
   /** Static-file convention: /images/hero/<image>.jpg (used when `imageUrl` is absent). */
   image?: string;
@@ -28,6 +30,7 @@ interface Props {
 const {
   h1,
   intro,
+  introBy,
   badge,
   image = 'home',
   imageUrl,
@@ -117,6 +120,7 @@ const hasHeadingSlot = Astro.slots.has('heading');
     {badge && <span class="hero-badge">{badge}</span>}
     {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
     {intro && <p class="hero-intro">{intro}</p>}
+    {intro && introBy && <p class="hero-intro-by">{introBy}</p>}
   </div>
 </section>
 
@@ -309,6 +313,17 @@ const hasHeadingSlot = Astro.slots.has('heading');
   .hero-intro,
   .hero-badge {
     text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  }
+  /* The signature under an intro written in someone's voice. */
+  .hero-intro-by {
+    margin: 0.5rem 0 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: rgb(255 255 255 / 0.82);
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  }
+  .hero-intro-by::before {
+    content: '— ';
   }
   .hero-badge {
     display: inline-flex;

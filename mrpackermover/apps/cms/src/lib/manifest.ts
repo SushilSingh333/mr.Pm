@@ -185,6 +185,7 @@ type HomeContentDoc = Omit<Partial<HomeContent>, 'heroImage'> &
     heroImage?: Id | { id: Id } | null;
     /** "Home page sections" (page-copy-cms.ts). */
     page?: unknown;
+    updatedAt?: string;
   };
 
 /**
@@ -897,8 +898,18 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const homeFaqs: FaqItem[] = faqs
     .filter((f) => f.scope === 'global')
     .map((f) => ({ question: f.question, answer: richTextToPlain(f.answer) }));
+  // The home page lists every live city and service, so it changes when its own copy or
+  // any of them does. It used to say 1970-01-01, which tells Google the date is noise.
+  const homeLastmod = [
+    homeContentDoc?.updatedAt,
+    ...rows
+      .filter((r) => r.pageType === 'city-hub' || r.pageType === 'service-hub')
+      .map((r) => r.lastmod),
+  ]
+    .filter((d): d is string => Boolean(d))
+    .reduce((a, b) => (b > a ? b : a), new Date(0).toISOString());
   rows.push(
-    makeRow('home', '/', 'home', new Date(0).toISOString(), siteOrigin, {
+    makeRow('home', '/', 'home', homeLastmod, siteOrigin, {
       // Title + description are editable at Settings → Home page content → SEO;
       // both fall back to the copy below when left blank.
       //
@@ -912,8 +923,8 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         // From the Home Page brief (3 Oct 2026).
         fallbackTitle: `Packers and Movers in India | Fixed Quotes | ${BRAND}`.slice(0, 60),
         fallbackDescription:
-          'Packers and movers in India led by a founder with 15 years in the trade. Fixed ' +
-          'written quotes, photo inventory, ID-verified crews, published claims data.',
+          'Packers and movers in India led by founder Sachin Kumar, 15 years in the trade. ' +
+          'Fixed written quotes, photo inventory and ID-verified crews.',
       }),
       h1:
         homePageOverrides(homeContentDoc?.page).h1 ??
@@ -1004,6 +1015,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     metaTitle?: string;
     seoDescription?: string;
     heroImage?: Id | { id: Id } | null;
+    updatedAt?: string;
   }
   const editorial: Record<string, EditorialContent> = {};
   for (const p of await loadAll<PageDoc>(payload, 'pages')) {
@@ -1016,6 +1028,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       bodyHtml: richTextToHtml(p.body) || undefined,
       seoDescription: p.seoDescription || undefined,
       heroImage: imageFor(p.heroImage),
+      updatedAt: p.updatedAt,
     };
   }
 
@@ -1079,6 +1092,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         category: p.category ?? 'Guides',
         author: p.author || 'The MrMoverPacker Team',
         date: p.publishedDate ?? p.updatedAt,
+        updatedAt: p.updatedAt,
         readMins: Math.max(1, Math.round(words / 200)),
         cover: cover?.url
           ? cldUrl(cover.url, CLD_TRANSFORM.blog)

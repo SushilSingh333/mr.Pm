@@ -75,7 +75,7 @@ const faqs = [
   {
     question: 'Do you have an office I can walk into?',
     answer:
-      'No, and that is deliberate. We do not run walk-in branch offices; our crews come to you. Our registered office is listed for correspondence, and everything else happens by phone, WhatsApp, email or at your doorstep.',
+      'No, and that is deliberate. We do not run walk-in branch offices; our crews come to you, and everything happens by phone, WhatsApp, email or at your doorstep. Our legal name is at the foot of every page, and our GSTIN is on every quote and invoice.',
   },
   {
     question: 'How quickly will I get a reply?',
@@ -165,18 +165,7 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
             <div>
               <strong>Registered business</strong>
               {legalName && <span>{legalName}</span>}
-              {gstin && (
-                <span>
-                  GSTIN {gstin} ·{' '}
-                  <a
-                    href="https://services.gst.gov.in/services/searchtp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Check it on the GST portal
-                  </a>
-                </span>
-              )}
+              {gstin && <span>GST registered · GSTIN on every quote and invoice</span>}
               {office && <span>{office}</span>}
               <span>
                 <a href="/company/licences">All registration details</a>

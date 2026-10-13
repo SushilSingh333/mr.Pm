@@ -8,6 +8,7 @@ import BlogCard from '../../components/blog/BlogCard.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
 import { formatDate } from '../../lib/format.js';
 import { staticRow } from '../../lib/page.js';
+import { shareForCover } from '../../lib/share.js';
 import { POSTS, relatedPosts, type BlogPost } from '../../data/blog.js';
 
 export function getStaticPaths() {
@@ -44,7 +45,16 @@ const extraJsonLd = [
 ];
 ---
 
-<BaseLayout row={row} extraJsonLd={extraJsonLd}>
+<BaseLayout
+  row={row}
+  extraJsonLd={extraJsonLd}
+  share={{
+    ...shareForCover(post.cover, post.coverAlt),
+    type: 'article',
+    published: post.date,
+    modified: post.updatedAt ?? post.date,
+  }}
+>
   {
     /* Long-form pages benefit from showing how much is left, and it doubles as the
       only motion here. Decorative, so it is hidden from assistive tech and removed

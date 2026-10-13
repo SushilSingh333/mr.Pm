@@ -1413,6 +1413,7 @@ export interface Lead {
     | 'reassigned'
     | 'contacted'
     | 'call-not-picked'
+    | 'call-not-connected'
     | 'call-later'
     | 'follow-up'
     | 'quoted'

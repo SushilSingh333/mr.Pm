@@ -2073,10 +2073,12 @@ a.mpm-stat:focus-visible{outline:2px solid var(--v-400);outline-offset:2px}
 .mpm-tbl{overflow-x:auto;overscroll-behavior-x:contain}
 .mpm-tbl__head,.mpm-tbl__row{min-width:min-content}
 .mpm-tbl__head,.mpm-tbl__row{display:grid;align-items:center;gap:var(--s-3)}
+/* The stage column (the fourth) is as wide as the longest stage chip, "Call not
+   connected" at 124px, so no stage is cut to an ellipsis. */
 .mpm-tbl--handler .mpm-tbl__head,.mpm-tbl--handler .mpm-tbl__row{
-  grid-template-columns:74px minmax(140px,1.3fr) minmax(120px,1.1fr) 104px minmax(116px,1fr) 96px minmax(104px,.8fr) 74px}
+  grid-template-columns:74px minmax(140px,1.3fr) minmax(120px,1.1fr) 128px minmax(116px,1fr) 96px minmax(104px,.8fr) 74px}
 .mpm-tbl--sales .mpm-tbl__head,.mpm-tbl--sales .mpm-tbl__row{
-  grid-template-columns:74px minmax(160px,1.4fr) minmax(140px,1.2fr) 104px minmax(124px,1fr) 104px 74px}
+  grid-template-columns:74px minmax(160px,1.4fr) minmax(140px,1.2fr) 128px minmax(124px,1fr) 104px 74px}
 .mpm-tbl__head{padding:var(--s-2) var(--s-1);border-bottom:1px solid var(--line);
   font-size:var(--t-micro);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
   color:var(--ink-3)}

@@ -783,7 +783,9 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 
 .mpm-bars { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
 .mpm-bars--tight { gap:9px; }
-.mpm-bar { display:grid; grid-template-columns:104px 1fr 40px; align-items:center; gap:10px; }
+/* The label column fits the longest stage name on one line ("Call not connected", 128px
+   with its dot); narrower, it wrapped and that bar stood taller than the rest. */
+.mpm-bar { display:grid; grid-template-columns:132px 1fr 40px; align-items:center; gap:10px; }
 .mpm-bar__label { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-2); }
 .mpm-bar__label i { width:9px; height:9px; border-radius:50%; flex:none; }
 .mpm-bar__track { height:9px; border-radius:99px; background:color-mix(in srgb, var(--v-500) 12%, var(--line)); overflow:hidden; }
@@ -799,8 +801,9 @@ a.mpm-mini__stat:hover { border-color:color-mix(in srgb, var(--v-500) 42%, trans
 /* Lead rows get fixed tracks for the trailing three columns. Each row is its own grid,
    so with auto tracks the dial buttons landed at a different x on every line - a row
    with NEW sat further right than the one above it with REASSIGNED. The stage column is
-   sized for the longest label there is ("Call not picked"). */
-.mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 106px 96px; }
+   sized for the longest label there is ("Call not connected", 151px as a badge; the
+   106px this used to be was already narrower than "Call not picked"). */
+.mpm-row--lead { grid-template-columns:auto minmax(0,1fr) auto 152px 96px; }
 .mpm-row--lead .mpm-badge { justify-self:center; text-align:center; }
 .mpm-row--lead .mpm-row__time { justify-self:end; }
 .mpm-row__dial { --dial:30px; }

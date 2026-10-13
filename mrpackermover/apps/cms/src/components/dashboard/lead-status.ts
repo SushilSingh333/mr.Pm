@@ -44,6 +44,13 @@ export const LEAD_STATUS: LeadStage[] = [
   { value: 'reassigned', label: 'Reassigned', color: '#BA68C8' },
   { value: 'contacted', label: 'Contacted', color: '#29B6F6' },
   { value: 'call-not-picked', label: 'Call not picked', color: '#D50000' },
+  // The call never went through: switched off, out of coverage, "not reachable", or a
+  // number that does not exist. Distinct from Call not picked, where it rang and nobody
+  // answered - this one says try another time or another way, and a run of them says
+  // check the number. Pink-red, beside Call not picked in the failed-attempt family:
+  // found by the same search, 16.0 from its nearest stage (Call not picked), and readable
+  // on both surfaces (3.9:1 on white, 4.2:1 on the dark admin).
+  { value: 'call-not-connected', label: 'Call not connected', color: '#F8008A' },
   // The customer answered but asked for another time. Distinct from Call not picked,
   // which is nobody answering - one is a promise to ring back, the other is a retry.
   { value: 'call-later', label: 'Call later', color: '#FFC107' },
@@ -180,9 +187,9 @@ export const LEAD_GROUPS: LeadGroup[] = [
   {
     key: 'follow-up',
     label: 'Follow-up',
-    statuses: ['call-not-picked', 'call-later'],
+    statuses: ['call-not-picked', 'call-not-connected', 'call-later'],
     color: stageColor('call-later'),
-    hint: 'Owed another attempt: nobody picked up, or they asked us to ring back',
+    hint: 'Owed another attempt: nobody picked up, the call did not connect, or they asked us to ring back',
   },
   {
     key: 'interested',
@@ -278,7 +285,7 @@ export const REVIEW_BUCKETS: ReviewBucket[] = [
   {
     key: 'lost',
     label: 'Lost',
-    statuses: ['lost', 'invalid', 'call-not-picked'],
+    statuses: ['lost', 'invalid', 'call-not-picked', 'call-not-connected'],
     color: 'var(--rv-lost)',
     icon: 'close',
     hint: 'Lost to a "no" or a competitor, a junk enquiry, or never reached',
@@ -509,6 +516,10 @@ export const NEXT_STEP: Record<string, { label: string; chase: boolean }> = {
   reassigned: { label: 'Make first call', chase: true },
   contacted: { label: 'Call again', chase: true },
   'call-not-picked': { label: 'Try again', chase: true },
+  // A phone that is off or out of coverage now may not be in an hour, so ringing straight
+  // back rarely helps; a message waits for them. Short enough for one line in the board's
+  // Next step column, like every other step.
+  'call-not-connected': { label: 'Retry or message', chase: true },
   'call-later': { label: 'Call back', chase: true },
   'follow-up': { label: 'Send the quote', chase: true },
   quoted: { label: 'Follow up on quote', chase: true },

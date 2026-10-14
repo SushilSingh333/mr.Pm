@@ -12,24 +12,42 @@ const ed = editorialFor('claims');
 const row = staticRow({
   path: '/claims',
   pageType: 'trust',
-  title: ed.metaTitle ?? 'Claims & Settlement Data | MrMoverPacker',
-  h1: ed.title ?? 'The claims page nobody else in this category shows',
+  title: ed.metaTitle ?? 'Damage Claims & Settlement | MrMoverPacker',
+  h1: ed.title ?? 'If something is damaged, here is exactly what happens',
   metaDescription:
     ed.seoDescription ??
-    'How MrMoverPacker handles damage claims, the process, what we cover, and the settlement metrics we publish from our first quarterly report instead of hiding behind “100% damage-free”.',
+    'How MrMoverPacker handles damage claims: free to raise, checked against the photos taken at pickup, a first reply within 24 hours, and a settlement agreed in writing.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 const o = org();
 
 /**
- * What the first claims report will show. No figures until there are real ones: sample
- * numbers on this page would read as real (an outside review took them as real), so each
- * card names the measure and says when it is published.
+ * What a customer gets if something is damaged: the commitments the service pages already
+ * make (home shifting: "Raising a claim is free", "We respond first within 24 hours,
+ * checking your report against the pickup photos", repair, replacement or reimbursement).
+ * No figures: there are no published claims statistics, and the page does not promise any.
  */
-const metrics = [
-  { label: 'Median time to settle a claim', sub: 'From report to payment' },
-  { label: 'Share of moves with a damage claim', sub: 'Per reporting period' },
-  { label: 'Valid claims settled', sub: 'And any refused, with the reason' },
+const promises = [
+  {
+    icon: 'tag',
+    title: 'Free to raise',
+    body: 'Raising a claim costs nothing. Tell your coordinator, or use our raise-a-complaint page, with photos.',
+  },
+  {
+    icon: 'camera',
+    title: 'Checked against the photos',
+    body: 'Your report is compared with the photo inventory you signed at pickup. The record settles it, not an argument.',
+  },
+  {
+    icon: 'clock',
+    title: 'A first reply within 24 hours',
+    body: 'A coordinator responds within 24 hours, tells you what happens next, and stays with the claim until it closes.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Repair, replace or reimburse',
+    body: 'Settled to the cover you chose: basic liability on every move, or your declared value with transit insurance.',
+  },
 ];
 
 const steps = [
@@ -47,15 +65,15 @@ const steps = [
   },
   {
     title: 'You’re paid, and it’s logged',
-    body: 'Settlement is paid out and the case is recorded, which is how the numbers above stay honest and keep improving.',
+    body: 'The settlement is paid out and the claim is closed in writing, with a record you keep.',
   },
 ];
 
 const faqs = [
   {
-    question: 'Why publish claims data at all?',
+    question: 'Is it free to raise a claim?',
     answer:
-      '“100% damage-free” is a claim no honest mover can make. Publishing our real settlement time and damage rate is uncomfortable, but it is verifiable, and it holds us to a standard a slogan never could.',
+      'Yes. Raising a claim costs nothing. Tell your coordinator, or use our raise-a-complaint page, with photos of the damage and your inventory reference. We reply within 24 hours.',
   },
   {
     question: 'What is actually covered?',
@@ -83,34 +101,17 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
     eyebrow={ed.eyebrow ?? 'Claims & settlement'}
     h1={row.h1}
     intro={ed.intro ??
-      'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and settlement numbers published in the open from our first reporting period.'}
+      'Pretending damage never happens is how this industry lost your trust. So every move comes with a written claims process: free to raise, checked against the photos taken at pickup, a first reply within 24 hours, and a settlement agreed in writing.'}
     breadcrumbs={row.breadcrumbs}
     current="Claims"
   />
 
-  <Band label="What we publish">
+  <Band label="Our claims promise">
     <div class="section-head">
-      <h2>Our claims numbers, in the open</h2>
-      <p>
-        Published each reporting period from our first quarterly report, the flattering figures and
-        the unflattering ones alike.
-      </p>
+      <h2>What you get if something is damaged</h2>
+      <p>The same four promises on every move, written down before the crew arrives.</p>
     </div>
-    <ul class="metrics" role="list">
-      {
-        metrics.map((m) => (
-          <li class="metric card">
-            <span class="m-pending">First report pending</span>
-            <span class="m-label">{m.label}</span>
-            <span class="m-sub">{m.sub}</span>
-          </li>
-        ))
-      }
-    </ul>
-    <p class="metrics-note">
-      These appear here with our first quarterly report, from real, audited case records. We publish
-      real data or none, never sample counters.
-    </p>
+    <FeatureGrid items={promises} columns={4} />
   </Band>
 
   <Band alt label="How claims work">
@@ -144,54 +145,13 @@ const extraJsonLd = [jsonld.faqPage(faqs)];
 </BaseLayout>
 
 <style>
-  .metrics {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
-    max-width: 940px;
-    margin-inline: auto;
-  }
-  .metric {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.35rem;
-    padding: 2rem 1.5rem;
-    background: linear-gradient(180deg, var(--color-surface), var(--color-brand-50));
-  }
-  .m-pending {
-    padding: 0.3rem 0.8rem;
-    border-radius: 999px;
-    background: var(--color-brand-50);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-brand-700);
-  }
-  .m-label {
-    font-weight: 600;
-    color: var(--color-ink-900);
-  }
-  .m-sub {
-    font-size: var(--text-sm);
-    color: var(--color-ink-500);
-  }
-  .metrics-note {
-    max-width: 760px;
-    margin: 1.5rem auto 0;
-    text-align: center;
-    font-size: var(--text-sm);
-    color: var(--color-ink-500);
-  }
   .sla-note {
     text-align: center;
     margin-top: 1.5rem;
     color: var(--color-ink-500);
   }
-  @media (max-width: 720px) {
-    .metrics {
-      grid-template-columns: 1fr;
-    }
+  .sla-note a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 </style>

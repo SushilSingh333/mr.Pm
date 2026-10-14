@@ -2,7 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, WEB_DIST, listDistHtml, fail, type CheckResult } from './load.js';
 
-const LOADER = /<script[^>]+src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=([^"]+)"/g;
+// The tag's URL in quotes: as a <script src> attribute, or as the address Analytics.astro
+// loads on the visitor's first touch (a quoted string in that inline loader).
+const LOADER = /["']https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=([^"'&]+)["']/g;
 const CONFIG = /gtag\('config',\s*'([^']+)'\)/g;
 const VERIFY = /<meta name="google-site-verification" content="([^"]+)"/g;
 const TITLE = /<title>([^<]*)<\/title>/;
@@ -59,6 +61,25 @@ export function checkHeadTags(): CheckResult {
       const seen = titles.get(title);
       if (seen) duplicateTitles.push(`"${title}" on ${seen} and ${rel}`);
       else titles.set(title, rel);
+    }
+
+    // A comment meant for the server (Cloudflare's <!--email_off-->) once went through
+    // set:html as escaped text and showed on every page as "<!--email_off-->".
+    if (html.includes('&lt;!--')) {
+      messages.push(`${rel}: an HTML comment is printed as visible text ("&lt;!--").`);
+    }
+
+    // A page-text link "[words](/path)" that reached the page unformatted: a spot that
+    // prints text as it is (a checklist chip did, on three Delhi pages) shows the brackets.
+    if (html.includes('](/')) {
+      messages.push(`${rel}: a "[words](/path)" link is printed as raw text.`);
+    }
+
+    // The charset must come first: a browser looks for it only in the first 1024 bytes,
+    // and past that it may read the page as Windows-1252 ("×" turned into "Ã—").
+    const charsetAt = Buffer.byteLength(html.slice(0, html.indexOf('<meta charset')));
+    if (html.indexOf('<meta charset') < 0 || charsetAt > 1024) {
+      messages.push(`${rel}: <meta charset> is missing or after the first 1024 bytes.`);
     }
 
     const loaders = [...html.matchAll(LOADER)].map((m) => m[1]);

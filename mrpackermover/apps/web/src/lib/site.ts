@@ -82,7 +82,7 @@ export const MORE_NAV = [
     label: 'Claims & settlement',
     href: '/claims',
     icon: 'claims',
-    desc: 'Our published data',
+    desc: 'How claims are settled',
     key: 'claims',
   },
   {

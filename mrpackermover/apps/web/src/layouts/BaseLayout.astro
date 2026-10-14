@@ -26,8 +26,9 @@ const { row, extraJsonLd, share } = Astro.props;
 <!doctype html>
 <html lang="en-IN">
   <head>
-    <Analytics />
+    {/* First, always: a browser only looks for the charset in the first 1024 bytes. */}
     <meta charset="utf-8" />
+    <Analytics />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {
@@ -43,6 +44,13 @@ const { row, extraJsonLd, share } = Astro.props;
     <slot name="head" />
   </head>
   <body>
+    {
+      /* Cloudflare's Email Address Obfuscation rewrites every address on the page and adds
+        a render-blocking script to decode them again (about a second on a phone in
+        PageSpeed). These markers tell Cloudflare to leave the page's addresses alone; our
+        one address is published on purpose. */
+    }
+    <!--email_off-->
     <a href="#main" class="skip-link">Skip to content</a>
     <Header />
     <main id="main">
@@ -50,5 +58,6 @@ const { row, extraJsonLd, share } = Astro.props;
     </main>
     <Footer />
     <WhatsAppFab />
+    <!--/email_off-->
   </body>
 </html>

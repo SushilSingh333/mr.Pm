@@ -26,7 +26,7 @@ interface Props {
   align?: 'center' | 'split';
   crumbs?: { href?: string; label: string }[];
   /** The service's enquiry form in place of the price check (see HeroBanner). */
-  enquiry?: { mode: ServiceQuoteMode; serviceName: string; title: string; note?: string };
+  enquiry?: { mode: ServiceQuoteMode; serviceName: string; note?: string };
 }
 const props = Astro.props as Props;
 ---

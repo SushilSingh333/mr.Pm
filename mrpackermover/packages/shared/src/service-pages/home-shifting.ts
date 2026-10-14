@@ -242,7 +242,7 @@ export const homeShifting: ServicePage = {
         },
         {
           kind: 'text',
-          body: 'From our first quarterly report we publish [our median claim settlement time](/claims), updated each reporting period.',
+          body: 'Every claim is closed in writing, with the settlement and the photos it was checked against. See [how claims work](/claims).',
         },
       ],
     },

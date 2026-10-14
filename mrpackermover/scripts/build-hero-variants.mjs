@@ -37,6 +37,9 @@ const sharp = require('sharp');
 
 const SRC = path.join('apps', 'web', 'public', 'images', 'hero');
 const QUALITY = 78;
+// The narrow variant is what phones load, as the LCP image, under the banner's dark wash:
+// a lower quality costs nothing visible there and takes about a third off the bytes.
+const NARROW_QUALITY = 62;
 const NARROW_WIDTH = 1280;
 
 const sources = (await readdir(SRC)).filter((f) => f.endsWith('.jpg'));
@@ -63,7 +66,7 @@ for (const file of sources) {
     const out = path.join(SRC, base + '-' + suffix + '.webp');
     await sharp(src)
       .resize({ width: w, withoutEnlargement: true })
-      .webp({ quality: QUALITY, effort: 6 })
+      .webp({ quality: suffix === 'narrow' ? NARROW_QUALITY : QUALITY, effort: 6 })
       .toFile(out);
     const size = (await stat(out)).size;
     if (suffix === 'full') fullBytes += size;

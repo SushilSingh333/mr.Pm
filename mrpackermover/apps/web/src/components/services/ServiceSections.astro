@@ -6,6 +6,8 @@ import { topicIcon } from '../../lib/topic-icon.js';
 import { seasonsOf } from '../../lib/seasons.js';
 import SeasonStrip from '../g/SeasonStrip.astro';
 import GChecklist from '../g/GChecklist.astro';
+// A to-do table becomes a checklist (GChecklist); a list of named items, feature tiles.
+import { FEATURE, isChecklist } from '../../lib/section-shapes.js';
 
 /**
  * The body of a service, city or locality page: each of the brief's sections is its own
@@ -41,7 +43,6 @@ const { sections, inclusions, exclusions, priceCta } = Astro.props;
 const COST = /\b(cost|charge|price|priced)\b/i;
 
 /** "Truck timings. Goods vehicles face…" → ["Truck timings", "Goods vehicles face…"]. */
-const FEATURE = /^([^.?!:[\]]{2,60}?)[.:]\s+(\S[\s\S]*)$/;
 const featureOf = (item: string): [string, string] | null => {
   const m = FEATURE.exec(item);
   // A bracketed note ("Nauchandi Mela (from the second Sunday after Holi)") does not
@@ -63,15 +64,6 @@ const features = (b: ListBlock): [string, string][] | null => {
   const out = b.items.map(featureOf);
   return out.length >= 2 && out.every(Boolean) ? (out as [string, string][]) : null;
 };
-/**
- * A to-do table - "What | Who arranges it | When" - becomes a checklist the reader can
- * tick off (GChecklist).
- */
-const isChecklist = (b: TableBlock): boolean =>
-  b.columns.length >= 3 &&
-  b.rows.length >= 3 &&
-  b.columns.some((c) => /who/i.test(c)) &&
-  b.columns.some((c) => /^when$/i.test(c.trim()));
 /**
  * A two-column table of names and short answers - "Factor | How it affects a Delhi move" -
  * as one panel of rows, each with its own icon, like a spec sheet.
@@ -182,12 +174,13 @@ const shortList = (b: ListBlock): boolean =>
             ) : isTiles(block) ? (
               <div class:list={['gs-factors', { 'gs-factors--odd': block.rows.length % 2 === 1 }]}>
                 <p class="gs-factors__head">{block.columns[1]}</p>
-                <dl
+                <ul
+                  role="list"
                   class="gs-factors__grid"
                   aria-label={`${block.columns[0]}: ${block.columns[1]}`}
                 >
                   {block.rows.map((row) => (
-                    <div class="gs-factor">
+                    <li class="gs-factor">
                       <span class="gs-factor__i" aria-hidden="true">
                         <svg
                           viewBox="0 0 24 24"
@@ -202,12 +195,12 @@ const shortList = (b: ListBlock): boolean =>
                         />
                       </span>
                       <div>
-                        <dt set:html={inlineHtml(row[0] ?? '')} />
-                        <dd set:html={inlineHtml(row[1] ?? '')} />
+                        <p class="gs-factor__t" set:html={inlineHtml(row[0] ?? '')} />
+                        <p class="gs-factor__d" set:html={inlineHtml(row[1] ?? '')} />
                       </div>
-                    </div>
+                    </li>
                   ))}
-                </dl>
+                </ul>
               </div>
             ) : (
               <div class="gs-tbl-wrap">
@@ -351,14 +344,18 @@ const shortList = (b: ListBlock): boolean =>
     text-align: center;
     color: var(--g-ink);
   }
+  /* A soft underline, not colour alone: inside a bold table heading the link blue is too
+     close to the ink to tell apart (WCAG 1.4.1, flagged by Lighthouse on the city pages). */
   .gs-sec :global(a) {
     color: var(--color-brand-600);
     font-weight: 500;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    text-underline-offset: 0.2em;
   }
   .gs-sec :global(a:hover) {
-    text-decoration: underline;
-    text-underline-offset: 0.18em;
+    text-decoration-color: currentColor;
   }
 
   /* ── Tile rows: steps, feature tiles and answer tiles share one layout ──
@@ -620,10 +617,14 @@ const shortList = (b: ListBlock): boolean =>
     font-weight: 500;
     color: var(--g-ink-2);
   }
+  /* A list of name + answer rows. It was a <dl>, but each row wraps its icon and its text,
+     and a <dl> may only hold <dt>/<dd> groups, so screen readers got an invalid list. */
   .gs-factors__grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .gs-factor {
     display: grid;
@@ -654,13 +655,13 @@ const shortList = (b: ListBlock): boolean =>
     background: var(--color-brand-50);
     color: var(--color-brand-600);
   }
-  .gs-factor dt {
+  .gs-factor__t {
     margin: 0.1rem 0 0.3rem;
     font-size: 1rem;
     font-weight: 500;
     color: var(--g-ink);
   }
-  .gs-factor dd {
+  .gs-factor__d {
     margin: 0;
     font-size: 0.9375rem;
     line-height: 1.6;

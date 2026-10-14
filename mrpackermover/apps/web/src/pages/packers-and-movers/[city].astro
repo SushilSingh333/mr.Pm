@@ -7,6 +7,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import GeoHero from '../../components/sections/GeoHero.astro';
 import GPage from '../../components/g/GPage.astro';
 import GeoPageBody from '../../components/g/GeoPageBody.astro';
+import { withPlaceLinks } from '../../lib/place-links.js';
 import { SITE_ORIGIN } from '../../lib/site.js';
 import { cardPhoto } from '../../lib/card-photo.js';
 
@@ -88,7 +89,7 @@ const extraJsonLd = [
 
   <GPage>
     <GeoPageBody
-      page={page}
+      page={withPlaceLinks(page, row.slug)}
       place={data.cityName}
       serviceLinks={serviceLinks}
       areas={{

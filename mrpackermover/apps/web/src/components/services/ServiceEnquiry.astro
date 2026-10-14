@@ -1,5 +1,6 @@
 ---
 import type { ServiceQuoteMode } from '@mpm/shared';
+import { inlineHtml } from '../../lib/rich-text.js';
 
 /**
  * The enquiry form in the hero of every service page.
@@ -20,8 +21,18 @@ interface Props {
   mode: ServiceQuoteMode;
   /** The service as the lead records it, e.g. "Car Transport". */
   serviceName: string;
+  /**
+   * `card` (default): stacked in two columns, for the service page's side card.
+   * `bar`: one wide strip under a city page's banner, in the look of the price-check bar
+   * there - fields side by side between thin dividers, the button at the end - so the
+   * page has no tall card and no empty space under the banner. Same fields, same logic.
+   */
+  layout?: 'card' | 'bar';
+  /** A line under the bar, e.g. "A coordinator sends one fixed, written price." */
+  note?: string;
 }
-const { mode, serviceName } = Astro.props;
+const { mode, serviceName, layout = 'card', note } = Astro.props;
+const bar = layout === 'bar';
 
 type Base = { name: string; label: string; half?: boolean };
 type Field =
@@ -169,94 +180,133 @@ const FIELDS: Record<ServiceQuoteMode, Field[]> = {
   ],
 };
 const fields = FIELDS[mode];
+// The bar runs four fields to a row (five for the long labour form). The divider classes
+// are worked out here: a field that starts a row has no left rule, and every row after
+// the first has a top rule.
+const inline = fields.filter((f) => f.kind !== 'checks');
+const cols = inline.length > 7 ? 5 : 4;
+// The button takes the cells left over in the last row, so no row has a gap: beside the
+// heavy-items chips when there are some, otherwise after the last field (a full row of
+// its own only if the fields fill every row exactly).
+const hasChecks = fields.some((f) => f.kind === 'checks');
+const rest = inline.length % cols;
+const btnSpan = hasChecks ? 1 : rest === 0 ? cols : cols - rest;
+const place = (f: Field): string[] => {
+  if (!bar || f.kind === 'checks') return [];
+  const i = inline.indexOf(f);
+  // A rule under every field that has another field row below it, so the line runs the
+  // full width, under the cell the button sits beside too.
+  const lastRowStart = Math.floor((inline.length - 1) / cols) * cols;
+  return [i % cols === 0 ? 'se-row-start' : '', i < lastRowStart ? 'se-row-above' : ''].filter(
+    Boolean,
+  );
+};
 const id = (n: string): string => `se-${n}`;
 ---
 
-<form class="se" data-se data-mode={mode} data-service={serviceName} novalidate>
-  <div class="se-grid">
-    {
-      fields.map((f) => (
-        <div class:list={['se-field', { 'se-half': f.half }]}>
-          {f.kind === 'checks' ? (
-            <fieldset class="se-checks">
-              <legend>{f.label}</legend>
-              <div class="se-chips">
-                {f.options.map((o) => (
-                  <label class="se-chip">
-                    <input type="checkbox" name={f.name} value={o} />
-                    <span>{o}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          ) : (
-            <>
-              <label for={id(f.name)}>
-                {f.label}
-                {(f.kind === 'tel' || ('required' in f && f.required)) && (
-                  <span class="se-req" aria-hidden="true">
-                    *
-                  </span>
-                )}
-              </label>
-              {f.kind === 'select' ? (
-                <select id={id(f.name)} name={f.name} required={f.required}>
-                  {f.required && (
-                    <option value="" selected disabled>
-                      Choose
-                    </option>
-                  )}
+<form
+  class:list={['se', { 'se--bar': bar }]}
+  style={bar
+    ? `--se-cols:${cols};--se-btn-span:${btnSpan};--se-checks-span:${cols - 1}`
+    : undefined}
+  data-se
+  data-mode={mode}
+  data-service={serviceName}
+  novalidate
+>
+  <div class="se-main">
+    <div class="se-grid">
+      {
+        fields.map((f) => (
+          <div
+            class:list={[
+              'se-field',
+              { 'se-half': f.half, 'se-field--checks': f.kind === 'checks' },
+              ...place(f),
+            ]}
+          >
+            {f.kind === 'checks' ? (
+              <fieldset class="se-checks">
+                <legend>{f.label}</legend>
+                <div class="se-chips">
                   {f.options.map((o) => (
-                    <option value={o}>{o}</option>
+                    <label class="se-chip">
+                      <input type="checkbox" name={f.name} value={o} />
+                      <span>{o}</span>
+                    </label>
                   ))}
-                </select>
-              ) : f.kind === 'tel' ? (
-                <input
-                  id={id(f.name)}
-                  name={f.name}
-                  type="tel"
-                  inputmode="tel"
-                  autocomplete="tel"
-                  placeholder="10-digit mobile"
-                  required
-                />
-              ) : f.kind === 'date' ? (
-                <input id={id(f.name)} name={f.name} type="date" data-min-today />
-              ) : f.kind === 'month' ? (
-                <select id={id(f.name)} name={f.name} data-months>
-                  <option value="">Not sure yet</option>
-                </select>
-              ) : (
-                <input
-                  id={id(f.name)}
-                  name={f.name}
-                  type="text"
-                  placeholder={f.placeholder}
-                  required={f.required}
-                  autocomplete={f.auto ?? 'off'}
-                />
-              )}
-            </>
-          )}
-        </div>
-      ))
-    }
+                </div>
+              </fieldset>
+            ) : (
+              <>
+                <label for={id(f.name)}>
+                  {f.label}
+                  {(f.kind === 'tel' || ('required' in f && f.required)) && (
+                    <span class="se-req" aria-hidden="true">
+                      *
+                    </span>
+                  )}
+                </label>
+                {f.kind === 'select' ? (
+                  <select id={id(f.name)} name={f.name} required={f.required}>
+                    {f.required && (
+                      <option value="" selected disabled>
+                        Choose
+                      </option>
+                    )}
+                    {f.options.map((o) => (
+                      <option value={o}>{o}</option>
+                    ))}
+                  </select>
+                ) : f.kind === 'tel' ? (
+                  <input
+                    id={id(f.name)}
+                    name={f.name}
+                    type="tel"
+                    inputmode="tel"
+                    autocomplete="tel"
+                    placeholder="10-digit mobile"
+                    required
+                  />
+                ) : f.kind === 'date' ? (
+                  <input id={id(f.name)} name={f.name} type="date" data-min-today />
+                ) : f.kind === 'month' ? (
+                  <select id={id(f.name)} name={f.name} data-months>
+                    <option value="">Not sure yet</option>
+                  </select>
+                ) : (
+                  <input
+                    id={id(f.name)}
+                    name={f.name}
+                    type="text"
+                    placeholder={f.placeholder}
+                    required={f.required}
+                    autocomplete={f.auto ?? 'off'}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        ))
+      }
+    </div>
+    <button class="se-btn" type="submit">
+      <span>Check my price</span>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
+      >
+    </button>
   </div>
-  <button class="se-btn" type="submit">
-    <span>Check my price</span>
-    <svg
-      viewBox="0 0 24 24"
-      width="20"
-      height="20"
-      aria-hidden="true"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.2"
-      stroke-linecap="round"
-      stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg
-    >
-  </button>
   <p class="se-error" role="alert" hidden></p>
+  {bar && note && <p class="se-note" set:html={inlineHtml(note)} />}
 </form>
 
 <script>
@@ -605,6 +655,152 @@ const id = (n: string): string => `se-${n}`;
     .se-field input,
     .se-field select {
       height: 3rem;
+    }
+  }
+
+  /* ── Bar layout: the city page's price-check bar (quote.css), with this form's fields.
+     One white strip under the banner: fields side by side between thin dividers, a small
+     bold label over a borderless input, and the button closing the row. ── */
+  .se--bar {
+    width: 100%;
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-bar);
+  }
+  /* The fields and the button share one grid (.se-grid steps aside), so the button can
+     sit in the last row's empty cells instead of hanging off the side. */
+  .se--bar .se-main {
+    display: grid;
+    grid-template-columns: repeat(var(--se-cols), minmax(0, 1fr));
+    align-items: stretch;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+  }
+  .se--bar .se-grid {
+    display: contents;
+  }
+  .se--bar .se-field,
+  .se--bar .se-field.se-half {
+    grid-column: span 1;
+    gap: 0.2rem;
+    padding: 0.65rem 1.1rem;
+    border-left: 1px solid var(--color-line);
+    transition: background-color 0.15s;
+  }
+  .se--bar .se-field.se-row-start {
+    border-left: 0;
+  }
+  .se--bar .se-field.se-row-above {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .se--bar .se-field--checks {
+    grid-column: span var(--se-checks-span);
+    border-left: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .se--bar .se-field:focus-within {
+    background: var(--color-brand-50);
+  }
+  .se--bar .se-field label,
+  .se--bar .se-checks legend {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-ink-900);
+  }
+  .se--bar .se-req {
+    color: #e5484d;
+  }
+  .se--bar .se-field input,
+  .se--bar .se-field select {
+    height: auto;
+    padding: 0.15rem 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--color-ink-900);
+  }
+  .se--bar .se-field select {
+    padding-right: 1.5rem;
+    background-position: right -0.2rem center;
+    cursor: pointer;
+  }
+  .se--bar .se-field input::placeholder {
+    color: var(--color-ink-500);
+  }
+  .se--bar .se-field input:focus,
+  .se--bar .se-field select:focus,
+  .se--bar .se-field.is-bad input,
+  .se--bar .se-field.is-bad select {
+    box-shadow: none;
+  }
+  .se--bar .se-field.is-bad {
+    background: #fce8e6;
+  }
+  .se--bar .se-field.is-bad label {
+    color: #b3261e;
+  }
+  .se--bar .se-btn {
+    grid-column: span var(--se-btn-span);
+    align-self: center;
+    justify-self: end;
+    width: auto;
+    min-width: min(100% - 1rem, 13rem);
+    height: 52px;
+    margin: 0 0.5rem;
+    padding-inline: 1.6rem;
+    white-space: nowrap;
+  }
+  .se--bar .se-error,
+  .se--bar .se-note {
+    margin: 0 1.1rem 0.75rem;
+    font-size: var(--text-sm);
+  }
+  .se--bar .se-note {
+    color: var(--color-ink-500);
+  }
+  .se--bar .se-note :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+  }
+  @media (max-width: 860px) {
+    .se--bar .se-main {
+      grid-template-columns: 1fr 1fr;
+      padding: 0.75rem;
+    }
+    .se--bar .se-field--checks {
+      grid-column: 1 / -1;
+    }
+    /* Two to a row, so the desktop dividers no longer line up: every field below the
+       first row gets a top rule, and none gets a side rule. */
+    .se--bar .se-field,
+    .se--bar .se-field.se-half,
+    .se--bar .se-field.se-row-above {
+      border-left: 0;
+      border-bottom: 0;
+      border-top: 1px solid var(--color-line);
+      padding: 0.6rem 0.5rem;
+    }
+    .se--bar .se-field:nth-child(-n + 2) {
+      border-top: 0;
+    }
+    .se--bar .se-btn {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+      width: 100%;
+      margin: 0.5rem 0 0;
+    }
+    .se--bar .se-error,
+    .se--bar .se-note {
+      margin-inline: 1.25rem;
+    }
+  }
+  @media (max-width: 520px) {
+    .se--bar .se-main {
+      grid-template-columns: 1fr;
+    }
+    .se--bar .se-field:nth-child(2) {
+      border-top: 1px solid var(--color-line);
     }
   }
 </style>

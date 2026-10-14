@@ -2,7 +2,6 @@
 import type { CityServiceData, GeoPage, LocalityData } from '@mpm/shared';
 import {
   CITY_SERVICE_PAGES,
-  SERVICE_PAGE_LABELS,
   LOCALITY_PAGES,
   fallbackGeoPage,
   geoPageWithCount,
@@ -21,6 +20,7 @@ import RelatedLinks from '../../../components/sections/RelatedLinks.astro';
 import Faq from '../../../components/sections/Faq.astro';
 import GeoPageBody from '../../../components/g/GeoPageBody.astro';
 import GPage from '../../../components/g/GPage.astro';
+import { withPlaceLinks } from '../../../lib/place-links.js';
 import { SITE_ORIGIN } from '../../../lib/site.js';
 import { cardPhoto } from '../../../lib/card-photo.js';
 
@@ -59,7 +59,6 @@ const enquiry =
     ? {
         mode: svcBrief.quoteMode,
         serviceName: cs.serviceName,
-        title: SERVICE_PAGE_LABELS.cardTitle,
         note: svcBrief.quoteNote,
       }
     : undefined;
@@ -195,7 +194,7 @@ const extraJsonLd = isService
 
         <GPage>
           <GeoPageBody
-            page={csPage}
+            page={withPlaceLinks(csPage, citySlug)}
             place={cityName}
             serviceLinks={csServiceLinks}
             areas={
@@ -273,7 +272,7 @@ const extraJsonLd = isService
 
         <GPage>
           <GeoPageBody
-            page={page!}
+            page={withPlaceLinks(page!, citySlug, row.path)}
             place={loc!.localityName}
             serviceLinks={serviceLinks}
             nearbyLinks={nearbyLinks}

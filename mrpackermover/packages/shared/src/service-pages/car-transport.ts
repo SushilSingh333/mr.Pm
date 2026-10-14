@@ -105,7 +105,7 @@ export const carTransport: ServicePage = {
             'Photo condition report. Every panel, the wheels and the interior, at pickup and at delivery. Both sets are shared with you, so any question is settled by the record, not by memory.',
             'Wheel locks and soft tyre straps. The car is held by its wheels, never chained by the body.',
             'ID-verified crew and vehicle. Check who is coming and in which carrier before pickup: [verify your crew](/verify).',
-            'Written claims process. If something does happen, it is assessed against the pickup photos and settled, and from our first quarterly report we publish how fast. See [how claims work](/claims) and [transit insurance](/insurance).',
+            'Written claims process. If something does happen, it is assessed against the pickup photos and settled in writing. See [how claims work](/claims) and [transit insurance](/insurance).',
           ],
         },
       ],

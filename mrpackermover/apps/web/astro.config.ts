@@ -16,7 +16,9 @@ export default defineConfig({
   site: SITE,
   output: 'static',
   trailingSlash: 'never',
-  build: { format: 'file' },
+  // Stylesheets inlined: each page's CSS is a few KB, and as separate files they were the
+  // page's render-blocking requests (about a second on a mobile connection in PageSpeed).
+  build: { format: 'file', inlineStylesheets: 'always' },
   integrations: [preact({ compat: false })],
   vite: {
     plugins: [tailwindcss()],

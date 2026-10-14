@@ -7,6 +7,10 @@ import { inlineHtml } from '../../lib/rich-text.js';
  * as small chips (any other column, such as "Applies to", becomes a chip too). A count and
  * a bar show how far they have got, and the ticks are kept in this browser, so the list
  * is still ticked when they come back to the page.
+ *
+ * Every cell is formatted text, chips included: a brief that writes "[verify your crew]
+ * (/verify)" in the "Who arranges it" column gets a working link, not the raw brackets.
+ * A link inside the tick label is followed on click; it does not tick the box.
  */
 interface Props {
   columns: string[];
@@ -58,7 +62,7 @@ const others = columns.map((_, i) => i).filter((i) => i > 0 && i !== whoIdx && i
                       />
                     </svg>
                     <span class="gck__sr">{columns[whoIdx]}: </span>
-                    {r[whoIdx]}
+                    <Fragment set:html={inlineHtml(r[whoIdx] ?? '')} />
                   </span>
                 )}
                 {whenIdx > 0 && r[whenIdx] && (
@@ -70,13 +74,14 @@ const others = columns.map((_, i) => i).filter((i) => i > 0 && i !== whoIdx && i
                       />
                     </svg>
                     <span class="gck__sr">{columns[whenIdx]}: </span>
-                    {r[whenIdx]}
+                    <Fragment set:html={inlineHtml(r[whenIdx] ?? '')} />
                   </span>
                 )}
                 {others.map((ci) =>
                   r[ci] ? (
                     <span class="gck__chip gck__chip--other">
-                      <span class="gck__k">{columns[ci]}</span> {r[ci]}
+                      <span class="gck__k">{columns[ci]}</span>{' '}
+                      <Fragment set:html={inlineHtml(r[ci] ?? '')} />
                     </span>
                   ) : null,
                 )}
@@ -256,6 +261,14 @@ const others = columns.map((_, i) => i).filter((i) => i > 0 && i !== whoIdx && i
   .gck__chip svg {
     flex: none;
     color: var(--g-ink-3);
+  }
+  .gck__chip :global(a) {
+    color: var(--color-brand-600);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .gck__chip :global(a):hover {
+    text-decoration: underline;
   }
   .gck__chip--when {
     background: var(--color-brand-50);

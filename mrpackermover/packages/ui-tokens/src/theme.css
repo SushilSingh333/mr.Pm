@@ -57,7 +57,7 @@
      violet cast so they sit with royal blue rather than against it. */
   --color-ink-900: #1a1c2e; /* headings */
   --color-ink-700: #464a60; /* body */
-  --color-ink-500: #6f7389; /* muted */
+  --color-ink-500: #676b81; /* muted: 4.6:1 or better on white, the tinted bands and brand-50 */
   --color-line: #e5e6ef; /* hairlines / card borders */
   --color-surface: #ffffff; /* cards, header */
   --color-surface-2: #f5f5fb; /* page base / alt sections (cool light) */

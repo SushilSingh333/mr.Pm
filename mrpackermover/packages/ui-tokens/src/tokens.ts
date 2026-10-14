@@ -13,7 +13,7 @@ export const color = {
   warn500: '#c2620a',
   ink900: '#1a1c2e',
   ink700: '#464a60',
-  ink500: '#6f7389',
+  ink500: '#676b81',
   surface: '#ffffff',
 } as const;
 

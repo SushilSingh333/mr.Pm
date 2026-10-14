@@ -39,7 +39,28 @@ const FIXES: [string, string][] = [
     'Damage is rare, but when it happens we settle. And we publish our median settlement time on the claims page, an unflattering-but-honest number nobody else in this category shows.',
     'Damage is rare, but when it happens we settle it against the photos taken at pickup. From our first quarterly report, our median settlement time goes on the claims page, a number nobody else in this category shows.',
   ],
+  // "Damage is rare" is not backed by any record yet, and no claims report is out: say
+  // what happens instead (14 Oct 2026 review). Runs after the line above, so it also
+  // catches that line's first version.
+  [
+    'Damage is rare, but when it happens we settle it against the photos taken at pickup. From our first quarterly report, our median settlement time goes on the claims page, a number nobody else in this category shows.',
+    'If something is damaged, we settle it against the photos taken at pickup. From our first quarterly report, our median settlement time goes on the claims page.',
+  ],
   ['See our claims data', 'See how claims work'],
+  // Pages → Claims: the intro said the numbers are published; the first report is not out.
+  [
+    'Damage is rare — but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.',
+    'Pretending damage never happens is how this industry lost your trust. So we do the opposite: a written claims process for every move, and our settlement numbers published here from our first quarterly report. That report is not out yet.',
+  ],
+  [
+    'Damage is rare, but pretending it never happens is how this industry lost your trust. So we do the opposite: a clear claims process, and the settlement numbers published in the open.',
+    'Pretending damage never happens is how this industry lost your trust. So we do the opposite: a written claims process for every move, and our settlement numbers published here from our first quarterly report. That report is not out yet.',
+  ],
+  // Services → Office shifting.
+  [
+    'Damage is rare, and when it happens we settle. Our median settlement time is on the [claims page](/claims).',
+    'If something is damaged, we settle it. Our median settlement time goes on the [claims page](/claims) from our first quarterly report.',
+  ],
   // Home → cities band: there are no rate bands or reviews on the city pages.
   [
     'local rate bands and real reviews, delivery goes anywhere in India.',
@@ -58,6 +79,35 @@ const FIXES: [string, string][] = [
   [
     'covers up to your declared value, from a licensed insurer named on your certificate. Ask for the certificate and its exclusions before loading day.',
     'covers up to your declared value, with the cover and its exclusions on your certificate. Ask for the certificate before loading day.',
+  ],
+  // 14 Oct 2026, the owner: drop every "from our first quarterly report" promise and say
+  // what we do instead - free to raise, checked against the pickup photos, a first reply
+  // within 24 hours, settled in writing. Last in the list, so it also catches the wording
+  // the fixes above produce.
+  [
+    'If something is damaged, we settle it against the photos taken at pickup. From our first quarterly report, our median settlement time goes on the claims page.',
+    'If something is damaged, raising a claim is free. We check it against the photos taken at pickup, reply within 24 hours and agree the settlement in writing.',
+  ],
+  [
+    'Pretending damage never happens is how this industry lost your trust. So we do the opposite: a written claims process for every move, and our settlement numbers published here from our first quarterly report. That report is not out yet.',
+    'Pretending damage never happens is how this industry lost your trust. So every move comes with a written claims process: free to raise, checked against the photos taken at pickup, a first reply within 24 hours, and a settlement agreed in writing.',
+  ],
+  [
+    'If something is damaged, we settle it. Our median settlement time goes on the [claims page](/claims) from our first quarterly report.',
+    'If something is damaged, raising a claim is free; see [how claims work](/claims).',
+  ],
+  [
+    'From our first quarterly report we publish [our median claim settlement time](/claims), updated each reporting period.',
+    'Every claim is closed in writing, with the settlement and the photos it was checked against. See [how claims work](/claims).',
+  ],
+  // Pages → Claims heading: "nobody else" is a claim about every competitor we cannot prove.
+  [
+    'The claims page nobody else in this category shows',
+    'If something is damaged, here is exactly what happens',
+  ],
+  [
+    'it is assessed against the pickup photos and settled, and from our first quarterly report we publish how fast.',
+    'it is assessed against the pickup photos and settled in writing.',
   ],
 ];
 

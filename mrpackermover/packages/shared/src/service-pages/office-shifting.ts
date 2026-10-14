@@ -241,7 +241,7 @@ export const officeShifting: ServicePage = {
       blocks: [
         {
           kind: 'text',
-          body: "Every crew member and vehicle is ID-verified, and building security gets the names before Friday. [Check each crew member's ID](/verify) at the door before a desk is unplugged.\n\n[Optional transit cover](/insurance) is one clear line on your quote. Without it, the most we pay for a damaged laptop or monitor is our basic liability limit, which is not insurance. Use your fixed asset register for the declared value.\n\nDamage is rare, and when it happens we settle. Our median settlement time is on the [claims page](/claims). Report damage within the claims window on your invoice, and we check it against the pre-move photo and carton inventory.",
+          body: "Every crew member and vehicle is ID-verified, and building security gets the names before Friday. [Check each crew member's ID](/verify) at the door before a desk is unplugged.\n\n[Optional transit cover](/insurance) is one clear line on your quote. Without it, the most we pay for a damaged laptop or monitor is our basic liability limit, which is not insurance. Use your fixed asset register for the declared value.\n\nIf something is damaged, raising a claim is free; see [how claims work](/claims). Report damage within the claims window on your invoice, and we check it against the pre-move photo and carton inventory.",
         },
       ],
     },

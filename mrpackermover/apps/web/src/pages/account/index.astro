@@ -1,0 +1,678 @@
+---
+import type { CityHubData } from '@mpm/shared';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { staticRow } from '../../lib/page.js';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+import { iconSvg } from '../../lib/icons.js';
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER } from '../../lib/site.js';
+import '../../components/account/account.css';
+
+/**
+ * The customer's account, laid out like myaccount.google.com: a navigation rail (Home,
+ * Personal info, Moves, Addresses, Security), a welcome with the avatar, summary cards,
+ * and info rows that open an editor in place. A static shell: everything personal comes
+ * from /api/account/me in the browser, so the page holds no one's data.
+ */
+const row = staticRow({
+  path: '/account',
+  title: 'Your account | MrMoverPacker',
+  h1: 'Your account',
+  metaDescription: 'Your MrMoverPacker account: moves, quotes and saved addresses.',
+  noindex: true,
+});
+const cities = rowsOfType('city-hub')
+  .map((r) => dataOf<CityHubData>(r).cityName)
+  .sort((a, b) => a.localeCompare(b));
+const svg = (inner: string) =>
+  `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+const NAV = [
+  {
+    key: 'home',
+    label: 'Home',
+    icon: svg('<path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/>'),
+  },
+  {
+    key: 'info',
+    label: 'Personal info',
+    icon: svg(
+      '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16a3 3 0 0 1 6 0M14 10h4M14 14h3"/>',
+    ),
+  },
+  { key: 'moves', label: 'Moves', icon: svg(iconSvg('truck')) },
+  { key: 'addresses', label: 'Addresses', icon: svg(iconSvg('map-pin')) },
+  { key: 'security', label: 'Security', icon: svg(iconSvg('lock')) },
+];
+---
+
+<BaseLayout row={row} chrome="focus">
+  <div
+    class="gx ga"
+    id="acc"
+    data-tel={PHONE_TEL}
+    data-tel-display={PHONE_DISPLAY}
+    data-wa={WHATSAPP_NUMBER}
+    data-cities={JSON.stringify(cities)}
+  >
+    <nav class="gx-nav" aria-label="Your account">
+      {
+        NAV.map((n) => (
+          <a href={`#${n.key}`} data-view={n.key}>
+            <Fragment set:html={n.icon} />
+            {n.label}
+            <span class="gx-nav__badge" data-badge={n.key} />
+          </a>
+        ))
+      }
+      <button type="button" class="gx-nav__out" data-logout>
+        <Fragment
+          set:html={svg(
+            '<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/>',
+          )}
+        />
+        Sign out
+      </button>
+    </nav>
+    <div class="ga-main" id="view" aria-live="polite">
+      <p class="ga-loading">Loading your account…</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import {
+    api,
+    busy,
+    dateDisplay,
+    esc,
+    fieldHtml,
+    money,
+    phoneDisplay,
+    showErrors,
+    signedInName,
+    wireSelects,
+    wireShowPassword,
+  } from '../../lib/account-client';
+
+  interface Address {
+    label: 'home' | 'office' | 'other';
+    line: string;
+    area: string;
+    city: string;
+    pincode: string;
+    floor: string;
+    hasLift: boolean;
+    isDefault: boolean;
+  }
+  interface Profile {
+    name: string;
+    phone: string;
+    email: string;
+    city: string;
+    phoneVerified: boolean;
+    addresses: Address[];
+    memberSince: string;
+  }
+  interface Move {
+    ref: string;
+    service: string;
+    from: string;
+    to: string;
+    size: string;
+    date: string | null;
+    requestedAt: string;
+    stage: { key: string; label: string; note: string; step: number; tone: string };
+    past: boolean;
+    quote: { amount: number; number: string } | null;
+    estimate: { low: number; high: number } | null;
+  }
+  type View = 'home' | 'info' | 'moves' | 'addresses' | 'security';
+  type RowKey = 'name' | 'email' | 'city' | 'password';
+  const VIEWS: View[] = ['home', 'info', 'moves', 'addresses', 'security'];
+
+  const root = document.getElementById('acc')!;
+  const view = document.getElementById('view')!;
+  const TEL = root.dataset.tel ?? '';
+  const TEL_DISPLAY = root.dataset.telDisplay ?? '';
+  const WA = root.dataset.wa ?? '';
+  const CITIES: string[] = JSON.parse(root.dataset.cities ?? '[]');
+  const STEPS = ['Requested', 'Quote sent', 'Booked', 'Moved'];
+  const FLOORS = ['Ground', '1st', '2nd', '3rd', '4th', '5th', '6th to 10th', 'Above 10th'];
+
+  let profile: Profile;
+  let moves: Move[] = [];
+  let current: View = 'home';
+  let filter: 'upcoming' | 'past' = 'upcoming';
+  let editingRow: RowKey | null = null;
+  let editingAddress: number | 'new' | null = null;
+
+  const wa = (text: string) => `https://wa.me/${WA}?text=${encodeURIComponent(text)}`;
+  const upcoming = () => moves.filter((m) => !m.past);
+  const past = () => moves.filter((m) => m.past);
+  const chev = `<svg class="gx-row__chev" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9.3 6.7 10.7 5.3 17.4 12l-6.7 6.7-1.4-1.4 5.3-5.3z"/></svg>`;
+  const ICON: Record<Address['label'], string> = {
+    home: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>`,
+    office: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 3h4a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h4V5a2 2 0 0 1 2-2zm4 4V5h-4v2h4z"/></svg>`,
+    other: `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>`,
+  };
+
+  // ── Pieces ──────────────────────────────────────────────────────────────────────
+  function price(m: Move): string {
+    if (m.quote)
+      return `<span class="ga-price">${money(m.quote.amount)} <small>+ GST · fixed quote${m.quote.number ? ` ${esc(m.quote.number)}` : ''}</small></span>`;
+    if (m.estimate)
+      return `<span class="ga-price">${money(m.estimate.low)} to ${money(m.estimate.high)} <small>estimate</small></span>`;
+    return `<span class="ga-price"><small>Fixed price after the survey</small></span>`;
+  }
+
+  function moveCard(m: Move, bare = false): string {
+    const track =
+      m.stage.step >= 0
+        ? `<ol class="ga-track" aria-label="Progress: ${esc(STEPS[m.stage.step] ?? '')}">${STEPS.map((s, i) => `<li class="${i <= m.stage.step ? 'is-done' : ''}"${i === m.stage.step ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`
+        : '';
+    const booked = m.stage.key === 'scheduled' || m.stage.key === 'won';
+    const facts = [
+      m.date
+        ? `<li>${booked ? 'Move date' : 'Preferred date'} <strong>${esc(dateDisplay(m.date))}</strong></li>`
+        : '',
+      m.size ? `<li>Size <strong>${esc(m.size)}</strong></li>` : '',
+    ].join('');
+    const route =
+      m.from || m.to
+        ? `<div class="ga-route">${m.from ? `<span class="ga-route__dot ga-route__dot--from"></span><p><small>From</small>${esc(m.from)}</p>` : ''}${m.to ? `<span class="ga-route__dot ga-route__dot--to"></span><p><small>To</small>${esc(m.to)}</p>` : ''}</div>`
+        : '';
+    const actions = m.past
+      ? `<a class="gx-btn gx-btn--text" href="/raise-a-complaint">Report a problem</a><a class="gx-btn gx-btn--text" href="/get-quote">Move again</a>`
+      : `<a class="gx-btn gx-btn--text" href="${esc(wa(`Hi MrMoverPacker, about my move ${m.ref}`))}" target="_blank" rel="noopener">WhatsApp</a><a class="gx-btn gx-btn--text" href="tel:${esc(TEL)}">Call</a>`;
+    return `<article class="ga-move${bare ? ' ga-move--bare' : ''}">
+      <div class="ga-move__top">
+        <div><p class="ga-move__svc">${esc(m.service)}</p><p class="ga-move__ref">${esc(m.ref)} · Requested ${esc(dateDisplay(m.requestedAt))}</p></div>
+        <span class="gx-status gx-status--${esc(m.stage.tone)}">${esc(m.stage.label)}</span>
+      </div>
+      ${route}
+      ${facts ? `<ul class="ga-facts">${facts}</ul>` : ''}
+      ${track}
+      <p class="ga-move__note">${esc(m.stage.note)}</p>
+      <div class="ga-move__foot">${price(m)}<span>${actions}</span></div>
+    </article>`;
+  }
+
+  const unverified = () =>
+    profile.phoneVerified
+      ? ''
+      : `<p class="gx-info">Quotes you asked for before signing up show here once we confirm this number is yours. Call us on <a href="tel:${esc(TEL)}">${esc(TEL_DISPLAY)}</a> to confirm it.</p>`;
+
+  function addressText(a: Address): string {
+    const place = [a.area, a.city, a.pincode].filter(Boolean).join(', ');
+    const floor = a.floor ? `${a.floor} floor${a.hasLift ? ', lift' : ', no lift'}` : '';
+    return [a.line, place, floor].filter(Boolean).map(esc).join('<br />');
+  }
+
+  const head = (title: string, lede: string) =>
+    `<div class="ga-head"><h1 class="ga-title" tabindex="-1">${esc(title)}</h1><p class="ga-lede">${esc(lede)}</p></div>`;
+
+  /**
+   * "Finish setting up your account": what is still missing, with a progress bar, as
+   * Google's security checkup lists it. Gone once everything is done.
+   */
+  function setup(): string {
+    const tasks = [
+      {
+        done: Boolean(profile.email),
+        title: 'Add your email',
+        why: 'For a copy of every quote and invoice.',
+        action: `<button type="button" class="gx-btn gx-btn--text" data-setup="email">Add email</button>`,
+      },
+      {
+        done: profile.addresses.length > 0,
+        title: 'Save your address',
+        why: 'Ready for your next quote, with the floor and lift.',
+        action: `<a class="gx-btn gx-btn--text" href="#addresses" data-setup="address">Add address</a>`,
+      },
+      {
+        done: profile.phoneVerified,
+        title: 'Confirm your number',
+        why: 'A short call, and the quotes you asked for before signing up appear here.',
+        action: `<a class="gx-btn gx-btn--text" href="tel:${esc(TEL)}">Call us</a>`,
+      },
+    ];
+    const done = tasks.filter((t) => t.done).length;
+    if (done === tasks.length) return '';
+    const tick = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>`;
+    return `<section class="ga-card ga-setup" aria-labelledby="c-setup">
+      <div class="ga-setup__top">
+        <div>
+          <h2 class="ga-card__t" id="c-setup">Finish setting up your account</h2>
+          <p class="ga-card__d">${done} of ${tasks.length} done</p>
+        </div>
+        <span class="ga-setup__bar" role="progressbar" aria-label="Account setup" aria-valuemin="0" aria-valuemax="${tasks.length}" aria-valuenow="${done}"><span style="width:${Math.round((done / tasks.length) * 100)}%"></span></span>
+      </div>
+      <ul class="ga-setup__list">${tasks
+        .map(
+          (t) => `<li class="${t.done ? 'is-done' : ''}">
+            <span class="ga-setup__mark">${t.done ? tick : ''}</span>
+            <div><p class="ga-setup__t">${t.title}${t.done ? '<span class="ga-sr"> (done)</span>' : ''}</p>${t.done ? '' : `<p class="ga-setup__why">${t.why}</p>`}</div>
+            ${t.done ? '' : t.action}
+          </li>`,
+        )
+        .join('')}</ul>
+    </section>`;
+  }
+
+  // ── Views ───────────────────────────────────────────────────────────────────────
+  function home(): string {
+    const next = upcoming()[0];
+    const def = profile.addresses.find((a) => a.isDefault) ?? profile.addresses[0];
+    const contact = [phoneDisplay(profile.phone), profile.city, profile.email]
+      .filter(Boolean)
+      .map(esc)
+      .join('<br />');
+    return `
+      <div class="ga-hero">
+        <span class="ga-avatar" aria-hidden="true">${esc(profile.name.charAt(0).toUpperCase())}</span>
+        <h1 tabindex="-1">Welcome, ${esc(profile.name)}</h1>
+        <p>Track your moves, keep your addresses ready and manage your account.</p>
+        <div class="ga-quick">
+          <a class="gx-btn" href="/get-quote">Get a fixed quote</a>
+          <a class="gx-btn gx-btn--tonal" href="tel:${esc(TEL)}">Call ${esc(TEL_DISPLAY)}</a>
+          <a class="gx-btn gx-btn--outline" href="${esc(wa('Hi MrMoverPacker, I need help with my move.'))}" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+      ${setup()}
+      <div class="ga-grid">
+        <section class="ga-card ga-card--wide" aria-labelledby="c-next">
+          <h2 class="ga-card__t" id="c-next">${next ? 'Your next move' : 'No moves yet'}</h2>
+          ${
+            next
+              ? `${moveCard(next, true)}<div class="ga-card__foot"><a href="#moves">See all your moves</a></div>`
+              : `<p class="ga-card__d">Ask for a quote while signed in and your move shows here, from the first call to delivery.</p>
+                 <p style="margin:0"><a class="gx-btn" href="/get-quote">Get a fixed quote</a></p>`
+          }
+        </section>
+        <section class="ga-card" aria-labelledby="c-info">
+          <h2 class="ga-card__t" id="c-info">Personal info</h2>
+          <p class="ga-card__d">${contact}</p>
+          <div class="ga-card__foot"><a href="#info">Manage your info</a></div>
+        </section>
+        <section class="ga-card" aria-labelledby="c-addr">
+          <h2 class="ga-card__t" id="c-addr">Addresses</h2>
+          <p class="ga-card__d">${def ? addressText(def) : 'Save your home or office once, and it is ready the next time you move.'}</p>
+          <div class="ga-card__foot"><a href="#addresses">${def ? 'Manage addresses' : 'Add an address'}</a></div>
+        </section>
+      </div>`;
+  }
+
+  function editor(field: 'name' | 'email' | 'city'): string {
+    const input =
+      field === 'city'
+        ? fieldHtml({
+            name: 'city',
+            label: 'City',
+            id: 'ed-city',
+            value: profile.city,
+            options: [...new Set([...CITIES, profile.city].filter(Boolean)), 'Other'].map((c) => ({
+              value: c,
+              label: c === 'Other' ? 'Other city' : c,
+            })),
+          })
+        : field === 'name'
+          ? fieldHtml({
+              name: 'name',
+              label: 'Full name',
+              id: 'ed-name',
+              value: profile.name,
+              autocomplete: 'name',
+              maxlength: 80,
+            })
+          : fieldHtml({
+              name: 'email',
+              label: 'Email (optional)',
+              id: 'ed-email',
+              type: 'email',
+              value: profile.email,
+              autocomplete: 'email',
+              hint: 'For a copy of your quote and invoice. Leave it blank to remove it.',
+            });
+    return `<form class="gx-row-edit" data-edit-form="${field}" novalidate>
+      <p class="gx-alert" role="alert" hidden></p>
+      ${input}
+      <div class="gx-actions" style="margin:0"><button type="button" class="gx-btn gx-btn--text" data-cancel>Cancel</button><button type="submit" class="gx-btn">Save</button></div>
+    </form>`;
+  }
+
+  function row(label: string, value: string, opens?: 'name' | 'email' | 'city'): string {
+    const btn = `<button type="button" class="gx-row"${opens ? ` data-open="${opens}" aria-expanded="${editingRow === opens}"` : ' disabled'}>
+      <span class="gx-row__k">${esc(label)}</span><span class="gx-row__v">${value}</span>${opens ? chev : '<span></span>'}
+    </button>`;
+    return btn + (opens && editingRow === opens ? editor(opens) : '');
+  }
+
+  function info(): string {
+    const none = '<small style="margin:0">Not added</small>';
+    return `${head('Personal info', 'Your details, used on your quotes and when we plan your move.')}
+      <section class="ga-card" aria-labelledby="c-basic">
+        <h2 class="ga-card__t" id="c-basic">Basic info</h2>
+        <p class="ga-card__d">Your coordinator sees these when they plan your move.</p>
+        <div class="ga-rows">
+          ${row('Name', esc(profile.name), 'name')}
+          ${row('Mobile', `${esc(phoneDisplay(profile.phone))}<small>You sign in with this number. To change it, call us.</small>`)}
+          ${row('Email', profile.email ? esc(profile.email) : none, 'email')}
+          ${row('City', profile.city ? esc(profile.city) : none, 'city')}
+        </div>
+      </section>
+      <section class="ga-card" aria-labelledby="c-acct">
+        <h2 class="ga-card__t" id="c-acct">Your account</h2>
+        <div class="ga-rows">
+          ${row('Member since', esc(dateDisplay(profile.memberSince)))}
+          ${row(
+            'Number',
+            profile.phoneVerified
+              ? '<span class="gx-status gx-status--good">Verified</span>'
+              : `<span class="gx-status gx-status--warn">Not verified yet</span><small>Call us on ${esc(TEL_DISPLAY)} to confirm it, and your earlier quotes appear under Moves.</small>`,
+          )}
+        </div>
+      </section>`;
+  }
+
+  function movesView(): string {
+    const list = filter === 'upcoming' ? upcoming() : past();
+    return `${head('Your moves', 'Every quote and move, from the first call to delivery.')}
+      <div class="ga-chips" role="group" aria-label="Show">
+        <button type="button" class="gx-chip" data-filter="upcoming" aria-pressed="${filter === 'upcoming'}">Upcoming · ${upcoming().length}</button>
+        <button type="button" class="gx-chip" data-filter="past" aria-pressed="${filter === 'past'}">Past · ${past().length}</button>
+      </div>
+      ${
+        list.length
+          ? list.map((m) => moveCard(m)).join('')
+          : `<div class="ga-empty"><p>${filter === 'upcoming' ? 'No upcoming moves. Planning one? A fixed, written quote takes a few minutes.' : 'No past moves yet.'}</p><a class="gx-btn" href="/get-quote">Get a fixed quote</a></div>`
+      }
+      <div style="margin-top:1rem">${unverified()}</div>`;
+  }
+
+  function addressForm(a: Partial<Address>): string {
+    return `<form class="ga-card" data-address-form novalidate style="margin-bottom:1rem">
+      <h2 class="ga-card__t">${editingAddress === 'new' ? 'Add an address' : 'Edit address'}</h2>
+      <p class="gx-alert" role="alert" hidden></p>
+      <div class="gx-two">
+        ${fieldHtml({
+          name: 'label',
+          label: 'Save as',
+          id: 'ad-label',
+          value: a.label ?? 'home',
+          options: [
+            { value: 'home', label: 'Home' },
+            { value: 'office', label: 'Office' },
+            { value: 'other', label: 'Other' },
+          ],
+        })}
+        ${fieldHtml({ name: 'city', label: 'City', id: 'ad-city', value: a.city ?? profile.city, maxlength: 60 })}
+      </div>
+      ${fieldHtml({ name: 'line', label: 'House, building, street', id: 'ad-line', value: a.line ?? '', autocomplete: 'address-line1', maxlength: 160 })}
+      <div class="gx-two">
+        ${fieldHtml({ name: 'area', label: 'Area or society', id: 'ad-area', value: a.area ?? '', maxlength: 80 })}
+        ${fieldHtml({ name: 'pincode', label: 'Pincode', id: 'ad-pin', value: a.pincode ?? '', inputmode: 'numeric', maxlength: 6 })}
+      </div>
+      <div class="gx-two">
+        ${fieldHtml({ name: 'floor', label: 'Floor', id: 'ad-floor', value: a.floor ?? '', options: [{ value: '', label: '' }, ...FLOORS.map((f) => ({ value: f, label: f }))] })}
+        <label class="gx-check"><input type="checkbox" name="hasLift"${a.hasLift ? ' checked' : ''} /> There is a lift</label>
+      </div>
+      <label class="gx-check"><input type="checkbox" name="isDefault"${a.isDefault || !profile.addresses.length ? ' checked' : ''} /> Make this my default address</label>
+      <div class="gx-actions" style="margin:0"><button type="button" class="gx-btn gx-btn--text" data-cancel>Cancel</button><button type="submit" class="gx-btn">Save</button></div>
+    </form>`;
+  }
+
+  function addressesView(): string {
+    const items = profile.addresses
+      .map(
+        (a, i) => `<div class="ga-addr">
+          <span class="ga-addr__icon">${ICON[a.label] ?? ICON.other}</span>
+          <div>
+            <p class="ga-addr__t">${esc(a.label)}${a.isDefault ? '<span class="gx-status gx-status--info">Default</span>' : ''}</p>
+            <p>${addressText(a)}</p>
+            <div class="ga-addr__btns">
+              <button type="button" class="gx-btn gx-btn--text" data-edit="${i}">Edit</button>
+              ${a.isDefault ? '' : `<button type="button" class="gx-btn gx-btn--text" data-default="${i}">Make default</button>`}
+              <button type="button" class="gx-btn gx-btn--text gx-btn--danger" data-delete="${i}">Delete</button>
+            </div>
+          </div>
+          <span></span>
+        </div>`,
+      )
+      .join('');
+    return `${head('Addresses', 'Saved once, ready for your next quote.')}
+      ${editingAddress !== null ? addressForm(editingAddress === 'new' ? {} : (profile.addresses[editingAddress] ?? {})) : ''}
+      ${
+        profile.addresses.length
+          ? `<section class="ga-card ga-list" aria-label="Saved addresses">${items}</section>`
+          : editingAddress === null
+            ? `<div class="ga-empty"><p>No saved addresses yet. Add your home or office, and it is ready the next time you move.</p></div>`
+            : ''
+      }
+      ${editingAddress === null ? `<p style="margin-top:1rem"><button type="button" class="gx-btn gx-btn--tonal" data-edit="new">Add an address</button></p>` : ''}`;
+  }
+
+  function securityView(): string {
+    const pw =
+      editingRow === 'password'
+        ? `<form class="gx-row-edit" data-password-form novalidate>
+            <p class="gx-alert" role="alert" hidden></p>
+            ${fieldHtml({ name: 'current', label: 'Current password', id: 'pw-current', type: 'password', autocomplete: 'current-password' })}
+            <div class="gx-two">
+              ${fieldHtml({ name: 'next', label: 'New password', id: 'pw-next', type: 'password', autocomplete: 'new-password' })}
+              ${fieldHtml({ name: 'confirm', label: 'Confirm', id: 'pw-confirm', type: 'password', autocomplete: 'new-password' })}
+            </div>
+            <p class="gx-hint" style="margin-top:-.5rem">Use 8 or more characters. Your other devices are signed out when you change it.</p>
+            <label class="gx-check"><input type="checkbox" data-show-password /> Show password</label>
+            <div class="gx-actions" style="margin:0"><button type="button" class="gx-btn gx-btn--text" data-cancel>Cancel</button><button type="submit" class="gx-btn">Change password</button></div>
+          </form>`
+        : '';
+    return `${head('Security', 'Your password, and signing out.')}
+      <p class="gx-ok" role="status" data-pw-ok hidden style="margin-bottom:1rem">Password changed. Your other devices are signed out.</p>
+      <section class="ga-card" aria-labelledby="c-signin">
+        <h2 class="ga-card__t" id="c-signin">How you sign in</h2>
+        <div class="ga-rows">
+          <button type="button" class="gx-row" disabled><span class="gx-row__k">Mobile</span><span class="gx-row__v">${esc(phoneDisplay(profile.phone))}</span><span></span></button>
+          <button type="button" class="gx-row" data-open="password" aria-expanded="${editingRow === 'password'}"><span class="gx-row__k">Password</span><span class="gx-row__v">••••••••<small>Change it any time</small></span>${chev}</button>
+          ${pw}
+        </div>
+      </section>
+      <section class="ga-card" aria-labelledby="c-out">
+        <h2 class="ga-card__t" id="c-out">Sign out</h2>
+        <p class="ga-card__d">Sign out of your account on this device.</p>
+        <div class="gx-actions" style="justify-content:flex-start;margin:0"><button type="button" class="gx-btn gx-btn--outline" data-logout>Sign out</button></div>
+      </section>
+      <p class="gx-info" style="margin-top:1rem">Forgot your password? Call us on <a href="tel:${esc(TEL)}">${esc(TEL_DISPLAY)}</a> and we will reset it.</p>`;
+  }
+
+  // ── Page ────────────────────────────────────────────────────────────────────────
+  function render(focus?: string) {
+    view.innerHTML = {
+      home,
+      info,
+      moves: movesView,
+      addresses: addressesView,
+      security: securityView,
+    }[current]();
+    for (const a of root.querySelectorAll<HTMLAnchorElement>('[data-view]')) {
+      if (a.dataset.view === current) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    }
+    const badge = (k: string, n: number) => {
+      const b = root.querySelector<HTMLElement>(`[data-badge="${k}"]`);
+      if (b) b.textContent = n ? String(n) : '';
+    };
+    badge('moves', upcoming().length);
+    badge('addresses', profile.addresses.length);
+    wireSelects(view);
+    wireShowPassword(view);
+    if (focus) view.querySelector<HTMLElement>(focus)?.focus();
+  }
+
+  function go(v: View) {
+    current = v;
+    editingRow = null;
+    editingAddress = null;
+    render();
+    view.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+    if (innerWidth < 960) view.scrollIntoView({ block: 'start' });
+  }
+
+  window.addEventListener('hashchange', () => {
+    const h = location.hash.slice(1) as View;
+    if (VIEWS.includes(h) && h !== current) go(h);
+  });
+
+  async function saveAddresses(list: Address[], form?: HTMLElement): Promise<boolean> {
+    const r = await api<{ profile: Profile }>('PATCH', 'me', { addresses: list });
+    if (r.status === 200) {
+      profile = r.data.profile;
+      return true;
+    }
+    if (form) showErrors(form, r.data.error ?? 'Could not save. Try again.', r.data.fields);
+    return false;
+  }
+
+  view.addEventListener('click', async (e) => {
+    const t = (e.target as HTMLElement).closest<HTMLElement>('button');
+    if (!t) return;
+    if (t.dataset.open) {
+      const next = t.dataset.open as RowKey;
+      editingRow = editingRow === next ? null : next;
+      return render(
+        editingRow
+          ? `[data-edit-form="${editingRow}"] input, [data-edit-form="${editingRow}"] select, [data-password-form] input`
+          : undefined,
+      );
+    }
+    if (t.dataset.filter) {
+      filter = t.dataset.filter as 'upcoming' | 'past';
+      return render();
+    }
+    if (t.dataset.edit !== undefined) {
+      editingAddress = t.dataset.edit === 'new' ? 'new' : Number(t.dataset.edit);
+      return render('#ad-line');
+    }
+    if (t.hasAttribute('data-cancel')) {
+      editingRow = null;
+      editingAddress = null;
+      return render();
+    }
+    if (t.dataset.default !== undefined) {
+      const i = Number(t.dataset.default);
+      await saveAddresses(profile.addresses.map((a, j) => ({ ...a, isDefault: j === i })));
+      return render();
+    }
+    if (t.dataset.delete !== undefined) {
+      const i = Number(t.dataset.delete);
+      if (!confirm('Delete this address?')) return;
+      await saveAddresses(profile.addresses.filter((_, j) => j !== i));
+      return render();
+    }
+    if (t.dataset.setup === 'email') {
+      current = 'info';
+      history.replaceState(null, '', '#info');
+      editingRow = 'email';
+      render('#ed-email');
+      return;
+    }
+    if (t.hasAttribute('data-logout')) return signOut(t);
+  });
+
+  async function signOut(b: HTMLElement) {
+    if (b instanceof HTMLButtonElement) b.disabled = true;
+    await api('POST', 'logout');
+    location.replace('/');
+  }
+  root
+    .querySelector<HTMLButtonElement>('.gx-nav [data-logout]')
+    ?.addEventListener('click', (e) => signOut(e.currentTarget as HTMLElement));
+
+  view.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const fd = new FormData(form);
+    const v = (k: string) => String(fd.get(k) ?? '').trim();
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+    if (form.dataset.editForm) {
+      const field = form.dataset.editForm as 'name' | 'email' | 'city';
+      const value = v(field);
+      if (field === 'name' && value.length < 2)
+        return showErrors(form, undefined, { name: 'Enter your full name' });
+      if (field === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value))
+        return showErrors(form, undefined, { email: 'Enter a valid email, or leave it blank' });
+      busy(btn, true, 'Saving…');
+      const r = await api<{ profile: Profile }>('PATCH', 'me', { [field]: value });
+      busy(btn, false);
+      if (r.status !== 200) return showErrors(form, r.data.error, r.data.fields);
+      profile = r.data.profile;
+      editingRow = null;
+      return render(`[data-open="${field}"]`);
+    }
+
+    if (form.hasAttribute('data-address-form')) {
+      const f: Record<string, string> = {};
+      if (!v('line')) f.line = 'Add the house, building and street';
+      if (v('pincode') && !/^[1-9]\d{5}$/.test(v('pincode'))) f.pincode = 'A pincode has 6 digits';
+      if (Object.keys(f).length) return showErrors(form, undefined, f);
+      const a: Address = {
+        label: (v('label') as Address['label']) || 'home',
+        line: v('line'),
+        area: v('area'),
+        city: v('city'),
+        pincode: v('pincode'),
+        floor: v('floor'),
+        hasLift: fd.get('hasLift') === 'on',
+        isDefault: fd.get('isDefault') === 'on',
+      };
+      let list = [...profile.addresses];
+      if (editingAddress === 'new' || editingAddress === null) list.push(a);
+      else list[editingAddress] = a;
+      if (a.isDefault) list = list.map((x) => ({ ...x, isDefault: x === a }));
+      busy(btn, true, 'Saving…');
+      if (await saveAddresses(list, form)) {
+        editingAddress = null;
+        render();
+      } else busy(btn, false);
+      return;
+    }
+
+    if (form.hasAttribute('data-password-form')) {
+      const next = String(fd.get('next') ?? '');
+      const f: Record<string, string> = {};
+      if (!fd.get('current')) f.current = 'Enter your current password';
+      if (next.length < 8) f.next = 'Use 8 characters or more';
+      else if (next !== String(fd.get('confirm') ?? ''))
+        f.confirm = 'Those passwords did not match';
+      if (Object.keys(f).length) return showErrors(form, undefined, f);
+      busy(btn, true, 'Changing…');
+      const r = await api('POST', 'password', { current: fd.get('current'), next });
+      busy(btn, false);
+      if (r.status !== 200) return showErrors(form, r.data.error, r.data.fields);
+      editingRow = null;
+      render();
+      view.querySelector<HTMLElement>('[data-pw-ok]')!.hidden = false;
+    }
+  });
+
+  const toLogin = () =>
+    location.replace(
+      `/account/login?next=${encodeURIComponent(location.pathname + location.hash)}`,
+    );
+
+  (async () => {
+    // No name cookie means no session: go to sign in without asking the server.
+    if (!signedInName()) return toLogin();
+    const r = await api<{ profile: Profile; moves: Move[] }>('GET', 'me');
+    if (r.status === 401) return toLogin();
+    if (r.status !== 200) {
+      view.innerHTML = `<div class="ga-empty"><p>${esc(r.data.error ?? 'Could not load your account.')}</p><button class="gx-btn" type="button" data-reload>Try again</button></div>`;
+      view.querySelector('[data-reload]')?.addEventListener('click', () => location.reload());
+      return;
+    }
+    profile = r.data.profile;
+    moves = r.data.moves;
+    const h = location.hash.slice(1) as View;
+    current = VIEWS.includes(h) ? h : 'home';
+    render();
+  })();
+</script>

@@ -1,6 +1,7 @@
 import type { Endpoint } from 'payload';
 import { addDataAndFileToRequest } from 'payload';
 import { json, clientIp, verifyTurnstile } from './_lib.js';
+import { currentCustomer } from './account.js';
 
 /**
  * POST /api/quote — capture a lead. Runs in the Payload/Next server on the origin
@@ -107,6 +108,9 @@ export const quoteEndpoint: Endpoint = {
     const ok = await verifyTurnstile(body.turnstileToken, ip);
     if (!ok) return json({ error: 'Verification failed' }, 403);
 
+    // Signed in on the website: the request belongs to their account and shows there.
+    const customer = await currentCustomer(req).catch(() => null);
+
     try {
       await req.payload.create({
         collection: 'leads',
@@ -134,6 +138,7 @@ export const quoteEndpoint: Endpoint = {
           quotedHigh: money(body.quotedHigh),
           distanceKm: whole(body.distanceKm, 1, 5000),
           quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 120) || undefined,
+          customer: customer?.id ?? undefined,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,
         } as never,

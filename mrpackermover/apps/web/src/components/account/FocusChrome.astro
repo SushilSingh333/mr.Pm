@@ -1,0 +1,119 @@
+---
+import Logo from '../nav/Logo.astro';
+import AccountMenu from './AccountMenu.astro';
+import { PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.js';
+
+/**
+ * The frame around the account pages, the way Google frames its sign-in and Google
+ * Account: the logo, a help line and the account menu on top, one quiet line of links
+ * at the foot, and nothing else to pull the eye off the one task on the page.
+ */
+const year = new Date().getFullYear();
+---
+
+<div class="fc">
+  <header class="fc-top">
+    <Logo width={140} />
+    <div class="fc-right">
+      <a class="fc-help" href={`tel:${PHONE_TEL}`}>
+        <span class="fc-help__k">Help</span>
+        <span class="fc-help__v">{PHONE_DISPLAY}</span>
+      </a>
+      <AccountMenu size="focus" />
+    </div>
+  </header>
+
+  <main id="main" class="fc-main">
+    <slot />
+  </main>
+
+  <footer class="fc-foot">
+    <span>© {year} MrMoverPacker</span>
+    <nav aria-label="Footer">
+      <a href="/">Home</a>
+      <a href="/company/contact">Help</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </footer>
+</div>
+
+<style>
+  .fc {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #f0f4f9;
+  }
+  .fc-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem clamp(1rem, 3vw, 1.75rem);
+  }
+  .fc-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .fc-help {
+    display: grid;
+    line-height: 1.2;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #444746;
+  }
+  .fc-help:hover {
+    background: rgb(68 71 70 / 0.08);
+  }
+  .fc-help__k {
+    font-size: 0.6875rem;
+  }
+  .fc-help__v {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f1f1f;
+  }
+  .fc-help:focus-visible,
+  .fc-foot a:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+  .fc-main {
+    flex: 1;
+  }
+  .fc-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding: 1rem clamp(1rem, 3vw, 1.75rem) 1.25rem;
+    font-size: 0.75rem;
+    color: #444746;
+  }
+  .fc-foot nav {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .fc-foot a {
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.5rem;
+    color: #444746;
+    text-decoration: none;
+  }
+  .fc-foot a:hover {
+    background: rgb(68 71 70 / 0.08);
+  }
+  @media (max-width: 520px) {
+    .fc-help__k {
+      display: none;
+    }
+    .fc-foot {
+      justify-content: center;
+    }
+  }
+</style>

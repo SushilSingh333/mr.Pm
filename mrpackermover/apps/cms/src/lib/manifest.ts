@@ -35,6 +35,8 @@ import {
   pageWithCityCount,
   plainText,
   servicePage,
+  FOUNDER_FALLBACK,
+  isFounderRole,
 } from '@mpm/shared';
 import { coverForCategory } from '@mpm/shared/blog-fallback';
 import { title as titleFor, cityServiceMeta } from '@mpm/seo/meta';
@@ -891,6 +893,12 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   const settlements = jobsStats
     .map((s) => s.avgSettlementDays)
     .filter((n): n is number => n != null);
+  // The founder signs the home intro and the about page: whoever is on the team page with
+  // a job title starting "Founder", so renaming them in the CMS renames them everywhere.
+  const founder =
+    (await loadAll<{ name?: string; role?: string; showOnTeam?: boolean }>(payload, 'people')).find(
+      (p) => p.showOnTeam && p.name && isFounderRole(p.role),
+    )?.name ?? FOUNDER_FALLBACK;
   const homeContentDoc = (await payload
     .findGlobal({ slug: 'home-content', overrideAccess: true })
     .catch(() => null)) as HomeContentDoc | null;
@@ -923,7 +931,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         // From the Home Page brief (3 Oct 2026).
         fallbackTitle: `Packers and Movers in India | Fixed Quotes | ${BRAND}`.slice(0, 60),
         fallbackDescription:
-          'Packers and movers in India led by founder Sachin Kumar, 15 years in the trade. ' +
+          `Packers and movers in India led by founder ${founder}, 15 years in the trade. ` +
           'Fixed written quotes, photo inventory and ID-verified crews.',
       }),
       h1:
@@ -988,6 +996,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     photo?: Id | { id: Id } | null;
     showOnTeam?: boolean;
     teamOrder?: number;
+    teamGroup?: string;
   }
   const team = (await loadAll<PersonDoc>(payload, 'people'))
     .filter((m) => m.showOnTeam === true && m.name && m.role)
@@ -1003,6 +1012,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       credentials: m.credentials || undefined,
       linkedin: m.linkedin || undefined,
       photo: imageFor(m.photo),
+      group: m.teamGroup || 'leadership',
     }));
 
   // ── Editable copy for the hand-built editorial pages, looked up by key ─────
@@ -1129,6 +1139,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
     siteOrigin: siteOrigin.replace(/\/$/, ''),
     jobs,
     team,
+    founder,
     editorial,
     hiddenPages,
     blog,

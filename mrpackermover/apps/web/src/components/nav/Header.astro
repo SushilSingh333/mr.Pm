@@ -1,5 +1,6 @@
 ---
 import Logo from './Logo.astro';
+import AccountMenu from '../account/AccountMenu.astro';
 import { iconSvg } from '../../lib/icons.js';
 import { PRIMARY_NAV, MORE_NAV, CONTACT_LINK, PHONE_DISPLAY, PHONE_TEL } from '../../lib/site.js';
 import { isPageHidden } from '../../lib/page.js';
@@ -109,6 +110,8 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
         </a>
       </div>
 
+      {/* The customer account and its menu (Sign in, or the account and Sign out). */}
+      <AccountMenu />
       <button
         class="nav-toggle"
         id="navToggle"
@@ -197,6 +200,21 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
   </div>
 
   <div class="md-foot">
+    <a class="md-account" href="/account/login" data-account-link>
+      <svg
+        viewBox="0 0 24 24"
+        width="19"
+        height="19"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        ><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg
+      >
+      <span data-account-text>Sign in or create an account</span>
+    </a>
     <a class="md-call" href={`tel:${PHONE_TEL}`}>
       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"
         ><path
@@ -420,6 +438,15 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
   .header-contact:focus-visible {
     background: var(--color-brand-600);
     color: #fff;
+  }
+  .md-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.25rem;
+    font-weight: 600;
+    color: var(--color-brand-700);
+    text-decoration: none;
   }
   .header-cta {
     display: none;
@@ -744,6 +771,19 @@ const moreNav = MORE_NAV.filter((l) => !l.key || !isPageHidden(l.key));
 </style>
 
 <script>
+  // Signed in (the readable mpm_name cookie): the drawer's account link goes to /account
+  // and shows the customer's name instead of "Sign in". The header button is AccountMenu.
+  {
+    const m = document.cookie.match(/(?:^|;\s*)mpm_name=([^;]*)/);
+    const name = m?.[1] ? decodeURIComponent(m[1]) : '';
+    if (name) {
+      for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-account-link]')) {
+        a.href = '/account';
+        const text = a.querySelector<HTMLElement>('[data-account-text]');
+        if (text) text.textContent = `My account (${name})`;
+      }
+    }
+  }
   const toggle = document.getElementById('navToggle');
   const drawer = document.getElementById('mobile-drawer');
   const backdrop = document.getElementById('mBackdrop');

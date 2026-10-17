@@ -2,7 +2,7 @@
 import type { HomeData, CityHubData, ServiceHubData } from '@mpm/shared';
 import { HOME_COPY, withCount, withOverrides } from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
-import { rowsOfType, rowByPath, dataOf } from '../data/manifest.js';
+import { rowsOfType, rowByPath, dataOf, founderName } from '../data/manifest.js';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroShell from '../components/sections/HeroShell.astro';
 import ServicesGrid from '../components/sections/ServicesGrid.astro';
@@ -10,14 +10,7 @@ import CitiesGrid from '../components/sections/CitiesGrid.astro';
 import Faq from '../components/sections/Faq.astro';
 import Band from '../components/ui/Band.astro';
 import QuoteWidget from '../components/quote/QuoteWidget.astro';
-import {
-  FOUNDER,
-  FOUNDER_NAME,
-  PHONE_DISPLAY,
-  PHONE_TEL,
-  SUPPORT_HOURS,
-  WHATSAPP_NUMBER,
-} from '../lib/site.js';
+import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, SUPPORT_HOURS, WHATSAPP_NUMBER } from '../lib/site.js';
 import { heroAlt } from '../lib/hero.js';
 
 /**
@@ -115,7 +108,7 @@ const extraJsonLd = [
     image="home"
     imageUrl={data.content?.heroImage?.url}
     intro={C.subhead}
-    introBy={`${FOUNDER_NAME}, Founder`}
+    introBy={`${founderName()}, Founder`}
   >
     <Fragment slot="heading">
       <p class="home-tagline">{C.tagline}</p>

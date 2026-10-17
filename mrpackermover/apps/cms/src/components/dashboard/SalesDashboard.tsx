@@ -32,6 +32,7 @@ import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
 import { REVIEW_CSS, ReviewDonut } from './LeadReview.js';
 import { ReviewExplorer } from './ReviewExplorer.js';
+import { ImproveCalls } from './ImproveCalls.js';
 
 /**
  * The lead desk, in two shapes.
@@ -1135,6 +1136,27 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           </Link>
         )}
       </header>
+
+      {/* ── Improvement calls ──
+          First on the page: warm leads with no price yet are the ones that go cold when
+          nobody rings back. Its links open the board below, all dates, that filter on. */}
+      <ImproveCalls
+        payload={payload}
+        user={user}
+        isHandler={isHandler}
+        boardHref={(f, owner) =>
+          link({
+            filter: f,
+            range: 'all',
+            from: undefined,
+            to: undefined,
+            page: undefined,
+            q: undefined,
+            source: undefined,
+            owner,
+          })
+        }
+      />
 
       {/* ── What needs a person right now ─────────────────────────────────────
           Four fixed clocks: what arrived today, what has nobody on it, what is sitting

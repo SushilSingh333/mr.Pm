@@ -95,8 +95,23 @@ export const teamMemberSchema = z.object({
   credentials: z.string().optional(),
   linkedin: z.string().optional(),
   photo: z.object({ url: z.string(), alt: z.string().optional() }).optional(),
+  /** Which section of the team page: leadership, sales, operations or support. */
+  group: z.string().optional(),
 });
 export type TeamMember = z.infer<typeof teamMemberSchema>;
+
+/** The team page's sections, in page order. A person's `teamGroup` is one of these keys. */
+export const TEAM_GROUPS = [
+  { key: 'leadership', label: 'Leadership' },
+  { key: 'sales', label: 'Sales' },
+  { key: 'operations', label: 'Operations' },
+  { key: 'support', label: 'Customer support' },
+] as const;
+
+/** The founder's name until the CMS says otherwise (a team-page person with role "Founder"). */
+export const FOUNDER_FALLBACK = 'Sachin Chaudhary';
+/** "Founder", "Founder & CEO" - but not "Co-founder". */
+export const isFounderRole = (role?: string | null): boolean => /^\s*founder\b/i.test(role ?? '');
 
 /** A blog post (from the CMS `posts` collection), rendered on /blog. */
 export const blogPostSchema = z.object({
@@ -146,6 +161,8 @@ export const manifestSchema = z.object({
   jobs: z.array(jobSchema).default([]),
   /** People opted in to the public team page, already ordered. */
   team: z.array(teamMemberSchema).default([]),
+  /** The founder's name, from the team page's "Founder" (signs the home intro, about page). */
+  founder: z.string().optional(),
   /** Editable copy for the hand-built editorial pages, keyed by page key. */
   editorial: z.record(z.string(), editorialSchema).default({}),
   /**

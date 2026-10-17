@@ -13,6 +13,7 @@ import { Users } from './collections/Users.js';
 import { Media } from './collections/Media.js';
 import { Locations } from './collections/Locations.js';
 import { CityServicePages } from './collections/CityServicePages.js';
+import { Customers } from './collections/Customers.js';
 import { Services } from './collections/Services.js';
 import { Lanes } from './collections/Lanes.js';
 import { OperatingBases } from './collections/OperatingBases.js';
@@ -85,7 +86,11 @@ export default buildConfig({
       beforeNavLinks: ['/components/nav/SidebarNav#SidebarNav'],
       // App-wide violet "Dropify" theme — a provider wraps every admin page (incl. login
       // and account), injecting the global stylesheet. Presentation only.
-      providers: ['/components/theme/AdminTheme#AdminTheme'],
+      providers: [
+        '/components/theme/AdminTheme#AdminTheme',
+        // Handlers and salespeople: the half-hourly "improvement calls" reminder.
+        '/components/dashboard/ImproveReminder#ReminderProvider',
+      ],
     },
   },
   editor: lexicalEditor(),
@@ -126,6 +131,8 @@ export default buildConfig({
     ContactMessages,
     // Sales
     Proposals,
+    // Website customer accounts (/account), admins only
+    Customers,
     // Security
     LoginEvents,
     // Internal — never rendered (ADR-0004)

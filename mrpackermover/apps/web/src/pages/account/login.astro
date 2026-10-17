@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GxField from '../../components/account/GxField.astro';
+import { staticRow } from '../../lib/page.js';
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_NUMBER } from '../../lib/site.js';
+import '../../components/account/account.css';
+
+/**
+ * Sign in, laid out like accounts.google.com: the heading on the left, the form on the
+ * right, the actions at the bottom right. Mobile number and password; no OTP yet, so a
+ * forgotten password is reset by the team.
+ */
+const row = staticRow({
+  path: '/account/login',
+  title: 'Sign in | MrMoverPacker',
+  h1: 'Sign in',
+  metaDescription: 'Sign in to MrMoverPacker to follow your moves, quotes and saved addresses.',
+  noindex: true,
+});
+const resetText = encodeURIComponent('Hi MrMoverPacker, I forgot the password to my account.');
+---
+
+<BaseLayout row={row} chrome="focus">
+  <div class="gx gx-auth">
+    <section class="gx-card" aria-labelledby="li-title">
+      <span class="gx-progress" aria-hidden="true"></span>
+      <div class="gx-card__lead">
+        <span class="gx-mark" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            ><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg
+          >
+        </span>
+        <h1 id="li-title">Sign in</h1>
+        <p class="gx-card__sub">
+          Use your MrMoverPacker account to follow your moves, see your quotes and keep your
+          addresses ready.
+        </p>
+      </div>
+
+      <form class="gx-card__form" data-login novalidate>
+        <p class="gx-alert" role="alert" hidden></p>
+        <GxField
+          name="phone"
+          label="Mobile number"
+          id="li-phone"
+          type="tel"
+          inputmode="numeric"
+          autocomplete="tel-national"
+          maxlength={14}
+          prefix="+91"
+          placeholder="10-digit mobile"
+          required
+        />
+        <GxField
+          name="password"
+          label="Password"
+          id="li-password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+        <label class="gx-check">
+          <input type="checkbox" data-show-password />
+          Show password
+        </label>
+        <div>
+          <button
+            type="button"
+            class="gx-link"
+            data-forgot
+            aria-expanded="false"
+            aria-controls="li-forgot"
+          >
+            Forgot password?
+          </button>
+          <p class="gx-info" id="li-forgot" hidden style="margin-top:.75rem">
+            We reset passwords by phone for now. Call us on{' '}
+            <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a> or{' '}
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${resetText}`}
+              target="_blank"
+              rel="noopener"
+            >
+              WhatsApp us
+            </a>
+            , and we will set a new one for you.
+          </p>
+        </div>
+        <div class="gx-actions gx-actions--split">
+          <a class="gx-btn gx-btn--text" href="/account/signup" data-keep-next>Create account</a>
+          <button class="gx-btn" type="submit">Sign in</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import {
+    api,
+    busy,
+    nextPath,
+    showErrors,
+    signedInName,
+    wireShowPassword,
+  } from '../../lib/account-client';
+
+  // Already signed in: straight to where they were going.
+  if (signedInName()) location.replace(nextPath());
+
+  wireShowPassword();
+  // Carry ?next= over to the sign-up link, so a new customer lands where they meant to.
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-keep-next]')) {
+    a.search = location.search;
+  }
+  const forgot = document.querySelector<HTMLButtonElement>('[data-forgot]');
+  forgot?.addEventListener('click', () => {
+    const box = document.getElementById('li-forgot');
+    if (!box) return;
+    box.hidden = !box.hidden;
+    forgot.setAttribute('aria-expanded', String(!box.hidden));
+  });
+
+  const form = document.querySelector<HTMLFormElement>('form[data-login]')!;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const phone = String(fd.get('phone') ?? '').trim();
+    const password = String(fd.get('password') ?? '');
+    const fields: Record<string, string> = {};
+    if (!/^(\+?91|0)?[6-9]\d{9}$/.test(phone.replace(/[\s-]/g, '')))
+      fields.phone = 'Enter your 10-digit mobile number';
+    if (!password) fields.password = 'Enter your password';
+    if (Object.keys(fields).length) return showErrors(form, undefined, fields);
+
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    busy(btn, true, 'Signing in…');
+    const r = await api('POST', 'login', { phone, password });
+    if (r.status === 200) {
+      location.replace(nextPath());
+      return;
+    }
+    busy(btn, false);
+    // A wrong number or password is one message on the password field, as Google does.
+    if (r.status === 401)
+      return showErrors(form, undefined, { password: r.data.error ?? 'Wrong number or password' });
+    showErrors(form, r.data.error ?? 'Could not sign you in. Try again.', r.data.fields);
+  });
+</script>

@@ -1,34 +1,102 @@
 ---
+import { TEAM_GROUPS } from '@mpm/shared';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/page/PageHero.astro';
 import Band from '../../components/ui/Band.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
-import { staticRow, editorialFor } from '../../lib/page.js';
+import { staticRow, editorialFor, isPageHidden } from '../../lib/page.js';
+import { iconSvg } from '../../lib/icons.js';
 import { team } from '../../data/manifest.js';
 
 /**
  * The people behind the company (Doc 01 §2: accountability over anonymity).
- * Members come from the CMS `people` collection, opted in with `showOnTeam` and
- * ordered by `teamOrder`. With nobody opted in the roster section is omitted
- * entirely rather than rendering an empty grid.
+ *
+ * Everyone comes from the CMS `people` collection: opted in with "Show on the public team
+ * page", placed in a section (Leadership, Sales...) and ordered by `teamOrder`. A section
+ * with nobody in it is left out, and with nobody at all the roster is omitted rather than
+ * rendering an empty grid.
+ *
+ * The card is a Material outlined card, the way Google lays out a person: the avatar and
+ * the name with the job title beside it, and the description under them (a LinkedIn link
+ * at the foot when there is one). The avatar is the person's initials until a photo is
+ * uploaded in the CMS; then the photo takes its place - same size, same spot, nothing else
+ * to switch on. Leadership cards are wider and their initials sit on solid indigo.
+ *
+ * After the named people, the crew: the large team of packers, loaders and drivers who
+ * actually handle the move. They are not named one by one, so they get a section of their
+ * own rather than cards. It says only what the rest of the site already promises -
+ * trained, ID-verified, our own crews - and gives no head count.
  */
 const ed = editorialFor('team');
 const members = team();
+
+const LEDE: Record<string, string> = {
+  leadership: 'Who started MrMoverPacker, and who answers for every move we run.',
+  sales: 'Your first call. They plan your move with you and send your fixed, written quote.',
+  operations: 'The people who plan the crews, the vehicles and the dates.',
+  support: 'Here when something needs sorting, during the move or after it.',
+};
+
+const known = new Set<string>(TEAM_GROUPS.map((g) => g.key));
+const sections = TEAM_GROUPS.map((g) => ({
+  ...g,
+  people: members.filter((m) => (known.has(m.group ?? '') ? m.group : 'leadership') === g.key),
+})).filter((s) => s.people.length > 0);
+
+const initials = (name: string) => {
+  const w = name.trim().split(/\s+/).filter(Boolean);
+  return ((w[0]?.[0] ?? '') + (w.length > 1 ? (w[w.length - 1]?.[0] ?? '') : '')).toUpperCase();
+};
+const slug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+
+const LINKEDIN =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8.3 10H5.7v8.3h2.6zM7 5.8a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11.3 7.4c0-2.3-1.2-3.4-2.9-3.4a2.5 2.5 0 0 0-2.3 1.3V10h-2.6v8.3h2.6v-4.4c0-1.2.4-2 1.5-2s1.2 1 1.2 2.1v4.3h2.6z"/></svg>';
+const line = (name: string, size: number) =>
+  `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconSvg(name)}</svg>`;
+
+/** The crew on moving day: the people who handle the things, not named one by one. */
+const CREW = [
+  {
+    icon: 'packing-unpacking',
+    title: 'Packers and loaders',
+    text: 'A large team who wrap, pack, carry, load and unload everything you own.',
+    points: [
+      'Wrap furniture, glass and appliances before anything moves',
+      'Carry it safely down the stairs and into the lift',
+      'Load the truck so nothing shifts, then unload and place it room by room',
+    ],
+  },
+  {
+    icon: 'truck',
+    title: 'Drivers',
+    text: 'Experienced drivers who take your things from your old door to your new one.',
+    points: [
+      'Experienced on city roads and on long highway routes',
+      'Drive a loaded truck with care, never in a rush',
+      'Stay with your goods from pickup to drop',
+    ],
+  },
+];
+const canVerify = !isPageHidden('verify');
 
 const row = staticRow({
   path: '/company/team',
   pageType: 'core',
   title: ed.metaTitle ?? 'Our Team – MrMoverPacker',
-  h1: ed.title ?? 'The people who move your home',
+  h1: ed.title ?? 'The people behind your move',
   metaDescription:
     ed.seoDescription ??
-    'Meet the coordinators, crew leads and operations team behind MrMoverPacker, named, ID-verified people accountable for every move we run.',
+    'Meet the people behind MrMoverPacker: our founders, the sales team who plan your move, and the packers, loaders and drivers who carry it out.',
   breadcrumbs: [{ path: '/', anchor: 'Home' }],
 });
 
 const intro =
   ed.intro ??
-  'We put our names on our work. Every move is run by trained, ID-verified people you can ask for by name, not an anonymous subcontractor.';
+  'We put our names on our work. These are the people you speak to, from your first call to the day you move.';
 ---
 
 <BaseLayout row={row}>
@@ -43,46 +111,104 @@ const intro =
   />
 
   {
-    members.length > 0 && (
-      <Band label="Team">
-        <ul class="team-grid">
-          {members.map((m) => (
-            <li class="team-card">
-              {m.photo?.url ? (
-                <img
-                  class="team-photo"
-                  src={m.photo.url}
-                  alt={m.photo.alt ?? m.name}
-                  width="96"
-                  height="96"
-                  loading="lazy"
-                  decoding="async"
-                />
-              ) : (
-                <span class="team-photo team-initials" aria-hidden="true">
-                  {m.name
-                    .split(' ')
-                    .map((w) => w[0])
-                    .slice(0, 2)
-                    .join('')}
-                </span>
-              )}
-              <h3>{m.name}</h3>
-              <p class="team-role">{m.role}</p>
-              {m.credentials && <p class="team-cred">{m.credentials}</p>}
-              {m.bio && <p class="team-bio">{m.bio}</p>}
-              {m.linkedin && (
-                <a class="team-link" href={m.linkedin} rel="noopener noreferrer" target="_blank">
-                  LinkedIn profile
-                  <span class="sr-only"> for {m.name}</span>
-                </a>
-              )}
-            </li>
-          ))}
+    sections.map((s, i) => (
+      <Band alt={i % 2 === 1} label={s.label}>
+        <div class="tm-head">
+          <h2>{s.label}</h2>
+          {LEDE[s.key] && <p>{LEDE[s.key]}</p>}
+        </div>
+        <ul class="tm-grid">
+          {s.people.map((m) => {
+            const id = `tm-${slug(m.name)}`;
+            return (
+              <li class:list={['tm', { 'tm--lead': s.key === 'leadership' }]} aria-labelledby={id}>
+                <div class="tm-id">
+                  {m.photo?.url ? (
+                    <img
+                      class="tm-av tm-av--photo"
+                      src={m.photo.url}
+                      alt={m.photo.alt || m.name}
+                      width="88"
+                      height="88"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span class="tm-av" aria-hidden="true">
+                      {initials(m.name)}
+                    </span>
+                  )}
+                  <div class="tm-who">
+                    <h3 class="tm-name" id={id}>
+                      {m.name}
+                    </h3>
+                    <p class="tm-role">{m.role}</p>
+                    {m.credentials && <p class="tm-cred">{m.credentials}</p>}
+                  </div>
+                </div>
+
+                {m.bio && <p class="tm-bio">{m.bio}</p>}
+
+                {m.linkedin && (
+                  <div class="tm-act">
+                    <a
+                      class="tm-btn"
+                      href={m.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${m.name} on LinkedIn`}
+                    >
+                      <Fragment set:html={LINKEDIN} />
+                      LinkedIn
+                    </a>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </Band>
-    )
+    ))
   }
+
+  {/* ── The crew on moving day ── */}
+  <section class="crew-band" aria-labelledby="crew-t">
+    <div class="container-page">
+      <div class="tm-head crew-head">
+        <h2 id="crew-t">The crew on moving day</h2>
+        <p>
+          Behind these names is a large team of trained packers, loaders and experienced drivers:
+          our own crews, the people who handle your things from the first box to the last.
+        </p>
+      </div>
+      <div class="crew-grid">
+        {
+          CREW.map((c) => (
+            <article class="crew-card">
+              <span class="crew-ico" set:html={line(c.icon, 28)} />
+              <h3>{c.title}</h3>
+              <p class="crew-text">{c.text}</p>
+              <ul class="crew-list">
+                {c.points.map((p) => (
+                  <li>
+                    <span class="crew-tick" set:html={line('check', 16)} />
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+      <p class="crew-note">
+        <span class="crew-note__ico" set:html={line('shield-check', 20)} />
+        <span>
+          Every crew member is ID-verified, and you can check who is coming before they load.
+          {canVerify && <a href="/verify">Verify your crew</a>}
+        </span>
+      </p>
+    </div>
+  </section>
 
   <CtaBand
     heading="Moving soon?"
@@ -95,63 +221,300 @@ const intro =
 </BaseLayout>
 
 <style>
-  .team-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1rem;
+  .tm-head {
+    max-width: 40rem;
+    margin: 0 auto 2.25rem;
+    text-align: center;
   }
-  .team-card {
-    background: var(--color-surface);
+  .tm-head h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    color: var(--color-ink-900);
+  }
+  .tm-head p {
+    margin: 0.5rem 0 0;
+    color: var(--color-ink-500);
+    font-size: var(--text-lg);
+  }
+
+  /* Centred rows: a short row sits in the middle, not hard against the left. */
+  .tm-grid {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    max-width: 72rem;
+  }
+
+  /* Material outlined card: a hairline at rest, one step of elevation on hover. */
+  .tm {
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 21rem;
+    min-width: 0;
+    padding: 1.5rem;
     border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
-    padding: 1.4rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    text-align: left;
+    transition:
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  .tm:hover,
+  .tm:focus-within {
+    border-color: var(--color-brand-100);
     box-shadow: var(--shadow-card);
   }
-  .team-photo {
-    width: 96px;
-    height: 96px;
-    border-radius: var(--radius-pill);
-    object-fit: cover;
-    display: block;
-    margin-bottom: 0.9rem;
+  .tm--lead {
+    flex-basis: 30rem;
+    padding: 1.75rem;
   }
-  /* No photo uploaded: initials on a brand tint, so the grid never gaps. */
-  .team-initials {
+
+  /* The avatar and who they are, side by side (Google Contacts). */
+  .tm-id {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .tm-av {
     display: grid;
+    flex: none;
     place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
     background: var(--color-brand-50);
     color: var(--color-brand-700);
     font-family: var(--font-display);
-    font-weight: 700;
-    font-size: var(--text-2xl);
+    font-size: 1.5rem;
+    font-weight: 600;
     letter-spacing: 0.02em;
   }
-  .team-card h3 {
-    font-size: var(--text-lg);
-    color: var(--color-ink-900);
+  .tm--lead .tm-av {
+    width: 5.5rem;
+    height: 5.5rem;
+    background: var(--color-brand-600);
+    color: #fff;
+    font-size: 1.875rem;
+  }
+  /* A photo takes the same circle, with a white gap and a fine ring around it. */
+  .tm-av--photo {
+    object-fit: cover;
+    background: var(--color-surface-3);
+    box-shadow:
+      0 0 0 3px var(--color-surface),
+      0 0 0 4px var(--color-brand-100);
+  }
+  .tm-who {
+    min-width: 0;
+  }
+  .tm-name {
     margin: 0;
-  }
-  .team-role {
-    margin: 0.15rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
     font-weight: 600;
-    color: var(--color-brand-600);
+    line-height: 1.25;
+    color: var(--color-ink-900);
   }
-  .team-cred {
-    margin: 0.35rem 0 0;
+  .tm--lead .tm-name {
+    font-size: var(--text-2xl);
+  }
+  .tm-role {
+    margin: 0.25rem 0 0;
+    color: var(--color-brand-600);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .tm-cred {
+    margin: 0.2rem 0 0;
     font-size: var(--text-sm);
     color: var(--color-ink-500);
   }
-  .team-bio {
-    margin: 0.6rem 0 0;
+  .tm-bio {
+    margin: 1.125rem 0 0;
     color: var(--color-ink-700);
+    line-height: 1.65;
   }
-  .team-link {
-    display: inline-block;
-    margin-top: 0.7rem;
-    font-weight: 600;
+
+  /* LinkedIn, when there is one, pinned to the foot so cards in a row end on one line. */
+  .tm-act {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+  .tm-act::before {
+    content: '';
+    flex: 0 0 100%;
+    height: 1px;
+    margin: 0 0 0.75rem;
+    background: var(--color-line);
+  }
+  .tm-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0 1rem 0 0.85rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
     color: var(--color-brand-700);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .tm-btn:hover {
+    background: var(--color-brand-50);
+  }
+  .tm-btn:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  /* ── The crew: one deep indigo band, white cards on it ── */
+  .crew-band {
+    padding: clamp(3.5rem, 7vw, 5.5rem) 0;
+    background:
+      radial-gradient(60rem 26rem at 85% -10%, rgb(115 85 247 / 0.35), transparent 70%),
+      linear-gradient(180deg, var(--color-brand-800), var(--color-brand-900));
+    color: #fff;
+  }
+  .crew-head h2 {
+    color: #fff;
+  }
+  .crew-head p {
+    color: rgb(255 255 255 / 0.82);
+  }
+  .crew-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    max-width: 62rem;
+    margin: 0 auto;
+  }
+  .crew-card {
+    padding: 1.75rem;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    color: var(--color-ink-700);
+    box-shadow: 0 24px 48px -24px rgb(0 0 0 / 0.45);
+  }
+  .crew-ico {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1rem;
+    background: var(--color-brand-600);
+    color: #fff;
+  }
+  .crew-card h3 {
+    margin: 1.125rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-ink-900);
+  }
+  .crew-text {
+    margin: 0.4rem 0 0;
+    line-height: 1.6;
+  }
+  .crew-list {
+    display: grid;
+    gap: 0.7rem;
+    margin: 1.25rem 0 0;
+    padding: 1.25rem 0 0;
+    border-top: 1px solid var(--color-line);
+    list-style: none;
+  }
+  .crew-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    line-height: 1.5;
+    color: var(--color-ink-900);
+  }
+  .crew-tick {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.05rem;
+    border-radius: 50%;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  .crew-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    max-width: 62rem;
+    margin: 1.75rem auto 0;
+    color: rgb(255 255 255 / 0.88);
+    text-align: center;
+  }
+  .crew-note__ico {
+    display: inline-grid;
+    flex: none;
+    color: #fff;
+  }
+  .crew-note a {
+    margin-left: 0.4rem;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .crew-note a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 760px) {
+    .crew-grid {
+      grid-template-columns: 1fr;
+    }
+    .crew-card {
+      padding: 1.375rem;
+    }
+    .crew-note {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+  @media (max-width: 640px) {
+    .tm,
+    .tm--lead {
+      flex-basis: 100%;
+      padding: 1.25rem;
+    }
+    .tm-av {
+      width: 3.75rem;
+      height: 3.75rem;
+      font-size: 1.25rem;
+    }
+    .tm--lead .tm-av {
+      width: 4.5rem;
+      height: 4.5rem;
+      font-size: 1.5rem;
+    }
+    .tm--lead .tm-name {
+      font-size: var(--text-xl);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tm,
+    .tm-btn {
+      transition: none;
+    }
   }
 </style>

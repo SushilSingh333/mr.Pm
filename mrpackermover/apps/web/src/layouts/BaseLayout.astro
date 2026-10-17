@@ -5,6 +5,7 @@ import Analytics from '../components/seo/Analytics.astro';
 import Header from '../components/nav/Header.astro';
 import Footer from '../components/nav/Footer.astro';
 import WhatsAppFab from '../components/nav/WhatsAppFab.astro';
+import FocusChrome from '../components/account/FocusChrome.astro';
 import '../styles/global.css';
 import type { Share } from '../lib/share.js';
 
@@ -19,8 +20,14 @@ interface Props {
   extraJsonLd?: Array<Record<string, unknown> | null>;
   /** What a shared link shows; blank uses the page's banner photo (lib/share.ts). */
   share?: Share;
+  /**
+   * `focus`: the account pages' frame, Google-sign-in style. Only the logo, a help link
+   * and the account avatar on top, and a one-line footer: no menu, no big footer and no
+   * WhatsApp button competing with the one form on the page.
+   */
+  chrome?: 'full' | 'focus';
 }
-const { row, extraJsonLd, share } = Astro.props;
+const { row, extraJsonLd, share, chrome = 'full' } = Astro.props;
 ---
 
 <!doctype html>
@@ -52,12 +59,22 @@ const { row, extraJsonLd, share } = Astro.props;
     }
     <!--email_off-->
     <a href="#main" class="skip-link">Skip to content</a>
-    <Header />
-    <main id="main">
-      <slot />
-    </main>
-    <Footer />
-    <WhatsAppFab />
+    {
+      chrome === 'focus' ? (
+        <FocusChrome>
+          <slot />
+        </FocusChrome>
+      ) : (
+        <>
+          <Header />
+          <main id="main">
+            <slot />
+          </main>
+          <Footer />
+          <WhatsAppFab />
+        </>
+      )
+    }
     <!--/email_off-->
   </body>
 </html>

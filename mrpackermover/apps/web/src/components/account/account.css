@@ -1,0 +1,1179 @@
+/*
+ * The account pages, drawn the way Google draws its own: the sign-in card of
+ * accounts.google.com, and the navigation rail and info rows of myaccount.google.com.
+ * Material 3 parts throughout - outlined text fields with floating labels, pill buttons,
+ * tonal surfaces - with the site's own blue as the one accent. Plain CSS (imported by the
+ * three pages) because the dashboard's markup is built in the browser.
+ */
+
+.gx {
+  --gx-ink: #1f1f1f;
+  --gx-ink-2: #444746;
+  --gx-ink-3: #5e5e5e;
+  --gx-line: #c4c7c5;
+  --gx-line-soft: #e1e3e1;
+  --gx-outline: #747775;
+  --gx-surface: #f0f4f9;
+  --gx-surface-2: #e9eef6;
+  --gx-accent: var(--color-brand-600);
+  --gx-accent-ink: var(--color-brand-700);
+  --gx-accent-soft: var(--color-brand-50);
+  --gx-error: #b3261e;
+  color: var(--gx-ink);
+  font-size: 1rem;
+}
+
+/* ── Sign-in card (accounts.google.com) ─────────────────────────────────────────── */
+.gx-auth {
+  display: grid;
+  place-items: center;
+  padding: clamp(0.5rem, 4vw, 3rem) clamp(0rem, 3vw, 1.5rem) clamp(1.5rem, 5vw, 3rem);
+}
+.gx-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2.5rem 3rem;
+  width: min(100%, 64rem);
+  padding: 2.25rem 2.5rem 2rem;
+  border-radius: 1.75rem;
+  background: #fff;
+  overflow: hidden;
+}
+.gx-card__lead {
+  min-width: 0;
+}
+.gx-mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1.25rem;
+  border-radius: 50%;
+  background: var(--gx-accent-soft);
+  color: var(--gx-accent);
+}
+.gx-card h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--gx-ink);
+}
+.gx-card__sub {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--gx-ink-2);
+}
+.gx-step {
+  margin: 1.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--gx-ink-3);
+}
+.gx-card__form {
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+  min-width: 0;
+  padding-top: 0.25rem;
+}
+/* The thin loading line along the card's top edge while a request runs. */
+.gx-progress {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  overflow: hidden;
+  background: transparent;
+}
+.gx-progress[data-on] {
+  background: var(--gx-accent-soft);
+}
+.gx-progress[data-on]::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  background: var(--gx-accent);
+  animation: gx-load 1.1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes gx-load {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+.gx-steps {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 1.5rem;
+}
+.gx-steps span {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gx-line-soft);
+}
+.gx-steps span.is-on {
+  background: var(--gx-accent);
+}
+
+/* Outlined text field, floating label (Material 3). The label rests inside the box and
+   moves up onto the border when the field has focus or a value. */
+/* minmax(0, 1fr): an input's built-in width (about 20 characters) must not widen the
+   field past its column. */
+.gx-field {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  min-width: 0;
+}
+.gx-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.5rem;
+  border: 1px solid var(--gx-outline);
+  border-radius: 0.25rem;
+  background: #fff;
+}
+.gx-box:hover {
+  border-color: var(--gx-ink);
+}
+.gx-box:focus-within {
+  border-color: var(--gx-accent);
+  box-shadow: inset 0 0 0 1px var(--gx-accent);
+}
+.gx-box input,
+.gx-box select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 3.375rem;
+  padding: 0 1rem;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--gx-ink);
+}
+.gx-box input:focus,
+.gx-box select:focus {
+  outline: none;
+}
+.gx-box select {
+  appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+.gx-box--select::after {
+  content: '';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  border: 5px solid transparent;
+  border-top-color: var(--gx-ink-2);
+  border-bottom-width: 0;
+  pointer-events: none;
+}
+.gx-label {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  max-width: calc(100% - 1.5rem);
+  padding: 0 0.25rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: #fff;
+  font-size: 1rem;
+  color: var(--gx-ink-2);
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition:
+    top 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    font-size 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.15s;
+  pointer-events: none;
+}
+.gx-box:focus-within .gx-label,
+.gx-box.is-filled .gx-label,
+.gx-box input:not(:placeholder-shown) ~ .gx-label {
+  top: 0;
+  font-size: 0.75rem;
+}
+.gx-box:focus-within .gx-label {
+  color: var(--gx-accent);
+}
+/* +91 shows once the label has moved up, so the label and prefix never overlap. */
+.gx-prefix {
+  padding-left: 1rem;
+  color: var(--gx-ink-2);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.gx-prefix + input {
+  padding-left: 0.375rem;
+}
+.gx-box:focus-within .gx-prefix,
+.gx-box.is-filled .gx-prefix,
+.gx-box:has(input:not(:placeholder-shown)) .gx-prefix {
+  opacity: 1;
+}
+.gx-box input::placeholder {
+  color: transparent;
+}
+.gx-box:focus-within input::placeholder {
+  color: #8e918f;
+}
+.gx-hint,
+.gx-err {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin: 0.375rem 1rem 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--gx-ink-2);
+}
+.gx-err {
+  color: var(--gx-error);
+}
+.gx-err svg {
+  flex: none;
+  margin-top: 0.05rem;
+}
+.gx-field.is-bad .gx-box {
+  border-color: var(--gx-error);
+  box-shadow: inset 0 0 0 1px var(--gx-error);
+}
+.gx-field.is-bad .gx-label {
+  color: var(--gx-error);
+}
+/* Two fields side by side. minmax(0, 1fr), so a long error under one cannot widen its
+   column past the card; start-aligned, so it cannot stretch its neighbour taller. */
+.gx-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1.25rem 1rem;
+}
+.gx-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.5rem;
+  font-size: 0.875rem;
+  color: var(--gx-ink);
+  cursor: pointer;
+}
+.gx-check input {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin: 0 0.125rem;
+  accent-color: var(--gx-accent);
+}
+.gx-small {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gx-ink-2);
+}
+.gx-small a,
+.gx-link {
+  color: var(--gx-accent);
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.gx-small a:hover,
+.gx-link:hover {
+  text-decoration: underline;
+}
+.gx-alert {
+  display: flex;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #fce8e6;
+  color: #8c1d18;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.gx-ok {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: #e6f4ea;
+  color: #0d652d;
+  font-size: 0.875rem;
+}
+.gx-info {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--gx-surface);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gx-ink-2);
+}
+.gx-info a {
+  color: var(--gx-accent);
+  font-weight: 500;
+}
+.gx-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.gx-actions--split {
+  justify-content: space-between;
+}
+
+/* Buttons: filled, tonal and text pills (Material 3). */
+.gx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 6rem;
+  height: 2.5rem;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gx-accent);
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s;
+}
+.gx-btn:hover {
+  background: var(--gx-accent-ink);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 1px 3px 1px rgb(0 0 0 / 0.15);
+}
+.gx-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.gx-btn--tonal {
+  background: var(--gx-accent-soft);
+  color: var(--gx-accent-ink);
+}
+.gx-btn--tonal:hover {
+  background: color-mix(in srgb, var(--gx-accent) 14%, #fff);
+  box-shadow: none;
+}
+.gx-btn--text {
+  min-width: 0;
+  padding: 0 0.75rem;
+  background: none;
+  color: var(--gx-accent);
+}
+.gx-btn--text:hover {
+  background: var(--gx-accent-soft);
+  box-shadow: none;
+}
+.gx-btn--outline {
+  background: #fff;
+  color: var(--gx-accent);
+  box-shadow: inset 0 0 0 1px var(--gx-outline);
+}
+.gx-btn--outline:hover {
+  background: var(--gx-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--gx-outline);
+}
+.gx-btn--danger {
+  color: var(--gx-error);
+}
+.gx-btn--danger:hover {
+  background: #fce8e6;
+}
+.gx-btn:focus-visible,
+.gx-link:focus-visible,
+.gx-nav a:focus-visible,
+.gx-row:focus-visible,
+.gx-chip:focus-visible {
+  outline: 2px solid var(--gx-accent);
+  outline-offset: 2px;
+}
+.gx-below {
+  width: min(100%, 64rem);
+  margin: 1rem auto 0;
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--gx-ink-2);
+}
+
+@media (max-width: 860px) {
+  .gx-card {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    max-width: 30rem;
+  }
+}
+/* On a phone the card is the page, as on Google's own sign-in. */
+@media (max-width: 520px) {
+  .gx-card {
+    border-radius: 0;
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+  .gx-two {
+    grid-template-columns: 1fr;
+  }
+  .gx-actions--split {
+    flex-direction: row;
+  }
+}
+
+/* ── Google Account (myaccount.google.com) ──────────────────────────────────────── */
+.ga {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr);
+  gap: 1rem;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0.5rem clamp(0.75rem, 2vw, 1.5rem) 3rem;
+}
+.gx-nav {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.5rem 0;
+}
+.gx-nav a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 3.25rem;
+  padding: 0 1.5rem;
+  border-radius: 0 999px 999px 0;
+  color: var(--gx-ink-2);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.gx-nav a:hover {
+  background: rgb(68 71 70 / 0.08);
+}
+.gx-nav a[aria-current='page'] {
+  background: color-mix(in srgb, var(--gx-accent) 14%, #fff);
+  color: var(--gx-accent-ink);
+}
+.gx-nav svg {
+  flex: none;
+}
+.gx-nav__badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.ga-main {
+  min-width: 0;
+  max-width: 47rem;
+  padding: 1rem 0;
+}
+.ga-loading {
+  padding: 5rem 1rem;
+  text-align: center;
+  color: var(--gx-ink-3);
+}
+.ga-hero {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 2rem;
+  text-align: center;
+}
+.ga-avatar {
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: var(--gx-accent);
+  color: #fff;
+  font-size: 2.75rem;
+  font-weight: 400;
+}
+.ga-hero h1,
+.ga-title {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.625rem, 3vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--gx-ink);
+}
+.ga-hero p,
+.ga-lede {
+  margin: 0;
+  color: var(--gx-ink-2);
+  line-height: 1.5;
+}
+.ga-head {
+  margin: 0.5rem 0 1.75rem;
+}
+.ga-lede {
+  margin-top: 0.5rem;
+}
+.ga-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.ga-grid > .ga-card--wide {
+  grid-column: 1 / -1;
+}
+.ga-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--gx-line-soft);
+  border-radius: 1.75rem;
+  background: #fff;
+}
+.ga-card + .ga-card {
+  margin-top: 1rem;
+}
+.ga-grid .ga-card + .ga-card {
+  margin-top: 0;
+}
+.ga-card__t {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 400;
+  color: var(--gx-ink);
+}
+.ga-card__d {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gx-ink-2);
+}
+/* Pinned to the bottom, so cards side by side end their link rows on one line. */
+.ga-card__foot {
+  margin: auto -1.5rem -1.5rem;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+}
+.ga-card__foot a,
+.ga-card__foot button {
+  color: var(--gx-accent);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.ga-card__foot a:hover,
+.ga-card__foot button:hover {
+  text-decoration: underline;
+}
+/* Info rows: label, value, chevron; the whole row opens its editor. */
+.ga-rows {
+  margin: 0.25rem -1.5rem -1.5rem;
+}
+.gx-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: 3.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 0;
+  border-top: 1px solid var(--gx-line-soft);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.gx-row:hover {
+  background: rgb(68 71 70 / 0.04);
+}
+.gx-row[disabled] {
+  cursor: default;
+}
+.gx-row[disabled]:hover {
+  background: none;
+}
+.gx-row__k {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gx-ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.gx-row__v {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--gx-ink);
+}
+.gx-row__v small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--gx-ink-3);
+}
+.gx-row__chev {
+  color: var(--gx-ink-2);
+}
+.gx-row-edit {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+  background: #fafbfd;
+}
+.gx-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.gx-status--good {
+  background: #e6f4ea;
+  color: #0d652d;
+}
+.gx-status--warn {
+  background: #fef7e0;
+  color: #8a5300;
+}
+.gx-status--info {
+  background: var(--gx-accent-soft);
+  color: var(--gx-accent-ink);
+}
+.gx-status--muted {
+  background: var(--gx-surface);
+  color: var(--gx-ink-2);
+}
+
+/* Moves, like an order in Google Pay or Flipkart. */
+.ga-move {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--gx-line-soft);
+  border-radius: 1.75rem;
+  background: #fff;
+}
+.ga-move + .ga-move {
+  margin-top: 1rem;
+}
+.ga-move__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.ga-move__svc {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--gx-ink);
+}
+.ga-move__ref {
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--gx-ink-3);
+}
+.ga-route {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0 0.75rem;
+  margin: 0;
+}
+.ga-route__dot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.ga-route__dot::before {
+  content: '';
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: 0.3rem;
+  border: 2px solid var(--gx-accent);
+  border-radius: 50%;
+  background: #fff;
+}
+.ga-route__dot--to::before {
+  background: var(--gx-accent);
+}
+.ga-route__dot--from::after {
+  content: '';
+  position: absolute;
+  top: 1.1rem;
+  bottom: -0.35rem;
+  width: 2px;
+  background: var(--gx-line);
+}
+.ga-route p {
+  margin: 0 0 0.6rem;
+  color: var(--gx-ink);
+  overflow-wrap: anywhere;
+}
+.ga-route p small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--gx-ink-3);
+}
+.ga-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ga-facts li {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--gx-surface);
+  font-size: 0.8125rem;
+  color: var(--gx-ink-2);
+}
+.ga-facts strong {
+  font-weight: 500;
+  color: var(--gx-ink);
+}
+.ga-track {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ga-track li {
+  position: relative;
+  padding-top: 1.6rem;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--gx-ink-3);
+}
+.ga-track li::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  left: 50%;
+  z-index: 1;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-left: -0.4375rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--gx-line);
+}
+.ga-track li::after {
+  content: '';
+  position: absolute;
+  top: 0.66rem;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--gx-line-soft);
+}
+.ga-track li:first-child::after {
+  display: none;
+}
+.ga-track li.is-done {
+  color: var(--gx-ink);
+  font-weight: 500;
+}
+.ga-track li.is-done::before {
+  background: var(--gx-accent);
+  box-shadow: none;
+}
+.ga-track li.is-done::after {
+  background: var(--gx-accent);
+}
+.ga-move__note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--gx-ink-2);
+}
+.ga-move__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0 -1.5rem -1.5rem;
+  padding: 0.75rem 1rem 0.75rem 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+}
+.ga-price {
+  font-size: 1rem;
+  color: var(--gx-ink);
+}
+.ga-price small {
+  font-size: 0.8125rem;
+  color: var(--gx-ink-3);
+}
+.ga-chips {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+.gx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  padding: 0 1rem;
+  border: 1px solid var(--gx-outline);
+  border-radius: 0.5rem;
+  background: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gx-ink-2);
+  cursor: pointer;
+}
+.gx-chip[aria-pressed='true'] {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--gx-accent) 14%, #fff);
+  color: var(--gx-accent-ink);
+}
+.gx-chip[aria-pressed='true']::before {
+  content: '✓';
+  font-size: 0.8rem;
+}
+.ga-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  border: 1px solid var(--gx-line-soft);
+  border-radius: 1.75rem;
+  background: #fff;
+  text-align: center;
+}
+.ga-empty p {
+  margin: 0;
+  max-width: 28rem;
+  color: var(--gx-ink-2);
+}
+.ga-addr {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+}
+.ga-addr:first-child {
+  border-top: 0;
+}
+.ga-addr__icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--gx-surface);
+  color: var(--gx-ink-2);
+}
+.ga-addr__t {
+  margin: 0;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.ga-addr__t .gx-status {
+  margin-left: 0.4rem;
+  text-transform: none;
+}
+.ga-addr p {
+  margin: 0.2rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--gx-ink-2);
+}
+.ga-addr__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+.ga-list {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Phone: the rail becomes a scrolling row of pills under the top bar. */
+@media (max-width: 960px) {
+  .ga {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .gx-nav {
+    position: static;
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 -0.75rem;
+    padding: 0.25rem 0.75rem 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--gx-line-soft);
+  }
+  .gx-nav a {
+    flex: none;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    gap: 0.5rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--gx-line);
+  }
+  .gx-nav a[aria-current='page'] {
+    box-shadow: none;
+  }
+  .gx-nav__badge {
+    margin-left: 0.25rem;
+  }
+  .ga-main {
+    padding-top: 1.25rem;
+  }
+  .ga-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .ga-card,
+  .ga-move {
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+  }
+  .ga-rows,
+  .ga-card__foot,
+  .ga-move__foot {
+    margin-left: -1.25rem;
+    margin-right: -1.25rem;
+  }
+  .ga-move__foot {
+    margin-bottom: -1.25rem;
+  }
+  .ga-card__foot,
+  .ga-rows {
+    margin-bottom: -1.25rem;
+  }
+  .gx-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 0.85rem 1.25rem;
+  }
+  .gx-row__k {
+    grid-column: 1 / -1;
+  }
+  .gx-row__v {
+    grid-row: 2;
+  }
+  .gx-row__chev {
+    grid-row: 2;
+  }
+  .ga-addr {
+    padding: 1rem 1.25rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gx-label,
+  .gx-prefix,
+  .gx-btn {
+    transition: none;
+  }
+  .gx-progress[data-on]::before {
+    animation-duration: 3s;
+  }
+}
+
+/* The next move, inside the Home card: the card already draws the frame. */
+.ga-move--bare {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.ga-move--bare .ga-move__foot {
+  margin: 0;
+  padding: 0.75rem 0 0;
+}
+/* Headings take focus on a view change (for screen readers), without a focus ring. */
+.ga-main h1[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* Home: the three things a customer comes back to do, under the welcome. */
+.ga-quick {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* "Finish setting up your account": Google's checkup list with a progress bar. */
+.ga-setup {
+  margin-bottom: 1rem;
+}
+.ga-setup__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+}
+.ga-setup__top .ga-card__d {
+  margin-top: 0.25rem;
+}
+.ga-setup__bar {
+  flex: 0 1 12rem;
+  height: 0.375rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--gx-surface-2);
+}
+.ga-setup__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gx-accent);
+}
+.ga-setup__list {
+  margin: 0.25rem -1.5rem -1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.ga-setup__list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+}
+.ga-setup__mark {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px var(--gx-line);
+}
+.ga-setup__list li.is-done .ga-setup__mark {
+  background: #146c2e;
+  color: #fff;
+  box-shadow: none;
+}
+.ga-setup__t {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--gx-ink);
+}
+.ga-setup__list li.is-done .ga-setup__t {
+  font-weight: 400;
+  color: var(--gx-ink-3);
+}
+.ga-setup__why {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--gx-ink-2);
+}
+
+/* Sign out, at the foot of the rail (on a phone it is in the account menu instead). */
+.gx-nav__out {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 3.25rem;
+  margin-top: 1rem;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 0 999px 999px 0;
+  position: relative;
+  background: none;
+  color: var(--gx-ink-2);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+/* A short rule above it (a border would follow the pill's curve). */
+.gx-nav__out::before {
+  content: '';
+  position: absolute;
+  top: -0.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  border-top: 1px solid var(--gx-line-soft);
+}
+.gx-nav__out:hover {
+  background: rgb(68 71 70 / 0.08);
+}
+.gx-nav__out:focus-visible {
+  outline: 2px solid var(--gx-accent);
+  outline-offset: -2px;
+}
+.gx-nav__out:disabled {
+  cursor: progress;
+}
+@media (max-width: 960px) {
+  .gx-nav__out {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .ga-setup__list {
+    margin: 0.25rem -1.25rem -1.25rem;
+  }
+  .ga-setup__list li {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 0.875rem 1.25rem;
+  }
+  .ga-setup__list li > .gx-btn {
+    grid-column: 2;
+    justify-self: start;
+    margin-left: -0.75rem;
+  }
+}
+
+.ga-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

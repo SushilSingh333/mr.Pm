@@ -1,6 +1,13 @@
 import type { CollectionConfig } from 'payload';
 import { DAY_AND_TIME, DAY_ONLY, checkYear } from '../lib/date-display.js';
-import { leadsRead, leadsUpdate, leadsDelete, isRole, leadsReadVersions } from '../access/index.js';
+import {
+  leadsRead,
+  leadsUpdate,
+  leadsDelete,
+  isRole,
+  leadsReadVersions,
+  isAdminField,
+} from '../access/index.js';
 import {
   DATED_STAGES,
   FRESH_STAGES,
@@ -679,6 +686,20 @@ export const Leads: CollectionConfig = {
       // filter bar both read this list, and a hand-written copy here is a fourth place
       // for it to drift.
       options: LEAD_SOURCES.map((s) => ({ label: s.label, value: s.value })),
+    },
+    {
+      // The website account this request came from, when the customer was signed in. Set
+      // by /api/quote, never by hand. Admins only, like the Customers collection itself.
+      name: 'customer',
+      type: 'relationship',
+      relationTo: 'customers',
+      index: true,
+      access: { read: isAdminField, create: isAdminField, update: isAdminField },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'The website account this request came from.',
+      },
     },
     {
       name: 'status',

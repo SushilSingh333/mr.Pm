@@ -29,8 +29,10 @@ export default defineConfig({
     // the static build — this only configures the dev server.
     server: {
       proxy: {
-        '/api': { target: CMS_ORIGIN, changeOrigin: true },
-        '/admin': { target: CMS_ORIGIN, changeOrigin: true },
+        // xfwd: pass the page's own host on as X-Forwarded-Host, as Caddy does, so the
+        // account endpoints' same-origin check sees this page, not the CMS port.
+        '/api': { target: CMS_ORIGIN, changeOrigin: true, xfwd: true },
+        '/admin': { target: CMS_ORIGIN, changeOrigin: true, xfwd: true },
       },
     },
   },

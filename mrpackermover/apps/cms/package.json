@@ -25,6 +25,7 @@
     "verify-lead-flow": "tsx src/scripts/verify-lead-flow.ts",
     "set-city-services": "tsx src/scripts/set-city-services.ts",
     "set-live-cities": "tsx src/scripts/set-live-cities.ts",
+    "set-team": "tsx src/scripts/set-team.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
     "rebrand": "tsx src/scripts/rebrand.ts",
     "optimize-media": "tsx src/scripts/optimize-media.ts",

@@ -38,6 +38,7 @@ export function NavRow({
   title,
   navKey,
   fresh = false,
+  exact = false,
 }: {
   href: string;
   icon: MaterialIcon;
@@ -55,12 +56,19 @@ export function NavRow({
   navKey?: string;
   /** Load the page anew when already on this path (see above). */
   fresh?: boolean;
+  /**
+   * Lit only on exactly `activeOn`. The dashboard is `/admin`, which every admin path
+   * starts with, so a prefix match would light it on every page.
+   */
+  exact?: boolean;
 }): React.JSX.Element {
   const pathname = usePathname();
   const search = decodeURIComponent(useSearchParams()?.toString() ?? '');
   const active = Boolean(
     activeOn &&
-    pathname?.startsWith(activeOn) &&
+    (exact
+      ? pathname === activeOn || pathname === `${activeOn}/`
+      : pathname?.startsWith(activeOn)) &&
     (!activeParam || search.includes(activeParam)) &&
     !(inactiveParam && search.includes(inactiveParam)),
   );

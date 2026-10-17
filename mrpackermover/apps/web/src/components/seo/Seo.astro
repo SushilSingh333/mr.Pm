@@ -1,11 +1,10 @@
 ---
 import type { ManifestRow } from '@mpm/shared';
 import { jsonld } from '@mpm/seo';
-import { manifest } from '../../data/manifest.js';
+import { founderName, manifest } from '../../data/manifest.js';
 import { themeColor } from '@mpm/ui-tokens/tokens';
 import JsonLd from './JsonLd.astro';
 import { shareFor, type Share } from '../../lib/share.js';
-import { FOUNDER_NAME } from '../../lib/site.js';
 
 /**
  * Head SEO for every page. Canonical comes from the manifest row (never from
@@ -40,7 +39,7 @@ if (row.pageType === 'home' && org) {
       cin: org.cin,
       registeredOffice: org.registeredOffice,
       sameAs: org.sameAs,
-      founder: FOUNDER_NAME,
+      founder: founderName(),
     }),
   );
   blocks.push(jsonld.website(m.siteOrigin, org.brandName));

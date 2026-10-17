@@ -6,6 +6,7 @@ import { applyEndpoint } from './apply.js';
 import { contactEndpoint } from './contact.js';
 import { routeDistanceEndpoint } from './route-distance.js';
 import { leadWebhookEndpoint } from './lead-webhook.js';
+import { accountEndpoints } from './account.js';
 
 /**
  * Public Node endpoints served by the origin (Payload/Next), mounted under `/api`:
@@ -15,6 +16,7 @@ import { leadWebhookEndpoint } from './lead-webhook.js';
  *   POST /api/apply    → capture a job application into Job Applications
  *   POST /api/contact  → capture a contact message into Contact Messages
  *   POST /api/lead-webhook → inbound leads from Facebook/Zapier (shared secret)
+ *   /api/account/*      → website customer accounts: sign up, sign in, profile (account.ts)
  *
  * Plus one staff-only route, mounted here because it shares the same plumbing:
  *   GET  /api/route-distance → driving km between two places, for the proposal editor
@@ -30,4 +32,5 @@ export const publicEndpoints: Endpoint[] = [
   contactEndpoint,
   routeDistanceEndpoint,
   leadWebhookEndpoint,
+  ...accountEndpoints,
 ];

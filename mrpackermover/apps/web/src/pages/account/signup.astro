@@ -1,0 +1,354 @@
+---
+import type { CityHubData } from '@mpm/shared';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GxField from '../../components/account/GxField.astro';
+import { staticRow } from '../../lib/page.js';
+import { rowsOfType, dataOf } from '../../data/manifest.js';
+import '../../components/account/account.css';
+
+/**
+ * Create an account the way Google does it: a few questions at a time, the heading on the
+ * left saying what this step is for, Back and Next at the bottom right.
+ *
+ *   1. Name and city
+ *   2. Mobile number and password (how they sign in)
+ *   3. Email and a first address, both optional, with Skip
+ *
+ * The account is created on the last step. No OTP yet (WhatsApp OTP comes later), so the
+ * number is not proven here; see "Phone verified" in the CMS Customers collection.
+ */
+const row = staticRow({
+  path: '/account/signup',
+  title: 'Create your account | MrMoverPacker',
+  h1: 'Create your account',
+  metaDescription:
+    'Create a MrMoverPacker account to follow your moves, see your quotes and save your addresses.',
+  noindex: true,
+});
+// The live cities, the same list as everywhere else on the site, then "Other".
+const cities = [
+  ...rowsOfType('city-hub')
+    .map((r) => dataOf<CityHubData>(r).cityName)
+    .sort((a, b) => a.localeCompare(b)),
+  { value: 'Other', label: 'Other city' },
+];
+const FLOORS = ['Ground', '1st', '2nd', '3rd', '4th', '5th', '6th to 10th', 'Above 10th'];
+const STEPS = [
+  {
+    title: 'Create a MrMoverPacker account',
+    sub: 'Enter your name and the city you are moving from.',
+  },
+  {
+    title: 'Your mobile number and password',
+    sub: 'You will sign in with your mobile number. Pick a password of at least 8 characters.',
+  },
+  {
+    title: 'Add an email and address',
+    sub: 'Both optional. An email gets you a copy of your quote, and an address saves typing it again.',
+  },
+];
+---
+
+<BaseLayout row={row} chrome="focus">
+  <div class="gx gx-auth">
+    <section class="gx-card" aria-labelledby="su-title">
+      <span class="gx-progress" aria-hidden="true"></span>
+      <div class="gx-card__lead">
+        <span class="gx-mark" aria-hidden="true">
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            ><circle cx="10" cy="8" r="4"></circle><path
+              d="M3 21a7 7 0 0 1 12.5-4.3M19 14v6M16 17h6"></path></svg
+          >
+        </span>
+        {
+          STEPS.map((s, i) => (
+            <div data-lead={i + 1} hidden={i > 0}>
+              <h1 id={i === 0 ? 'su-title' : undefined}>{s.title}</h1>
+              <p class="gx-card__sub">{s.sub}</p>
+            </div>
+          ))
+        }
+        <div class="gx-steps" aria-hidden="true">
+          <span class="is-on"></span><span></span><span></span>
+        </div>
+        <p class="gx-step" aria-live="polite" data-step-label>Step 1 of 3</p>
+      </div>
+
+      <form class="gx-card__form" data-signup novalidate>
+        <p class="gx-alert" role="alert" hidden></p>
+
+        <div class="gx-card__form" data-step="1" style="padding:0">
+          <div class="gx-two">
+            <GxField
+              name="first"
+              label="First name"
+              id="su-first"
+              autocomplete="given-name"
+              maxlength={40}
+              required
+            />
+            <GxField
+              name="last"
+              label="Last name (optional)"
+              id="su-last"
+              autocomplete="family-name"
+              maxlength={40}
+            />
+          </div>
+          <GxField name="city" label="City" id="su-city" options={cities} required />
+          <div class="gx-actions gx-actions--split">
+            <a class="gx-btn gx-btn--text" href="/account/login" data-keep-next>Sign in instead</a>
+            <button class="gx-btn" type="button" data-next>Next</button>
+          </div>
+        </div>
+
+        <div class="gx-card__form" data-step="2" style="padding:0" hidden>
+          <GxField
+            name="phone"
+            label="Mobile number"
+            id="su-phone"
+            type="tel"
+            inputmode="numeric"
+            autocomplete="tel-national"
+            maxlength={14}
+            prefix="+91"
+            placeholder="10-digit mobile"
+            hint="You will sign in with this number."
+            required
+          />
+          <div class="gx-two">
+            <GxField
+              name="password"
+              label="Password"
+              id="su-password"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+            <GxField
+              name="confirm"
+              label="Confirm"
+              id="su-confirm"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+          </div>
+          <p class="gx-hint" style="margin-top:-.75rem">Use 8 or more characters.</p>
+          <label class="gx-check">
+            <input type="checkbox" data-show-password />
+            Show password
+          </label>
+          <div class="gx-actions gx-actions--split">
+            <button class="gx-btn gx-btn--text" type="button" data-back>Back</button>
+            <button class="gx-btn" type="button" data-next>Next</button>
+          </div>
+        </div>
+
+        <div class="gx-card__form" data-step="3" style="padding:0" hidden>
+          <GxField
+            name="email"
+            label="Email (optional)"
+            id="su-email"
+            type="email"
+            autocomplete="email"
+            placeholder="you@gmail.com"
+          />
+          <GxField
+            name="line"
+            label="House, building, street"
+            id="su-line"
+            autocomplete="address-line1"
+            maxlength={160}
+          />
+          <div class="gx-two">
+            <GxField
+              name="area"
+              label="Area or society"
+              id="su-area"
+              autocomplete="address-line2"
+              maxlength={80}
+            />
+            <GxField
+              name="pincode"
+              label="Pincode"
+              id="su-pin"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              maxlength={6}
+            />
+          </div>
+          <div class="gx-two">
+            <GxField name="floor" label="Floor" id="su-floor" options={FLOORS} />
+            <label class="gx-check">
+              <input type="checkbox" name="hasLift" />
+              There is a lift
+            </label>
+          </div>
+          <p class="gx-small">
+            By creating an account, you agree to our <a href="/terms" target="_blank">Terms</a> and{
+              ' '
+            }
+            <a href="/privacy" target="_blank">Privacy Policy</a>.
+          </p>
+          <div class="gx-actions gx-actions--split">
+            <button class="gx-btn gx-btn--text" type="button" data-back>Back</button>
+            <span style="display:flex;gap:.5rem">
+              <button class="gx-btn gx-btn--text" type="submit" data-skip>Skip</button>
+              <button class="gx-btn" type="submit">Create account</button>
+            </span>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import {
+    api,
+    busy,
+    nextPath,
+    showErrors,
+    signedInName,
+    wireSelects,
+    wireShowPassword,
+  } from '../../lib/account-client';
+
+  if (signedInName()) location.replace(nextPath());
+  wireSelects();
+  wireShowPassword();
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-keep-next]')) {
+    a.search = location.search;
+  }
+
+  const form = document.querySelector<HTMLFormElement>('form[data-signup]')!;
+  const v = (k: string) => String(new FormData(form).get(k) ?? '').trim();
+  let step = 1;
+
+  /** Which step a field is on, to send the customer back to an error the server found. */
+  const STEP_OF: Record<string, number> = {
+    first: 1,
+    name: 1,
+    city: 1,
+    phone: 2,
+    password: 2,
+    confirm: 2,
+    email: 3,
+    address: 3,
+    line: 3,
+    pincode: 3,
+  };
+
+  function show(n: number) {
+    step = n;
+    for (const s of form.querySelectorAll<HTMLElement>('[data-step]'))
+      s.hidden = Number(s.dataset.step) !== n;
+    for (const l of document.querySelectorAll<HTMLElement>('[data-lead]'))
+      l.hidden = Number(l.dataset.lead) !== n;
+    document
+      .querySelectorAll('.gx-steps span')
+      .forEach((b, i) => b.classList.toggle('is-on', i < n));
+    const label = document.querySelector('[data-step-label]');
+    if (label) label.textContent = `Step ${n} of 3`;
+    form.querySelector<HTMLElement>(`[data-step="${n}"] input, [data-step="${n}"] select`)?.focus();
+  }
+
+  function check(n: number): Record<string, string> {
+    const f: Record<string, string> = {};
+    if (n === 1) {
+      if (v('first').length < 2) f.first = 'Enter your first name';
+      if (!v('city')) f.city = 'Choose your city';
+    }
+    if (n === 2) {
+      if (!/^(\+?91|0)?[6-9]\d{9}$/.test(v('phone').replace(/[\s-]/g, '')))
+        f.phone = 'Enter a 10-digit mobile number';
+      const pw = String(new FormData(form).get('password') ?? '');
+      if (pw.length < 8) f.password = 'Use 8 characters or more for your password';
+      else if (pw !== String(new FormData(form).get('confirm') ?? ''))
+        f.confirm = 'Those passwords did not match. Try again.';
+    }
+    if (n === 3) {
+      if (v('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email')))
+        f.email = 'Enter a valid email, or leave it blank';
+      if (v('pincode') && !/^[1-9]\d{5}$/.test(v('pincode'))) f.pincode = 'A pincode has 6 digits';
+      if ((v('area') || v('pincode') || v('floor')) && !v('line'))
+        f.line = 'Add the house, building and street, or leave the address empty';
+    }
+    return f;
+  }
+
+  form.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.closest('[data-next]')) {
+      const errs = check(step);
+      showErrors(form, undefined, errs);
+      if (!Object.keys(errs).length) show(step + 1);
+    }
+    if (t.closest('[data-back]')) {
+      showErrors(form);
+      show(step - 1);
+    }
+  });
+  // Enter moves on to the next step rather than submitting early.
+  form.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || step === 3 || (e.target as HTMLElement).tagName === 'BUTTON') return;
+    e.preventDefault();
+    form.querySelector<HTMLButtonElement>(`[data-step="${step}"] [data-next]`)?.click();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const skip = (e as SubmitEvent).submitter?.hasAttribute('data-skip') ?? false;
+    const errs = skip ? {} : check(3);
+    if (Object.keys(errs).length) return showErrors(form, undefined, errs);
+    const fd = new FormData(form);
+    const address =
+      !skip && v('line')
+        ? {
+            label: 'home',
+            line: v('line'),
+            area: v('area'),
+            city: v('city') === 'Other' ? '' : v('city'),
+            pincode: v('pincode'),
+            floor: v('floor'),
+            hasLift: fd.get('hasLift') === 'on',
+          }
+        : undefined;
+    const btn = form.querySelector<HTMLButtonElement>(
+      '[data-step="3"] button[type="submit"]:not([data-skip])',
+    );
+    busy(btn, true, 'Creating your account…');
+    const r = await api('POST', 'signup', {
+      name: [v('first'), v('last')].filter(Boolean).join(' '),
+      phone: v('phone'),
+      password: String(fd.get('password') ?? ''),
+      city: v('city'),
+      email: skip ? '' : v('email'),
+      address,
+    });
+    if (r.status === 201) {
+      location.replace(nextPath());
+      return;
+    }
+    busy(btn, false);
+    // Send them back to the step with the problem, the field marked.
+    const fields = { ...(r.data.fields ?? {}) };
+    if (fields.name) fields.first = fields.name;
+    if (fields.address) fields.line = fields.address;
+    const first = Object.keys(fields).find((k) => STEP_OF[k]);
+    if (first) show(STEP_OF[first]!);
+    showErrors(
+      form,
+      first ? undefined : (r.data.error ?? 'Could not create the account. Try again.'),
+      fields,
+    );
+  });
+</script>

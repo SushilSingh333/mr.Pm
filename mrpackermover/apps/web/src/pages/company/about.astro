@@ -5,7 +5,7 @@ import Band from '../../components/ui/Band.astro';
 import FeatureGrid from '../../components/page/FeatureGrid.astro';
 import CtaBand from '../../components/page/CtaBand.astro';
 import { staticRow, org, editorialFor } from '../../lib/page.js';
-import { FOUNDER_NAME } from '../../lib/site.js';
+import { founderName } from '../../data/manifest.js';
 
 const ed = editorialFor('about');
 const row = staticRow({
@@ -60,6 +60,7 @@ const principles = [
     body: 'Transit insurance is offered as a clear line item you choose, never buried in fine print or quietly assumed.',
   },
 ];
+const FOUNDER_NAME = founderName();
 ---
 
 <BaseLayout row={row}>

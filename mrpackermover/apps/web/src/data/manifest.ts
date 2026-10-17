@@ -7,6 +7,7 @@ import {
   type PageType,
   type JobPosting,
   type TeamMember,
+  FOUNDER_FALLBACK,
 } from '@mpm/shared';
 
 /**
@@ -73,6 +74,15 @@ export function jobs(): JobPosting[] {
 /** People published to /company/team (CMS People collection, already ordered). */
 export function team(): TeamMember[] {
   return manifest().team ?? [];
+}
+
+/**
+ * The founder's name. The home page speaks in their voice ("15 years in this trade taught
+ * me..."), so it is signed with it, and About and the Organization schema name them. It
+ * comes from the CMS: the team-page person whose job title starts with "Founder".
+ */
+export function founderName(): string {
+  return manifest().founder || FOUNDER_FALLBACK;
 }
 
 /** Narrow a row's `data` blob to a page-data shape (the CMS guarantees the shape). */

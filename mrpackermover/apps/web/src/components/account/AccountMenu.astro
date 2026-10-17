@@ -1,0 +1,736 @@
+---
+/**
+ * The account button at the top right and the "move pass" behind it. Hover (or tap, or
+ * Enter) opens a card in our colours: an indigo band with the customer's name and number,
+ * their next move as a ticket (from, to and where it stands), shortcuts, and Sign out.
+ * Signed out, the same card offers Sign in and Create account. Used by the site header
+ * and by the account pages' frame (FocusChrome).
+ *
+ * Signed in or not is read from the `mpm_name` cookie, so a page view makes no request;
+ * the number and the next move are fetched the first time the menu opens.
+ */
+interface Props {
+  /** `site`: 36px, on the site header. `focus`: 40px, on the account pages. */
+  size?: 'site' | 'focus';
+}
+const { size = 'site' } = Astro.props;
+const icon = (d: string, s = 20) =>
+  `<svg viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`;
+const TRUCK =
+  'M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9 1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z';
+const I = {
+  moves: icon(TRUCK),
+  truck: icon(TRUCK, 16),
+  address: icon(
+    'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+  ),
+  profile: icon(
+    'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  ),
+  out: icon(
+    'M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z',
+    18,
+  ),
+};
+const person = `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>`;
+/* The band's backdrop: a dashed road from one pin to another, our move in one line. */
+const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="none" aria-hidden="true"><path d="M-10 96 C 70 96, 90 30, 170 46 S 280 92, 360 18" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round"/><circle cx="170" cy="46" r="3.5" fill="currentColor"/><circle cx="330" cy="30" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg>`;
+---
+
+<div class:list={['am', `am--${size}`]} data-am>
+  <button
+    type="button"
+    class="am-btn"
+    data-am-btn
+    aria-expanded="false"
+    aria-controls="am-panel"
+    aria-label="Sign in or create an account"
+  >
+    <span class="am-btn__icon" set:html={person} />
+    <span class="am-btn__initial" aria-hidden="true" hidden></span>
+  </button>
+
+  <div class="am-panel" id="am-panel" data-am-panel hidden>
+    <!-- Signed out -->
+    <div class="am-band" data-am-out>
+      <Fragment set:html={road} />
+      <p class="am-band__t">Your moves, in one place</p>
+      <p class="am-band__s">Track quotes and moves, and keep your addresses ready.</p>
+    </div>
+    <div class="am-body am-pair" data-am-out>
+      <a class="am-btn2 am-btn2--fill" href="/account/login" data-am-signin>Sign in</a>
+      <a class="am-btn2" href="/account/signup">Create account</a>
+    </div>
+
+    <!-- Signed in -->
+    <div class="am-band am-band--in" data-am-in hidden>
+      <Fragment set:html={road} />
+      <span class="am-avatar" data-am-avatar></span>
+      <div class="am-id">
+        <p class="am-band__t" data-am-name></p>
+        <p class="am-band__s" data-am-phone>&nbsp;</p>
+      </div>
+    </div>
+    <div class="am-body" data-am-in hidden>
+      <a class="am-ticket" href="/account#moves" data-am-ticket hidden>
+        <span class="am-ticket__k">
+          <span>Next move</span><span data-am-ref></span>
+        </span>
+        <span class="am-route">
+          <span class="am-route__end" data-am-from></span>
+          <span class="am-route__line"><Fragment set:html={I.truck} /></span>
+          <span class="am-route__end am-route__end--to" data-am-to></span>
+        </span>
+        <span class="am-stage" data-am-stage></span>
+      </a>
+      <p class="am-none" data-am-none hidden>
+        No move planned yet. <a href="/get-quote">Get a fixed quote</a>
+      </p>
+
+      <nav class="am-tiles" aria-label="Your account">
+        <a class="am-tile" href="/account#moves">
+          <span class="am-tile__i"
+            ><Fragment set:html={I.moves} /><span class="am-count" data-am-count hidden
+            ></span></span
+          >My moves
+        </a>
+        <a class="am-tile" href="/account#addresses">
+          <span class="am-tile__i"><Fragment set:html={I.address} /></span>Addresses
+        </a>
+        <a class="am-tile" href="/account#info">
+          <span class="am-tile__i"><Fragment set:html={I.profile} /></span>Profile
+        </a>
+      </nav>
+
+      <div class="am-foot">
+        <a class="am-btn2" href="/account">Your account</a>
+        <button type="button" class="am-out" data-am-logout>
+          <Fragment set:html={I.out} /><span>Sign out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { api, phoneDisplay, signedInName } from '../../lib/account-client';
+
+  interface NextMove {
+    ref: string;
+    from: string;
+    to: string;
+    past: boolean;
+    stage: { label: string; tone: string };
+  }
+
+  const wrap = document.querySelector<HTMLElement>('[data-am]');
+  const btn = wrap?.querySelector<HTMLButtonElement>('[data-am-btn]');
+  const panel = wrap?.querySelector<HTMLElement>('[data-am-panel]');
+
+  if (wrap && btn && panel) {
+    const name = signedInName();
+    const all = (sel: string) => [...panel.querySelectorAll<HTMLElement>(sel)];
+    const one = (sel: string) => panel.querySelector<HTMLElement>(sel)!;
+
+    const showSignedIn = (n: string) => {
+      const initial = n.charAt(0).toUpperCase();
+      btn.classList.add('is-in');
+      btn.setAttribute('aria-label', `Account menu: ${n}`);
+      btn.querySelector<HTMLElement>('.am-btn__icon')!.hidden = true;
+      const i = btn.querySelector<HTMLElement>('.am-btn__initial')!;
+      i.textContent = initial;
+      i.hidden = false;
+      const big = one('[data-am-avatar]');
+      big.textContent = initial;
+      one('[data-am-name]').textContent = `Hi, ${n}`;
+      for (const el of all('[data-am-in]')) el.hidden = false;
+      for (const el of all('[data-am-out]')) el.hidden = true;
+    };
+    const showSignedOut = () => {
+      btn.classList.remove('is-in');
+      btn.setAttribute('aria-label', 'Sign in or create an account');
+      btn.querySelector<HTMLElement>('.am-btn__icon')!.hidden = false;
+      btn.querySelector<HTMLElement>('.am-btn__initial')!.hidden = true;
+      for (const el of all('[data-am-in]')) el.hidden = true;
+      for (const el of all('[data-am-out]')) el.hidden = false;
+    };
+    if (name) showSignedIn(name);
+
+    // Sign in comes back to this page.
+    const here = location.pathname + location.search + location.hash;
+    const signin = panel.querySelector<HTMLAnchorElement>('[data-am-signin]');
+    if (signin && !here.startsWith('/account')) {
+      signin.href = `/account/login?next=${encodeURIComponent(here)}`;
+    }
+
+    // The number and the next move, once, the first time the menu opens.
+    let loaded = false;
+    const load = async () => {
+      if (loaded || !signedInName()) return;
+      loaded = true;
+      const r = await api<{ profile: { name: string; phone: string }; moves: NextMove[] }>(
+        'GET',
+        'me',
+      );
+      if (r.status === 401) return showSignedOut(); // the session ended; the server cleared it
+      if (r.status !== 200) {
+        loaded = false;
+        return;
+      }
+      one('[data-am-phone]').textContent = phoneDisplay(r.data.profile.phone);
+      const upcoming = r.data.moves.filter((m) => !m.past);
+      const count = one('[data-am-count]');
+      count.textContent = upcoming.length ? String(upcoming.length) : '';
+      count.hidden = !upcoming.length;
+      if (upcoming.length) count.setAttribute('aria-label', `${upcoming.length} upcoming`);
+      const next = upcoming[0];
+      const ticket = one('[data-am-ticket]');
+      if (next) {
+        // City to city; within one city, area to area. The full address is the tooltip.
+        const parts = (s: string) =>
+          s
+            .split(',')
+            .map((x) => x.trim())
+            .filter(Boolean);
+        const a = parts(next.from);
+        const b = parts(next.to);
+        const same = (a.at(-1) ?? '').toLowerCase() === (b.at(-1) ?? '').toLowerCase();
+        const end = (sel: string, p: string[], full: string, blank: string) => {
+          const el = one(sel);
+          el.textContent = (same ? p[0] : p.at(-1)) || blank;
+          el.title = full;
+        };
+        one('[data-am-ref]').textContent = next.ref;
+        end('[data-am-from]', a, next.from, 'Pickup');
+        end('[data-am-to]', b, next.to, 'Drop');
+        const stage = one('[data-am-stage]');
+        stage.textContent = next.stage.label;
+        stage.dataset.tone = next.stage.tone;
+        ticket.setAttribute(
+          'aria-label',
+          `Next move ${next.ref}: ${next.from} to ${next.to}, ${next.stage.label}`,
+        );
+        ticket.hidden = false;
+      } else one('[data-am-none]').hidden = false;
+    };
+
+    // ── Open and close ─────────────────────────────────────────────────────────────
+    let pinned = false; // opened by a click or a key: stays open until closed on purpose
+    let timer = 0;
+    const isOpen = () => !panel.hidden;
+    const focusables = () =>
+      [...panel.querySelectorAll<HTMLElement>('a, button')].filter(
+        (el) => !el.closest('[hidden]') && el.offsetParent !== null,
+      );
+
+    const open = (by: 'hover' | 'click' | 'key') => {
+      clearTimeout(timer);
+      if (by !== 'hover') pinned = true;
+      if (isOpen()) return;
+      panel.hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+      // Keep the card on screen on a narrow phone. Measured from the button, not the
+      // card, whose opening animation is still scaling it.
+      const right = wrap.getBoundingClientRect().right + 8; // the card's `right: -0.5rem`
+      const left = right - panel.offsetWidth;
+      let shift = Math.min(0, innerWidth - 12 - right);
+      if (left + shift < 12) shift = 12 - left;
+      panel.style.setProperty('--am-shift', `${Math.round(shift)}px`);
+      void load();
+    };
+    const close = (refocus = false) => {
+      clearTimeout(timer);
+      pinned = false;
+      if (!isOpen()) return;
+      panel.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      if (refocus) btn.focus();
+    };
+
+    btn.addEventListener('click', () => {
+      // A hover already opened it: the click keeps it open instead of closing it.
+      if (isOpen() && pinned) close();
+      else open('click');
+    });
+
+    // Hover, on a mouse only: a short delay each way, so passing over does nothing.
+    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      wrap.addEventListener('mouseenter', () => {
+        clearTimeout(timer);
+        if (!isOpen()) timer = window.setTimeout(() => open('hover'), 120);
+      });
+      wrap.addEventListener('mouseleave', () => {
+        clearTimeout(timer);
+        if (isOpen() && !pinned) timer = window.setTimeout(() => close(), 280);
+      });
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      if (isOpen() && !wrap.contains(e.target as Node)) close();
+    });
+    wrap.addEventListener('focusout', (e) => {
+      const to = e.relatedTarget as Node | null;
+      if (isOpen() && to && !wrap.contains(to)) close();
+    });
+
+    // Keys: Escape closes, the arrows move through the menu, ArrowDown on the button opens it.
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) {
+        e.preventDefault();
+        return close(true);
+      }
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Home' && e.key !== 'End')
+        return;
+      if (!isOpen()) {
+        if (e.target !== btn || e.key !== 'ArrowDown') return;
+        open('key');
+      }
+      const items = focusables();
+      if (!items.length) return;
+      e.preventDefault();
+      const i = items.indexOf(document.activeElement as HTMLElement);
+      const next =
+        e.key === 'Home'
+          ? 0
+          : e.key === 'End'
+            ? items.length - 1
+            : e.key === 'ArrowDown'
+              ? (i + 1) % items.length
+              : (i - 1 + items.length) % items.length;
+      items[next]?.focus();
+    });
+
+    panel.querySelector('[data-am-logout]')?.addEventListener('click', async (e) => {
+      const b = e.currentTarget as HTMLButtonElement;
+      b.disabled = true;
+      b.querySelector('span')!.textContent = 'Signing out…';
+      await api('POST', 'logout');
+      location.replace('/');
+    });
+  }
+</script>
+
+<style>
+  .am {
+    position: relative;
+    flex: none;
+    --am-size: 36px;
+    --am-ink: var(--color-ink-900);
+    --am-ink-2: var(--color-ink-500);
+    --am-brand: var(--color-brand-600);
+    --am-deep: var(--color-brand-900);
+    --am-tint: var(--color-brand-50);
+  }
+  .am--focus {
+    --am-size: 40px;
+  }
+
+  /* The button: a person in a soft circle signed out, the coloured initial signed in. */
+  .am-btn {
+    display: grid;
+    place-items: center;
+    width: var(--am-size);
+    height: var(--am-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--am-tint);
+    color: var(--am-brand);
+    font: inherit;
+    font-family: var(--font-display);
+    font-size: calc(var(--am-size) * 0.44);
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow:
+      0 0 0 0 #fff,
+      0 0 0 0 var(--am-brand);
+    transition: box-shadow 0.18s ease-out;
+  }
+  .am-btn__icon {
+    display: block;
+    width: 52%;
+    height: 52%;
+  }
+  .am-btn__icon[hidden],
+  .am-btn__initial[hidden] {
+    display: none;
+  }
+  /* Hover and open: a white gap and a brand ring, like a pin dropped on the map. */
+  .am-btn:hover,
+  .am-btn[aria-expanded='true'] {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--am-brand);
+  }
+  .am-btn.is-in {
+    background: var(--am-brand);
+    color: #fff;
+  }
+  .am-btn:focus-visible {
+    outline: 2px solid var(--am-brand);
+    outline-offset: 4px;
+  }
+
+  /* The card. */
+  .am-panel {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: -0.5rem;
+    z-index: 60;
+    width: min(21.5rem, calc(100vw - 1.5rem));
+    border-radius: var(--radius-lg, 20px);
+    background: #fff;
+    color: var(--am-ink);
+    font-family: var(--font-text);
+    text-align: left;
+    box-shadow:
+      0 24px 48px -16px rgb(14 0 90 / 0.4),
+      0 2px 8px rgb(14 0 90 / 0.08),
+      0 0 0 1px rgb(14 0 90 / 0.06);
+    transform: translateX(var(--am-shift, 0));
+    transform-origin: calc(100% - 1.6rem) 0;
+    animation: am-in 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+  @keyframes am-in {
+    from {
+      opacity: 0;
+      transform: translateX(var(--am-shift, 0)) translateY(-6px) scale(0.95);
+    }
+  }
+  .am-panel[hidden] {
+    display: none;
+  }
+  /* A bridge over the gap, so the pointer can travel from the button to the card. */
+  .am-panel::before {
+    content: '';
+    position: absolute;
+    inset: -0.875rem 0 100% 0;
+  }
+  /* The pointer, aimed at the button's centre. */
+  .am-panel::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: calc(0.5rem + var(--am-size) / 2 - 7px + var(--am-shift, 0px));
+    width: 14px;
+    height: 14px;
+    border-radius: 3px 0 0 0;
+    background: var(--am-brand);
+    transform: rotate(45deg);
+  }
+
+  /* The indigo band, with a dashed road across it. */
+  .am-band {
+    position: relative;
+    overflow: hidden;
+    padding: 1.25rem 1.25rem 1.375rem;
+    border-radius: var(--radius-lg, 20px) var(--radius-lg, 20px) 0 0;
+    background: linear-gradient(180deg, var(--am-brand) 0%, var(--am-deep) 140%);
+    color: #fff;
+  }
+  .am-band[hidden],
+  .am-body[hidden] {
+    display: none;
+  }
+  .am-band--in {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+  }
+  .am-band :global(.am-road) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: rgb(255 255 255 / 0.22);
+    pointer-events: none;
+  }
+  .am-band > :not(:global(.am-road)) {
+    position: relative;
+  }
+  .am-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--am-brand);
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.18);
+  }
+  .am-id {
+    min-width: 0;
+  }
+  .am-band__t {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+  }
+  .am-band__s {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: rgb(255 255 255 / 0.85);
+  }
+  .am-id .am-band__s {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .am-body {
+    display: grid;
+    gap: 0.875rem;
+    padding: 1rem;
+  }
+  .am-pair {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  /* The next move, as a ticket: a perforated edge and the route from pin to pin. */
+  .am-ticket {
+    position: relative;
+    display: grid;
+    gap: 0.625rem;
+    margin-top: -1.75rem;
+    padding: 0.875rem 1rem 0.875rem;
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 0 2.4rem, transparent 7px, #fff 7.5px) left / 51% 100% no-repeat,
+      radial-gradient(circle at 100% 2.4rem, transparent 7px, #fff 7.5px) right / 51% 100% no-repeat;
+    filter: drop-shadow(0 4px 10px rgb(14 0 90 / 0.14));
+    color: var(--am-ink);
+    text-decoration: none;
+  }
+  .am-ticket[hidden] {
+    display: none;
+  }
+  .am-ticket::after {
+    content: '';
+    position: absolute;
+    top: 2.4rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    border-top: 1.5px dashed rgb(14 0 90 / 0.14);
+  }
+  .am-ticket__k {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--am-brand);
+  }
+  .am-ticket__k span + span {
+    color: var(--am-ink-2);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .am-route {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .am-route__end {
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .am-route__end--to {
+    text-align: right;
+  }
+  .am-route__line {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--am-brand);
+  }
+  .am-route__line::before,
+  .am-route__line::after {
+    content: '';
+    width: 1.25rem;
+    border-top: 2px dotted currentColor;
+  }
+  .am-stage {
+    justify-self: start;
+    padding: 0.2rem 0.625rem;
+    border-radius: 999px;
+    background: var(--am-tint);
+    color: var(--color-brand-700);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .am-stage[data-tone='good'] {
+    background: color-mix(in oklab, var(--color-accent-500) 14%, white);
+    color: var(--color-accent-600);
+  }
+  .am-stage[data-tone='warn'] {
+    background: #fff4e5;
+    color: #8a4b00;
+  }
+  .am-ticket:hover .am-route__end {
+    color: var(--am-brand);
+  }
+  .am-none {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 14px;
+    background: var(--color-surface-2, #f5f5fb);
+    font-size: 0.875rem;
+    color: var(--am-ink-2);
+  }
+  .am-none[hidden] {
+    display: none;
+  }
+  .am-none a {
+    color: var(--am-brand);
+    font-weight: 600;
+  }
+
+  .am-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .am-tile {
+    display: grid;
+    justify-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 0.25rem 0.625rem;
+    border-radius: 14px;
+    color: var(--am-ink);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s ease-out;
+  }
+  .am-tile:hover {
+    background: var(--color-surface-2, #f5f5fb);
+  }
+  .am-tile__i {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 12px;
+    background: var(--am-tint);
+    color: var(--am-brand);
+    transition:
+      background 0.15s ease-out,
+      color 0.15s ease-out;
+  }
+  .am-tile:hover .am-tile__i {
+    background: var(--am-brand);
+    color: #fff;
+  }
+  .am-count {
+    position: absolute;
+    top: -0.375rem;
+    right: -0.5rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--color-accent-600);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .am-count[hidden] {
+    display: none;
+  }
+
+  .am-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid var(--color-line, #e6e6f0);
+  }
+  .am-btn2 {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0 1.125rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--am-brand);
+    color: var(--am-brand);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      background 0.15s ease-out,
+      color 0.15s ease-out;
+  }
+  .am-btn2:hover {
+    background: var(--am-tint);
+  }
+  .am-btn2--fill {
+    background: var(--am-brand);
+    color: #fff;
+  }
+  .am-btn2--fill:hover {
+    background: var(--color-brand-700);
+  }
+  .am-out {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.875rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--am-ink-2);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .am-out:hover {
+    background: #fdeceb;
+    color: #b3261e;
+  }
+  .am-out:disabled {
+    cursor: progress;
+  }
+
+  .am-ticket:focus-visible,
+  .am-tile:focus-visible,
+  .am-btn2:focus-visible,
+  .am-out:focus-visible,
+  .am-none a:focus-visible {
+    outline: 2px solid var(--am-brand);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .am-panel {
+      animation: none;
+    }
+    .am-btn,
+    .am-tile,
+    .am-tile__i {
+      transition: none;
+    }
+  }
+</style>

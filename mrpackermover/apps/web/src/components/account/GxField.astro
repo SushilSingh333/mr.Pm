@@ -1,0 +1,92 @@
+---
+/**
+ * One Material outlined text field with a floating label, as on Google's sign-in: the
+ * label sits in the box and moves onto the border on focus or once there is a value. The
+ * same markup as `fieldHtml()` in lib/account-client.ts, which the dashboard builds in
+ * the browser; account.css styles both.
+ */
+interface Props {
+  name: string;
+  label: string;
+  id?: string;
+  type?: 'text' | 'tel' | 'email' | 'password';
+  autocomplete?: string;
+  inputmode?: 'text' | 'numeric' | 'tel' | 'email';
+  maxlength?: number;
+  /** Shown inside the box once the label floats, e.g. "+91". */
+  prefix?: string;
+  /** A short line under the field, replaced by the error when there is one. */
+  hint?: string;
+  /** Shown only while the field has focus. */
+  placeholder?: string;
+  /** A drop-down instead of a text box. */
+  options?: (string | { value: string; label: string })[];
+  required?: boolean;
+  value?: string;
+}
+const {
+  name,
+  label,
+  id = `f-${name}`,
+  type = 'text',
+  autocomplete,
+  inputmode,
+  maxlength,
+  prefix,
+  hint,
+  placeholder = ' ',
+  options,
+  required = false,
+  value,
+} = Astro.props;
+const describedBy = [hint ? `${id}-hint` : '', `${id}-err`].filter(Boolean).join(' ');
+---
+
+<div class="gx-field" data-field={name}>
+  <div class:list={['gx-box', { 'gx-box--select': options }]}>
+    {
+      prefix && (
+        <span class="gx-prefix" aria-hidden="true">
+          {prefix}
+        </span>
+      )
+    }
+    {
+      options ? (
+        <select id={id} name={name} required={required} aria-describedby={describedBy}>
+          <option value="" selected />
+          {options.map((o) =>
+            typeof o === 'string' ? (
+              <option value={o}>{o}</option>
+            ) : (
+              <option value={o.value}>{o.label}</option>
+            ),
+          )}
+        </select>
+      ) : (
+        <input
+          id={id}
+          name={name}
+          type={type}
+          autocomplete={autocomplete}
+          inputmode={inputmode}
+          maxlength={maxlength}
+          placeholder={placeholder}
+          required={required}
+          value={value}
+          aria-describedby={describedBy}
+          data-password={type === 'password' ? '' : undefined}
+        />
+      )
+    }
+    <label class="gx-label" for={id}>{label}</label>
+  </div>
+  {
+    hint && (
+      <p class="gx-hint" id={`${id}-hint`}>
+        {hint}
+      </p>
+    )
+  }
+  <p class="gx-err" id={`${id}-err`} role="alert" hidden></p>
+</div>

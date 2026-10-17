@@ -86,6 +86,7 @@ export interface Config {
     leads: Lead;
     'contact-messages': ContactMessage;
     proposals: Proposal;
+    customers: Customer;
     'login-events': LoginEvent;
     'operating-bases': OperatingBase;
     users: User;
@@ -98,6 +99,9 @@ export interface Config {
     locations: {
       sublocations: 'locations';
       servicePages: 'city-service-pages';
+    };
+    customers: {
+      leads: 'leads';
     };
   };
   collectionsSelect: {
@@ -120,6 +124,7 @@ export interface Config {
     leads: LeadsSelect<false> | LeadsSelect<true>;
     'contact-messages': ContactMessagesSelect<false> | ContactMessagesSelect<true>;
     proposals: ProposalsSelect<false> | ProposalsSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
     'login-events': LoginEventsSelect<false> | LoginEventsSelect<true>;
     'operating-bases': OperatingBasesSelect<false> | OperatingBasesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -1136,8 +1141,17 @@ export interface Guide {
 export interface Person {
   id: number;
   name: string;
+  /**
+   * Shown on their card, e.g. "Sales Head". Write "Founder" for the founder: that name then signs the home page and the about page.
+   */
   role: string;
+  /**
+   * Two or three lines on what they do for a customer. Shown on their card.
+   */
   bio?: string | null;
+  /**
+   * Optional. Leave empty and the card shows their name, job title and description; upload a photo (a clear head-and-shoulders shot, portrait) and it becomes a photo card.
+   */
   photo?: (number | null) | Media;
   /**
    * Credentials shown on guide bylines.
@@ -1148,11 +1162,15 @@ export interface Person {
    */
   linkedin?: string | null;
   /**
-   * Off by default. Tick to publish this person on /company/team, needs a role, and a photo looks best.
+   * Off by default. Tick to put this person on /company/team. A photo is optional.
    */
   showOnTeam?: boolean | null;
   /**
-   * Lower numbers appear first. Ties fall back to alphabetical by name.
+   * Which part of the team page their card sits in.
+   */
+  teamGroup?: ('leadership' | 'sales' | 'operations' | 'support') | null;
+  /**
+   * Lower numbers appear first in their section. Ties fall back to alphabetical by name.
    */
   teamOrder?: number | null;
   updatedAt: string;
@@ -1407,6 +1425,10 @@ export interface Lead {
    * How this lead came in.
    */
   source?: ('quote-form' | 'price-check' | 'facebook-ad' | 'webhook') | null;
+  /**
+   * The website account this request came from.
+   */
+  customer?: (number | null) | Customer;
   status:
     | 'new'
     | 'assigned'
@@ -1468,6 +1490,53 @@ export interface Lead {
   sourcePage?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+/**
+ * People who signed up on the website. Open one to reset a forgotten password ("Password and sign-in"). Tick "Phone verified" after a call to show their older quote requests in their account.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  name: string;
+  /**
+   * 10 digits. This is what they sign in with.
+   */
+  phone: string;
+  email?: string | null;
+  city?: string | null;
+  /**
+   * Tick after confirming the number on a call. Their earlier quote requests on this number then show in their account.
+   */
+  phoneVerified?: boolean | null;
+  addresses?:
+    | {
+        label?: ('home' | 'office' | 'other') | null;
+        line: string;
+        area?: string | null;
+        city?: string | null;
+        pincode?: string | null;
+        floor?: string | null;
+        hasLift?: boolean | null;
+        isDefault?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  leads?: {
+    docs?: (number | Lead)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  lastLoginAt?: string | null;
+  passwordHash?: string | null;
+  sessionVersion?: number | null;
+  failedLogins?: number | null;
+  lockedUntil?: string | null;
+  passwordChangedAt?: string | null;
+  passwordChangedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Every contact-form submission lands here.
@@ -1738,6 +1807,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'proposals';
         value: number | Proposal;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: number | Customer;
       } | null)
     | ({
         relationTo: 'login-events';
@@ -2378,6 +2451,7 @@ export interface PeopleSelect<T extends boolean = true> {
   credentials?: T;
   linkedin?: T;
   showOnTeam?: T;
+  teamGroup?: T;
   teamOrder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2469,6 +2543,7 @@ export interface LeadsSelect<T extends boolean = true> {
       };
   notes?: T;
   source?: T;
+  customer?: T;
   status?: T;
   assignedTo?: T;
   dueAt?: T;
@@ -2585,6 +2660,40 @@ export interface ProposalsSelect<T extends boolean = true> {
         gst?: T;
         rep?: T;
       };
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  email?: T;
+  city?: T;
+  phoneVerified?: T;
+  addresses?:
+    | T
+    | {
+        label?: T;
+        line?: T;
+        area?: T;
+        city?: T;
+        pincode?: T;
+        floor?: T;
+        hasLift?: T;
+        isDefault?: T;
+        id?: T;
+      };
+  leads?: T;
+  lastLoginAt?: T;
+  passwordHash?: T;
+  sessionVersion?: T;
+  failedLogins?: T;
+  lockedUntil?: T;
+  passwordChangedAt?: T;
+  passwordChangedBy?: T;
+  updatedAt?: T;
   createdAt?: T;
 }
 /**

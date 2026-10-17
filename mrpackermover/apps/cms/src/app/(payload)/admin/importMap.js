@@ -48,6 +48,7 @@ import { RouteCell as RouteCell_85f975e0671011bc92ac00c61ca8a749 } from '../../.
 import { AmountCell as AmountCell_85f975e0671011bc92ac00c61ca8a749 } from '../../../components/proposal/Cells'
 import { MeasureDistance as MeasureDistance_d707844cebb44f084064938405f1d175 } from '../../../components/proposal/MeasureDistance'
 import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../../../components/proposal/ProposalPdf'
+import { CustomerSecurity as CustomerSecurity_a9584f912fa6956e6581d509887c8297 } from '../../../components/customers/CustomerSecurity'
 import { LeadReviewField as LeadReviewField_5024c0df2d86ed461d27416ff581a0f9 } from '../../../components/users/LeadReviewField'
 import { WebhookSetup as WebhookSetup_4589d205252be6016ff2846103214a98 } from '../../../components/settings/WebhookSetup'
 import { AccountAvatar as AccountAvatar_0d0b17769902b4ad4d21ac072cf97555 } from '../../../components/nav/AccountAvatar'
@@ -55,6 +56,7 @@ import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../.
 import { BrandLogo as BrandLogo_6e77d0f41c8c9945031c97d73e95e085 } from '../../../components/graphics/BrandLogo'
 import { SidebarNav as SidebarNav_c69d985326c5da60afb675d56609efeb } from '../../../components/nav/SidebarNav'
 import { AdminTheme as AdminTheme_219a1cb542fda7a3252be3f39ef7ac65 } from '../../../components/theme/AdminTheme'
+import { ReminderProvider as ReminderProvider_93c0ed09c42d8649f227fe8706c4cf33 } from '../../../components/dashboard/ImproveReminder'
 import { Dashboard as Dashboard_7924645a622bedd19f62843d924c0df8 } from '../../../components/dashboard/Dashboard'
 import { CalendarView as CalendarView_410806472acaaade49f6caef67712714 } from '../../../components/calendar/CalendarView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -111,6 +113,7 @@ export const importMap = {
   "/components/proposal/Cells#AmountCell": AmountCell_85f975e0671011bc92ac00c61ca8a749,
   "/components/proposal/MeasureDistance#MeasureDistance": MeasureDistance_d707844cebb44f084064938405f1d175,
   "/components/proposal/ProposalPdf#ProposalPdf": ProposalPdf_96917c16d64f6b56cae496087e6af5a4,
+  "/components/customers/CustomerSecurity#CustomerSecurity": CustomerSecurity_a9584f912fa6956e6581d509887c8297,
   "/components/users/LeadReviewField#LeadReviewField": LeadReviewField_5024c0df2d86ed461d27416ff581a0f9,
   "/components/settings/WebhookSetup#WebhookSetup": WebhookSetup_4589d205252be6016ff2846103214a98,
   "/components/nav/AccountAvatar#AccountAvatar": AccountAvatar_0d0b17769902b4ad4d21ac072cf97555,
@@ -118,6 +121,7 @@ export const importMap = {
   "/components/graphics/BrandLogo#BrandLogo": BrandLogo_6e77d0f41c8c9945031c97d73e95e085,
   "/components/nav/SidebarNav#SidebarNav": SidebarNav_c69d985326c5da60afb675d56609efeb,
   "/components/theme/AdminTheme#AdminTheme": AdminTheme_219a1cb542fda7a3252be3f39ef7ac65,
+  "/components/dashboard/ImproveReminder#ReminderProvider": ReminderProvider_93c0ed09c42d8649f227fe8706c4cf33,
   "/components/dashboard/Dashboard#Dashboard": Dashboard_7924645a622bedd19f62843d924c0df8,
   "/components/calendar/CalendarView#CalendarView": CalendarView_410806472acaaade49f6caef67712714,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1

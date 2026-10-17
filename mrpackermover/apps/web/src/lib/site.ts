@@ -139,12 +139,6 @@ export const PHONE_TEL = `+91${PHONE_CORE}`;
  * on every page that states it, so the home page and the contact page can never disagree.
  */
 export const SUPPORT_HOURS = '8 AM to 10 PM, every day';
-/**
- * The founder's name. The home page speaks in his voice ("15 years in this trade taught
- * me..."), so it is signed with it, and About and the Organization schema name him.
- * The fuller founder note below (FOUNDER) still waits for its photo and details.
- */
-export const FOUNDER_NAME = 'Sachin Kumar';
 export const EMAIL = 'shiftwith@mrmoverpacker.com';
 
 /** WhatsApp click-to-chat, digits only (wa.me rejects "+" and spaces). */

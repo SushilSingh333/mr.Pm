@@ -7,8 +7,8 @@ import { NavRow } from './NavRow.js';
 import { NavDismiss } from './NavDismiss.js';
 
 /**
- * Sidebar header (admin.components.beforeNavLinks): Create, then Leads, Schedule and
- * Calendar, then a live "Needs attention" panel for new job applications and unread
+ * Sidebar header (admin.components.beforeNavLinks): Create, then Dashboard, Leads, Schedule
+ * and Calendar, then a live "Needs attention" panel for new job applications and unread
  * contact messages. Server component so the counts are always current. Styled as
  * Google's side navigation.
  */
@@ -164,6 +164,18 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
         <MIcon name="add" size={24} className="mpm-nav__create-ico" />
         <span>New proposal</span>
       </Link>
+
+      {/* The dashboard, for everyone. The logo in the corner goes there too, but nobody
+          reads a logo as a button, and on a phone it is not in the drawer at all. */}
+      <NavRow
+        href="/admin"
+        icon="dashboard"
+        label="Dashboard"
+        activeOn="/admin"
+        exact
+        title="Your dashboard"
+        navKey="dashboard"
+      />
 
       {/* The way into the schedule, from anywhere in the admin: the Leads list filtered to
           Scheduled (so the list's own tools - dial strip, owner, bulk assign - come with

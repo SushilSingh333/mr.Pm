@@ -1,5 +1,6 @@
 import type { Endpoint, PayloadRequest, Where } from 'payload';
 import { addDataAndFileToRequest } from 'payload';
+import { sql } from '@payloadcms/db-postgres';
 import { json } from './_lib.js';
 import {
   clearedCookies,
@@ -7,9 +8,12 @@ import {
   hashPassword,
   LOCK_MINUTES,
   MAX_FAILED_LOGINS,
+  MAX_PASSWORD,
   MIN_PASSWORD,
   phoneCore,
+  rateLimited,
   readToken,
+  requesterIp,
   sameOrigin,
   SESSION_COOKIE,
   sessionCookies,
@@ -231,7 +235,12 @@ interface LeadDoc {
   quotedLow?: number | null;
   quotedHigh?: number | null;
   createdAt: string;
+  phone?: string | null;
+  customer?: Id | { id: Id } | null;
 }
+/** A relationship's id, populated or not. */
+const idOf = (v: Id | { id: Id } | null | undefined): string =>
+  v && typeof v === 'object' ? String(v.id) : v == null ? '' : String(v);
 interface ProposalDoc {
   lead?: Id | { id: Id } | null;
   status?: string;
@@ -246,15 +255,24 @@ async function movesOf(req: PayloadRequest, c: CustomerDoc) {
   const or: Where[] = [{ customer: { equals: c.id } }];
   if (c.phoneVerified) or.push({ phone: { contains: c.phone } });
   const leads = (
-    await req.payload.find({
-      collection: 'leads',
-      where: { and: [{ or }, { status: { not_in: HIDDEN } }] },
-      sort: '-createdAt',
-      limit: 50,
-      depth: 1,
-      overrideAccess: true,
-    })
-  ).docs as LeadDoc[];
+    (
+      await req.payload.find({
+        collection: 'leads',
+        where: { and: [{ or }, { status: { not_in: HIDDEN } }] },
+        sort: '-createdAt',
+        limit: 50,
+        depth: 1,
+        overrideAccess: true,
+      })
+    ).docs as LeadDoc[]
+  ).filter(
+    // `contains` narrows the query; the match itself is exact. A lead whose phone field
+    // holds more than one number (typed by staff, or from a webhook) is not anyone's by
+    // number alone - only by being made while signed in.
+    (l) =>
+      idOf(l.customer) === String(c.id) ||
+      (c.phoneVerified && phoneCore(l.phone ?? '') === c.phone),
+  );
   if (!leads.length) return [];
 
   const ids = leads.map((l) => l.id);
@@ -296,6 +314,19 @@ async function movesOf(req: PayloadRequest, c: CustomerDoc) {
   });
 }
 
+/** Add one wrong password to the count, atomically, and return the new count. */
+async function countFailure(req: PayloadRequest, id: Id): Promise<number> {
+  const db = (
+    req.payload.db as unknown as {
+      drizzle: { execute: (q: unknown) => Promise<{ rows?: { failed_logins?: unknown }[] }> };
+    }
+  ).drizzle;
+  const res = await db.execute(
+    sql`UPDATE customers SET failed_logins = COALESCE(failed_logins, 0) + 1 WHERE id = ${Number(id)} RETURNING failed_logins`,
+  );
+  return Number(res.rows?.[0]?.failed_logins ?? 0);
+}
+
 // ── Endpoints ──────────────────────────────────────────────────────────────────────────
 
 const signup: Endpoint = {
@@ -303,6 +334,14 @@ const signup: Endpoint = {
   method: 'post',
   handler: async (req) => {
     if (!sameOrigin(req)) return json({ error: 'Not allowed' }, 403);
+    // Generous, because Indian mobile networks put many people behind one IP; enough to
+    // stop a script registering numbers in bulk.
+    if (rateLimited(`signup:${requesterIp(req)}`, 20, 60 * 60_000)) {
+      return json(
+        { error: 'Too many sign-ups from this connection. Try again in an hour, or call us.' },
+        429,
+      );
+    }
     const b = await body(req);
     const name = str(b.name, 80);
     const phone = phoneCore(String(b.phone ?? ''));
@@ -314,7 +353,7 @@ const signup: Endpoint = {
     if (!phone) errors.phone = 'Enter a 10-digit mobile number.';
     if (password.length < MIN_PASSWORD)
       errors.password = `Use at least ${MIN_PASSWORD} characters.`;
-    if (password.length > 128) errors.password = 'That password is too long.';
+    if (password.length > MAX_PASSWORD) errors.password = 'That password is too long.';
     if (!city) errors.city = 'Choose your city.';
     if (email && !EMAIL.test(email)) errors.email = 'Enter a valid email, or leave it blank.';
     const addresses = cleanAddresses(
@@ -370,7 +409,16 @@ const login: Endpoint = {
     const phone = phoneCore(String(b.phone ?? ''));
     const password = typeof b.password === 'string' ? b.password : '';
     const wrong = json({ error: 'Mobile number or password is incorrect.' }, 401);
-    if (!phone || !password) return wrong;
+    if (!phone || !password || password.length > MAX_PASSWORD) return wrong;
+    // Before any lookup or hashing: one connection trying many numbers, and many
+    // connections trying one number, are both slowed down. The per-account lockout below
+    // still applies; this is what stops it being raced or sidestepped.
+    const tooMany = json(
+      { error: 'Too many attempts. Wait a few minutes and try again, or call us.' },
+      429,
+    );
+    if (rateLimited(`login-ip:${requesterIp(req)}`, 60, 15 * 60_000)) return tooMany;
+    if (rateLimited(`login-phone:${phone}`, 20, 15 * 60_000)) return tooMany;
 
     const c = (
       await req.payload.find({
@@ -393,19 +441,20 @@ const login: Endpoint = {
       );
     }
     if (!(await verifyPassword(password, c.passwordHash))) {
-      const failed = Number(c.failedLogins ?? 0) + 1;
-      await req.payload.update({
-        collection: 'customers',
-        id: c.id,
-        overrideAccess: true,
-        data: {
-          failedLogins: failed >= MAX_FAILED_LOGINS ? 0 : failed,
-          lockedUntil:
-            failed >= MAX_FAILED_LOGINS
-              ? new Date(Date.now() + LOCK_MINUTES * 60_000).toISOString()
-              : null,
-        } as never,
-      });
+      // Counted in the database in one statement, so parallel wrong guesses each count:
+      // reading the number, hashing, then writing number + 1 let ten at once count as one.
+      const failed = await countFailure(req, c.id);
+      if (failed >= MAX_FAILED_LOGINS) {
+        await req.payload.update({
+          collection: 'customers',
+          id: c.id,
+          overrideAccess: true,
+          data: {
+            failedLogins: 0,
+            lockedUntil: new Date(Date.now() + LOCK_MINUTES * 60_000).toISOString(),
+          } as never,
+        });
+      }
       return wrong;
     }
     await req.payload.update({
@@ -494,13 +543,16 @@ const password: Endpoint = {
     const b = await body(req);
     const current = typeof b.current === 'string' ? b.current : '';
     const next = typeof b.next === 'string' ? b.next : '';
-    if (!(await verifyPassword(current, c.passwordHash))) {
+    if (rateLimited(`password:${c.id}`, 10, 15 * 60_000)) {
+      return json({ error: 'Too many attempts. Wait a few minutes and try again.' }, 429);
+    }
+    if (current.length > MAX_PASSWORD || !(await verifyPassword(current, c.passwordHash))) {
       return json(
         { error: 'Your current password is not right.', fields: { current: 'Not right.' } },
         422,
       );
     }
-    if (next.length < MIN_PASSWORD || next.length > 128) {
+    if (next.length < MIN_PASSWORD || next.length > MAX_PASSWORD) {
       return json(
         {
           error: `Use at least ${MIN_PASSWORD} characters.`,

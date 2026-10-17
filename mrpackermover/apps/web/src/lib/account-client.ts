@@ -51,7 +51,11 @@ export function nextPath(fallback = '/account'): string {
   if (!/^\/(?![/\\])/.test(n)) return fallback;
   try {
     const u = new URL(n, location.origin);
-    return u.origin === location.origin ? u.pathname + u.search + u.hash : fallback;
+    if (u.origin !== location.origin) return fallback;
+    // "/.//evil.com" and "/a/..//evil.com" resolve to the PATH "//evil.com", which a
+    // browser then reads as another site. The resolved path must not start with two slashes.
+    if (/^\/[/\\]/.test(u.pathname)) return fallback;
+    return u.pathname + u.search + u.hash;
   } catch {
     return fallback;
   }

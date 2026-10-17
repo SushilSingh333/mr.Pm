@@ -40,7 +40,7 @@ const brand = o?.brandName ?? 'MrMoverPacker';
           <Fragment set:html={ed.bodyHtml} />
         ) : (
           <Fragment>
-            <p class="legal-updated">Last updated: 13 October 2026</p>
+            <p class="legal-updated">Last updated: 17 October 2026</p>
 
             <h2>1. Who we are</h2>
             <p>
@@ -57,6 +57,12 @@ const brand = o?.brandName ?? 'MrMoverPacker';
                 addresses, move date and details, and any photos or video of your home you share for
                 a survey. For a car or bike move, the vehicle details and a copy of its RC and
                 insurance.
+              </li>
+              <li>
+                <strong>If you create an account:</strong> your name, mobile number and city, and,
+                if you add them, your email and saved addresses (with the floor and whether there is
+                a lift), plus when you last signed in. Your password is stored only in scrambled
+                (hashed) form, so nobody at {brand}, our staff included, can read it.
               </li>
               <li>
                 <strong>During your move:</strong> the photo inventory, signatures at pickup and
@@ -77,6 +83,12 @@ const brand = o?.brandName ?? 'MrMoverPacker';
             <ul>
               <li>To send you an estimate, survey your goods and prepare your written quote.</li>
               <li>To plan and carry out your move, and keep you updated on the day.</li>
+              <li>
+                To run your account: let you sign in, show your quotes and moves in one place, and
+                keep your saved addresses ready for your next quote. Once we have confirmed your
+                mobile number with you, earlier quote requests from that number appear in your
+                account too.
+              </li>
               <li>To handle claims, complaints and questions.</li>
               <li>To issue GST invoices and meet our legal, tax and accounting duties.</li>
               <li>To keep the website and our records secure and prevent fraud.</li>
@@ -134,6 +146,11 @@ const brand = o?.brandName ?? 'MrMoverPacker';
               records behind them are kept for as long as tax and accounting law requires. After
               that, data is deleted or anonymised.
             </p>
+            <p>
+              If you have an account, we keep it until you ask us to close it. When we close it, we
+              delete your account details and saved addresses; records of a move that the law
+              requires us to keep, or that a claim depends on, are kept for as long as that applies.
+            </p>
 
             <h2>6. Your rights</h2>
             <p>Under the Digital Personal Data Protection Act, 2023, you can ask us to:</p>
@@ -144,28 +161,36 @@ const brand = o?.brandName ?? 'MrMoverPacker';
                 Erase it, where we no longer need it and the law does not require us to keep it.
               </li>
               <li>Stop using it, by withdrawing your consent.</li>
+              <li>Close your account and delete its details.</li>
               <li>Let someone you nominate exercise these rights for you.</li>
             </ul>
             <p>
               Email <a href={`mailto:${EMAIL}?subject=Privacy`}>{EMAIL}</a> with "Privacy" in the
               subject. We reply within 30 days. If you are not satisfied with our answer, you can
-              complain to the Data Protection Board of India.
+              complain to the Data Protection Board of India. If you have an account, you can also
+              see and change most of your details yourself on your account page.
             </p>
 
             <h2>7. Cookies and analytics</h2>
             <p>
               The website uses cookies to work properly, and analytics and advertising cookies from
-              Google Analytics and the Meta pixel (section 4). You can block or delete cookies in
-              your browser settings; the website still works without them. You can also use Google's
-              Analytics opt-out browser add-on and your Facebook ad settings.
+              Google Analytics and the Meta pixel (section 4). If you sign in to your account, two
+              cookies keep you signed in for up to 30 days: one holds your sign-in and cannot be
+              read by the page's scripts, the other holds your first name so the page can greet you.
+              Signing out removes both. You can block or delete cookies in your browser settings;
+              the website still works without them, except that you cannot stay signed in. You can
+              also use Google's Analytics opt-out browser add-on and your Facebook ad settings.
             </p>
 
             <h2>8. How we protect it</h2>
             <p>
               We use reasonable technical and organisational safeguards, limit who can see your data
-              to the people who need it, and collect only what we need. No system is perfectly
-              secure; if a breach affects you, we will tell you and the authorities as the law
-              requires.
+              to the people who need it, and collect only what we need. Account passwords are
+              scrambled one way before they are stored, signing in is paused for 15 minutes after
+              five wrong passwords, and only our administrators can see account records. If you
+              forget your password, we set a new one and send it only to the mobile number on your
+              account. No system is perfectly secure; if a breach affects you, we will tell you and
+              the authorities as the law requires.
             </p>
 
             <h2>9. Children</h2>

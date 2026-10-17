@@ -4,7 +4,9 @@ import {
   hashPassword,
   LOCK_MINUTES,
   MAX_FAILED_LOGINS,
+  MAX_PASSWORD,
   MIN_PASSWORD,
+  sameOrigin,
 } from '../lib/customer-auth.js';
 
 /**
@@ -97,11 +99,17 @@ function status(c: Customer) {
   };
 }
 
-/** Wraps a handler: admins only, and the customer must exist. */
+const adminId = (req: PayloadRequest): string =>
+  String((req.user as { id?: string | number } | null | undefined)?.id ?? '?');
+
+/** Wraps a handler: admins only, same origin for anything that changes data, and the customer must exist. */
 const guarded =
   (fn: (req: PayloadRequest, c: Customer) => Promise<Response>) =>
   async (req: PayloadRequest): Promise<Response> => {
     if (!isAdminReq(req)) return json({ error: 'Only an admin can do this.' }, 403);
+    // The admin's own cookie is what signs these in, so a page on another site (or a
+    // sibling subdomain) must not be able to fire them: the request has to come from here.
+    if (req.method !== 'GET' && !sameOrigin(req)) return json({ error: 'Not allowed' }, 403);
     const c = await load(req);
     if (!c) return json({ error: 'Customer not found.' }, 404);
     return fn(req, c);
@@ -128,8 +136,8 @@ export const customerAdminEndpoints: Endpoint[] = [
     handler: guarded(async (req, c) => {
       const b = await bodyOf(req);
       const next = typeof b.password === 'string' ? b.password.trim() : '';
-      if (next.length < MIN_PASSWORD || next.length > 128) {
-        return json({ error: `Use ${MIN_PASSWORD} to 128 characters.` }, 422);
+      if (next.length < MIN_PASSWORD || next.length > MAX_PASSWORD) {
+        return json({ error: `Use ${MIN_PASSWORD} to ${MAX_PASSWORD} characters.` }, 422);
       }
       await save(req, c, {
         passwordHash: await hashPassword(next),
@@ -150,6 +158,7 @@ export const customerAdminEndpoints: Endpoint[] = [
     method: 'post',
     handler: guarded(async (req, c) => {
       await save(req, c, { failedLogins: 0, lockedUntil: null });
+      req.payload.logger.info(`Customer ${c.id}: unlocked by admin ${adminId(req)}`);
       return json(status((await load(req)) ?? c));
     }),
   },
@@ -158,6 +167,7 @@ export const customerAdminEndpoints: Endpoint[] = [
     method: 'post',
     handler: guarded(async (req, c) => {
       await save(req, c, { sessionVersion: Number(c.sessionVersion ?? 0) + 1 });
+      req.payload.logger.info(`Customer ${c.id}: signed out everywhere by admin ${adminId(req)}`);
       return json(status((await load(req)) ?? c));
     }),
   },

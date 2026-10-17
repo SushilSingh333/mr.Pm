@@ -35,6 +35,43 @@ export const SESSION_DAYS = 30;
 export const MAX_FAILED_LOGINS = 5;
 export const LOCK_MINUTES = 15;
 export const MIN_PASSWORD = 8;
+/** Longer is refused before hashing, so nobody can make the server hash megabytes. */
+export const MAX_PASSWORD = 128;
+
+/**
+ * The visitor's IP. Cloudflare sits in front of Caddy and puts the real one in
+ * CF-Connecting-IP; X-Forwarded-For only ever holds Cloudflare's edge address here,
+ * because Caddy overwrites it with whoever connected to it.
+ */
+export function requesterIp(req: PayloadRequest): string {
+  return (
+    req.headers.get('cf-connecting-ip')?.trim() ||
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown'
+  );
+}
+
+/**
+ * A small in-memory rate limit: at most `max` hits per `windowMs` for one key (an IP,
+ * or a phone number). The CMS runs as one Node process, so memory is the right place;
+ * it resets on restart, which only ever errs towards letting people in.
+ *
+ * It sits in front of the per-account lockout, which on its own can be raced (parallel
+ * wrong guesses all read the same count) and does nothing against one password tried
+ * across many numbers.
+ */
+const hits = new Map<string, number[]>();
+export function rateLimited(key: string, max: number, windowMs: number): boolean {
+  const now = Date.now();
+  const recent = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
+  recent.push(now);
+  hits.set(key, recent);
+  // Keep the map from growing without bound: drop keys with nothing recent.
+  if (hits.size > 5000) {
+    for (const [k, v] of hits) if (!v.some((t) => now - t < windowMs)) hits.delete(k);
+  }
+  return recent.length > max;
+}
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
@@ -101,8 +138,14 @@ export function cookieValue(req: PayloadRequest, name: string): string | undefin
   const header = req.headers.get('cookie') ?? '';
   for (const part of header.split(';')) {
     const i = part.indexOf('=');
-    if (i > 0 && part.slice(0, i).trim() === name)
-      return decodeURIComponent(part.slice(i + 1).trim());
+    if (i > 0 && part.slice(0, i).trim() === name) {
+      // A malformed value ("%E0") is treated as no cookie, not a 500.
+      try {
+        return decodeURIComponent(part.slice(i + 1).trim());
+      } catch {
+        return undefined;
+      }
+    }
   }
   return undefined;
 }

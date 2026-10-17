@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload';
+import { APIError } from 'payload';
 import { isAdmin } from '../access/index.js';
 import { customerAdminEndpoints } from '../endpoints/customer-admin.js';
 import { phoneCore } from '../lib/customer-auth.js';
@@ -16,10 +17,12 @@ import { phoneCore } from '../lib/customer-auth.js';
  *     suggests an easy password, signs the customer out on every device, unlocks them, and
  *     lets you copy it or send it on WhatsApp. The panel also unlocks an account and signs
  *     a customer out everywhere (endpoints/customer-admin.ts).
- *   - "Phone verified": tick it once you have spoken to them on this number. Only then do
- *     their older quote requests (made before they signed up, matched by phone) appear in
- *     their account, so nobody can sign up with someone else's number and see their moves.
- *     WhatsApp OTP will set it by itself when it arrives.
+ *   - "Phone verified": only then do their older quote requests (made before they signed
+ *     up, matched by phone) appear in their account. A call proves the NUMBER is real, not
+ *     that the account holder owns it - anyone can sign up with someone else's number - so
+ *     the tick is refused until the account has signed in with a password an admin reset
+ *     and sent to that number (Reset password -> Send on WhatsApp). Holding the number is
+ *     the proof. Changing the number clears the tick. WhatsApp OTP will replace all this.
  */
 export const Customers: CollectionConfig = {
   slug: 'customers',
@@ -42,12 +45,30 @@ export const Customers: CollectionConfig = {
   endpoints: customerAdminEndpoints,
   hooks: {
     beforeChange: [
-      ({ data }) => {
+      ({ data, originalDoc }) => {
         if (!data) return data;
         if (typeof data.phone === 'string') {
           const core = phoneCore(data.phone);
           if (!core) throw new Error('Enter a 10-digit Indian mobile number.');
           data.phone = core;
+          // A new number is unproven, whatever the old one was.
+          if (originalDoc?.phone && core !== originalDoc.phone) data.phoneVerified = false;
+        }
+        if (data.phoneVerified === true && !originalDoc?.phoneVerified) {
+          const changedAt = originalDoc?.passwordChangedAt as string | null | undefined;
+          const lastLogin = originalDoc?.lastLoginAt as string | null | undefined;
+          const proven =
+            Boolean(originalDoc?.passwordChangedBy) &&
+            Boolean(changedAt && lastLogin) &&
+            new Date(lastLogin as string) > new Date(changedAt as string);
+          if (!proven) {
+            throw new APIError(
+              'To verify the number, first use "Reset password" below and send the new password on WhatsApp to this number. Once the customer has signed in with it, tick Phone verified.',
+              400,
+              null,
+              true,
+            );
+          }
         }
         return data;
       },
@@ -89,7 +110,7 @@ export const Customers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Tick after confirming the number on a call. Their earlier quote requests on this number then show in their account.',
+          'Shows their earlier quote requests on this number in their account. To verify: Reset password, send it on WhatsApp to this number, and tick this once they have signed in with it (that proves the number is theirs).',
       },
     },
     {

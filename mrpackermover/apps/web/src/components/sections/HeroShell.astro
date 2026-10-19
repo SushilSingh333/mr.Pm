@@ -10,6 +10,7 @@
  */
 import { cldUrl, CLD_TRANSFORM } from '@mpm/shared';
 import { heroAlt } from '../../lib/hero.js';
+import type { HomePromo } from '../../lib/promo.js';
 
 interface Props {
   h1: string;
@@ -26,6 +27,13 @@ interface Props {
   crumbs?: { href?: string; label: string }[];
   /** Overrides the description looked up from `image`. Needed for CMS uploads. */
   imageAlt?: string;
+  /**
+   * A finished promotional banner (lib/promo.ts) shown whole in place of the photograph
+   * and headline: its text is part of the picture, so nothing is laid over it and the
+   * card sits below it rather than over its bottom edge. The <h1> stays, for search
+   * engines and screen readers.
+   */
+  promo?: HomePromo | null;
 }
 const {
   h1,
@@ -37,6 +45,7 @@ const {
   align = 'center',
   imageAlt,
   crumbs = [],
+  promo = null,
 } = Astro.props;
 // A CMS-uploaded (Cloudinary) image wins; `cldUrl` injects the delivery transform and
 // is a no-op for any non-Cloudinary URL. Otherwise fall back to the static file.
@@ -76,9 +85,82 @@ const alt = imageAlt ?? (imageUrl ? '' : heroAlt(image));
 const hasHeadingSlot = Astro.slots.has('heading');
 ---
 
-<section class:list={['hero', `align-${align}`]}>
-  {
-    /*
+{
+  promo && (
+    <>
+      <section class="promo" aria-label="Offer">
+        {/* The whole banner is the link: its "Book your move" button is part of the picture. */}
+        <a class="promo-link" href={promo.href}>
+          <picture>
+            <source
+              type="image/webp"
+              media="(max-width: 759px)"
+              srcset={`/images/promo/${promo.name}-tall-480.webp 480w, /images/promo/${promo.name}-tall.webp 900w`}
+              sizes="100vw"
+              width={promo.tall[0]}
+              height={promo.tall[1]}
+            />
+            <source
+              type="image/webp"
+              srcset={`/images/promo/${promo.name}-wide-1280.webp 1280w, /images/promo/${promo.name}-wide.webp 1920w`}
+              sizes="(max-width: 1920px) 100vw, 1920px"
+              width={promo.wide[0]}
+              height={promo.wide[1]}
+            />
+            <img
+              src={`/images/promo/${promo.name}-wide.jpg`}
+              alt={promo.alt}
+              width={promo.wide[0]}
+              height={promo.wide[1]}
+              fetchpriority="high"
+              decoding="async"
+            />
+          </picture>
+        </a>
+      </section>
+
+      {/* The page's heading, visible, under the banner: the banner's words are pixels,
+        so the <h1> and the founder's line that the photo banner carried live here -
+        read by people and by search engines alike. */}
+      <div class="container-page promo-head">
+        <div class="promo-head__title">
+          {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
+        </div>
+        {intro && (
+          <figure class="promo-quote">
+            <blockquote>
+              <p>{intro}</p>
+            </blockquote>
+            {introBy && (
+              <figcaption>
+                <span class="promo-quote__mark" aria-hidden="true">
+                  {introBy
+                    .split(',')[0]!
+                    .trim()
+                    .split(/\s+/)
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join('')}
+                </span>
+                <span class="promo-quote__who">
+                  <strong>{introBy.split(',')[0]!.trim()}</strong>
+                  {introBy.includes(',') && (
+                    <span>{introBy.split(',').slice(1).join(',').trim()}</span>
+                  )}
+                </span>
+              </figcaption>
+            )}
+          </figure>
+        )}
+      </div>
+    </>
+  )
+}
+
+{
+  !promo && (
+    <section class:list={['hero', `align-${align}`]}>
+      {/*
     Width and height are the artwork's real pixel size. They do not constrain the
     rendered box - the CSS below stretches it to fill the banner - they give the
     browser the aspect ratio up front so it reserves the right space and the heading
@@ -86,46 +168,50 @@ const hasHeadingSlot = Astro.slots.has('heading');
 
     fetchpriority="high" because this is the page's Largest Contentful Paint; without
     it the browser treats an <img> as ordinary-priority and the banner lands late.
-  */
-  }
-  <picture class="hero-photo">
-    {
-      heroSources.full && (
-        <source type="image/webp" media="(min-width: 900px)" srcset={heroSources.full} />
-      )
-    }
-    {heroSources.narrow && <source type="image/webp" srcset={heroSources.narrow} />}
-    <img
-      src={heroSources.fallback}
-      alt={alt}
-      width="1920"
-      height="800"
-      fetchpriority="high"
-      decoding="async"
-    />
-  </picture>
-  <div class="container-page hero-inner">
-    {
-      crumbs.length > 0 && (
-        <nav class="hero-crumbs" aria-label="Breadcrumb">
-          {crumbs.map((c, i) => (
-            <>
-              {i > 0 && <span aria-hidden="true">/</span>}
-              {c.href ? <a href={c.href}>{c.label}</a> : <span aria-current="page">{c.label}</span>}
-            </>
-          ))}
-        </nav>
-      )
-    }
-    {badge && <span class="hero-badge">{badge}</span>}
-    {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
-    {intro && <p class="hero-intro">{intro}</p>}
-    {intro && introBy && <p class="hero-intro-by">{introBy}</p>}
-  </div>
-</section>
+  */}
+      <picture class="hero-photo">
+        {heroSources.full && (
+          <source type="image/webp" media="(min-width: 900px)" srcset={heroSources.full} />
+        )}
+        {heroSources.narrow && <source type="image/webp" srcset={heroSources.narrow} />}
+        <img
+          src={heroSources.fallback}
+          alt={alt}
+          width="1920"
+          height="800"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+      <div class="container-page hero-inner">
+        {crumbs.length > 0 && (
+          <nav class="hero-crumbs" aria-label="Breadcrumb">
+            {crumbs.map((c, i) => (
+              <>
+                {i > 0 && <span aria-hidden="true">/</span>}
+                {c.href ? (
+                  <a href={c.href}>{c.label}</a>
+                ) : (
+                  <span aria-current="page">{c.label}</span>
+                )}
+              </>
+            ))}
+          </nav>
+        )}
+        {badge && <span class="hero-badge">{badge}</span>}
+        {hasHeadingSlot ? <slot name="heading" /> : <h1>{h1}</h1>}
+        {intro && <p class="hero-intro">{intro}</p>}
+        {intro && introBy && <p class="hero-intro-by">{introBy}</p>}
+      </div>
+    </section>
+  )
+}
 
 {/* `id="quote"`: every "Check my price" button on the page scrolls here. */}
-<div class:list={['hero-card', 'container-page', `align-${align}`]} id="quote">
+<div
+  class:list={['hero-card', 'container-page', `align-${align}`, { 'hero-card--promo': promo }]}
+  id="quote"
+>
   <slot />
 </div>
 
@@ -367,5 +453,146 @@ const hasHeadingSlot = Astro.slots.has('heading');
     margin-bottom: 1rem;
     display: flex;
     justify-content: center;
+  }
+
+  /* ── The promotional banner: shown whole, never cropped ── */
+  .promo {
+    position: relative;
+    background: #fbf3e6; /* the artwork's own cream, behind it on very wide screens */
+  }
+  .promo-link {
+    display: block;
+    max-width: 1920px;
+    margin: 0 auto;
+  }
+  .promo-link img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .promo-link:focus-visible {
+    outline: 3px solid var(--color-brand-600);
+    outline-offset: -3px;
+  }
+  /* ── Under the banner: the page heading on the left, the founder's line on the right ── */
+  .promo-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.25rem, 4vw, 3.5rem);
+    padding-top: clamp(1.75rem, 3.5vw, 2.75rem);
+  }
+  .promo-head__title {
+    min-width: 0;
+  }
+  /* The page's own heading markup (the home tagline and h1) was styled white for the
+     dark photo; on the light page it takes the brand and ink colours. */
+  .promo-head :global(.home-tagline) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.6rem;
+    color: var(--color-brand-600);
+    font-size: var(--text-base);
+  }
+  .promo-head :global(.home-tagline)::before {
+    content: '';
+    width: 1.75rem;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--color-brand-600), #f15a24);
+  }
+  .promo-head :global(h1) {
+    margin: 0;
+    max-width: 22ch;
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    color: var(--color-ink-900);
+    text-wrap: balance;
+  }
+
+  .promo-quote {
+    position: relative;
+    margin: 0;
+    padding: 1.4rem 1.5rem 1.25rem 1.6rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+  /* A large opening quote mark, set behind the words. */
+  .promo-quote::before {
+    content: '\201C';
+    position: absolute;
+    top: -0.35rem;
+    left: 0.9rem;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--color-brand-100);
+    pointer-events: none;
+  }
+  .promo-quote blockquote {
+    position: relative;
+    margin: 0;
+  }
+  .promo-quote blockquote p {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.25vw, 1.125rem);
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--color-ink-900);
+    text-wrap: pretty;
+  }
+  .promo-quote figcaption {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .promo-quote__mark {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-brand-600);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .promo-quote__who {
+    display: grid;
+    line-height: 1.3;
+  }
+  .promo-quote__who strong {
+    color: var(--color-ink-900);
+    font-size: var(--text-base);
+  }
+  .promo-quote__who span {
+    color: var(--color-ink-500);
+    font-size: var(--text-sm);
+  }
+  @media (max-width: 860px) {
+    .promo-head {
+      grid-template-columns: 1fr;
+    }
+    .promo-head :global(h1) {
+      max-width: none;
+    }
+  }
+  /* The card sits under the banner, not over it: overlapping would cover the
+     artwork's button and small print. */
+  .hero-card--promo {
+    margin-top: clamp(1rem, 2.5vw, 1.75rem);
   }
 </style>

@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/page/PageHero.astro';
 import Band from '../components/ui/Band.astro';
+import OfferNote from '../components/quote/OfferNote.astro';
 import { iconSvg } from '../lib/icons.js';
 import { staticRow, editorialFor } from '../lib/page.js';
 import { PHONE_DISPLAY, PHONE_TEL } from '../lib/site.js';
@@ -70,6 +71,8 @@ const assurances = [
         <div class="qm-head">
           <h2>Tell us about your move</h2>
         </div>
+
+        <OfferNote kind="estimate" />
 
         <div class="qm-promise">
           <span
@@ -318,6 +321,7 @@ const assurances = [
     geocodeState,
   } from '../components/quote/maps';
   import { quote, inr } from '../components/quote/estimator';
+  import { offerLabel, withOffer } from '../components/quote/offer';
   import { VEHICLE_BASIS } from '../components/quote/vehicle-note';
   import type { QuoteInput } from '../components/quote/estimator';
   import { PLACES, resolvePlace, routeDistanceKm } from '../components/quote/pricing';
@@ -418,6 +422,9 @@ const assurances = [
       rangeLow: number;
       rangeHigh: number;
       basis: string;
+      /** "20% off" and the range before it, when the offer is on. */
+      offer?: string;
+      was?: string;
     }
     async function estimate(): Promise<Estimate | null> {
       try {
@@ -459,17 +466,24 @@ const assurances = [
           packingGrade: (packEl?.value as 'basic' | 'standard') ?? 'basic',
           date: dateEl?.value ?? '',
         };
-        const r = quote(input);
+        // The offer comes off here, so the thank-you page, and the estimate saved on the
+        // lead for the sales team, are the price the customer was actually shown.
+        const r = withOffer(quote(input));
         const mode = r.mode === 'intercity' ? 'Intercity move' : 'Local move';
         return {
           text: `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`,
           meta: `${truckFt} ft truck · ${Math.round(km)} km · ${mode} · GST extra`,
+          // The offer travels on its own so /thank-you can highlight it: a badge and the
+          // price it replaces, struck through, as on the price bar.
+          offer: r.before ? offerLabel() : undefined,
+          was: r.before ? `${inr(r.before.rangeLow)} – ${inr(r.before.rangeHigh)}` : undefined,
           distanceKm: Math.round(km),
           rangeLow: r.rangeLow,
           rangeHigh: r.rangeHigh,
           // The sales team sees what the customer was priced on, including that it was a
-          // whole truck for them alone - the same promise the estimate showed them.
-          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing · ${VEHICLE_BASIS}`,
+          // whole truck for them alone - the same promise the estimate showed them - and
+          // that the offer was taken off.
+          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing · ${VEHICLE_BASIS}${r.before ? ` · ${offerLabel()} applied` : ''}`,
         };
       } catch {
         return null;
@@ -630,6 +644,8 @@ const assurances = [
             email,
             text: est?.text,
             meta: est?.meta,
+            offer: est?.offer,
+            was: est?.was,
           }),
         );
       } catch {

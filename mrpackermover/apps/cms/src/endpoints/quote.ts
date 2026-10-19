@@ -137,7 +137,7 @@ export const quoteEndpoint: Endpoint = {
           quotedLow: money(body.quotedLow),
           quotedHigh: money(body.quotedHigh),
           distanceKm: whole(body.distanceKm, 1, 5000),
-          quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 120) || undefined,
+          quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 200) || undefined,
           customer: customer?.id ?? undefined,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,

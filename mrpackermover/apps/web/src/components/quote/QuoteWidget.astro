@@ -97,6 +97,10 @@ const service = prefillService ?? '';
   <div class="est" id={`${idPrefix}-est`} hidden>
     <div class="est-top">
       <div>
+        <div class="est-was-row" id={`${idPrefix}-offer`} hidden>
+          <span class="est-off" id={`${idPrefix}-off`}></span>
+          <s class="est-was" id={`${idPrefix}-was`}></s>
+        </div>
         <div class="est-amt-row">
           <span class="est-amt" id={`${idPrefix}-amt`}>₹0</span>
           <span class="est-gst">+ GST</span>
@@ -180,6 +184,7 @@ const service = prefillService ?? '';
 
 <script>
   import { quote, inr } from './estimator';
+  import { offerLabel, withOffer } from './offer';
   import type { QuoteInput } from './estimator';
   import type { Terrain } from './move-pricing';
   import { attachAutocomplete, drivingDistanceKm, geocodeState } from './maps';
@@ -244,6 +249,10 @@ const service = prefillService ?? '';
     void attachAutocomplete(byId<HTMLInputElement>('q-drop'));
 
     let lastKm = 0; // cached driving distance so tweaking sliders doesn't re-hit the API
+    // The price on screen when the lead is captured, so the sales team sees the same
+    // figure (offer included) the customer is looking at.
+    let lastShown: { low: number; high: number; km: number; ft: number; offer: boolean } | null =
+      null;
 
     function readInputs() {
       return {
@@ -278,9 +287,27 @@ const service = prefillService ?? '';
         packingGrade: o.pack,
         date: o.date,
       };
-      const r = quote(input);
+      const r = withOffer(quote(input));
+      lastShown = {
+        low: r.rangeLow,
+        high: r.rangeHigh,
+        km: Math.round(km),
+        ft: o.truck,
+        offer: Boolean(r.before),
+      };
 
       byId('q-amt').textContent = `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`;
+      // The offer: the badge and the price it replaces, struck through, above the price.
+      const offerRow = byId('q-offer');
+      if (r.before) {
+        byId('q-off').textContent = offerLabel();
+        byId('q-was').textContent = `${inr(r.before.rangeLow)} – ${inr(r.before.rangeHigh)}`;
+        byId('q-was').setAttribute(
+          'aria-label',
+          `Was ${inr(r.before.rangeLow)} to ${inr(r.before.rangeHigh)}`,
+        );
+        offerRow.hidden = false;
+      } else offerRow.hidden = true;
 
       // Highlighted chips below the price: truck size + distance stand out (brand pills),
       // move type is a neutral pill. Content is all numbers / fixed strings — safe to inject.
@@ -347,6 +374,14 @@ const service = prefillService ?? '';
             date: o.date,
             size: `${o.truck} ft`,
             service,
+            ...(lastShown
+              ? {
+                  quotedLow: lastShown.low,
+                  quotedHigh: lastShown.high,
+                  distanceKm: lastShown.km,
+                  quoteBasis: `${lastShown.ft} ft truck · price checker${lastShown.offer ? ` · ${offerLabel()} applied` : ''}`,
+                }
+              : {}),
           }),
         }).catch(() => {});
       } catch {

@@ -1,0 +1,65 @@
+---
+import { OFFER_PCT, offerLabel } from './offer';
+
+/**
+ * "20% off on every move", on the quote forms. The price bar shows the offer on its
+ * result; these forms show no price before they are sent, so without this line the
+ * offer was invisible on them. Follows OFFER_PCT: at 0 it renders nothing.
+ */
+interface Props {
+  /** `estimate`: /get-quote, which shows an estimate after sending. `enquiry`: the forms
+   * on service and city pages, which show no price - a coordinator sends it. */
+  kind: 'estimate' | 'enquiry';
+  /** A one-line strip for the wide bar form under a city page's banner. */
+  compact?: boolean;
+}
+const { kind, compact = false } = Astro.props;
+const text =
+  kind === 'estimate'
+    ? 'on every move. It comes off the estimate you see, and off your written quote.'
+    : 'on every move. Your coordinator takes it off your written quote.';
+---
+
+{
+  OFFER_PCT > 0 && (
+    <p class:list={['offer-note', { 'offer-note--compact': compact }]}>
+      <span class="offer-pill">{offerLabel()}</span>
+      <span class="offer-text">{text}</span>
+    </p>
+  )
+}
+
+<style>
+  .offer-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    margin: 0 0 1rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid color-mix(in oklab, var(--color-accent-500) 35%, white);
+    border-radius: var(--radius-md);
+    background: color-mix(in oklab, var(--color-accent-500) 9%, white);
+    color: var(--color-ink-900);
+    font-size: var(--text-sm);
+    line-height: 1.45;
+  }
+  .offer-pill {
+    flex: none;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-600);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .offer-text {
+    font-weight: 600;
+  }
+  .offer-note--compact {
+    margin: 0.75rem 1rem 0;
+    padding: 0.45rem 0.75rem;
+    justify-content: center;
+    text-align: center;
+  }
+</style>

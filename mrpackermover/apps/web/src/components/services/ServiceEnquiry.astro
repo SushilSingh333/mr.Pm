@@ -1,6 +1,7 @@
 ---
 import type { ServiceQuoteMode } from '@mpm/shared';
 import { inlineHtml } from '../../lib/rich-text.js';
+import OfferNote from '../quote/OfferNote.astro';
 
 /**
  * The enquiry form in the hero of every service page.
@@ -214,6 +215,7 @@ const id = (n: string): string => `se-${n}`;
   data-service={serviceName}
   novalidate
 >
+  {!bar && <OfferNote kind="enquiry" />}
   <div class="se-main">
     <div class="se-grid">
       {
@@ -306,11 +308,13 @@ const id = (n: string): string => `se-${n}`;
     </button>
   </div>
   <p class="se-error" role="alert" hidden></p>
+  {bar && <OfferNote kind="enquiry" compact />}
   {bar && note && <p class="se-note" set:html={inlineHtml(note)} />}
 </form>
 
 <script>
   import { attachAutocomplete } from '../quote/maps';
+  import { OFFER_PCT, offerLabel } from '../quote/offer';
 
   /** Ten digits starting 6-9, after +91, 91 or a leading 0 - the rule /api/quote applies. */
   const phoneOk = (v: string): boolean => {
@@ -443,6 +447,9 @@ const id = (n: string): string => `se-${n}`;
         date: value('date') || undefined,
         size: size || undefined,
         notes: details.join('\n') || undefined,
+        // These forms show no price, so the lead says the offer was on screen: the
+        // coordinator then takes it off the written quote.
+        quoteBasis: OFFER_PCT > 0 ? `Enquiry form · ${offerLabel()} offer shown` : undefined,
       };
 
       if (btn) {

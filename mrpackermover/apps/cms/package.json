@@ -18,6 +18,7 @@
     "import-geo-pages": "tsx src/scripts/import-geo-pages.ts",
     "drop-city-areas-section": "tsx src/scripts/drop-city-areas-section.ts",
     "release-plan": "tsx src/scripts/release-plan.ts",
+    "release-status": "tsx src/scripts/release-status.ts",
     "fix-service-scope": "tsx src/scripts/fix-service-scope.ts",
     "verify-roles": "tsx src/scripts/verify-roles.ts",
     "verify-login-audit": "tsx src/scripts/verify-login-audit.ts",

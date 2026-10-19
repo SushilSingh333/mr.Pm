@@ -12,6 +12,7 @@ import Band from '../components/ui/Band.astro';
 import QuoteWidget from '../components/quote/QuoteWidget.astro';
 import { FOUNDER, PHONE_DISPLAY, PHONE_TEL, SUPPORT_HOURS, WHATSAPP_NUMBER } from '../lib/site.js';
 import { heroAlt } from '../lib/hero.js';
+import { activeHomePromo } from '../lib/promo.js';
 
 /**
  * The home page, built from the Home Page brief (3 Oct 2026).
@@ -109,6 +110,7 @@ const extraJsonLd = [
     imageUrl={data.content?.heroImage?.url}
     intro={C.subhead}
     introBy={`${founderName()}, Founder`}
+    promo={activeHomePromo()}
   >
     <Fragment slot="heading">
       <p class="home-tagline">{C.tagline}</p>

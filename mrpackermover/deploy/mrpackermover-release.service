@@ -4,9 +4,16 @@
 # (packages/shared/src/geo-pages/release.ts). Going through the listener means it never
 # overlaps a rebuild that a CMS publish started.
 #
+# IT SWITCHES THE TIMER OFF BY ITSELF when the release is finished: after each rebuild
+# request it runs `pnpm release-status` (apps/cms/src/scripts/release-status.ts), and once
+# no batch is due AND the live sitemap has every area page, it disables the timer. Until
+# then every run asks for a rebuild, so a failed build after the last batch is retried at
+# the next 09:05/18:05 rather than leaving that batch unpublished.
+#
 # Install:  sudo bash deploy/install-units.sh   (rewrites the paths below to this clone)
 #           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-release.timer
 # Run now:  sudo systemctl start mrpackermover-release
+# Status:   cd apps/cms && pnpm release-status
 # Logs:     journalctl -u mrpackermover-release   (the build itself: -u mrpackermover-deploy)
 
 [Unit]
@@ -20,4 +27,10 @@ User=mpm
 # BUILD_TRIGGER_TOKEN (and DEPLOY_LISTEN_PORT, if set) come from the CMS env file. "$$" is
 # systemd's escape for a literal "$", so the shell, not systemd, reads them.
 EnvironmentFile=/srv/mrpackermover/repo/mrpackermover/apps/cms/.env
+# pnpm (corepack) and node for the status check; where Caddy serves the live site from.
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=DEPLOY_PATH=/var/www/mrpackermover
 ExecStart=/bin/sh -c 'curl -fsS -X POST -H "Authorization: Bearer $$BUILD_TRIGGER_TOKEN" "http://127.0.0.1:$${DEPLOY_LISTEN_PORT:-4545}/deploy"'
+# Only reached when the rebuild request above succeeded. "+" runs this line as root, which
+# switching a timer off needs; the check itself still runs as mpm.
+ExecStartPost=+/bin/sh -c 'cd /srv/mrpackermover/repo/mrpackermover/apps/cms && if runuser -u mpm -- pnpm -s release-status; then systemctl disable --now mrpackermover-release.timer && echo "Release finished: mrpackermover-release.timer switched off."; fi'

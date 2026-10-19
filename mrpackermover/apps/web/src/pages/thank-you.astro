@@ -122,6 +122,10 @@ const row = staticRow({
       {/* Filled from the estimate the form worked out, when it managed to price the route. */}
       <div class="ty-estimate" id="ty-estimate" hidden>
         <span class="tye-label">Your estimated range</span>
+        <span class="tye-offer" id="ty-offer" hidden>
+          <span class="tye-off" id="ty-off"></span>
+          <s class="tye-was" id="ty-was"></s>
+        </span>
         <strong class="tye-amount" id="ty-amount"></strong>
         <VehicleTag compact center />
         <span class="tye-meta" id="ty-meta"></span>
@@ -170,6 +174,8 @@ const row = staticRow({
         phone?: string;
         text?: string;
         meta?: string;
+        offer?: string;
+        was?: string;
       };
       const title = document.getElementById('ty-title');
       if (title && data.firstName) title.textContent = `Thank you, ${data.firstName}!`;
@@ -185,6 +191,15 @@ const row = staticRow({
         const meta = document.getElementById('ty-meta');
         if (amount) amount.textContent = data.text;
         if (meta && data.meta) meta.textContent = data.meta;
+        // The offer, highlighted above the price: "20% off" and the old range struck through.
+        const offer = document.getElementById('ty-offer');
+        if (offer && data.offer && data.was) {
+          document.getElementById('ty-off')!.textContent = data.offer;
+          const was = document.getElementById('ty-was')!;
+          was.textContent = data.was;
+          was.setAttribute('aria-label', `Was ${data.was}`);
+          offer.hidden = false;
+        }
         box.hidden = false;
       }
     }
@@ -241,6 +256,33 @@ const row = staticRow({
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--color-ink-500);
+  }
+  /* The offer, highlighted above the price: a green badge and the old range struck through. */
+  .tye-offer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+  .tye-offer[hidden] {
+    display: none;
+  }
+  .tye-off {
+    padding: 0.2rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-600);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .tye-was {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink-500);
+    text-decoration-thickness: 1.5px;
   }
   .tye-amount {
     display: block;

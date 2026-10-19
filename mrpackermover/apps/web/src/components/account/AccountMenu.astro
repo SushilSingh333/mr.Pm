@@ -38,17 +38,22 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
 ---
 
 <div class:list={['am', `am--${size}`]} data-am>
-  <button
-    type="button"
+  {
+    /* A link, not a button: a mouse click goes straight to the account (or sign-in); the
+      menu opens on hover, on a tap (phones have no hover) and on ArrowDown. */
+  }
+  <a
+    href="/account/login"
     class="am-btn"
     data-am-btn
+    aria-haspopup="true"
     aria-expanded="false"
     aria-controls="am-panel"
     aria-label="Sign in or create an account"
   >
     <span class="am-btn__icon" set:html={person} />
     <span class="am-btn__initial" aria-hidden="true" hidden></span>
-  </button>
+  </a>
 
   <div class="am-panel" id="am-panel" data-am-panel hidden>
     <!-- Signed out -->
@@ -124,7 +129,7 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
   }
 
   const wrap = document.querySelector<HTMLElement>('[data-am]');
-  const btn = wrap?.querySelector<HTMLButtonElement>('[data-am-btn]');
+  const btn = wrap?.querySelector<HTMLAnchorElement>('[data-am-btn]');
   const panel = wrap?.querySelector<HTMLElement>('[data-am-panel]');
 
   if (wrap && btn && panel) {
@@ -135,7 +140,8 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
     const showSignedIn = (n: string) => {
       const initial = n.charAt(0).toUpperCase();
       btn.classList.add('is-in');
-      btn.setAttribute('aria-label', `Account menu: ${n}`);
+      btn.href = '/account';
+      btn.setAttribute('aria-label', `Your account: ${n}`);
       btn.querySelector<HTMLElement>('.am-btn__icon')!.hidden = true;
       const i = btn.querySelector<HTMLElement>('.am-btn__initial')!;
       i.textContent = initial;
@@ -148,20 +154,23 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
     };
     const showSignedOut = () => {
       btn.classList.remove('is-in');
+      btn.href = signInHref;
       btn.setAttribute('aria-label', 'Sign in or create an account');
       btn.querySelector<HTMLElement>('.am-btn__icon')!.hidden = false;
       btn.querySelector<HTMLElement>('.am-btn__initial')!.hidden = true;
       for (const el of all('[data-am-in]')) el.hidden = true;
       for (const el of all('[data-am-out]')) el.hidden = false;
     };
-    if (name) showSignedIn(name);
-
-    // Sign in comes back to this page.
+    // Sign in comes back to this page (both the icon and the menu's Sign in).
     const here = location.pathname + location.search + location.hash;
+    const signInHref = here.startsWith('/account')
+      ? '/account/login'
+      : `/account/login?next=${encodeURIComponent(here)}`;
     const signin = panel.querySelector<HTMLAnchorElement>('[data-am-signin]');
-    if (signin && !here.startsWith('/account')) {
-      signin.href = `/account/login?next=${encodeURIComponent(here)}`;
-    }
+    if (signin) signin.href = signInHref;
+
+    if (name) showSignedIn(name);
+    else btn.href = signInHref;
 
     // The number and the next move, once, the first time the menu opens.
     let loaded = false;
@@ -247,8 +256,16 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
       if (refocus) btn.focus();
     };
 
-    btn.addEventListener('click', () => {
-      // A hover already opened it: the click keeps it open instead of closing it.
+    btn.addEventListener('click', (e) => {
+      // A mouse click, or Enter, follows the link: to the account, or to sign in. A tap
+      // on a touch screen, where there is no hover, opens the menu instead.
+      const kind = (e as PointerEvent).pointerType;
+      const touch =
+        kind === 'touch' ||
+        kind === 'pen' ||
+        (kind === undefined && !matchMedia('(hover: hover)').matches);
+      if (!touch) return;
+      e.preventDefault();
       if (isOpen() && pinned) close();
       else open('click');
     });
@@ -328,6 +345,7 @@ const road = `<svg class="am-road" viewBox="0 0 344 112" preserveAspectRatio="no
   /* The button: a person in a soft circle signed out, the coloured initial signed in. */
   .am-btn {
     display: grid;
+    text-decoration: none;
     place-items: center;
     width: var(--am-size);
     height: var(--am-size);

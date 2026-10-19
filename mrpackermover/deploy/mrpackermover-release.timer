@@ -5,8 +5,8 @@
 # Install:  sudo bash deploy/install-units.sh
 #           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-release.timer
 # Next run: systemctl list-timers mrpackermover-release.timer
-# Once the last batch is out it can be switched off:
-#           sudo systemctl disable --now mrpackermover-release.timer
+# It switches itself off when the release is finished (see mrpackermover-release.service).
+# To stop it early by hand:  sudo systemctl disable --now mrpackermover-release.timer
 
 [Unit]
 Description=MrMoverPacker locality release times (09:05 and 18:05 IST)

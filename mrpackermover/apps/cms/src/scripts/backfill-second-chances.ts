@@ -50,7 +50,6 @@ const { REVIVABLE_STAGES, statusMeta, personCase } =
   await import('../components/dashboard/lead-status.js');
 
 const APPLY = process.argv.includes('--apply');
-const SAME_LOSS_MS = 10 * 60 * 1000;
 
 interface Row {
   from: string;
@@ -112,6 +111,9 @@ const leads = (
 const perPerson = new Map<string, Map<string, number>>();
 const changes: { lead: Lead; add: Row[] }[] = [];
 let fromHistory = 0;
+let skipped = 0;
+let inherited = 0;
+const markedAt = new Map<Row, string>();
 let fromName = 0;
 
 for (const lead of leads) {
@@ -123,13 +125,25 @@ for (const lead of leads) {
     at: String(r.at ?? ''),
   }));
   const add: Row[] = [];
-  const known = (r: Row): boolean =>
-    [...have, ...add].some(
-      (h) =>
-        h.from === r.from &&
-        String(h.owner ?? h.ownerName ?? '') === String(r.owner ?? r.ownerName ?? '') &&
-        Math.abs(new Date(h.at).getTime() - new Date(r.at).getTime()) < SAME_LOSS_MS,
-    );
+  /**
+   * Is this loss already on record? Counted, not timed: if the lead already has N rows
+   * for this person at this stage, the first N losses the history shows for them there
+   * are those rows - whatever time each was stamped with. A row written by the first
+   * backfill carries the second-chance time, which need not match the snapshot's to the
+   * minute; matching on time alone could write the same loss twice. The person is the
+   * same by id, or by name where an early row kept only a name.
+   */
+  const norm = (v: string | null | undefined): string => (v ?? '').trim().toLowerCase();
+  const samePerson = (h: Row, r: Row): boolean =>
+    (h.owner != null && r.owner != null && String(h.owner) === String(r.owner)) ||
+    (norm(h.ownerName) !== '' && norm(h.ownerName) === norm(r.ownerName));
+  const seen: Row[] = [];
+  const isRecorded = (r: Row): boolean => {
+    seen.push(r);
+    const nth = seen.filter((x) => x.from === r.from && samePerson(x, r)).length;
+    const onRecord = have.filter((h) => h.from === r.from && samePerson(h, r)).length;
+    return nth <= onRecord;
+  };
 
   // The history, oldest first.
   const snaps = (
@@ -151,6 +165,23 @@ for (const lead of leads) {
     const owner = idOf(was?.assignedTo);
     if (!REVIVABLE_STAGES.includes(stage) || !owner) continue;
     if (idOf(next?.assignedTo) === owner) continue;
+    // When it reached that stage with them: back through the run of snapshots that
+    // already showed it there. Shown in the preview only - `at` is when it LEFT them.
+    let j = i;
+    while (
+      j > 0 &&
+      snaps[j - 1]?.version?.status === stage &&
+      idOf(snaps[j - 1]?.version?.assignedTo) === owner
+    )
+      j -= 1;
+    // Inherited, not lost: the snapshot before the run was already at this stage with
+    // someone else. The oldest code moved leads WITHOUT resetting the stage, so a lead
+    // could arrive at "Lost" and be passed on again untouched - that person never had a
+    // chance with it, and it is not their loss.
+    if (j > 0 && snaps[j - 1]?.version?.status === stage) {
+      inherited += 1;
+      continue;
+    }
     const row: Row = {
       from: stage,
       owner: asId(owner),
@@ -159,27 +190,27 @@ for (const lead of leads) {
       byName: next?.assignedTo ? (next.assignedByName ?? null) : null,
       at: String(snaps[i + 1]?.createdAt ?? snaps[i + 1]?.updatedAt ?? ''),
     };
-    if (!known(row)) {
-      add.push(row);
-      fromHistory += 1;
+    if (isRecorded(row)) {
+      skipped += 1;
+      continue;
     }
+    add.push(row);
+    markedAt.set(row, String(snaps[j]?.createdAt ?? ''));
+    fromHistory += 1;
   }
 
   // A first-version second chance whose history has been pruned: its stored name.
   if (lead.revivedAt && lead.revivedFromOwnerName && !have.length && !add.length) {
     const nm = lead.revivedFromOwnerName.trim();
     const owner = idByName.get(nm.toLowerCase()) ?? null;
-    const row: Row = {
+    add.push({
       from: lead.revivedFrom ?? 'lost',
       owner: owner ? asId(owner) : null,
       ownerName: nm,
       byName: lead.revivedByName ?? null,
       at: lead.revivedAt,
-    };
-    if (!known(row)) {
-      add.push(row);
-      fromName += 1;
-    }
+    });
+    fromName += 1;
   }
 
   if (!add.length) continue;
@@ -202,14 +233,22 @@ const lines = [...perPerson.entries()]
   .sort((a, b) => b.total - a.total);
 payload.logger.info(
   `Past losses found: ${fromHistory + fromName} on ${changes.length} leads ` +
-    `(${fromHistory} from version history, ${fromName} from a stored name).`,
+    `(${fromHistory} from version history, ${fromName} from a stored name). ` +
+    `Already on record, skipped: ${skipped}. Passed on already lost (not counted): ${inherited}.`,
 );
 for (const l of lines) payload.logger.info(l.text);
 for (const { lead, add } of changes) {
   for (const r of add) {
     payload.logger.info(
       `    #${lead.id} ${personCase(lead.name ?? '')}: ${statusMeta(r.from).label} with ` +
-        `${personCase(r.ownerName ?? 'unknown')}, ${r.at.slice(0, 10)}`,
+        `${personCase(r.ownerName ?? 'unknown')}` +
+        (markedAt.get(r)
+          ? ` - marked ${statusMeta(r.from).label} ${markedAt.get(r)!.slice(0, 10)}`
+          : '') +
+        `, handed on ${r.at.slice(0, 10)}` +
+        ((lead.secondChances ?? []).length
+          ? ` (already on record: ${(lead.secondChances ?? []).map((h) => `${statusMeta(String(h.from)).label} with ${h.ownerName ?? 'unknown'}`).join('; ')})`
+          : ''),
     );
   }
 }

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, FieldAccess } from 'payload';
 import { DAY_AND_TIME, DAY_ONLY, checkYear } from '../lib/date-display.js';
 import {
   leadsRead,
@@ -13,10 +13,40 @@ import {
   FRESH_STAGES,
   LEAD_SOURCES,
   LEAD_STATUS,
+  REVIVABLE_STAGES,
   ROUTING_STAGES,
   SALES_SETTABLE,
   humanList,
 } from '../components/dashboard/lead-status.js';
+
+/**
+ * A second chance: what a salesperson may see of a lead that was lost before it reached
+ * them. Everything up to the moment it was handed over (`revivedAt`) belongs to its old
+ * life - the notes, the "Lost" entry, the old owner - and is kept from them; everything
+ * after is theirs. Admins and handlers always see the whole of it.
+ */
+type NoteLike = { at?: string | null } | null | undefined;
+const timeOf = (v: unknown): number | null => {
+  const t = v ? new Date(String(v)).getTime() : NaN;
+  return Number.isFinite(t) ? t : null;
+};
+/** Notes written after the second chance began (unsaved rows, with no time yet, too). */
+const afterRevival = (rows: NoteLike[], revivedAt: unknown): NoteLike[] => {
+  const cut = timeOf(revivedAt);
+  if (cut == null) return rows;
+  return rows.filter((n) => {
+    const t = timeOf(n?.at);
+    return t == null || t > cut;
+  });
+};
+/** The request flag that lets the hook below read a lead's whole history for itself. */
+const FULL_HISTORY = 'leadFullHistory';
+/** Admins and handlers: the people who route leads, and who see where a lead has been. */
+const routingStaff: FieldAccess = ({ req }) => isRole(req, 'admin', 'handler');
+const isRoutingUser = (user: unknown): boolean => {
+  const role = (user as { role?: string } | null | undefined)?.role;
+  return role === 'admin' || role === 'handler';
+};
 
 /**
  * Whether a where clause only lets dated stages through - see the `beforeOperation` hook.
@@ -125,8 +155,22 @@ export const Leads: CollectionConfig = {
         return { ...args, sort: ['dueAt', '-createdAt'] };
       },
     ],
+    /**
+     * A salesperson given a second chance at a lost lead sees it as fresh: its notes
+     * start when it reached them (see `afterRevival`), and the old free-text notes are
+     * not shown. Admins and handlers read everything. The hook below restores what was
+     * kept back before any save, so hiding it here never deletes it.
+     */
+    afterRead: [
+      ({ doc, req }) => {
+        if (!doc?.revivedAt || !isRole(req, 'sales') || req.context?.[FULL_HISTORY]) return doc;
+        if (Array.isArray(doc.noteLog)) doc.noteLog = afterRevival(doc.noteLog, doc.revivedAt);
+        if (doc.notes) doc.notes = null;
+        return doc;
+      },
+    ],
     beforeChange: [
-      ({ data, originalDoc, req, operation }) => {
+      async ({ data, originalDoc, req, operation }) => {
         if (!data) return data;
 
         // One number, one spelling. The quote form and the webhook store the number as it
@@ -135,12 +179,114 @@ export const Leads: CollectionConfig = {
         // Only the spacing goes: the digits and a leading + are kept exactly.
         if (typeof data.phone === 'string') data.phone = data.phone.replace(/[\s().-]/g, '');
 
+        /**
+         * A salesperson saving a second-chance lead: put back what afterRead kept from
+         * them. Their form holds only the notes since the hand-over, and an array write
+         * replaces every row (see the note on `noteLog` below), so without this their
+         * first save would delete the lead's earlier history for everyone.
+         */
+        if (operation === 'update' && isRole(req, 'sales') && originalDoc?.revivedAt) {
+          req.context = { ...req.context, [FULL_HISTORY]: true };
+          try {
+            const full = (await req.payload.findByID({
+              collection: 'leads',
+              id: originalDoc.id,
+              depth: 0,
+              overrideAccess: true,
+              req,
+            })) as { noteLog?: NoteLike[]; notes?: string | null };
+            const cut = timeOf(originalDoc.revivedAt);
+            const earlier = (full.noteLog ?? []).filter((n) => {
+              const t = timeOf(n?.at);
+              return t != null && cut != null && t <= cut;
+            });
+            const later = (
+              Array.isArray(data.noteLog) ? data.noteLog : (originalDoc.noteLog ?? [])
+            ) as NoteLike[];
+            data.noteLog = [...earlier, ...afterRevival(later, originalDoc.revivedAt)];
+            data.notes = full.notes ?? null;
+            // The same restoration for the stage-change append below, which falls back on
+            // the original document's notes.
+            originalDoc.noteLog = data.noteLog;
+          } finally {
+            delete req.context[FULL_HISTORY];
+          }
+        }
+
         const meId = (req.user as { id?: string | number } | null)?.id ?? null;
         const before = idOf(originalDoc?.assignedTo);
         const after = idOf(data.assignedTo);
         // True when THIS save is the one handing the lead over. Acknowledgement must not
         // fire in the same breath as the assignment that created it.
         let handedOverNow = false;
+
+        /**
+         * A second chance. An admin or handler handing a LOST lead to someone turns it
+         * back into a fresh Assigned lead for them: a new owner, a new clock, "new to you"
+         * on their board, and a history that starts now (afterRead hides the old one from
+         * them). The lost past is recorded on the lead - who had it, how it ended, who
+         * revived it, when - for admins and handlers only, and written into the trail.
+         *
+         * Not when the same save picks a different stage on purpose: then the person
+         * chose the stage, and the save is an ordinary hand-over.
+         */
+        const was = String(originalDoc?.status ?? '');
+        let revivedNow = false;
+        if (
+          operation === 'update' &&
+          before !== after &&
+          after &&
+          REVIVABLE_STAGES.includes(was) &&
+          isRole(req, 'admin', 'handler') &&
+          (data.status === undefined || data.status === was)
+        ) {
+          const now = new Date().toISOString();
+          const nameOf = async (id: string | number | null): Promise<string | null> => {
+            if (id == null) return null;
+            try {
+              const u = (await req.payload.findByID({
+                collection: 'users',
+                id,
+                depth: 0,
+                overrideAccess: true,
+                req,
+              })) as { name?: string; email?: string };
+              return u.name ?? u.email ?? null;
+            } catch {
+              return null;
+            }
+          };
+          const [fromName, toName] = await Promise.all([nameOf(before), nameOf(after)]);
+          const meName =
+            (req.user as { name?: string; email?: string } | null)?.name ??
+            (req.user as { email?: string } | null)?.email ??
+            null;
+          const wasLabel = LEAD_STATUS.find((s) => s.value === was)?.label ?? was;
+
+          data.status = 'assigned';
+          data.revivedFrom = was;
+          data.revivedAt = now;
+          data.revivedByName = meName;
+          data.revivedFromOwnerName = fromName;
+          data.revivedCount = Number(originalDoc?.revivedCount ?? 0) + 1;
+          revivedNow = true;
+
+          const rows = (
+            Array.isArray(data.noteLog) ? data.noteLog : (originalDoc?.noteLog ?? [])
+          ) as Record<string, unknown>[];
+          data.noteLog = [
+            ...rows,
+            {
+              kind: 'handover',
+              body:
+                `Second chance: was ${wasLabel}${fromName ? ` with ${fromName}` : ''}. ` +
+                `Given to ${toName ?? 'a new owner'} as a fresh lead - they do not see its earlier history.`,
+              at: now,
+              author: meId,
+              authorName: meName,
+            },
+          ];
+        }
 
         if (operation === 'update' && before !== after && after) {
           // Changing hands is materially different from a first assignment, and the
@@ -149,7 +295,9 @@ export const Leads: CollectionConfig = {
           // because it was handed to someone else.
           const early = ['new', 'assigned', 'reassigned'];
           const current = (data.status ?? originalDoc?.status) as string | undefined;
-          if (current && early.includes(current)) {
+          // A second chance stays Assigned: "Reassigned" would tell the new owner the lead
+          // had been someone else's, which is the one thing it is meant not to say.
+          if (current && early.includes(current) && !revivedNow) {
             data.status = before ? 'reassigned' : 'assigned';
           }
           data.assignedAt = new Date().toISOString();
@@ -311,7 +459,6 @@ export const Leads: CollectionConfig = {
          * it on every other save of a closed lead - so a Won lead that had lost its date
          * could never be given it back, not even by typing it in.
          */
-        const was = String(originalDoc?.status ?? '');
         const closing = stage === 'won' || stage === 'lost';
         const fromCallback = (was === 'call-later' || was === 'follow-up') && was !== stage;
         // Only the callback time carried over is dropped. A date typed in the same save
@@ -326,8 +473,12 @@ export const Leads: CollectionConfig = {
 
         if (FRESH_STAGES.includes(stage)) {
           // `createdAt` is absent on create - the row does not exist yet - and on create
-          // "now" and "arrived" are the same instant anyway.
-          const arrived = (originalDoc?.createdAt ?? data.createdAt) as string | undefined;
+          // "now" and "arrived" are the same instant anyway. A second-chance lead
+          // "arrived" when it was given its second chance: that is when it became new.
+          const arrived = (data.revivedAt ??
+            originalDoc?.revivedAt ??
+            originalDoc?.createdAt ??
+            data.createdAt) as string | undefined;
           data.waitingSince = arrived ?? new Date().toISOString();
         } else {
           data.waitingSince = new Date().toISOString();
@@ -862,6 +1013,68 @@ export const Leads: CollectionConfig = {
         position: 'sidebar',
         description:
           'Set the first time the owner saves a change. Empty means they have not actioned it yet.',
+      },
+    },
+    /*
+     * Second chance: a lost lead handed to someone as fresh (see the beforeChange hook).
+     * Written by the hook, never typed. Admins and handlers see where it came from; a
+     * salesperson cannot read any of it except `revivedAt` - a bare date the history
+     * filter needs, and never shown to them - so nothing on their screen, and nothing the
+     * API gives them, says the lead was ever lost.
+     */
+    {
+      name: 'revivedFrom',
+      label: 'Second chance from',
+      type: 'select',
+      options: REVIVABLE_STAGES.map((v) => ({
+        label: LEAD_STATUS.find((s) => s.value === v)?.label ?? v,
+        value: v,
+      })),
+      access: { read: routingStaff, create: routingStaff, update: routingStaff },
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        condition: (data) => Boolean(data?.revivedAt),
+        description:
+          'This lead was lost, then given to its current owner as a fresh lead. They see it as new.',
+      },
+    },
+    {
+      name: 'revivedFromOwnerName',
+      label: 'Lost with',
+      type: 'text',
+      access: { read: routingStaff, create: routingStaff, update: routingStaff },
+      admin: { readOnly: true, position: 'sidebar', condition: (data) => Boolean(data?.revivedAt) },
+    },
+    {
+      name: 'revivedAt',
+      label: 'Second chance given',
+      type: 'date',
+      access: { create: routingStaff, update: routingStaff },
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        date: DAY_AND_TIME,
+        // Read by the history filter for everyone, shown only to the people who route.
+        condition: (data, _s, ctx) => Boolean(data?.revivedAt) && isRoutingUser(ctx?.user),
+      },
+    },
+    {
+      name: 'revivedByName',
+      label: 'Second chance by',
+      type: 'text',
+      access: { read: routingStaff, create: routingStaff, update: routingStaff },
+      admin: { readOnly: true, position: 'sidebar', condition: (data) => Boolean(data?.revivedAt) },
+    },
+    {
+      name: 'revivedCount',
+      label: 'Second chances',
+      type: 'number',
+      access: { read: routingStaff, create: routingStaff, update: routingStaff },
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        condition: (data) => Number(data?.revivedCount ?? 0) > 1,
       },
     },
     {

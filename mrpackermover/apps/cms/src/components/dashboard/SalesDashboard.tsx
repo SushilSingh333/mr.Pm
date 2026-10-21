@@ -533,7 +533,18 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
   const { payload, user, range, from, to } = props;
   const isHandler = user.role === 'handler';
   const me = user.id;
-  const window = dateWhere(range, from, to);
+  /**
+   * "When it arrived", for this person. A salesperson's lead given a second chance
+   * arrived when it reached them (Leads: revivedAt), not when the customer first wrote -
+   * otherwise a month-old lead handed over today would be missing from "This month" and
+   * from "New today", the opposite of fresh. A handler's board keeps the real dates.
+   */
+  const arrived = (bounds: Record<string, unknown>): Record<string, unknown> =>
+    isHandler ? { createdAt: bounds } : { or: [{ createdAt: bounds }, { revivedAt: bounds }] };
+  const window = (() => {
+    const w = dateWhere(range, from, to) as { createdAt?: Record<string, unknown> } | undefined;
+    return w?.createdAt ? arrived(w.createdAt) : w;
+  })();
 
   // "New" is the word for a lead nobody owns, so it can never describe one of a
   // salesperson's own - a button stuck at zero teaches people to ignore the row.
@@ -782,22 +793,22 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     // ── The four cards. Fixed windows on purpose: "did anything arrive today" is not a
     //    question about the range buttons, and a card that moved under them would be
     //    answering something else while looking like it answered this.
-    count(roleScope({ createdAt: { greater_than_equal: startOfToday.toISOString() } })),
+    count(roleScope(arrived({ greater_than_equal: startOfToday.toISOString() }))),
     count(
       roleScope({
         and: [
-          { createdAt: { greater_than_equal: startOfToday.toISOString() } },
+          arrived({ greater_than_equal: startOfToday.toISOString() }),
           { status: { in: [...FRESH] } },
         ],
       }),
     ),
     count(
-      roleScope({
-        and: [
-          { createdAt: { greater_than_equal: startOfYesterday.toISOString() } },
-          { createdAt: { less_than: startOfToday.toISOString() } },
-        ],
-      }),
+      roleScope(
+        arrived({
+          greater_than_equal: startOfYesterday.toISOString(),
+          less_than: startOfToday.toISOString(),
+        }),
+      ),
     ),
     count(roleScope({ status: { equals: 'quoted' } })),
     count(

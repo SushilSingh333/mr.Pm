@@ -249,7 +249,11 @@ export function LeadTimeline(): React.JSX.Element | null {
   // A lead that has never been saved has no history and no id to hang one on.
   if (!id) return null;
 
-  const rows = buildTimeline(lead, proposals);
+  // A salesperson's second-chance lead starts when it reached them; admins and handlers
+  // see the whole of it.
+  const role = (user as { role?: string } | null)?.role;
+  const revivedAt = (saved as { revivedAt?: string | null }).revivedAt;
+  const rows = buildTimeline(lead, proposals, role === 'sales' ? revivedAt : null);
   const head = rows.slice(0, VISIBLE);
   const tail = rows.slice(VISIBLE);
 

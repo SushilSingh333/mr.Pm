@@ -99,6 +99,18 @@ export const ROUTING_STAGES = ['new', 'assigned', 'reassigned'];
 export const CLOSED_STAGES = ['won', 'lost', 'invalid', 'duplicate'];
 
 /**
+ * The "lost" stages a lead can be given a second chance from (21 Oct 2026, the owner:
+ * assign a lost lead to someone and they should see it as fresh).
+ *
+ * The review's Lost slice, the same three it counts as lost: a "no", and the two ways a
+ * customer was never reached. A handler or admin handing one of these to a salesperson
+ * turns it back into a fresh Assigned lead for them (the Leads beforeChange hook), while
+ * admins and handlers keep seeing that it was lost. Invalid and duplicate leads are not
+ * here: there is no customer to win back.
+ */
+export const REVIVABLE_STAGES = ['lost', 'call-not-picked', 'call-not-connected'];
+
+/**
  * Everything a lead can be BEFORE it has been quoted.
  *
  * Proposals.ts used to spell this list out by hand to decide whether sending a proposal

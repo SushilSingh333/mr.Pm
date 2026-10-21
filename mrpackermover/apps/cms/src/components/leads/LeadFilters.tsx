@@ -59,10 +59,18 @@ interface Picked {
   owner: string[];
   /** One range at a time - see DateRange. */
   date: DateRange;
+  /** Only lost leads given a second chance (admins and handlers; see Leads: revivedAt). */
+  second: boolean;
 }
 
 const UNASSIGNED = 'none';
-const EMPTY: Picked = { status: [], source: [], owner: [], date: { from: '', to: '' } };
+const EMPTY: Picked = {
+  status: [],
+  source: [],
+  owner: [],
+  date: { from: '', to: '' },
+  second: false,
+};
 
 /**
  * The date filter: two dates off a calendar, against whichever date the rest of the bar
@@ -132,7 +140,13 @@ const asShortDate = (v: string): string => {
  * a filtered list.
  */
 function parse(where: unknown): Picked {
-  const picked: Picked = { status: [], source: [], owner: [], date: { ...NO_RANGE } };
+  const picked: Picked = {
+    status: [],
+    source: [],
+    owner: [],
+    date: { ...NO_RANGE },
+    second: false,
+  };
   const add = (list: string[], value: unknown): void => {
     const values = Array.isArray(value) ? value : [value];
     for (const v of values) {
@@ -149,6 +163,7 @@ function parse(where: unknown): Picked {
       const { in: inOp, equals, exists } = op as Record<string, unknown>;
       if (field === 'status') add(picked.status, inOp ?? equals);
       if (field === 'source') add(picked.source, inOp ?? equals);
+      if (field === 'revivedAt' && (exists === true || exists === 'true')) picked.second = true;
       if (field === 'assignedTo') {
         if (exists === false || exists === 'false') add(picked.owner, UNASSIGNED);
         else add(picked.owner, inOp ?? equals);
@@ -170,6 +185,7 @@ function build(picked: Picked): Record<string, unknown> {
   const and: Array<Record<string, unknown>> = [];
   if (picked.status.length) and.push({ status: { in: picked.status } });
   if (picked.source.length) and.push({ source: { in: picked.source } });
+  if (picked.second) and.push({ revivedAt: { exists: true } });
   if (picked.owner.length) {
     const ids = picked.owner.filter((o) => o !== UNASSIGNED);
     const or: Array<Record<string, unknown>> = [];
@@ -494,7 +510,8 @@ export function LeadFilters(): React.JSX.Element | null {
     picked.status.length +
     picked.source.length +
     picked.owner.length +
-    (hasRange(picked.date) ? 1 : 0);
+    (hasRange(picked.date) ? 1 : 0) +
+    (picked.second ? 1 : 0);
 
   useEffect(() => {
     if (!routes) return undefined;
@@ -576,6 +593,21 @@ export function LeadFilters(): React.JSX.Element | null {
         busy={busy}
         onPick={(date) => apply({ ...picked, date })}
       />
+
+      {/* Lost leads handed on as fresh. Only the people who route see it: to a
+          salesperson these are simply new leads. */}
+      {routes && (
+        <button
+          type="button"
+          className={`mpm-lf__trigger${picked.second ? ' is-on' : ''}`}
+          aria-pressed={picked.second}
+          disabled={busy}
+          title="Lost leads you handed on as fresh. Their new owners see them as new."
+          onClick={() => apply({ ...picked, second: !picked.second })}
+        >
+          2nd chance
+        </button>
+      )}
 
       {/* Looking at booked moves as a list, the same moves on a calendar are one tap
           away. Only offered when Scheduled is picked - on any other filter the calendar

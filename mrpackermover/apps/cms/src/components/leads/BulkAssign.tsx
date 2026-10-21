@@ -34,6 +34,7 @@ interface Person {
 
 interface UpdatedDoc {
   status?: string;
+  revivedAt?: string | null;
 }
 
 /**
@@ -106,6 +107,11 @@ export function BulkAssign(): React.JSX.Element | null {
       const docs = Array.isArray(body.docs) ? body.docs : [];
       const errs = Array.isArray(body.errors) ? body.errors : [];
       const handedOver = docs.filter((d) => d.status === 'reassigned').length;
+      // Lost leads handed on in this very action come back as fresh: a second chance
+      // stamped within the last two minutes (the collection hook does it; see Leads).
+      const revived = docs.filter(
+        (d) => d.revivedAt && Date.now() - new Date(d.revivedAt).getTime() < 120_000,
+      ).length;
       const who = people.find((p) => String(p.id) === target);
 
       const parts = [
@@ -114,6 +120,11 @@ export function BulkAssign(): React.JSX.Element | null {
       if (handedOver > 0) {
         parts.push(
           `${handedOver} ${handedOver === 1 ? 'was' : 'were'} already someone else's and now ${handedOver === 1 ? 'reads' : 'read'} Reassigned.`,
+        );
+      }
+      if (revived > 0) {
+        parts.push(
+          `${revived} lost ${revived === 1 ? 'lead was' : 'leads were'} given a second chance: ${who ? label(who) : 'they'} ${who ? 'sees' : 'see'} ${revived === 1 ? 'it' : 'them'} as new, and you can still see ${revived === 1 ? 'it was' : 'they were'} lost.`,
         );
       }
       if (errs.length > 0) parts.push(`${errs.length} could not be updated.`);

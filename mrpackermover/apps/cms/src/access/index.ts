@@ -138,7 +138,17 @@ export const leadsUpdate: Access = leadsRead;
 export const leadsReadVersions: Access = ({ req }) => {
   if (!req.user) return false;
   if (isRole(req, 'admin', 'handler')) return true;
-  if (isRole(req, 'sales')) return { 'parent.assignedTo': { equals: userId(req) } } as Where;
+  if (isRole(req, 'sales')) {
+    // Not the history of a second-chance lead: every snapshot of its old life says it was
+    // lost, and the whole point of a second chance is that the new owner sees it fresh.
+    // The lead itself (and its notes since the hand-over) is unaffected.
+    return {
+      and: [
+        { 'parent.assignedTo': { equals: userId(req) } },
+        { 'parent.revivedAt': { exists: false } },
+      ],
+    } as Where;
+  }
   return false;
 };
 

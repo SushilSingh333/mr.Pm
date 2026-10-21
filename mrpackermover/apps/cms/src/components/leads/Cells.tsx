@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { useAuth, useListRelationships } from '@payloadcms/ui';
-import { exactTime, personCase } from '../dashboard/lead-status.js';
+import { exactTime, personCase, statusMeta } from '../dashboard/lead-status.js';
 import { useBrowserClock } from '../../lib/use-browser-clock.js';
 
 /**
@@ -34,7 +34,7 @@ import { useBrowserClock } from '../../lib/use-browser-clock.js';
  * "Assigned": less information than the name, but true, where "Unassigned" would be a lie
  * that sends someone chasing a lead a colleague is already working.
  */
-export function OwnerCell({ cellData }: { cellData?: unknown }): React.JSX.Element {
+function OwnerName({ cellData }: { cellData?: unknown }): React.JSX.Element {
   const { documents, getRelationships } = useListRelationships();
   const { user: me } = useAuth();
 
@@ -110,13 +110,63 @@ function age(iso: string): string {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-export function AgeCell({ cellData }: { cellData?: unknown }): React.JSX.Element | null {
+/** What a list row knows about a second chance (see Leads: revivedFrom etc.). */
+interface RevivedRow {
+  revivedAt?: string | null;
+  revivedFrom?: string | null;
+  revivedFromOwnerName?: string | null;
+}
+const routes = (user: unknown): boolean => {
+  const role = (user as { role?: string } | null | undefined)?.role;
+  return role === 'admin' || role === 'handler';
+};
+
+/**
+ * The owner, and for admins and handlers a "2nd chance" tag on a lead that was lost and
+ * handed on as fresh - with what it was and who had it in the tooltip. A salesperson never
+ * sees the tag (and cannot read the fields behind it).
+ */
+export function OwnerCell({
+  cellData,
+  rowData,
+}: {
+  cellData?: unknown;
+  rowData?: RevivedRow;
+}): React.JSX.Element {
+  const { user } = useAuth();
+  const revived = Boolean(rowData?.revivedAt) && routes(user);
+  if (!revived) return <OwnerName cellData={cellData} />;
+  const was = rowData?.revivedFrom ? statusMeta(rowData.revivedFrom).label : 'Lost';
+  const tip =
+    `Second chance: was ${was}${rowData?.revivedFromOwnerName ? ` with ${personCase(rowData.revivedFromOwnerName)}` : ''}, ` +
+    `given as a fresh lead ${exactTime(rowData?.revivedAt ?? '')}. The new owner sees it as new.`;
+  return (
+    <span className="mpm-owner-wrap">
+      <OwnerName cellData={cellData} />
+      <span className="mpm-second" title={tip}>
+        2nd chance · was {was}
+      </span>
+    </span>
+  );
+}
+
+export function AgeCell({
+  cellData,
+  rowData,
+}: {
+  cellData?: unknown;
+  rowData?: RevivedRow;
+}): React.JSX.Element | null {
   useBrowserClock();
-  if (typeof cellData !== 'string' || !cellData) return null;
-  const text = age(cellData);
+  const { user } = useAuth();
+  // A salesperson's second-chance lead is as old as their having it, not as the lead.
+  const fresh = rowData?.revivedAt && !routes(user) ? rowData.revivedAt : null;
+  const at = fresh ?? (typeof cellData === 'string' ? cellData : '');
+  if (!at) return null;
+  const text = age(at);
   if (!text) return null;
   return (
-    <span className="mpm-age" title={exactTime(cellData)} suppressHydrationWarning>
+    <span className="mpm-age" title={exactTime(at)} suppressHydrationWarning>
       {text}
     </span>
   );

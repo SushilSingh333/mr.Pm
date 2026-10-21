@@ -1470,6 +1470,14 @@ export interface Lead {
    */
   acknowledgedAt?: string | null;
   /**
+   * This lead was lost, then given to its current owner as a fresh lead. They see it as new.
+   */
+  revivedFrom?: ('lost' | 'call-not-picked' | 'call-not-connected') | null;
+  revivedFromOwnerName?: string | null;
+  revivedAt?: string | null;
+  revivedByName?: string | null;
+  revivedCount?: number | null;
+  /**
    * Which ad or form this came from, as the sender described it.
    */
   sourceDetail?: string | null;
@@ -1507,7 +1515,7 @@ export interface Customer {
   email?: string | null;
   city?: string | null;
   /**
-   * Tick after confirming the number on a call. Their earlier quote requests on this number then show in their account.
+   * Shows their earlier quote requests on this number in their account. To verify: Reset password, send it on WhatsApp to this number, and tick this once they have signed in with it (that proves the number is theirs).
    */
   phoneVerified?: boolean | null;
   addresses?:
@@ -2552,6 +2560,11 @@ export interface LeadsSelect<T extends boolean = true> {
   assignedBy?: T;
   assignedByName?: T;
   acknowledgedAt?: T;
+  revivedFrom?: T;
+  revivedFromOwnerName?: T;
+  revivedAt?: T;
+  revivedByName?: T;
+  revivedCount?: T;
   sourceDetail?: T;
   externalId?: T;
   rawPayload?: T;

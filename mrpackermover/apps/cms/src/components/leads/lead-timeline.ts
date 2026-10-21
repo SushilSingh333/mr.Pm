@@ -188,6 +188,12 @@ const detailFor = (n: NoteRow): string | undefined =>
 export function buildTimeline(
   lead: TimelineLead | null | undefined,
   proposals: TimelineProposal[] = [],
+  /**
+   * Show only what happened from this moment on: a salesperson's view of a lead given a
+   * second chance (Leads: revivedAt). Its earlier life - the arrival, old quotes, the
+   * lost owner's notes - belongs to before, and the server already keeps the notes back.
+   */
+  since?: string | null,
 ): TimelineRow[] {
   if (!lead) return [];
   const rows: TimelineRow[] = [];
@@ -247,7 +253,12 @@ export function buildTimeline(
     });
   }
 
-  return rows.sort((a, b) => {
+  const cut = since ? new Date(since).getTime() : NaN;
+  const kept = Number.isFinite(cut)
+    ? rows.filter((r) => !r.at || new Date(r.at).getTime() >= cut)
+    : rows;
+
+  return kept.sort((a, b) => {
     const at = a.at ? new Date(a.at).getTime() : -Infinity;
     const bt = b.at ? new Date(b.at).getTime() : -Infinity;
     return bt - at;

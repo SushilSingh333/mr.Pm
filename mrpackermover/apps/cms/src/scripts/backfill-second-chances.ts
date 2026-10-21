@@ -1,31 +1,41 @@
 /**
- * One-off: put every PAST loss on record, so whoever lost a lead keeps it as Lost in
- * their performance - including leads moved on before that was recorded at all.
+ * Put each lead's record of who LOST it right, from the lead's own saved history.
  *
- * A loss is a lead at a lost stage (lost, call-not-picked, call-not-connected) leaving its
- * owner: handed to someone else, or unassigned. Since the second-chance work, the Leads
- * hook writes a `secondChances` row whenever that happens. Before it, nothing did:
- *   - the very first code left the lead at its lost stage with the new owner;
- *   - the first second-chance version kept only one "lost with" NAME (revivedFromOwnerName);
- *   - a hand-over that picked a stage in the same save recorded nothing.
+ * A loss is a lead at a lost stage (lost, call-not-picked, call-not-connected) leaving the
+ * person who took it there - the rule in lib/loss-history.ts, shared with the live Leads
+ * hook. Earlier code got this wrong in two ways, and this script corrects both:
  *
- * This reads each lead's version history (every save keeps a snapshot, up to 50 per lead)
- * and finds those moments: a snapshot at a lost stage with owner X, followed by one where
- * X no longer owns it. Each becomes a `secondChances` row for X - the stage, when, and who
- * handed it on. Where the history has been pruned, a first-version lead still gets its
- * row from the stored name.
+ *   MISSING  Before the second-chance work nothing recorded a loss, and its first version
+ *            kept a single "lost with" name and only on one path.
+ *   WRONG    That first version, and the first backfill built on it, named whoever held
+ *            the lead at the moment it was handed on. The oldest code moved leads WITHOUT
+ *            resetting the stage, so many sat "Lost" with a person who had only been
+ *            passed them - and that person was blamed for leads they never touched.
+ *
+ * For every lead it reads the history (one snapshot per save, up to 50 kept per lead),
+ * works out the real losses and the pass-ons, and reconciles the rows on record:
+ *   - a real loss with no row          -> ADD it
+ *   - a row that is really a pass-on   -> REMOVE it (it blames the wrong person)
+ *   - a row that matches a real loss   -> keep
+ *   - a row the history cannot explain -> keep (history pruned, or written live)
+ * Matching is by person (id, or name ignoring case) and stage, counted - never by time.
  *
  * Safe:
- *   - a preview by default; nothing is written without --apply;
- *   - a loss already on record (same person, same stage, within 10 minutes) is skipped,
- *     so it can run any number of times;
+ *   - a preview by default, listing every add and every removal; --apply to write;
  *   - only `secondChances` changes - never a status or an owner - and each lead's
- *     "last updated" time is put back afterwards, so no quote looks freshly touched.
+ *     "last updated" time is put back, so no quote looks freshly worked;
+ *   - running it again finds nothing more to do.
  *
  *   pnpm --filter @mpm/cms backfill-second-chances               # preview
  *   pnpm --filter @mpm/cms backfill-second-chances -- --apply    # write it
+ *
+ * Dates: "handed on" is when the lead left the person; "marked" is when it reached that
+ * stage with them. Reviews filter by when the customer enquired, so neither moves a lead
+ * between months on a review.
  */
 import fs from 'node:fs';
+// Type only - erased at build, so it does not load anything before .env is read.
+import type { Loss } from '../lib/loss-history.js';
 
 // tsx does not load apps/cms/.env the way Next does, and the Payload config reads the
 // environment when it is imported - so load the file first, then import (the same as
@@ -46,14 +56,15 @@ for (const rawLine of envFile.split('\n')) {
 const { getPayload } = await import('payload');
 const { sql } = await import('@payloadcms/db-postgres');
 const { default: config } = await import('../payload.config.js');
-const { REVIVABLE_STAGES, statusMeta, personCase } =
-  await import('../components/dashboard/lead-status.js');
+const { statusMeta, personCase } = await import('../components/dashboard/lead-status.js');
+const { readLosses, toSnap } = await import('../lib/loss-history.js');
 
 const APPLY = process.argv.includes('--apply');
 
+/** A row as stored on the lead. */
 interface Row {
   from: string;
-  owner: string | number | null;
+  owner: string;
   ownerName: string | null;
   byName: string | null;
   at: string;
@@ -66,12 +77,15 @@ interface Lead {
   revivedFrom?: string | null;
   revivedFromOwnerName?: string | null;
   revivedByName?: string | null;
-  secondChances?: (Partial<Row> & { owner?: unknown })[] | null;
-}
-interface Snapshot {
-  createdAt?: string;
-  updatedAt?: string;
-  version?: { status?: string; assignedTo?: unknown; assignedByName?: string | null };
+  secondChances?:
+    | {
+        from?: string | null;
+        owner?: unknown;
+        ownerName?: string | null;
+        byName?: string | null;
+        at?: string | null;
+      }[]
+    | null;
 }
 
 const idOf = (v: unknown): string =>
@@ -80,7 +94,10 @@ const idOf = (v: unknown): string =>
     : v == null
       ? ''
       : String(v);
-const asId = (v: string): string | number => (/^\d+$/.test(v) ? Number(v) : v);
+const asId = (v: string): string | number | null =>
+  v === '' ? null : /^\d+$/.test(v) ? Number(v) : v;
+const norm = (v: string | null | undefined): string => (v ?? '').trim().toLowerCase();
+const day = (iso: string): string => iso.slice(0, 10);
 
 const payload = await getPayload({ config });
 
@@ -95,8 +112,15 @@ const nameById = new Map<string, string>();
 const idByName = new Map<string, string>();
 for (const u of users.docs as { id: string | number; name?: string; email?: string }[]) {
   nameById.set(String(u.id), u.name || u.email || `User ${u.id}`);
-  for (const k of [u.name, u.email]) if (k) idByName.set(k.trim().toLowerCase(), String(u.id));
+  for (const k of [u.name, u.email]) if (k) idByName.set(norm(k), String(u.id));
 }
+const who = (owner: string, fallback?: string | null): string =>
+  personCase(nameById.get(owner) ?? fallback ?? 'unknown');
+
+/** Same person: by id, or by name where an early row kept only a name. */
+const samePerson = (row: Row, owner: string): boolean =>
+  (row.owner !== '' && row.owner === owner) ||
+  (norm(row.ownerName) !== '' && norm(row.ownerName) === norm(nameById.get(owner)));
 
 const leads = (
   await payload.find({
@@ -108,45 +132,32 @@ const leads = (
   })
 ).docs as unknown as Lead[];
 
-const perPerson = new Map<string, Map<string, number>>();
-const changes: { lead: Lead; add: Row[] }[] = [];
-let fromHistory = 0;
-let skipped = 0;
-let inherited = 0;
-const markedAt = new Map<Row, string>();
-let fromName = 0;
+interface Plan {
+  lead: Lead;
+  keep: Row[];
+  add: Loss[];
+  addByName: Row[];
+  remove: { row: Row; passOn: Loss }[];
+}
+const plans: Plan[] = [];
+const tally = { add: 0, remove: 0, right: 0, unexplained: 0, passOns: 0 };
+const perPerson = new Map<string, { add: number; remove: number }>();
+const bumpPerson = (name: string, k: 'add' | 'remove'): void => {
+  const p = perPerson.get(name) ?? { add: 0, remove: 0 };
+  p[k] += 1;
+  perPerson.set(name, p);
+};
 
 for (const lead of leads) {
   const have: Row[] = (lead.secondChances ?? []).map((r) => ({
     from: String(r.from ?? ''),
-    owner: idOf(r.owner) || null,
+    owner: idOf(r.owner),
     ownerName: r.ownerName ?? null,
     byName: r.byName ?? null,
     at: String(r.at ?? ''),
   }));
-  const add: Row[] = [];
-  /**
-   * Is this loss already on record? Counted, not timed: if the lead already has N rows
-   * for this person at this stage, the first N losses the history shows for them there
-   * are those rows - whatever time each was stamped with. A row written by the first
-   * backfill carries the second-chance time, which need not match the snapshot's to the
-   * minute; matching on time alone could write the same loss twice. The person is the
-   * same by id, or by name where an early row kept only a name.
-   */
-  const norm = (v: string | null | undefined): string => (v ?? '').trim().toLowerCase();
-  const samePerson = (h: Row, r: Row): boolean =>
-    (h.owner != null && r.owner != null && String(h.owner) === String(r.owner)) ||
-    (norm(h.ownerName) !== '' && norm(h.ownerName) === norm(r.ownerName));
-  const seen: Row[] = [];
-  const isRecorded = (r: Row): boolean => {
-    seen.push(r);
-    const nth = seen.filter((x) => x.from === r.from && samePerson(x, r)).length;
-    const onRecord = have.filter((h) => h.from === r.from && samePerson(h, r)).length;
-    return nth <= onRecord;
-  };
 
-  // The history, oldest first.
-  const snaps = (
+  const history = (
     await payload.findVersions({
       collection: 'leads',
       where: { parent: { equals: lead.id } } as never,
@@ -156,99 +167,92 @@ for (const lead of leads) {
       depth: 0,
       overrideAccess: true,
     })
-  ).docs as unknown as Snapshot[];
+  ).docs as Parameters<typeof toSnap>[0][];
+  const { losses, passOns } = readLosses(history.map(toSnap));
+  tally.passOns += passOns.length;
 
-  for (let i = 0; i + 1 < snaps.length; i++) {
-    const was = snaps[i]?.version;
-    const next = snaps[i + 1]?.version;
-    const stage = String(was?.status ?? '');
-    const owner = idOf(was?.assignedTo);
-    if (!REVIVABLE_STAGES.includes(stage) || !owner) continue;
-    if (idOf(next?.assignedTo) === owner) continue;
-    // When it reached that stage with them: back through the run of snapshots that
-    // already showed it there. Shown in the preview only - `at` is when it LEFT them.
-    let j = i;
-    while (
-      j > 0 &&
-      snaps[j - 1]?.version?.status === stage &&
-      idOf(snaps[j - 1]?.version?.assignedTo) === owner
-    )
-      j -= 1;
-    // Inherited, not lost: the snapshot before the run was already at this stage with
-    // someone else. The oldest code moved leads WITHOUT resetting the stage, so a lead
-    // could arrive at "Lost" and be passed on again untouched - that person never had a
-    // chance with it, and it is not their loss.
-    if (j > 0 && snaps[j - 1]?.version?.status === stage) {
-      inherited += 1;
-      continue;
-    }
-    const row: Row = {
-      from: stage,
-      owner: asId(owner),
-      ownerName: nameById.get(owner) ?? null,
-      // Whoever the save names as handing it over - blank when it was only unassigned.
-      byName: next?.assignedTo ? (next.assignedByName ?? null) : null,
-      at: String(snaps[i + 1]?.createdAt ?? snaps[i + 1]?.updatedAt ?? ''),
-    };
-    if (isRecorded(row)) {
-      skipped += 1;
-      continue;
-    }
-    add.push(row);
-    markedAt.set(row, String(snaps[j]?.createdAt ?? ''));
-    fromHistory += 1;
+  // Each real loss claims one matching row; a loss with no row is missing.
+  const used = new Set<number>();
+  const add: Loss[] = [];
+  for (const loss of losses) {
+    const k = have.findIndex(
+      (r, i) => !used.has(i) && r.from === loss.from && samePerson(r, loss.owner),
+    );
+    if (k >= 0) {
+      used.add(k);
+      tally.right += 1;
+    } else add.push(loss);
   }
+  // A row left over that is really a pass-on blames someone who never had the lead.
+  const remove: Plan['remove'] = [];
+  const claimed = new Set<number>();
+  have.forEach((r, i) => {
+    if (used.has(i)) return;
+    const p = passOns.findIndex(
+      (po, j) => !claimed.has(j) && po.from === r.from && samePerson(r, po.owner),
+    );
+    if (p >= 0) {
+      claimed.add(p);
+      remove.push({ row: r, passOn: passOns[p]! });
+    } else tally.unexplained += 1;
+  });
+  const keep = have.filter((r) => !remove.some((x) => x.row === r));
 
   // A first-version second chance whose history has been pruned: its stored name.
-  if (lead.revivedAt && lead.revivedFromOwnerName && !have.length && !add.length) {
+  const addByName: Row[] = [];
+  if (
+    !losses.length &&
+    !passOns.length &&
+    !have.length &&
+    lead.revivedAt &&
+    lead.revivedFromOwnerName
+  ) {
     const nm = lead.revivedFromOwnerName.trim();
-    const owner = idByName.get(nm.toLowerCase()) ?? null;
-    add.push({
+    addByName.push({
       from: lead.revivedFrom ?? 'lost',
-      owner: owner ? asId(owner) : null,
+      owner: idByName.get(norm(nm)) ?? '',
       ownerName: nm,
       byName: lead.revivedByName ?? null,
       at: lead.revivedAt,
     });
-    fromName += 1;
   }
 
-  if (!add.length) continue;
-  changes.push({ lead, add });
-  for (const r of add) {
-    const who = r.ownerName ?? 'Unknown';
-    const m = perPerson.get(who) ?? new Map<string, number>();
-    m.set(r.from, (m.get(r.from) ?? 0) + 1);
-    perPerson.set(who, m);
-  }
+  if (!add.length && !remove.length && !addByName.length) continue;
+  plans.push({ lead, keep, add, addByName, remove });
+  tally.add += add.length + addByName.length;
+  tally.remove += remove.length;
+  for (const a of add) bumpPerson(who(a.owner), 'add');
+  for (const a of addByName) bumpPerson(personCase(a.ownerName ?? 'unknown'), 'add');
+  for (const r of remove) bumpPerson(who(r.row.owner, r.row.ownerName), 'remove');
 }
 
-// ── The preview, by person - what each one's Lost will go up by. ──
-const lines = [...perPerson.entries()]
-  .map(([who, m]) => {
-    const total = [...m.values()].reduce((a, b) => a + b, 0);
-    const parts = [...m.entries()].map(([v, n]) => `${statusMeta(v).label} ${n}`).join(', ');
-    return { who, total, text: `  ${personCase(who)}: +${total} lost (${parts})` };
-  })
-  .sort((a, b) => b.total - a.total);
+// ── Preview ──────────────────────────────────────────────────────────────────────
 payload.logger.info(
-  `Past losses found: ${fromHistory + fromName} on ${changes.length} leads ` +
-    `(${fromHistory} from version history, ${fromName} from a stored name). ` +
-    `Already on record, skipped: ${skipped}. Passed on already lost (not counted): ${inherited}.`,
+  `Leads to change: ${plans.length}. Losses to ADD: ${tally.add}. Wrong rows to REMOVE ` +
+    `(passed on already lost - not that person's loss): ${tally.remove}. ` +
+    `Rows already right: ${tally.right}. Rows kept that history cannot explain: ${tally.unexplained}. ` +
+    `Pass-ons seen in history (never counted): ${tally.passOns}.`,
 );
-for (const l of lines) payload.logger.info(l.text);
-for (const { lead, add } of changes) {
-  for (const r of add) {
+for (const [name, p] of [...perPerson.entries()].sort(
+  (a, b) => b[1].add + b[1].remove - (a[1].add + a[1].remove),
+)) {
+  payload.logger.info(`  ${name}: +${p.add} lost, -${p.remove} lost`);
+}
+for (const { lead, add, addByName, remove } of plans) {
+  const title = `#${lead.id} ${personCase(lead.name ?? '')}`;
+  for (const a of add) {
     payload.logger.info(
-      `    #${lead.id} ${personCase(lead.name ?? '')}: ${statusMeta(r.from).label} with ` +
-        `${personCase(r.ownerName ?? 'unknown')}` +
-        (markedAt.get(r)
-          ? ` - marked ${statusMeta(r.from).label} ${markedAt.get(r)!.slice(0, 10)}`
-          : '') +
-        `, handed on ${r.at.slice(0, 10)}` +
-        ((lead.secondChances ?? []).length
-          ? ` (already on record: ${(lead.secondChances ?? []).map((h) => `${statusMeta(String(h.from)).label} with ${h.ownerName ?? 'unknown'}`).join('; ')})`
-          : ''),
+      `    ${title}: + ${statusMeta(a.from).label} with ${who(a.owner)} - marked ${day(a.markedAt)}, handed on ${day(a.at)}`,
+    );
+  }
+  for (const a of addByName) {
+    payload.logger.info(
+      `    ${title}: + ${statusMeta(a.from).label} with ${personCase(a.ownerName ?? 'unknown')} - from the stored name, handed on ${day(a.at)}`,
+    );
+  }
+  for (const r of remove) {
+    payload.logger.info(
+      `    ${title}: - ${statusMeta(r.row.from).label} with ${who(r.row.owner, r.row.ownerName)} - it reached them already ${statusMeta(r.passOn.from).label} and was passed on ${day(r.passOn.at)}`,
     );
   }
 }
@@ -258,22 +262,26 @@ if (!APPLY) {
   process.exit(0);
 }
 
+// ── Apply ────────────────────────────────────────────────────────────────────────
 let written = 0;
-for (const { lead, add } of changes) {
-  const merged = [
-    ...(lead.secondChances ?? []).map((r) => ({
-      from: r.from,
-      owner: idOf(r.owner) ? asId(idOf(r.owner)) : null,
-      ownerName: r.ownerName ?? null,
-      byName: r.byName ?? null,
-      at: r.at,
+for (const { lead, keep, add, addByName } of plans) {
+  const rows = [
+    ...keep,
+    ...add.map((a) => ({
+      from: a.from,
+      owner: a.owner,
+      ownerName: nameById.get(a.owner) ?? null,
+      byName: a.byName,
+      at: a.at,
     })),
-    ...add,
-  ].sort((x, y) => String(x.at).localeCompare(String(y.at)));
+    ...addByName,
+  ]
+    .sort((x, y) => x.at.localeCompare(y.at))
+    .map((r) => ({ ...r, owner: asId(r.owner) }));
   await payload.update({
     collection: 'leads',
     id: lead.id,
-    data: { secondChances: merged as never },
+    data: { secondChances: rows as never },
     depth: 0,
     overrideAccess: true,
   });
@@ -288,5 +296,5 @@ for (const { lead, add } of changes) {
   }
   written += 1;
 }
-payload.logger.info(`Saved: ${written} leads now carry their past losses.`);
+payload.logger.info(`Saved: ${written} leads corrected.`);
 process.exit(0);

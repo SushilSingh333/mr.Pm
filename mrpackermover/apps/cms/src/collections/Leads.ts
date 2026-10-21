@@ -1,6 +1,7 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { DAY_AND_TIME, DAY_ONLY, checkYear } from '../lib/date-display.js';
 import { lostByMeEndpoint } from '../endpoints/lost-by-me.js';
+import { inheritedStage, toSnap } from '../lib/loss-history.js';
 import {
   leadsRead,
   leadsUpdate,
@@ -235,6 +236,10 @@ export const Leads: CollectionConfig = {
          * on fresh, handed on at a chosen stage, or unassigned - a `secondChances` row
          * keeps it as that person's loss. Recording it only on the fresh path would let a
          * loss quietly vanish from someone's record because of how the lead was moved.
+         *
+         * Unless they never had it at all: a lead that reached them ALREADY at that stage
+         * (the oldest code moved leads without resetting it) and leaves untouched is a
+         * pass-on, not their loss - see lib/loss-history.ts, which the backfill shares.
          */
         const was = String(originalDoc?.status ?? '');
         let revivedNow = false;
@@ -243,7 +248,26 @@ export const Leads: CollectionConfig = {
           before !== after &&
           REVIVABLE_STAGES.includes(was) &&
           isRole(req, 'admin', 'handler');
-        const losing = staffMove && before != null;
+        let losing = staffMove && before != null;
+        if (losing && originalDoc?.id != null) {
+          try {
+            const history = await req.payload.findVersions({
+              collection: 'leads',
+              where: { parent: { equals: originalDoc.id } } as never,
+              sort: '-createdAt',
+              limit: 50,
+              pagination: false,
+              depth: 0,
+              overrideAccess: true,
+              req,
+            });
+            const snaps = (history.docs as Parameters<typeof toSnap>[0][]).map(toSnap);
+            if (inheritedStage(snaps, was, String(before))) losing = false;
+          } catch (err) {
+            // No history to read: record the loss, the safer error for the person's record.
+            req.payload.logger.warn({ err }, 'leads: could not read history for a loss');
+          }
+        }
         const reviving =
           staffMove && Boolean(after) && (data.status === undefined || data.status === was);
         if (losing || reviving) {

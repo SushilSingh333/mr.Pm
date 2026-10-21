@@ -246,6 +246,20 @@ const _proposalPdf = (function () {
   function tw(s,sz,b){var a=(b===1)?HB:HW,w=0;for(var i=0;i<s.length;i++){var c=s.charCodeAt(i)-32;w+=(c>=0&&c<95)?a[c]:556;}return w*sz/1000;}
   function trunc(s,sz,b,mw){s=san(s);if(tw(s,sz,b)<=mw)return s;var t=s;while(t.length>1&&tw(t+'..',sz,b)>mw)t=t.slice(0,-1);return t+'..';}
   function wrap(s,sz,b,mw){s=san(s);var wds=s.split(/\s+/),L=[],c='';for(var i=0;i<wds.length;i++){var t=c?c+' '+wds[i]:wds[i];if(tw(t,sz,b)>mw&&c){L.push(c);c=wds[i];}else c=t;}if(c)L.push(c);return L;}
+  /* wrap(), plus a line that is still too wide - one long word with no spaces, like a
+     pasted "H.No.12/B-4,GaliNo.3" - is broken by characters instead of running past the
+     edge. For text that must print in full: an address on a quote is never cut. */
+  function wrapAll(s,sz,b,mw){var out=[],L=wrap(s,sz,b,mw);for(var i=0;i<L.length;i++){var r=L[i];while(tw(r,sz,b)>mw&&r.length>1){var n=r.length-1;while(n>1&&tw(r.slice(0,n),sz,b)>mw)n--;out.push(r.slice(0,n));r=r.slice(n);}out.push(r);}return out;}
+  /* Width of a contact row at its normal size, before contactRow() scales it to fit. */
+  function contactNeed(list){var need=-15;for(var n=0;n<list.length;n++)need+=19+tw(list[n][1],8.5,0)+15;return need;}
+  /* The contact row, with the registered address on it only when everything still reads
+     at 80% size. A long address used to shrink the whole row to a squint and then run
+     off the page; now it gets lines of its own under the row, in full. */
+  function splitContacts(c){var mc=[];if(c.phone)mc.push(['phone',c.phone]);if(c.mobile)mc.push(['phone',c.mobile]);if(c.email)mc.push(['mail',c.email]);if(c.web)mc.push(['globe',c.web]);
+    if(!c.addr)return {row:mc,addr:[]};var all=mc.concat([['pin',c.addr]]);
+    if(contactNeed(all)*0.8<=CW)return {row:all,addr:[]};
+    return {row:mc,addr:wrapAll(c.addr,8.5,0,CW-19)};}
+  function addrLines(O,lines,x,ybase,lh){for(var i=0;i<lines.length;i++){if(i===0)badge(O,x+7,ybase-8.5*0.353,7,CO.brand,'pin',CO.white,9);txt(O,x+19,ybase+i*lh,lines[i],8.5,0,CO.onBrandSoft);}}
 
   function fillRect(O,x,y,w,h,hex){O.push(col(hex)+' rg '+ff(x)+' '+ff(PH-(y+h))+' '+ff(w)+' '+ff(h)+' re f');}
   function strokeRect(O,x,y,w,h,hex,t){O.push(col(hex)+' RG '+ff(t||0.7)+' w '+ff(x)+' '+ff(PH-(y+h))+' '+ff(w)+' '+ff(h)+' re S');}
@@ -345,8 +359,10 @@ const _proposalPdf = (function () {
   function sheet1(d){
     var O=[],links=[],c=d.company,cu=d.customer,mv=d.move,t=d.totals;
     var validTill=prettyDate(addDays(isoToday(),d.validDays));
-    fillRect(O,0,0,PW,112,CO.deep);
-    fillRect(O,0,112,PW,4,CO.flash);
+    // The band grows by one line per address line that could not share the contact row.
+    var ct=splitContacts(c),bandH=112+ct.addr.length*13;
+    fillRect(O,0,0,PW,bandH,CO.deep);
+    fillRect(O,0,bandH,PW,4,CO.flash);
     /* The lockup carries the wordmark and the strapline as artwork, so the typeset
        company name and tagline that used to sit beside a badge are gone - rendering
        the brand name in Helvetica next to the real logo looked like a fallback. A
@@ -358,10 +374,10 @@ const _proposalPdf = (function () {
     txt(O,RX,68,'Date: '+prettyDate(isoToday()),8.5,0,CO.onDeepSoft,'r');
     txt(O,RX,80,'Valid till: '+validTill,8.5,0,CO.onDeepSoft,'r');
     seg(O,CM,94,RX,94,CO.deepRule,0.9);
-    var mc=[];if(c.phone)mc.push(['phone',c.phone]);if(c.mobile)mc.push(['phone',c.mobile]);if(c.email)mc.push(['mail',c.email]);if(c.web)mc.push(['globe',c.web]);if(c.addr)mc.push(['pin',c.addr]);
-    contactRow(O,mc,CM,106,CO.brand,CO.white,CO.onBrandSoft,links,CW);
+    contactRow(O,ct.row,CM,106,CO.brand,CO.white,CO.onBrandSoft,links,CW);
+    addrLines(O,ct.addr,CM,119,13);
 
-    var y=140, bw=(CW-16)/2, bh=66;
+    var y=140+(bandH-112), bw=(CW-16)/2, bh=66;
     party(O,CM,y,bw,bh,'PREPARED FOR',cu.name||'-',[cu.phone,cu.email].filter(Boolean));
     party(O,CM+bw+16,y,bw,bh,'PREPARED BY',c.name,[c.rep,c.gst?('GSTIN: '+c.gst):''].filter(Boolean));
     y+=bh+16;
@@ -372,21 +388,40 @@ const _proposalPdf = (function () {
        9pt, joined with any sub-line the caller passed. A single-word location renders
        exactly as it did before. Two wrapped lines is the cap - beyond that an address
        is being pasted in, not written, and the card should not grow without limit. */
-    var RW=175;
+    /* The full address, always. It used to be cut: the part before the first comma to
+       one 15pt line ending "..", and the rest to two lines with anything after them
+       silently dropped - so a real street address lost its house number or its city.
+       Now nothing is dropped:
+         - the headline wraps onto a second line, and steps down to 12pt if even two
+           lines will not hold it;
+         - the rest wraps in full underneath. It runs below the truck mark, so it may use
+           almost half the card (TW) rather than the narrower width beside the mark (RW).
+       A short route still comes out exactly as before - same sizes, same 54pt card. */
+    var RW=175,TW=CW/2-30;
     function routeText(v,sub){
       var t=san(v||'-'),i=t.indexOf(','),head=i>0?t.slice(0,i).trim():t,rest=i>0?t.slice(i+1).trim():'';
       var tail=[rest,san(sub||'')].filter(Boolean).join(' - ');
-      return {head:trunc(head,15,1,RW),tail:tail?wrap(tail,9,0,RW).slice(0,2):[]};
+      var hs=15,hl=wrapAll(head,hs,1,RW);
+      if(hl.length>2){hs=12;hl=wrapAll(head,hs,1,RW);}
+      var r={hs:hs,head:hl,tail:tail?wrapAll(tail,9,0,TW):[]};
+      // Baselines, from the top of the card: headline lines, then the rest 12pt below.
+      r.hy=[];for(var k=0;k<hl.length;k++)r.hy.push(35+k*(hs+3));
+      var after=r.hy[r.hy.length-1]+12;
+      r.ty=[];for(k=0;k<r.tail.length;k++)r.ty.push(after+k*11);
+      r.last=r.tail.length?r.ty[r.ty.length-1]:r.hy[r.hy.length-1];
+      return r;
     }
     var rFrom=routeText(mv.from,mv.froms),rTo=routeText(mv.to,mv.tos);
     /* The card grows only as far as the taller side needs, so a short route keeps the
        original 54pt height and the page below it does not shift. */
-    var rmH=54+Math.max(0,Math.max(rFrom.tail.length,rTo.tail.length)-1)*11;
+    var rmH=Math.max(54,Math.max(rFrom.last,rTo.last)+7);
     rrect(O,CM,y,CW,rmH,10,CO.line,true,1);
-    txt(O,CM+18,y+17,'FROM',8,1,CO.brand);txt(O,CM+18,y+35,rFrom.head,15,1,CO.deep);
-    for(var ri=0;ri<rFrom.tail.length;ri++)txt(O,CM+18,y+47+ri*11,rFrom.tail[ri],9,0,CO.soft);
-    txt(O,RX-18,y+17,'TO',8,1,CO.brand,'r');txt(O,RX-18,y+35,rTo.head,15,1,CO.deep,'r');
-    for(ri=0;ri<rTo.tail.length;ri++)txt(O,RX-18,y+47+ri*11,rTo.tail[ri],9,0,CO.soft,'r');
+    function routeEnd(r,x,al){
+      for(var k=0;k<r.head.length;k++)txt(O,x,y+r.hy[k],r.head[k],r.hs,1,CO.deep,al);
+      for(k=0;k<r.tail.length;k++)txt(O,x,y+r.ty[k],r.tail[k],9,0,CO.soft,al);
+    }
+    txt(O,CM+18,y+17,'FROM',8,1,CO.brand);routeEnd(rFrom,CM+18);
+    txt(O,RX-18,y+17,'TO',8,1,CO.brand,'r');routeEnd(rTo,RX-18,'r');
     var cy=y+28,mx1=CM+CW/2-46,mx2=CM+CW/2+46;
     seg(O,mx1,cy,mx2,cy,CO.onDeep,1.3,true);
     fillRect(O,mx1-2,cy-2,4,4,CO.brand);fillRect(O,mx2-2,cy-2,4,4,CO.brand);
@@ -492,13 +527,14 @@ const _proposalPdf = (function () {
     badge(O,CM+16,y+14,7,CO.brand,'check',CO.white,9);
     txt(O,CM+30,y+17,'Kindly sign and return a copy of this proposal to confirm your booking. This estimate supersedes any prior verbal quote.',9,2,CO.deep);
 
-    var fy=PH-58;
+    // Taller by a line for each address line that could not share the contact row.
+    var fct=splitContacts(c),fh=58+fct.addr.length*12,fy=PH-fh;
     /* Matches the rules under both mastheads, and for the same reason: a brand-blue
        rule on the near-black footer band was invisible. */
-    fillRect(O,0,fy,PW,58,CO.deeper);fillRect(O,0,fy,PW,3,CO.flash);
+    fillRect(O,0,fy,PW,fh,CO.deeper);fillRect(O,0,fy,PW,3,CO.flash);
     txt(O,CM,fy+24,'Thank you for trusting '+c.name+' with your move.',11,2,CO.white);
-    var fc=[];if(c.phone)fc.push(['phone',c.phone]);if(c.mobile)fc.push(['phone',c.mobile]);if(c.email)fc.push(['mail',c.email]);if(c.web)fc.push(['globe',c.web]);if(c.addr)fc.push(['pin',c.addr]);
-    contactRow(O,fc,CM,fy+42,CO.brand,CO.white,CO.onBrandSoft,links,CW);
+    contactRow(O,fct.row,CM,fy+42,CO.brand,CO.white,CO.onBrandSoft,links,CW);
+    addrLines(O,fct.addr,CM,fy+54,12);
     txt(O,RX,fy+24,'Page 2 of 2 - Terms',8,0,CO.onDeepSoft,'r');
     return {content:O.join('\n'),links:links};
   }

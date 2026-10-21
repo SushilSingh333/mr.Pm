@@ -1,6 +1,13 @@
 import type { Payload } from 'payload';
 import Link from 'next/link';
-import { LEAD_STATUS, exactTime, ownerName, personCase, statusMeta } from './lead-status.js';
+import {
+  LEAD_STATUS,
+  exactTime,
+  ownerName,
+  personCase,
+  staffStageWhere,
+  statusMeta,
+} from './lead-status.js';
 import { ReviewExplorer } from './ReviewExplorer.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
@@ -245,7 +252,9 @@ export async function Dashboard(props: ViewProps): Promise<React.JSX.Element> {
     jobStatsRaw,
     routing,
   ] = await Promise.all([
-    Promise.all(LEAD_STATUS.map((s) => count('leads', { status: { equals: s.value } }))),
+    // As the business counts them: a lost lead handed on as a second chance stays Lost
+    // here until its new owner works it (lead-status: staffStageWhere).
+    Promise.all(LEAD_STATUS.map((s) => count('leads', staffStageWhere(s.value)))),
     // Show only the 5 most recent here; the "open →" link goes to the full leads list.
     findDocs('leads', { limit: 5, sort: '-createdAt', depth: 1 }),
     Promise.all(APP_STATUS.map((s) => count('job-applications', { status: { equals: s.value } }))),

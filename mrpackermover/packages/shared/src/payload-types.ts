@@ -1469,12 +1469,19 @@ export interface Lead {
    * Set the first time the owner saves a change. Empty means they have not actioned it yet.
    */
   acknowledgedAt?: string | null;
-  /**
-   * This lead was lost, then given to its current owner as a fresh lead. They see it as new.
-   */
   revivedFrom?: ('lost' | 'call-not-picked' | 'call-not-connected') | null;
-  revivedFromOwnerName?: string | null;
   revivedAt?: string | null;
+  secondChances?:
+    | {
+        from?: ('lost' | 'call-not-picked' | 'call-not-connected') | null;
+        owner?: (number | null) | User;
+        ownerName?: string | null;
+        byName?: string | null;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  revivedFromOwnerName?: string | null;
   revivedByName?: string | null;
   revivedCount?: number | null;
   /**
@@ -2561,8 +2568,18 @@ export interface LeadsSelect<T extends boolean = true> {
   assignedByName?: T;
   acknowledgedAt?: T;
   revivedFrom?: T;
-  revivedFromOwnerName?: T;
   revivedAt?: T;
+  secondChances?:
+    | T
+    | {
+        from?: T;
+        owner?: T;
+        ownerName?: T;
+        byName?: T;
+        at?: T;
+        id?: T;
+      };
+  revivedFromOwnerName?: T;
   revivedByName?: T;
   revivedCount?: T;
   sourceDetail?: T;

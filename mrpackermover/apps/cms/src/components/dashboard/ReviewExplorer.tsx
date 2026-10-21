@@ -1,7 +1,18 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@payloadcms/ui';
 import { MIcon } from '../icons/MIcon.js';
-import { REVIEW_BUCKETS, REVIEW_PENDING, buildReview, type Review } from './lead-status.js';
+import {
+  REVIEW_BUCKETS,
+  REVIEW_PENDING,
+  REVIVABLE_STAGES,
+  attribute,
+  buildReview,
+  isUnworkedSecondChance,
+  staffStagesWhere,
+  type CountableLead,
+  type Review,
+} from './lead-status.js';
 import { REVIEW_CSS, ReviewDonut, needsCoaching } from './LeadReview.js';
 
 /**
@@ -96,52 +107,143 @@ const rangeText = (w: Win): string =>
     w.to ? shortDate(new Date(new Date(w.to).getTime() - 1).toISOString()) : 'today'
   }`;
 
-/** A Payload `where` in query-string form: the window, an owner, some stages. */
-function whereQuery(win: Win, owner?: string, statuses?: string[]): string {
-  const parts: string[] = [];
-  let i = 0;
-  if (win.from) parts.push(`where[and][${i++}][createdAt][greater_than_equal]=${win.from}`);
-  if (win.to) parts.push(`where[and][${i++}][createdAt][less_than]=${win.to}`);
-  if (owner) parts.push(`where[and][${i++}][assignedTo][equals]=${encodeURIComponent(owner)}`);
-  if (statuses?.length) {
-    statuses.forEach((s, j) => parts.push(`where[and][${i}][status][in][${j}]=${s}`));
+/** A nested `where` in query-string form, the way Payload's own list URLs write it. */
+function toQuery(value: unknown, prefix: string): string[] {
+  if (Array.isArray(value)) return value.flatMap((v, i) => toQuery(v, `${prefix}[${i}]`));
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([k, v]) => toQuery(v, `${prefix}[${k}]`));
   }
-  return parts.join('&');
+  return value == null ? [] : [`${prefix}=${encodeURIComponent(String(value))}`];
 }
+
+/**
+ * The leads behind a count: the window, an owner, some stages.
+ *
+ * For admins and handlers (`staff`) it follows the second-chance rules in lead-status, so
+ * a slice opens exactly the leads it counted: a person's Lost includes the leads they lost
+ * that someone else now holds, and the team's Lost includes second chances not yet worked.
+ * A salesperson gets the plain version - their leads at those stages - and nothing else.
+ */
+function whereAnd(
+  win: Win,
+  owner?: string,
+  statuses?: string[],
+  staff = false,
+): Record<string, unknown>[] {
+  const and: Record<string, unknown>[] = [];
+  if (win.from) and.push({ createdAt: { greater_than_equal: win.from } });
+  if (win.to) and.push({ createdAt: { less_than: win.to } });
+  const st = statuses?.length ? statuses : null;
+  if (owner) {
+    const mine = {
+      and: [{ assignedTo: { equals: owner } }, ...(st ? [{ status: { in: st } }] : [])],
+    };
+    const lostAt = st ? st.filter((v) => REVIVABLE_STAGES.includes(v)) : REVIVABLE_STAGES;
+    and.push(
+      staff && lostAt.length
+        ? {
+            or: [
+              mine,
+              {
+                and: [
+                  { 'secondChances.owner': { equals: owner } },
+                  { 'secondChances.from': { in: lostAt } },
+                ],
+              },
+            ],
+          }
+        : mine,
+    );
+  } else if (st) {
+    and.push(staff ? staffStagesWhere(st) : { status: { in: st } });
+  }
+  return and;
+}
+
+const whereQuery = (win: Win, owner?: string, statuses?: string[], staff = false): string =>
+  toQuery(whereAnd(win, owner, statuses, staff), 'where[and]').join('&');
 
 const listUrl = (q: string): string => `/admin/collections/leads${q ? `?${q}` : ''}`;
 
 type Counts = Map<string, Map<string, number>>;
 
-/** Status counts per owner id ('' = nobody) for every lead in a window. */
-async function countsFor(win: Win, owner?: string): Promise<Counts> {
-  const q = whereQuery(win, owner);
-  // Two columns of every lead in the window. `select` keeps each row to two scalars;
-  // without it the adapter joins every array table on the lead to count a stage.
+/**
+ * Stage counts for a window: per owner id ('' = nobody), and in all.
+ *
+ * For staff, each lead goes through `attribute`: everyone who lost it keeps it as lost,
+ * the current owner gets it once they work it (marked a second chance), and the totals
+ * count it once - at its lost stage until it is worked. With an `owner`, the totals are
+ * that person's own.
+ */
+interface Tally {
+  byOwner: Counts;
+  secondByOwner: Counts;
+  total: Map<string, number>;
+  secondTotal: Map<string, number>;
+  /** Second chances handed on and not yet worked (still in Lost). */
+  waiting: number;
+}
+
+const bump = (c: Counts, owner: string, stage: string): void => {
+  const m = c.get(owner) ?? new Map<string, number>();
+  m.set(stage, (m.get(stage) ?? 0) + 1);
+  c.set(owner, m);
+};
+
+async function countsFor(win: Win, owner: string | undefined, staff: boolean): Promise<Tally> {
+  const q = whereQuery(win, owner, undefined, staff);
+  // Only the columns the count needs. `select` keeps each row small; without it the
+  // adapter joins every array table on the lead to count a stage.
+  const cols = staff
+    ? ['status', 'assignedTo', 'revivedAt', 'revivedFrom', 'secondChances']
+    : ['status', 'assignedTo'];
   const res = await fetch(
-    `/api/leads?${q}${q ? '&' : ''}depth=0&limit=50000&pagination=false&select[status]=true&select[assignedTo]=true`,
+    `/api/leads?${q}${q ? '&' : ''}depth=0&limit=50000&pagination=false&${cols
+      .map((c) => `select[${c}]=true`)
+      .join('&')}`,
     { credentials: 'include' },
   );
   if (!res.ok) throw new Error(String(res.status));
-  const docs =
-    ((await res.json()) as { docs?: { status?: string; assignedTo?: unknown }[] }).docs ?? [];
-  const byOwner: Counts = new Map();
+  const docs = ((await res.json()) as { docs?: CountableLead[] }).docs ?? [];
+  const t: Tally = {
+    byOwner: new Map(),
+    secondByOwner: new Map(),
+    total: new Map(),
+    secondTotal: new Map(),
+    waiting: 0,
+  };
+  const add = (m: Map<string, number>, k: string): void => {
+    m.set(k, (m.get(k) ?? 0) + 1);
+  };
   for (const d of docs) {
     if (!d.status) continue;
-    const a = d.assignedTo as { id?: unknown } | string | number | null | undefined;
-    const o = a && typeof a === 'object' ? String(a.id ?? '') : a != null ? String(a) : '';
-    const m = byOwner.get(o) ?? new Map<string, number>();
-    m.set(d.status, (m.get(d.status) ?? 0) + 1);
-    byOwner.set(o, m);
+    if (!staff) {
+      const a = d.assignedTo as { id?: unknown } | string | number | null | undefined;
+      bump(
+        t.byOwner,
+        a && typeof a === 'object' ? String(a.id ?? '') : a != null ? String(a) : '',
+        d.status,
+      );
+      add(t.total, d.status);
+      continue;
+    }
+    const { overall, people } = attribute(d);
+    for (const p of people) {
+      bump(t.byOwner, p.owner, p.stage);
+      if (p.secondChance) bump(t.secondByOwner, p.owner, p.stage);
+    }
+    if (!owner) {
+      add(t.total, overall.stage);
+      if (overall.secondChance) add(t.secondTotal, overall.stage);
+      if (isUnworkedSecondChance(d)) t.waiting += 1;
+    }
   }
-  return byOwner;
-}
-
-const sumAll = (c: Counts): Map<string, number> => {
-  const t = new Map<string, number>();
-  for (const m of c.values()) for (const [k, v] of m) t.set(k, (t.get(k) ?? 0) + v);
+  if (owner && staff) {
+    t.total = t.byOwner.get(owner) ?? new Map();
+    t.secondTotal = t.secondByOwner.get(owner) ?? new Map();
+  }
   return t;
-};
+}
 
 const personCase = (s: string): string =>
   s
@@ -187,8 +289,8 @@ function insightOf(
 }
 
 interface Loaded {
-  now: Counts;
-  prev: Counts | null;
+  now: Tally;
+  prev: Tally | null;
   /** every salesperson, plus anyone else who owns a lead in the window */
   people: { id: string; name: string }[];
 }
@@ -221,6 +323,11 @@ export function ReviewExplorer({
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const { user } = useAuth();
+  const role = (user as { role?: string } | null)?.role;
+  // Admins and handlers see second chances counted as the business sees them; a
+  // salesperson's own numbers stay exactly their own leads (see lead-status: attribute).
+  const staff = role === 'admin' || role === 'handler';
 
   // Come back to what was last looked at - unless the page itself names a person.
   useEffect(() => {
@@ -261,14 +368,14 @@ export function ReviewExplorer({
     const owner = mode === 'person' ? personId : undefined;
     const run = async (): Promise<Loaded> => {
       const [now, prev] = await Promise.all([
-        countsFor(win, owner),
-        prevWin ? countsFor(prevWin, owner).catch(() => null) : Promise.resolve(null),
+        countsFor(win, owner, staff),
+        prevWin ? countsFor(prevWin, owner, staff).catch(() => null) : Promise.resolve(null),
       ]);
       let people: { id: string; name: string }[] = [];
       if (mode === 'team') {
         // Every salesperson, so somebody idle still appears, plus any other owner in the
         // window (a handler holding leads) so nobody with work is missing.
-        const owners = [...now.keys()].filter(Boolean);
+        const owners = [...now.byOwner.keys()].filter(Boolean);
         const q =
           `where[or][0][role][equals]=sales` +
           owners
@@ -305,20 +412,29 @@ export function ReviewExplorer({
       live = false;
     };
     // winKey stands in for `win` and `prevWin`, which are fresh objects every render.
-  }, [mode, personId, winKey, customBad, attempt]);
+  }, [mode, personId, winKey, customBad, attempt, staff]);
 
   /** Every review this card can show, for the current window, and the one before it. */
   const reviews = useMemo(() => {
     if (!data) return null;
-    const total = sumAll(data.now);
-    const prevTotal = data.prev ? sumAll(data.prev) : null;
-    const overall = buildReview((v) => total.get(v) ?? 0);
-    const prevOverall = prevTotal ? buildReview((v) => prevTotal.get(v) ?? 0) : null;
+    const reviewOf = (t: Tally, who?: string): Review =>
+      who === undefined
+        ? buildReview(
+            (v) => t.total.get(v) ?? 0,
+            (v) => t.secondTotal.get(v) ?? 0,
+            t.waiting,
+          )
+        : buildReview(
+            (v) => t.byOwner.get(who)?.get(v) ?? 0,
+            (v) => t.secondByOwner.get(who)?.get(v) ?? 0,
+          );
+    const overall = reviewOf(data.now);
+    const prevOverall = data.prev ? reviewOf(data.prev) : null;
     const people = data.people
       .map((p) => ({
         ...p,
-        review: buildReview((v) => data.now.get(p.id)?.get(v) ?? 0),
-        prev: data.prev ? buildReview((v) => data.prev?.get(p.id)?.get(v) ?? 0) : null,
+        review: reviewOf(data.now, p.id),
+        prev: data.prev ? reviewOf(data.prev, p.id) : null,
       }))
       .sort(
         (a, b) =>
@@ -346,10 +462,18 @@ export function ReviewExplorer({
       : null;
 
   const links = Object.fromEntries(
-    REVIEW_BUCKETS.map((b) => [b.key, listUrl(whereQuery(win, owner, b.statuses))]),
+    REVIEW_BUCKETS.map((b) => [b.key, listUrl(whereQuery(win, owner, b.statuses, staff))]),
   );
-  const pendingHref = listUrl(whereQuery(win, owner, REVIEW_PENDING));
-  const allHref = listUrl(whereQuery(win, owner));
+  const pendingHref = listUrl(whereQuery(win, owner, REVIEW_PENDING, staff));
+  const allHref = listUrl(whereQuery(win, owner, undefined, staff));
+  const secondHref = staff
+    ? listUrl(
+        toQuery(
+          [...whereAnd(win, owner, undefined, staff), { revivedAt: { exists: true } }],
+          'where[and]',
+        ).join('&'),
+      )
+    : undefined;
   const periodLabel = PERIODS.find((p) => p.key === period)?.label ?? '';
   const insight = review ? insightOf(review) : null;
   const empty = review && review.reviewed === 0 && review.pending === 0;
@@ -523,6 +647,7 @@ export function ReviewExplorer({
           period={periodLabel}
           links={links}
           pendingHref={pendingHref}
+          secondHref={secondHref}
           card={false}
           below={badges}
         />

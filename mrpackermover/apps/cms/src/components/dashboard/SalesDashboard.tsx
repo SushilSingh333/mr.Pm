@@ -17,6 +17,10 @@ import {
   REVIEW_BUCKETS,
   buildReview,
   dueState,
+  isUnworkedSecondChance,
+  staffStage,
+  staffStageWhere,
+  staffStagesWhere,
   sourceLabel,
   exactTime,
   humanDuration,
@@ -238,6 +242,10 @@ interface LeadDoc {
   waitingSince?: string | null;
   dueAt?: string | null;
   assignedTo?: { id?: string | number; name?: string; email?: string } | string | number | null;
+  /** Second chance (Leads): only a handler can read `revivedFrom` and `secondChances`. */
+  revivedAt?: string | null;
+  revivedFrom?: string | null;
+  secondChances?: { from?: string | null; ownerName?: string | null }[] | null;
 }
 interface UserRow {
   id: string | number;
@@ -288,12 +296,27 @@ function BoardRow({
   lead,
   showOwner,
   proposal,
+  staff = false,
 }: {
   lead: LeadDoc;
   showOwner: boolean;
   proposal?: ProposalDoc;
+  /** A handler's board: second chances shown as the business counts them. */
+  staff?: boolean;
 }): React.JSX.Element {
   const meta = statusMeta(lead.status);
+  /**
+   * A second chance, on a handler's board: until the new owner works it, the row reads at
+   * the stage it was lost at - the same stage button it is counted under - with a tag
+   * saying it is with someone new. Worked, it reads at its real stage, and "Won back" once
+   * that is a qualified one. A salesperson's row is never touched.
+   */
+  const revived = staff && Boolean(lead.revivedAt);
+  const unworked = revived && isUnworkedSecondChance(lead);
+  const shown = unworked ? statusMeta(staffStage(lead)) : meta;
+  const wonBack =
+    revived && !unworked && (REVIEW_BUCKETS[0]?.statuses ?? []).includes(lead.status ?? '');
+  const lostWith = lead.secondChances?.at(-1)?.ownerName;
   const step = nextStep(lead.status);
   const open = !CLOSED_STAGES.includes(lead.status ?? '');
   const fresh = FRESH.has(lead.status ?? '');
@@ -425,9 +448,21 @@ function BoardRow({
           text - and it earns the column back because "where is this lead" is a question
           you ask of the whole board at once, not of one row. */}
       <div className="mpm-tbl__cell mpm-c-status">
-        <span className="mpm-stage" style={{ ['--c' as string]: meta.color }}>
-          {meta.label}
+        <span className="mpm-stage" style={{ ['--c' as string]: shown.color }}>
+          {shown.label}
         </span>
+        {revived && (
+          <span
+            className={`mpm-second${wonBack ? ' is-won' : ''}`}
+            title={
+              unworked
+                ? `Given to a new owner as a fresh lead, not worked yet - counted as ${shown.label} until it is.`
+                : `Second chance: was ${statusMeta(lead.revivedFrom ?? 'lost').label}${lostWith ? ` with ${personCase(lostWith)}` : ''}, now ${meta.label}.`
+            }
+          >
+            {wonBack ? 'Won back' : unworked ? '2nd chance · not worked yet' : '2nd chance'}
+          </span>
+        )}
       </div>
 
       {/* ── NEXT STEP, and the stage underneath it ───────────────────────────
@@ -572,6 +607,17 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     props.sort === 'updatedAt' ? 'waitingSince' : props.sort === 'dueAt' ? 'dueAt' : '-createdAt';
   /** True when the filter bar is narrowing the board beyond its stage buttons. */
   const narrowed = Boolean(search || ownerFilter || sourceFilter);
+
+  /**
+   * A stage, as this board counts it. A handler counts a lost lead handed on as a second
+   * chance at its lost stage until the new owner works it (lead-status: staffStageWhere);
+   * a salesperson's board is their own leads exactly as they see them - fresh. Every
+   * stage button, group and table filter goes through these, so they always agree.
+   */
+  const stageWhere = (v: string): Record<string, unknown> =>
+    isHandler ? staffStageWhere(v) : { status: { equals: v } };
+  const stagesWhere = (vs: string[]): Record<string, unknown> =>
+    isHandler ? staffStagesWhere(vs) : { status: { in: vs } };
 
   /** Role scope only. No date window, no filter bar - "is it mine" and nothing else. */
   const roleScope = (extra?: Record<string, unknown>): Record<string, unknown> => {
@@ -762,7 +808,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     // One count per stage, under everything the filter bar is asking for. The buttons
     // read straight off this - and so do the grouped buttons, as the sum of their stages
     // rather than a query of their own, so the two can never disagree.
-    Promise.all(LEAD_STATUS.map((s) => count(base({ status: { equals: s.value } })))),
+    Promise.all(LEAD_STATUS.map((s) => count(base(stageWhere(s.value))))),
     proposalLeadIds.length ? count(base({ id: { in: proposalLeadIds } })) : Promise.resolve(0),
     count(queueWhere),
     count(dueWhere),
@@ -827,7 +873,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     count(
       roleScope({
         and: [
-          { status: { equals: 'lost' } },
+          stageWhere('lost'),
           { createdAt: { greater_than_equal: startOfMonth.toISOString() } },
         ],
       }),
@@ -889,11 +935,11 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
         dueWhere
       : base(
           group
-            ? { status: { in: group.statuses } }
+            ? stagesWhere(group.statuses)
             : reviewSlice
-              ? { status: { in: reviewSlice.statuses } }
+              ? stagesWhere(reviewSlice.statuses)
               : exact
-                ? { status: { equals: exact.value } }
+                ? stageWhere(exact.value)
                 : wantsProposals
                   ? { id: { in: proposalLeadIds } }
                   : undefined,
@@ -979,10 +1025,68 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
     .filter((n) => Number.isFinite(n) && n >= 0);
   const medianWait = median(waits);
 
+  /**
+   * Leads this salesperson LOST that were later handed to a colleague as a second chance.
+   *
+   * They cannot open those any more - the lead is not theirs - but they lost it, so it
+   * stays Lost in their own review and win rate for good, whatever the colleague makes of
+   * it. Counted with access off, and only ever as a number: no lead is read out to them.
+   * The board's date window here is when the customer wrote (createdAt), as for any lead
+   * they lost; search and source narrow it like everything else on the page.
+   */
+  const lostByMeRows = (extra: Record<string, unknown>[]): Promise<string[]> =>
+    isHandler || me == null
+      ? Promise.resolve([])
+      : safe(async () => {
+          const res = await payload.find({
+            collection: 'leads',
+            where: {
+              and: [
+                { 'secondChances.owner': { equals: me } },
+                ...(search
+                  ? [
+                      {
+                        or: [
+                          { name: { like: search } },
+                          { phone: { like: search } },
+                          { pickup: { like: search } },
+                          { dropLocation: { like: search } },
+                        ],
+                      },
+                    ]
+                  : []),
+                ...(sourceFilter ? [{ source: { equals: sourceFilter } }] : []),
+                ...extra,
+              ],
+            } as never,
+            select: { secondChances: true } as never,
+            depth: 0,
+            limit: 5000,
+            pagination: false,
+            overrideAccess: true,
+          });
+          // Row by row: the stage THIS person lost it at, once per time they lost it. Two
+          // `where`s on the array could match the owner on one row and the stage on another.
+          return (res.docs as { secondChances?: { owner?: unknown; from?: string | null }[] }[])
+            .flatMap((d) => d.secondChances ?? [])
+            .filter((r) => idOf(r.owner) === String(me) && r.from)
+            .map((r) => String(r.from));
+        }, []);
+  const rawWindow = dateWhere(range, from, to);
+  const [lostByMeAll, lostByMeThisMonth] = await Promise.all([
+    lostByMeRows(rawWindow ? [rawWindow] : []),
+    lostByMeRows([{ createdAt: { greater_than_equal: startOfMonth.toISOString() } }]),
+  ]);
+  const lostByMe = new Map<string, number>();
+  for (const v of lostByMeAll) lostByMe.set(v, (lostByMe.get(v) ?? 0) + 1);
+  const lostByMeTotal = lostByMeAll.length;
+  const lostByMeMonth = lostByMeThisMonth.filter((v) => v === 'lost').length;
+  const lostMonthAll = lostMonth + lostByMeMonth;
+
   // Win rate over decided leads only. Counting wins against every lead in the pipeline
   // reports a number that falls every time a new enquiry arrives, which is backwards.
   // Invalid leads are not in the denominator either: a wrong number was never winnable.
-  const decidedMonth = wonMonth + lostMonth;
+  const decidedMonth = wonMonth + lostMonthAll;
   const winRateMonth = decidedMonth > 0 ? Math.round((wonMonth / decidedMonth) * 100) : null;
 
   // Money, straight off the proposals already read. Only 'sent' is "out with a customer":
@@ -1048,7 +1152,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
    * A handler's is the ReviewExplorer: one donut, the whole team or one person, over any
    * dates - it reads its own numbers, so it carries its own period rather than the board's.
    */
-  const myReview = buildReview((v) => pillCounts.get(v) ?? 0);
+  const myReview = buildReview((v) => (pillCounts.get(v) ?? 0) + (lostByMe.get(v) ?? 0));
   const rangeLabel =
     props.from || props.to
       ? 'Chosen dates'
@@ -1319,7 +1423,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           </span>
           <span className="mpm-stat__foot">
             {decidedMonth > 0
-              ? `${fmt(lostMonth)} lost · ${winRateMonth}% win rate`
+              ? `${fmt(lostMonthAll)} lost · ${winRateMonth}% win rate`
               : quotedOpen > 0
                 ? `${fmt(quotedOpen)} still deciding`
                 : 'nothing decided this month'}
@@ -1669,6 +1773,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
                 key={String(l.id)}
                 lead={l}
                 showOwner={isHandler}
+                staff={isHandler}
                 proposal={proposalByLead.get(String(l.id))}
               />
             ))}
@@ -1754,6 +1859,14 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           )}
           pendingHref={filterLink(groupKey('fresh'))}
           selected={reviewSlice?.key}
+          below={
+            lostByMeTotal > 0 ? (
+              <p className="mpm-rv__pending">
+                Lost includes {fmt(lostByMeTotal)} {lostByMeTotal === 1 ? 'lead' : 'leads'} you lost
+                that {lostByMeTotal === 1 ? 'was' : 'were'} later given a second chance.
+              </p>
+            ) : undefined
+          }
         />
       )}
 

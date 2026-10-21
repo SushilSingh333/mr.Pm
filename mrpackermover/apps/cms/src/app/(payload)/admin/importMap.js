@@ -34,6 +34,7 @@ import { ServiceCell as ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../
 import { LeadTimeline as LeadTimeline_f938f3965088211dbb6411ebb92a410f } from '../../../components/leads/LeadTimeline'
 import { LeadStatusSelect as LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4 } from '../../../components/fields/LeadStatusSelect'
 import { OwnerCell as OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
+import { SecondChancePanel as SecondChancePanel_df1ff1789b095d4a7362ad82708b5a36 } from '../../../components/leads/SecondChancePanel'
 import { AgeCell as AgeCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { LeadFilters as LeadFilters_51609792908264dbc9232729914f07ee } from '../../../components/leads/LeadFilters'
 import { BulkAssign as BulkAssign_c9d8058b31c86f5fc313b99e4f970e83 } from '../../../components/leads/BulkAssign'
@@ -99,6 +100,7 @@ export const importMap = {
   "/components/leads/LeadTimeline#LeadTimeline": LeadTimeline_f938f3965088211dbb6411ebb92a410f,
   "/components/fields/LeadStatusSelect#LeadStatusSelect": LeadStatusSelect_117de6062e38760b9fecb6ebad3fd8b4,
   "/components/leads/Cells#OwnerCell": OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80,
+  "/components/leads/SecondChancePanel#SecondChancePanel": SecondChancePanel_df1ff1789b095d4a7362ad82708b5a36,
   "/components/leads/Cells#AgeCell": AgeCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/LeadFilters#LeadFilters": LeadFilters_51609792908264dbc9232729914f07ee,
   "/components/leads/BulkAssign#BulkAssign": BulkAssign_c9d8058b31c86f5fc313b99e4f970e83,

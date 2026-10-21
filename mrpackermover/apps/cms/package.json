@@ -28,6 +28,7 @@
     "set-live-cities": "tsx src/scripts/set-live-cities.ts",
     "set-team": "tsx src/scripts/set-team.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
+    "backfill-second-chances": "tsx src/scripts/backfill-second-chances.ts",
     "rebrand": "tsx src/scripts/rebrand.ts",
     "optimize-media": "tsx src/scripts/optimize-media.ts",
     "seed": "tsx src/seed.ts",

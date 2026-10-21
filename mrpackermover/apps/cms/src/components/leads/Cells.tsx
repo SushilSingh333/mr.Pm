@@ -2,7 +2,14 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { useAuth, useListRelationships } from '@payloadcms/ui';
-import { exactTime, personCase, statusMeta } from '../dashboard/lead-status.js';
+import {
+  REVIEW_BUCKETS,
+  exactTime,
+  isUnworkedSecondChance,
+  personCase,
+  statusMeta,
+  type SecondChanceRow,
+} from '../dashboard/lead-status.js';
 import { useBrowserClock } from '../../lib/use-browser-clock.js';
 
 /**
@@ -112,9 +119,10 @@ function age(iso: string): string {
 
 /** What a list row knows about a second chance (see Leads: revivedFrom etc.). */
 interface RevivedRow {
+  status?: string | null;
   revivedAt?: string | null;
   revivedFrom?: string | null;
-  revivedFromOwnerName?: string | null;
+  secondChances?: SecondChanceRow[] | null;
 }
 const routes = (user: unknown): boolean => {
   const role = (user as { role?: string } | null | undefined)?.role;
@@ -137,14 +145,20 @@ export function OwnerCell({
   const revived = Boolean(rowData?.revivedAt) && routes(user);
   if (!revived) return <OwnerName cellData={cellData} />;
   const was = rowData?.revivedFrom ? statusMeta(rowData.revivedFrom).label : 'Lost';
+  const lostWith = rowData?.secondChances?.at(-1)?.ownerName;
+  // Once the new owner moves it into Qualified, the tag says so: that is the win.
+  const wonBack =
+    !isUnworkedSecondChance(rowData ?? {}) &&
+    (REVIEW_BUCKETS[0]?.statuses ?? []).includes(String(rowData?.status ?? ''));
   const tip =
-    `Second chance: was ${was}${rowData?.revivedFromOwnerName ? ` with ${personCase(rowData.revivedFromOwnerName)}` : ''}, ` +
-    `given as a fresh lead ${exactTime(rowData?.revivedAt ?? '')}. The new owner sees it as new.`;
+    `Second chance: was ${was}${lostWith ? ` with ${personCase(lostWith)}` : ''}, ` +
+    `given as a fresh lead ${exactTime(rowData?.revivedAt ?? '')}. The new owner sees it as new.` +
+    (wonBack ? ` Won back: now ${statusMeta(rowData?.status ?? '').label}.` : '');
   return (
     <span className="mpm-owner-wrap">
       <OwnerName cellData={cellData} />
-      <span className="mpm-second" title={tip}>
-        2nd chance · was {was}
+      <span className={`mpm-second${wonBack ? ' is-won' : ''}`} title={tip}>
+        {wonBack ? 'Won back' : '2nd chance'} · was {was}
       </span>
     </span>
   );

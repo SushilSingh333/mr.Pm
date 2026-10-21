@@ -42,6 +42,8 @@ interface DonutProps {
   links?: Partial<Record<ReviewBucket['key'], string>>;
   /** Where "waiting for a first call" leads. */
   pendingHref?: string;
+  /** Where the second-chance line leads (admins and handlers only). */
+  secondHref?: string;
   /** The slice the board is currently filtered to, if any. */
   selected?: ReviewBucket['key'];
   /** Optional controls (a period switch) placed in the card head. */
@@ -50,6 +52,23 @@ interface DonutProps {
   card?: boolean;
   /** Anything to show under the ring - the review explorer's trend chips. */
   below?: React.ReactNode;
+}
+
+/**
+ * Lost leads given a second chance, in one line: how they turned out for the new owner,
+ * and how many are still waiting for them (those still count as Lost). Already inside the
+ * slices above - this only says which leads they are.
+ */
+function secondLine(review: Review): string | null {
+  const sc = review.secondChance;
+  const parts: string[] = [];
+  if (sc.qualified) parts.push(`${fmt(sc.qualified)} won back`);
+  if (sc.improve) parts.push(`${fmt(sc.improve)} being worked`);
+  if (sc.lost) parts.push(`${fmt(sc.lost)} lost again`);
+  if (sc.waiting) {
+    parts.push(`${fmt(sc.waiting)} not worked yet, still counted as Lost`);
+  }
+  return parts.length ? `Second chance: ${parts.join(', ')}` : null;
 }
 
 const SIZE = 184;
@@ -64,6 +83,7 @@ export function ReviewDonut({
   period,
   links = {},
   pendingHref,
+  secondHref,
   selected,
   controls,
   card = true,
@@ -249,6 +269,13 @@ export function ReviewDonut({
           <span>- not counted until someone has spoken to them</span>
         </p>
       )}
+
+      {secondLine(review) && (
+        <p className="mpm-rv__second">
+          <MIcon name="refresh" size={16} />
+          {secondHref ? <a href={secondHref}>{secondLine(review)}</a> : secondLine(review)}
+        </p>
+      )}
     </div>
   );
 
@@ -375,6 +402,10 @@ ${LINKED_HOVER}
 .mpm-rv__pending a{ color:var(--mpm-v-500,#0B57D0); font-weight:500; text-decoration:none; }
 .mpm-rv__pending a:hover{ text-decoration:underline; }
 .mpm-rv__pending span{ color:var(--rv-ink-3); }
+.mpm-rv__second{ grid-column:1 / -1; display:flex; align-items:center; gap:6px; margin:0; font-size:13px; color:var(--rv-ink-2); }
+.mpm-rv__second .m-icon{ flex:none; color:var(--mpm-ember-ink); }
+.mpm-rv__second a{ color:var(--mpm-v-500,#0B57D0); font-weight:500; text-decoration:none; }
+.mpm-rv__second a:hover{ text-decoration:underline; }
 
 @media (max-width:720px){
   .mpm-rv{ grid-template-columns:1fr; justify-items:center; }

@@ -111,6 +111,115 @@ export const CLOSED_STAGES = ['won', 'lost', 'invalid', 'duplicate'];
 export const REVIVABLE_STAGES = ['lost', 'call-not-picked', 'call-not-connected'];
 
 /**
+ * How a second-chance lead COUNTS (21 Oct 2026, the owner):
+ *
+ *   - For the salesperson who lost it, it stays lost - in their performance, for good,
+ *     even if a colleague later wins it back. Every such person is on the lead's
+ *     `secondChances` list.
+ *   - For admins and handlers it stays at its lost stage until the new owner moves it:
+ *     handed over and not yet worked, it is still a lost lead to the business. Once its
+ *     stage changes it counts there, for the new owner, marked as a second chance.
+ *   - Team totals count each lead once.
+ *
+ * The new owner's own screens are not touched by any of this: to them it is a fresh lead.
+ */
+export interface SecondChanceRow {
+  from?: string | null;
+  owner?: unknown;
+  ownerName?: string | null;
+  byName?: string | null;
+  at?: string | null;
+}
+export interface CountableLead {
+  status?: string | null;
+  assignedTo?: unknown;
+  revivedAt?: string | null;
+  revivedFrom?: string | null;
+  secondChances?: SecondChanceRow[] | null;
+}
+const ownerKey = (v: unknown): string =>
+  v && typeof v === 'object'
+    ? String((v as { id?: unknown }).id ?? '')
+    : v != null
+      ? String(v)
+      : '';
+
+/** Handed over on a second chance and not yet worked: still its lost stage to staff. */
+export const isUnworkedSecondChance = (l: CountableLead): boolean =>
+  Boolean(l.revivedAt) && ROUTING_STAGES.includes(String(l.status ?? ''));
+
+/** The stage a lead counts as for admins and handlers. */
+export function staffStage(l: CountableLead): string {
+  if (isUnworkedSecondChance(l)) {
+    const last = (l.secondChances ?? []).at(-1)?.from;
+    return String(l.revivedFrom ?? last ?? 'lost');
+  }
+  return String(l.status ?? '');
+}
+
+/**
+ * Who a lead counts for, and as what. `overall` is the lead once, for team totals;
+ * `people` is each person's share: everyone who lost it (their lost stage), and the
+ * current owner (only "waiting" until they work it). `secondChance` marks the current owner's
+ * result on a lead that was given one.
+ */
+export function attribute(l: CountableLead): {
+  overall: { stage: string; secondChance: boolean };
+  people: { owner: string; stage: string; secondChance: boolean }[];
+} {
+  const revived = Boolean(l.revivedAt);
+  const unworked = isUnworkedSecondChance(l);
+  const people: { owner: string; stage: string; secondChance: boolean }[] = [];
+  for (const r of l.secondChances ?? []) {
+    const who = ownerKey(r.owner);
+    if (who && r.from) people.push({ owner: who, stage: r.from, secondChance: false });
+  }
+  // The current owner always, at the stage it really is: not yet worked, that is an
+  // assignment stage, which only ever counts as "waiting" - never in their result.
+  if (l.status) {
+    people.push({
+      owner: ownerKey(l.assignedTo),
+      stage: String(l.status),
+      secondChance: revived && !unworked,
+    });
+  }
+  return {
+    overall: { stage: staffStage(l), secondChance: revived && !unworked },
+    people,
+  };
+}
+
+/**
+ * The `where` for "leads at this stage", as admins and handlers count them: a lost stage
+ * also takes in the second-chance leads not yet worked, and an assignment stage leaves
+ * them out. Exact for every other stage.
+ */
+export function staffStageWhere(value: string): Record<string, unknown> {
+  if (REVIVABLE_STAGES.includes(value)) {
+    return {
+      or: [
+        { status: { equals: value } },
+        {
+          and: [
+            { revivedAt: { exists: true } },
+            { revivedFrom: { equals: value } },
+            { status: { in: ROUTING_STAGES } },
+          ],
+        },
+      ],
+    };
+  }
+  if (ROUTING_STAGES.includes(value)) {
+    return { and: [{ status: { equals: value } }, { revivedAt: { exists: false } }] };
+  }
+  return { status: { equals: value } };
+}
+
+/** The same for several stages at once (a group button, a review slice). */
+export const staffStagesWhere = (values: string[]): Record<string, unknown> =>
+  values.length === 1 ? staffStageWhere(values[0]!) : { or: values.map(staffStageWhere) };
+
+/**
  * Everything a lead can be BEFORE it has been quoted.
  *
  * Proposals.ts used to spell this list out by hand to decide whether sending a proposal
@@ -334,6 +443,18 @@ export interface Review {
   pending: number;
   /** Qualified as a share of the reviewed leads, or null when there is nothing to judge. */
   score: number | null;
+  /**
+   * Of the reviewed leads, the ones on a second chance, by bucket - "won back" is the
+   * qualified ones. Already inside the counts above; this only says which they are.
+   * `waiting`: handed on, not worked yet - inside Lost above, where they still count.
+   */
+  secondChance: {
+    qualified: number;
+    improve: number;
+    lost: number;
+    total: number;
+    waiting: number;
+  };
 }
 
 /**
@@ -344,7 +465,13 @@ export interface Review {
  * Shares are rounded so they always add up to 100: the largest-remainder method, rather
  * than rounding each one and showing a reader 33 + 33 + 33.
  */
-export function buildReview(countOf: (status: string) => number): Review {
+export function buildReview(
+  countOf: (status: string) => number,
+  /** Of those, how many are a second chance (see `attribute`). */
+  secondChanceOf: (status: string) => number = () => 0,
+  /** Second-chance leads not yet worked (counted at their lost stage). */
+  waiting = 0,
+): Review {
   const raw = REVIEW_BUCKETS.map((bucket) => {
     const stages = bucket.statuses
       .map((v) => ({ ...statusMeta(v), value: v, count: countOf(v) }))
@@ -366,11 +493,25 @@ export function buildReview(countOf: (status: string) => number): Review {
     });
   const pending = REVIEW_PENDING.reduce((a, v) => a + countOf(v), 0);
   const qualified = raw[0]?.count ?? 0;
+  const sc = (key: ReviewBucket['key']): number =>
+    (REVIEW_BUCKETS.find((b) => b.key === key)?.statuses ?? []).reduce(
+      (a, v) => a + secondChanceOf(v),
+      0,
+    );
+  const second = {
+    qualified: sc('qualified'),
+    improve: sc('improve'),
+    lost: sc('lost'),
+    total: 0,
+    waiting,
+  };
+  second.total = second.qualified + second.improve + second.lost;
   return {
     slices: raw.map((r, i) => ({ ...r, pct: pct[i] ?? 0 })),
     reviewed,
     pending,
     score: reviewed ? Math.round((qualified / reviewed) * 100) : null,
+    secondChance: second,
   };
 }
 

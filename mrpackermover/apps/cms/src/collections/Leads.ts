@@ -43,10 +43,6 @@ const afterRevival = (rows: NoteLike[], revivedAt: unknown): NoteLike[] => {
 const FULL_HISTORY = 'leadFullHistory';
 /** Admins and handlers: the people who route leads, and who see where a lead has been. */
 const routingStaff: FieldAccess = ({ req }) => isRole(req, 'admin', 'handler');
-const isRoutingUser = (user: unknown): boolean => {
-  const role = (user as { role?: string } | null | undefined)?.role;
-  return role === 'admin' || role === 'handler';
-};
 
 /**
  * Whether a where clause only lets dated stages through - see the `beforeOperation` hook.
@@ -266,9 +262,22 @@ export const Leads: CollectionConfig = {
           data.status = 'assigned';
           data.revivedFrom = was;
           data.revivedAt = now;
-          data.revivedByName = meName;
-          data.revivedFromOwnerName = fromName;
-          data.revivedCount = Number(originalDoc?.revivedCount ?? 0) + 1;
+          // Appended, never replaced: every person who lost it keeps it in their record.
+          const earlier = (
+            Array.isArray(data.secondChances)
+              ? data.secondChances
+              : (originalDoc?.secondChances ?? [])
+          ) as Record<string, unknown>[];
+          data.secondChances = [
+            ...earlier,
+            {
+              from: was,
+              owner: before != null && /^\d+$/.test(String(before)) ? Number(before) : before,
+              ownerName: fromName,
+              byName: meName,
+              at: now,
+            },
+          ];
           revivedNow = true;
 
           const rows = (
@@ -1017,65 +1026,79 @@ export const Leads: CollectionConfig = {
     },
     /*
      * Second chance: a lost lead handed to someone as fresh (see the beforeChange hook).
-     * Written by the hook, never typed. Admins and handlers see where it came from; a
-     * salesperson cannot read any of it except `revivedAt` - a bare date the history
-     * filter needs, and never shown to them - so nothing on their screen, and nothing the
-     * API gives them, says the lead was ever lost.
+     * Written by the hook, never typed. Admins and handlers see where it came from - the
+     * "Second chance" panel in the sidebar draws it; a salesperson cannot read any of it
+     * except `revivedAt`, a bare date the history filter needs and never shown to them,
+     * so nothing on their screen, and nothing the API gives them, says it was ever lost.
      */
     {
+      name: 'secondChancePanel',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '/components/leads/SecondChancePanel#SecondChancePanel' },
+      },
+    },
+    {
+      // The lost stage of the latest second chance: what dashboards count the lead as
+      // until the new owner works it (lead-status: staffStage / staffStageWhere).
       name: 'revivedFrom',
-      label: 'Second chance from',
       type: 'select',
       options: REVIVABLE_STAGES.map((v) => ({
         label: LEAD_STATUS.find((s) => s.value === v)?.label ?? v,
         value: v,
       })),
       access: { read: routingStaff, create: routingStaff, update: routingStaff },
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-        condition: (data) => Boolean(data?.revivedAt),
-        description:
-          'This lead was lost, then given to its current owner as a fresh lead. They see it as new.',
-      },
-    },
-    {
-      name: 'revivedFromOwnerName',
-      label: 'Lost with',
-      type: 'text',
-      access: { read: routingStaff, create: routingStaff, update: routingStaff },
-      admin: { readOnly: true, position: 'sidebar', condition: (data) => Boolean(data?.revivedAt) },
+      admin: { hidden: true },
     },
     {
       name: 'revivedAt',
-      label: 'Second chance given',
       type: 'date',
       access: { create: routingStaff, update: routingStaff },
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-        date: DAY_AND_TIME,
-        // Read by the history filter for everyone, shown only to the people who route.
-        condition: (data, _s, ctx) => Boolean(data?.revivedAt) && isRoutingUser(ctx?.user),
-      },
+      admin: { hidden: true },
     },
     {
-      name: 'revivedByName',
-      label: 'Second chance by',
-      type: 'text',
+      /**
+       * Every second chance, oldest first: the stage it was lost at and WHO lost it. This
+       * is what keeps it in each such person's performance as lost, for good - a single
+       * "last owner" field would lose the first person the moment it was revived twice.
+       */
+      name: 'secondChances',
+      type: 'array',
       access: { read: routingStaff, create: routingStaff, update: routingStaff },
-      admin: { readOnly: true, position: 'sidebar', condition: (data) => Boolean(data?.revivedAt) },
+      admin: { hidden: true },
+      fields: [
+        {
+          name: 'from',
+          type: 'select',
+          options: REVIVABLE_STAGES.map((v) => ({
+            label: LEAD_STATUS.find((s) => s.value === v)?.label ?? v,
+            value: v,
+          })),
+        },
+        { name: 'owner', type: 'relationship', relationTo: 'users' },
+        { name: 'ownerName', type: 'text' },
+        { name: 'byName', type: 'text' },
+        { name: 'at', type: 'date' },
+      ],
     },
+    /*
+     * The first version of second chances kept one "last owner" name instead of the list
+     * above. Kept, unwritten and hidden, so the migration drops nothing:
+     * scripts/backfill-second-chances.ts copies any lead revived under it into
+     * `secondChances`. Safe to remove once that has run everywhere.
+     */
+    ...(['revivedFromOwnerName', 'revivedByName'] as const).map((name) => ({
+      name,
+      type: 'text' as const,
+      access: { read: routingStaff, create: routingStaff, update: routingStaff },
+      admin: { hidden: true },
+    })),
     {
       name: 'revivedCount',
-      label: 'Second chances',
       type: 'number',
       access: { read: routingStaff, create: routingStaff, update: routingStaff },
-      admin: {
-        readOnly: true,
-        position: 'sidebar',
-        condition: (data) => Number(data?.revivedCount ?? 0) > 1,
-      },
+      admin: { hidden: true },
     },
     {
       name: 'sourceDetail',

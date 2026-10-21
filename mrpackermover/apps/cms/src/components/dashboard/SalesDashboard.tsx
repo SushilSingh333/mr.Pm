@@ -1,4 +1,4 @@
-import type { Payload } from 'payload';
+import type { Payload, Where } from 'payload';
 import Link from 'next/link';
 import { materialUrl } from '../icons/material.js';
 import { MIcon } from '../icons/MIcon.js';
@@ -31,6 +31,7 @@ import {
   statusMeta,
 } from './lead-status.js';
 import { DuePrompt } from '../leads/DuePrompt.js';
+import { lostBy, type LostRow } from '../../lib/lost-by.js';
 import { PhoneButtons } from '../leads/PhoneActions.js';
 import { loadRouting } from './lead-routing.js';
 import { RoundRobin } from './RoundRobin.js';
@@ -311,7 +312,7 @@ function BoardRow({
    * saying it is with someone new. Worked, it reads at its real stage, and "Won back" once
    * that is a qualified one. A salesperson's row is never touched.
    */
-  const revived = staff && Boolean(lead.revivedAt);
+  const revived = staff && (Boolean(lead.revivedAt) || (lead.secondChances?.length ?? 0) > 0);
   const unworked = revived && isUnworkedSecondChance(lead);
   const shown = unworked ? statusMeta(staffStage(lead)) : meta;
   const wonBack =
@@ -457,7 +458,7 @@ function BoardRow({
             title={
               unworked
                 ? `Given to a new owner as a fresh lead, not worked yet - counted as ${shown.label} until it is.`
-                : `Second chance: was ${statusMeta(lead.revivedFrom ?? 'lost').label}${lostWith ? ` with ${personCase(lostWith)}` : ''}, now ${meta.label}.`
+                : `Second chance: was ${statusMeta(lead.revivedFrom ?? lead.secondChances?.at(-1)?.from ?? 'lost').label}${lostWith ? ` with ${personCase(lostWith)}` : ''}, now ${meta.label}.`
             }
           >
             {wonBack ? 'Won back' : unworked ? '2nd chance · not worked yet' : '2nd chance'}
@@ -1030,57 +1031,43 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
    *
    * They cannot open those any more - the lead is not theirs - but they lost it, so it
    * stays Lost in their own review and win rate for good, whatever the colleague makes of
-   * it. Counted with access off, and only ever as a number: no lead is read out to them.
-   * The board's date window here is when the customer wrote (createdAt), as for any lead
-   * they lost; search and source narrow it like everything else on the page.
+   * it. Read with access off through lib/lost-by.ts, which hands back only the name, the
+   * stage and the date - never a way into the lead. The board's date window here is when
+   * the customer wrote (createdAt), as for any lead they lost; search and source narrow it
+   * like everything else on the page.
    */
-  const lostByMeRows = (extra: Record<string, unknown>[]): Promise<string[]> =>
+  const lostByMeRows = (extra: Where[]): Promise<LostRow[]> =>
     isHandler || me == null
       ? Promise.resolve([])
-      : safe(async () => {
-          const res = await payload.find({
-            collection: 'leads',
-            where: {
-              and: [
-                { 'secondChances.owner': { equals: me } },
-                ...(search
-                  ? [
-                      {
-                        or: [
-                          { name: { like: search } },
-                          { phone: { like: search } },
-                          { pickup: { like: search } },
-                          { dropLocation: { like: search } },
-                        ],
-                      },
-                    ]
-                  : []),
-                ...(sourceFilter ? [{ source: { equals: sourceFilter } }] : []),
-                ...extra,
-              ],
-            } as never,
-            select: { secondChances: true } as never,
-            depth: 0,
-            limit: 5000,
-            pagination: false,
-            overrideAccess: true,
-          });
-          // Row by row: the stage THIS person lost it at, once per time they lost it. Two
-          // `where`s on the array could match the owner on one row and the stage on another.
-          return (res.docs as { secondChances?: { owner?: unknown; from?: string | null }[] }[])
-            .flatMap((d) => d.secondChances ?? [])
-            .filter((r) => idOf(r.owner) === String(me) && r.from)
-            .map((r) => String(r.from));
-        }, []);
+      : safe(
+          () =>
+            lostBy(payload, me, [
+              ...(search
+                ? [
+                    {
+                      or: [
+                        { name: { like: search } },
+                        { phone: { like: search } },
+                        { pickup: { like: search } },
+                        { dropLocation: { like: search } },
+                      ],
+                    },
+                  ]
+                : []),
+              ...(sourceFilter ? [{ source: { equals: sourceFilter } }] : []),
+              ...extra,
+            ] as Where[]),
+          [] as LostRow[],
+        );
   const rawWindow = dateWhere(range, from, to);
   const [lostByMeAll, lostByMeThisMonth] = await Promise.all([
-    lostByMeRows(rawWindow ? [rawWindow] : []),
+    lostByMeRows(rawWindow ? [rawWindow as Where] : []),
     lostByMeRows([{ createdAt: { greater_than_equal: startOfMonth.toISOString() } }]),
   ]);
   const lostByMe = new Map<string, number>();
-  for (const v of lostByMeAll) lostByMe.set(v, (lostByMe.get(v) ?? 0) + 1);
+  for (const r of lostByMeAll) lostByMe.set(r.from, (lostByMe.get(r.from) ?? 0) + 1);
   const lostByMeTotal = lostByMeAll.length;
-  const lostByMeMonth = lostByMeThisMonth.filter((v) => v === 'lost').length;
+  const lostByMeMonth = lostByMeThisMonth.filter((r) => r.from === 'lost').length;
   const lostMonthAll = lostMonth + lostByMeMonth;
 
   // Win rate over decided leads only. Counting wins against every lead in the pipeline
@@ -1861,10 +1848,26 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
           selected={reviewSlice?.key}
           below={
             lostByMeTotal > 0 ? (
-              <p className="mpm-rv__pending">
-                Lost includes {fmt(lostByMeTotal)} {lostByMeTotal === 1 ? 'lead' : 'leads'} you lost
-                that {lostByMeTotal === 1 ? 'was' : 'were'} later given a second chance.
-              </p>
+              // The leads behind that part of Lost, by name, a tap away - closed, so the
+              // review stays one card. Nothing opens: they are a colleague's leads now.
+              <details className="mpm-lostby">
+                <summary>
+                  Lost includes {fmt(lostByMeTotal)} {lostByMeTotal === 1 ? 'lead' : 'leads'} you
+                  lost that {lostByMeTotal === 1 ? 'was' : 'were'} handed on
+                  <MIcon name="keyboard_arrow_down" size={18} />
+                </summary>
+                <ul>
+                  {lostByMeAll.map((r, i) => (
+                    <li key={i}>
+                      <span className="mpm-lostby__name">{r.name}</span>
+                      <span className="mpm-lostby__stage">
+                        <i style={{ background: statusMeta(r.from).color }} />
+                        {statusMeta(r.from).label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             ) : undefined
           }
         />
@@ -1927,6 +1930,19 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
  * which imports the same base sheet, is untouched by anything decided here.
  */
 const EXTRA_CSS = `
+/* "Lost includes N leads you lost…" under a salesperson's review, opening to the names. */
+.mpm-lostby{ margin:10px 0 0; font-size:13px; color:var(--rv-ink-2, var(--mpm-ink-2)); }
+.mpm-lostby summary{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; list-style:none; }
+.mpm-lostby summary::-webkit-details-marker{ display:none; }
+.mpm-lostby summary .m-icon{ transition:transform .15s; }
+.mpm-lostby[open] summary .m-icon{ transform:rotate(180deg); }
+.mpm-lostby summary:focus-visible{ outline:2px solid var(--mpm-v-500,#0B57D0); outline-offset:2px; border-radius:4px; }
+.mpm-lostby ul{ margin:8px 0 0; padding:0; list-style:none; display:grid; gap:6px; }
+.mpm-lostby li{ display:flex; justify-content:space-between; gap:12px; color:var(--mpm-ink); }
+.mpm-lostby__name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mpm-lostby__stage{ display:inline-flex; align-items:center; gap:6px; flex:none; color:var(--rv-ink-2, var(--mpm-ink-2)); }
+.mpm-lostby__stage i{ width:8px; height:8px; border-radius:50%; }
+@media (prefers-reduced-motion:reduce){ .mpm-lostby summary .m-icon{ transition:none; } }
 .mpm-dash{
   /* PIXELS, NOT REM, AND THE REASON MATTERS.
      Payload sets html{font-size:13px} (@payloadcms/ui/dist/scss/vars.scss:17,

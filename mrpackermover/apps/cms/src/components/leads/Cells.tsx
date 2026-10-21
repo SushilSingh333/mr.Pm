@@ -142,23 +142,39 @@ export function OwnerCell({
   rowData?: RevivedRow;
 }): React.JSX.Element {
   const { user } = useAuth();
-  const revived = Boolean(rowData?.revivedAt) && routes(user);
-  if (!revived) return <OwnerName cellData={cellData} />;
-  const was = rowData?.revivedFrom ? statusMeta(rowData.revivedFrom).label : 'Lost';
-  const lostWith = rowData?.secondChances?.at(-1)?.ownerName;
+  // Tagged when it was lost by someone and moved on: handed on fresh (revivedAt), or at a
+  // stage the admin chose - the loss is on record either way (Leads: secondChances).
+  const fresh = Boolean(rowData?.revivedAt);
+  const last = rowData?.secondChances?.at(-1);
+  if (!(fresh || last) || !routes(user)) return <OwnerName cellData={cellData} />;
+  const was = statusMeta(rowData?.revivedFrom ?? last?.from ?? 'lost').label;
+  const lostWith = last?.ownerName;
   // Once the new owner moves it into Qualified, the tag says so: that is the win.
   const wonBack =
     !isUnworkedSecondChance(rowData ?? {}) &&
     (REVIEW_BUCKETS[0]?.statuses ?? []).includes(String(rowData?.status ?? ''));
+  // Every time it was lost, for the tooltip: a lead revived twice was lost by two people.
+  const history = (rowData?.secondChances ?? [])
+    .map(
+      (r) =>
+        `${statusMeta(r.from ?? 'lost').label}${r.ownerName ? ` with ${personCase(r.ownerName)}` : ''}`,
+    )
+    .join(', then ');
   const tip =
-    `Second chance: was ${was}${lostWith ? ` with ${personCase(lostWith)}` : ''}, ` +
-    `given as a fresh lead ${exactTime(rowData?.revivedAt ?? '')}. The new owner sees it as new.` +
+    `Second chance: was ${history || was}. ` +
+    (fresh
+      ? `Given as a fresh lead ${exactTime(rowData?.revivedAt ?? '')}; the new owner sees it as new.`
+      : 'Handed on with its history; it counts as a loss for whoever lost it.') +
     (wonBack ? ` Won back: now ${statusMeta(rowData?.status ?? '').label}.` : '');
+  // The first name of whoever lost it last, on the tag itself: filtering the list by a
+  // salesperson brings in the leads they lost, and this says why each one is there.
+  const who = lostWith ? personCase(lostWith).split(' ')[0] : '';
   return (
     <span className="mpm-owner-wrap">
       <OwnerName cellData={cellData} />
       <span className={`mpm-second${wonBack ? ' is-won' : ''}`} title={tip}>
         {wonBack ? 'Won back' : '2nd chance'} · was {was}
+        {who ? ` with ${who}` : ''}
       </span>
     </span>
   );

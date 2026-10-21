@@ -14,6 +14,7 @@ import {
   type Review,
 } from './lead-status.js';
 import { REVIEW_CSS, ReviewDonut, needsCoaching } from './LeadReview.js';
+import type { LostRow } from '../../lib/lost-by.js';
 
 /**
  * The lead review with its own controls: ONE donut, and two questions that change it -
@@ -190,7 +191,26 @@ const bump = (c: Counts, owner: string, stage: string): void => {
   c.set(owner, m);
 };
 
-async function countsFor(win: Win, owner: string | undefined, staff: boolean): Promise<Tally> {
+/** Inside the window: `from` inclusive, `to` exclusive - the same bounds the query uses. */
+const inWindow = (iso: string | null, win: Win): boolean => {
+  if (!iso) return false;
+  const t = new Date(iso).getTime();
+  return (
+    (!win.from || t >= new Date(win.from).getTime()) && (!win.to || t < new Date(win.to).getTime())
+  );
+};
+
+async function countsFor(
+  win: Win,
+  owner: string | undefined,
+  staff: boolean,
+  /**
+   * A salesperson looking at their own review: the leads they lost that went to someone
+   * else (GET /api/leads/lost-by-me). They cannot read those leads, but the losses are
+   * theirs, so they count here exactly as on their dashboard.
+   */
+  lostByMe: LostRow[] = [],
+): Promise<Tally> {
   const q = whereQuery(win, owner, undefined, staff);
   // Only the columns the count needs. `select` keeps each row small; without it the
   // adapter joins every array table on the lead to count a stage.
@@ -237,6 +257,11 @@ async function countsFor(win: Win, owner: string | undefined, staff: boolean): P
       if (overall.secondChance) add(t.secondTotal, overall.stage);
       if (isUnworkedSecondChance(d)) t.waiting += 1;
     }
+  }
+  for (const r of lostByMe) {
+    if (!inWindow(r.createdAt, win)) continue;
+    bump(t.byOwner, owner ?? '', r.from);
+    add(t.total, r.from);
   }
   if (owner && staff) {
     t.total = t.byOwner.get(owner) ?? new Map();
@@ -328,6 +353,8 @@ export function ReviewExplorer({
   // Admins and handlers see second chances counted as the business sees them; a
   // salesperson's own numbers stay exactly their own leads (see lead-status: attribute).
   const staff = role === 'admin' || role === 'handler';
+  const meId = String((user as { id?: unknown } | null)?.id ?? '');
+  const selfSales = !staff && mode === 'person' && Boolean(personId) && personId === meId;
 
   // Come back to what was last looked at - unless the page itself names a person.
   useEffect(() => {
@@ -367,9 +394,16 @@ export function ReviewExplorer({
     setFailed(false);
     const owner = mode === 'person' ? personId : undefined;
     const run = async (): Promise<Loaded> => {
+      const lost: LostRow[] = selfSales
+        ? await fetch('/api/leads/lost-by-me', { credentials: 'include' })
+            .then(async (r) =>
+              r.ok ? (((await r.json()) as { rows?: LostRow[] }).rows ?? []) : [],
+            )
+            .catch(() => [])
+        : [];
       const [now, prev] = await Promise.all([
-        countsFor(win, owner, staff),
-        prevWin ? countsFor(prevWin, owner, staff).catch(() => null) : Promise.resolve(null),
+        countsFor(win, owner, staff, lost),
+        prevWin ? countsFor(prevWin, owner, staff, lost).catch(() => null) : Promise.resolve(null),
       ]);
       let people: { id: string; name: string }[] = [];
       if (mode === 'team') {
@@ -412,7 +446,7 @@ export function ReviewExplorer({
       live = false;
     };
     // winKey stands in for `win` and `prevWin`, which are fresh objects every render.
-  }, [mode, personId, winKey, customBad, attempt, staff]);
+  }, [mode, personId, winKey, customBad, attempt, staff, selfSales]);
 
   /** Every review this card can show, for the current window, and the one before it. */
   const reviews = useMemo(() => {

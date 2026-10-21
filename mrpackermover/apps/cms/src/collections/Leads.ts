@@ -1,5 +1,6 @@
 import type { CollectionConfig, FieldAccess } from 'payload';
 import { DAY_AND_TIME, DAY_ONLY, checkYear } from '../lib/date-display.js';
+import { lostByMeEndpoint } from '../endpoints/lost-by-me.js';
 import {
   leadsRead,
   leadsUpdate,
@@ -101,6 +102,8 @@ export const Leads: CollectionConfig = {
         // Filters first, then the bulk bar: you narrow the list, then act on what is
         // left, and that is the order they should appear in.
         '/components/leads/LeadFilters#LeadFilters',
+        // A salesperson's own lost leads that went to a colleague - read-only names.
+        '/components/leads/LostByMe#LostByMe',
         '/components/leads/BulkAssign#BulkAssign',
         // Remembers this list's filter and sort for the ‹ › buttons on an open lead.
         '/components/leads/LeadListMemory#LeadListMemory',
@@ -114,6 +117,8 @@ export const Leads: CollectionConfig = {
       'Every quote form and price check lands here. Newest first. Filter by date, status, owner or source.',
   },
   versions: { drafts: false, maxPerDoc: 50 },
+  // GET /api/leads/lost-by-me: a salesperson's "Leads you lost" (endpoints/lost-by-me.ts).
+  endpoints: [lostByMeEndpoint],
   access: {
     // The public form must be able to create a lead; everything else is role-scoped.
     create: () => true,
@@ -225,17 +230,23 @@ export const Leads: CollectionConfig = {
          *
          * Not when the same save picks a different stage on purpose: then the person
          * chose the stage, and the save is an ordinary hand-over.
+         *
+         * The LOSS is recorded either way. Whenever a lost lead leaves its owner - handed
+         * on fresh, handed on at a chosen stage, or unassigned - a `secondChances` row
+         * keeps it as that person's loss. Recording it only on the fresh path would let a
+         * loss quietly vanish from someone's record because of how the lead was moved.
          */
         const was = String(originalDoc?.status ?? '');
         let revivedNow = false;
-        if (
+        const staffMove =
           operation === 'update' &&
           before !== after &&
-          after &&
           REVIVABLE_STAGES.includes(was) &&
-          isRole(req, 'admin', 'handler') &&
-          (data.status === undefined || data.status === was)
-        ) {
+          isRole(req, 'admin', 'handler');
+        const losing = staffMove && before != null;
+        const reviving =
+          staffMove && Boolean(after) && (data.status === undefined || data.status === was);
+        if (losing || reviving) {
           const now = new Date().toISOString();
           const nameOf = async (id: string | number | null): Promise<string | null> => {
             if (id == null) return null;
@@ -259,42 +270,46 @@ export const Leads: CollectionConfig = {
             null;
           const wasLabel = LEAD_STATUS.find((s) => s.value === was)?.label ?? was;
 
-          data.status = 'assigned';
-          data.revivedFrom = was;
-          data.revivedAt = now;
           // Appended, never replaced: every person who lost it keeps it in their record.
-          const earlier = (
-            Array.isArray(data.secondChances)
-              ? data.secondChances
-              : (originalDoc?.secondChances ?? [])
-          ) as Record<string, unknown>[];
-          data.secondChances = [
-            ...earlier,
-            {
-              from: was,
-              owner: before != null && /^\d+$/.test(String(before)) ? Number(before) : before,
-              ownerName: fromName,
-              byName: meName,
-              at: now,
-            },
-          ];
-          revivedNow = true;
+          if (losing) {
+            const earlier = (
+              Array.isArray(data.secondChances)
+                ? data.secondChances
+                : (originalDoc?.secondChances ?? [])
+            ) as Record<string, unknown>[];
+            data.secondChances = [
+              ...earlier,
+              {
+                from: was,
+                owner: /^\d+$/.test(String(before)) ? Number(before) : before,
+                ownerName: fromName,
+                byName: meName,
+                at: now,
+              },
+            ];
+          }
 
-          const rows = (
-            Array.isArray(data.noteLog) ? data.noteLog : (originalDoc?.noteLog ?? [])
-          ) as Record<string, unknown>[];
-          data.noteLog = [
-            ...rows,
-            {
-              kind: 'handover',
-              body:
-                `Second chance: was ${wasLabel}${fromName ? ` with ${fromName}` : ''}. ` +
-                `Given to ${toName ?? 'a new owner'} as a fresh lead - they do not see its earlier history.`,
-              at: now,
-              author: meId,
-              authorName: meName,
-            },
-          ];
+          if (reviving) {
+            data.status = 'assigned';
+            data.revivedFrom = was;
+            data.revivedAt = now;
+            revivedNow = true;
+            const rows = (
+              Array.isArray(data.noteLog) ? data.noteLog : (originalDoc?.noteLog ?? [])
+            ) as Record<string, unknown>[];
+            data.noteLog = [
+              ...rows,
+              {
+                kind: 'handover',
+                body:
+                  `Second chance: was ${wasLabel}${fromName ? ` with ${fromName}` : ''}. ` +
+                  `Given to ${toName ?? 'a new owner'} as a fresh lead - they do not see its earlier history.`,
+                at: now,
+                author: meId,
+                authorName: meName,
+              },
+            ];
+          }
         }
 
         if (operation === 'update' && before !== after && after) {

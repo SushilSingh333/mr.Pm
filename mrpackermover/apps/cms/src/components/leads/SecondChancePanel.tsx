@@ -43,10 +43,11 @@ export function SecondChancePanel(): React.JSX.Element | null {
     revivedFrom?: string | null;
     secondChances?: SecondChanceRow[] | Record<string, SecondChanceRow> | null;
   };
-  if (!v.revivedAt) return null;
   const rows: SecondChanceRow[] = Array.isArray(v.secondChances)
     ? v.secondChances
     : Object.values(v.secondChances ?? {});
+  // A loss on record without a fresh hand-over (handed on at a chosen stage) shows too.
+  if (!v.revivedAt && !rows.length) return null;
   const last = rows.at(-1);
   const unworked = isUnworkedSecondChance({ status: v.status, revivedAt: v.revivedAt });
   const lostLabel = statusMeta(v.revivedFrom ?? last?.from ?? 'lost').label;

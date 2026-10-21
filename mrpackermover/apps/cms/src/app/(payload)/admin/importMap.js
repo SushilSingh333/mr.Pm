@@ -37,6 +37,7 @@ import { OwnerCell as OwnerCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../.
 import { SecondChancePanel as SecondChancePanel_df1ff1789b095d4a7362ad82708b5a36 } from '../../../components/leads/SecondChancePanel'
 import { AgeCell as AgeCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { LeadFilters as LeadFilters_51609792908264dbc9232729914f07ee } from '../../../components/leads/LeadFilters'
+import { LostByMe as LostByMe_b907dc9f3be7de5159b4a110c40d74b5 } from '../../../components/leads/LostByMe'
 import { BulkAssign as BulkAssign_c9d8058b31c86f5fc313b99e4f970e83 } from '../../../components/leads/BulkAssign'
 import { LeadListMemory as LeadListMemory_a930d08611b44b11371f122c82f78a13 } from '../../../components/leads/LeadListMemory'
 import { LeadPager as LeadPager_9b1dd90a1bee6ee26b9c1cd0ac98f44e } from '../../../components/leads/LeadPager'
@@ -103,6 +104,7 @@ export const importMap = {
   "/components/leads/SecondChancePanel#SecondChancePanel": SecondChancePanel_df1ff1789b095d4a7362ad82708b5a36,
   "/components/leads/Cells#AgeCell": AgeCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/LeadFilters#LeadFilters": LeadFilters_51609792908264dbc9232729914f07ee,
+  "/components/leads/LostByMe#LostByMe": LostByMe_b907dc9f3be7de5159b4a110c40d74b5,
   "/components/leads/BulkAssign#BulkAssign": BulkAssign_c9d8058b31c86f5fc313b99e4f970e83,
   "/components/leads/LeadListMemory#LeadListMemory": LeadListMemory_a930d08611b44b11371f122c82f78a13,
   "/components/leads/LeadPager#LeadPager": LeadPager_9b1dd90a1bee6ee26b9c1cd0ac98f44e,

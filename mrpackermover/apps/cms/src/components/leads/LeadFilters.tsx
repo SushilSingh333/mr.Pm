@@ -3,7 +3,13 @@ import Link from 'next/link';
 import { materialUrl } from '../icons/material.js';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth, useListQuery } from '@payloadcms/ui';
-import { DATED_STAGES, LEAD_SOURCES, LEAD_STATUS, personCase } from '../dashboard/lead-status.js';
+import {
+  DATED_STAGES,
+  LEAD_SOURCES,
+  LEAD_STATUS,
+  REVIVABLE_STAGES,
+  personCase,
+} from '../dashboard/lead-status.js';
 
 /**
  * Pick several filters at once, above the Leads list.
@@ -180,20 +186,47 @@ function parse(where: unknown): Picked {
   return picked;
 }
 
-/** Build the where clause for a selection. */
-function build(picked: Picked): Record<string, unknown> {
+/**
+ * Build the where clause for a selection.
+ *
+ * `routes` (admins and handlers): picking a person also brings in the leads they LOST
+ * that were handed to someone else on a second chance - their losses, which their review
+ * counts as theirs, and which the list would otherwise hide the moment the lead moved on.
+ * The owner column tags them "lost with <name>". With stages picked too, such a lead
+ * comes in by the stage they lost it at, as the review counts it.
+ */
+function build(picked: Picked, routes = false): Record<string, unknown> {
   const and: Array<Record<string, unknown>> = [];
-  if (picked.status.length) and.push({ status: { in: picked.status } });
+  const ids = picked.owner.filter((o) => o !== UNASSIGNED);
+  const lostToo = routes && ids.length > 0;
+  const stages = picked.status.length ? { status: { in: picked.status } } : null;
+  // With the lost-by branch the stages ride inside each owner branch instead, because
+  // the branches judge the stage differently (now, versus when they lost it).
+  if (stages && !lostToo) and.push(stages);
   if (picked.source.length) and.push({ source: { in: picked.source } });
   if (picked.second) and.push({ revivedAt: { exists: true } });
   if (picked.owner.length) {
-    const ids = picked.owner.filter((o) => o !== UNASSIGNED);
     const or: Array<Record<string, unknown>> = [];
-    if (ids.length) or.push({ assignedTo: { in: ids } });
+    const withStages = (leaf: Record<string, unknown>): Record<string, unknown> =>
+      lostToo && stages ? { and: [leaf, stages] } : leaf;
+    if (ids.length) or.push(withStages({ assignedTo: { in: ids } }));
+    if (lostToo) {
+      const lostAt = picked.status.length
+        ? picked.status.filter((v) => REVIVABLE_STAGES.includes(v))
+        : null;
+      if (!lostAt || lostAt.length) {
+        or.push({
+          and: [
+            { 'secondChances.owner': { in: ids } },
+            ...(lostAt ? [{ 'secondChances.from': { in: lostAt } }] : []),
+          ],
+        });
+      }
+    }
     // "Unassigned" is the absence of a value, not an id, so it cannot ride in the same
     // `in` as the people. It becomes its own branch of an OR - which is why this group
     // nests where the other two do not.
-    if (picked.owner.includes(UNASSIGNED)) or.push({ assignedTo: { exists: false } });
+    if (picked.owner.includes(UNASSIGNED)) or.push(withStages({ assignedTo: { exists: false } }));
     and.push(or.length === 1 ? (or[0] as Record<string, unknown>) : { or });
   }
   // Both bounds in ONE leaf, never two entries of an `and`: split apart they filter
@@ -537,7 +570,9 @@ export function LeadFilters(): React.JSX.Element | null {
   const apply = (next: Picked): void => {
     if (!handleWhereChange) return;
     setBusy(true);
-    void Promise.resolve(handleWhereChange(build(next) as never)).finally(() => setBusy(false));
+    void Promise.resolve(handleWhereChange(build(next, routes) as never)).finally(() =>
+      setBusy(false),
+    );
   };
 
   // The three OR-able groups. `date` is deliberately not one of them.

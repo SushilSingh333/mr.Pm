@@ -121,8 +121,9 @@ function toQuery(value: unknown, prefix: string): string[] {
  * The leads behind a count: the window, an owner, some stages.
  *
  * For admins and handlers (`staff`) it follows the second-chance rules in lead-status, so
- * a slice opens exactly the leads it counted: a person's Lost includes the leads they lost
- * that someone else now holds, and the team's Lost includes second chances not yet worked.
+ * a slice opens exactly the leads it counted: a person's slices include the leads they lost
+ * that someone else now holds, and the team's include second chances not yet worked, at
+ * the stage each was lost at.
  * A salesperson gets the plain version - their leads at those stages - and nothing else.
  */
 function whereAnd(
@@ -181,7 +182,7 @@ interface Tally {
   secondByOwner: Counts;
   total: Map<string, number>;
   secondTotal: Map<string, number>;
-  /** Second chances handed on and not yet worked (still in Lost). */
+  /** Second chances handed on and not yet worked (still at the stage they were lost at). */
   waiting: number;
 }
 
@@ -293,21 +294,30 @@ function insightOf(
   const improve = review.slices.find((s) => s.bucket.key === 'improve');
   const lost = review.slices.find((s) => s.bucket.key === 'lost');
   if (improve && improve.count > 0 && improve.pct >= 25) {
+    const stage = top('improve');
+    // The advice depends on why it is still open: not reached, or reached but not priced.
+    const unreached = stage === 'Call not picked' || stage === 'Call not connected';
     return {
       icon: 'trending_up',
-      text: `Most leads that need improvement are at “${top('improve')}”. Sending them a price is what moves them to Qualified.`,
+      text: unreached
+        ? `Most opportunities are at “${stage}”: these customers have not been reached yet. Calling back at another time of day is what moves them on.`
+        : `Most opportunities are at “${stage}”. Sending them a price is what moves them to Qualified.`,
     };
   }
   if (lost && lost.pct >= 40) {
+    const stage = top('lost');
     return {
       icon: 'trending_down',
-      text: `Lost is the biggest share, mostly “${top('lost')}”. Worth checking why these slip away.`,
+      text:
+        stage === 'Invalid lead'
+          ? `Dead is the biggest share, mostly “${stage}”. Worth checking where these enquiries come from.`
+          : `Dead is the biggest share, mostly “${stage}”. Worth checking why these slip away.`,
     };
   }
   if ((review.score ?? 0) >= 60) {
     return {
       icon: 'trophy',
-      text: 'A strong period: most worked leads reached a quote or better.',
+      text: 'A strong period: most worked leads were qualified.',
     };
   }
   return null;

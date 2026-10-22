@@ -56,7 +56,8 @@ interface DonutProps {
 
 /**
  * Lost leads given a second chance, in one line: how they turned out for the new owner,
- * and how many are still waiting for them (those still count as Lost). Already inside the
+ * and how many are still waiting for them (those still count at the stage they were lost
+ * at - Dead or Opportunity). Already inside the
  * slices above - this only says which leads they are.
  */
 function secondLine(review: Review): string | null {
@@ -66,7 +67,7 @@ function secondLine(review: Review): string | null {
   if (sc.improve) parts.push(`${fmt(sc.improve)} being worked`);
   if (sc.lost) parts.push(`${fmt(sc.lost)} lost again`);
   if (sc.waiting) {
-    parts.push(`${fmt(sc.waiting)} not worked yet, still counted as Lost`);
+    parts.push(`${fmt(sc.waiting)} not worked yet, still counted at their old stage`);
   }
   return parts.length ? `Second chance: ${parts.join(', ')}` : null;
 }

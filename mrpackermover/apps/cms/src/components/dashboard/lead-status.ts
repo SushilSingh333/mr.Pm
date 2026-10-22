@@ -359,10 +359,17 @@ export const FRESH_STAGES: string[] = LEAD_GROUPS.find((g) => g.key === 'fresh')
  * for", which is how you work a list. The review asks "how did it go", which is how you
  * give somebody feedback - so it sorts the same stages into outcome, not next step:
  *
- *   Qualified          moved forward: priced, booked or done.
- *   Needs improvement  spoken to and still warm, but not yet pushed to a price. This is
- *                      the slice coaching can move.
- *   Lost               lost, junk, or never reached.
+ *   Qualified    moved forward: interested enough to follow up, priced, booked or done.
+ *   Opportunity  still winnable - spoken to but not priced, asked for a later call, or
+ *                not reached yet. This is the slice a call-back can move.
+ *   Dead         a "no", a competitor, or a junk enquiry - nothing left to win.
+ *
+ * Grouped this way on the owner's call (22 Oct 2026): Follow up counts as Qualified, and
+ * an unanswered or failed call is an opportunity still open, not a lead lost.
+ *
+ * The keys are the old names ('improve', 'lost') on purpose: they live in saved board
+ * links (`filter=r-improve`) and the reminder's link, which must keep working. Only the
+ * labels a person reads changed.
  *
  * Fresh leads (New / Assigned / Reassigned) are in none of them: nobody has worked them
  * yet, so they are not anybody's result. They are counted beside the chart as "waiting
@@ -390,26 +397,26 @@ export const REVIEW_BUCKETS: ReviewBucket[] = [
   {
     key: 'qualified',
     label: 'Qualified',
-    statuses: ['quoted', 'scheduled', 'won'],
+    statuses: ['follow-up', 'quoted', 'scheduled', 'won'],
     color: 'var(--rv-qualified)',
     icon: 'check',
-    hint: 'Moved forward: a price was sent, the move was booked, or it was won',
+    hint: 'Moved forward: interested and being followed up, priced, booked or won',
   },
   {
     key: 'improve',
-    label: 'Needs improvement',
-    statuses: ['contacted', 'follow-up', 'call-later'],
+    label: 'Opportunity',
+    statuses: ['contacted', 'call-later', 'call-not-picked', 'call-not-connected'],
     color: 'var(--rv-improve)',
     icon: 'trending_up',
-    hint: 'Spoken to and still warm, but not yet given a price - push these to a quote',
+    hint: 'Still winnable: spoken to but not priced, or not reached yet - call these back',
   },
   {
     key: 'lost',
-    label: 'Lost',
-    statuses: ['lost', 'invalid', 'call-not-picked', 'call-not-connected'],
+    label: 'Dead',
+    statuses: ['lost', 'invalid'],
     color: 'var(--rv-lost)',
     icon: 'close',
-    hint: 'Lost to a "no" or a competitor, a junk enquiry, or never reached',
+    hint: 'Nothing left to win: a "no", a competitor, or a junk enquiry',
   },
 ];
 
@@ -437,7 +444,7 @@ export interface ReviewSlice {
 
 export interface Review {
   slices: ReviewSlice[];
-  /** Qualified + needs improvement + lost. */
+  /** Qualified + opportunity + dead. */
   reviewed: number;
   /** Fresh leads, outside the review. */
   pending: number;

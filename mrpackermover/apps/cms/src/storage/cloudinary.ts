@@ -24,6 +24,19 @@ interface CloudinaryAdapterArgs {
 /** Drop the extension — Cloudinary public_ids are extensionless; `f_auto` picks the format. */
 const stripExt = (filename: string): string => filename.replace(/\.[^./\\]+$/, '');
 
+/**
+ * The public_id for a file: extensionless AND dot-free.
+ *
+ * Payload converts every upload to WebP and keeps the old extension in the name, so a
+ * photo uploaded as "Sector-128.jpg" is stored as "Sector-128.jpg.webp". Stripping only
+ * the last extension left the id "Sector-128.jpg" - and on delivery Cloudinary reads a
+ * trailing ".jpg" in the URL as a FORMAT request, looks for "Sector-128", finds nothing
+ * and answers 404. The CMS preview showed a blank file icon and the website a black
+ * banner. Every remaining dot becomes a dash, so the URL can never be misread.
+ * scripts/fix-cloudinary-ids.ts repairs the assets uploaded before this.
+ */
+export const cloudinaryIdFor = (filename: string): string => stripExt(filename).replace(/\./g, '-');
+
 export const cloudinaryStorageAdapter =
   ({ cloudName, apiKey, apiSecret, folder = 'mrpackermover' }: CloudinaryAdapterArgs): Adapter =>
   ({ prefix }): GeneratedAdapter => {
@@ -36,7 +49,7 @@ export const cloudinaryStorageAdapter =
 
     // public_id = <folder>/[<collection prefix>/]<filename without extension>
     const publicIdFor = (filename: string): string =>
-      [folder, prefix, stripExt(filename)].filter(Boolean).join('/');
+      [folder, prefix, cloudinaryIdFor(filename)].filter(Boolean).join('/');
     const urlFor = (publicId: string): string =>
       `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
 

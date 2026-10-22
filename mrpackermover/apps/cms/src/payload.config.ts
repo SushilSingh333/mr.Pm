@@ -88,7 +88,7 @@ export default buildConfig({
       // and account), injecting the global stylesheet. Presentation only.
       providers: [
         '/components/theme/AdminTheme#AdminTheme',
-        // Handlers and salespeople: the half-hourly "improvement calls" reminder.
+        // Handlers and salespeople: the half-hourly "opportunities need a call" reminder.
         '/components/dashboard/ImproveReminder#ReminderProvider',
       ],
     },

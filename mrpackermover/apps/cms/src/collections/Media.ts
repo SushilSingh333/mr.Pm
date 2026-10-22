@@ -13,8 +13,35 @@ import { hideFromSalesRoles, isContentStaff, publicRead } from '../access/index.
  * Cloudinary transform of the stored URL. Without Cloudinary creds set, Media falls
  * back to local-disk storage and `adminThumbnail` returns the plain URL unchanged.
  */
+/**
+ * "Sector-52.jpg.jpeg" -> "Sector-52.jpeg". The upload form adds the extension it
+ * expects (".jpeg" for a JPEG) to a name that already ends in ".jpg", and the WebP
+ * conversion then makes it "Sector-52.jpg.webp". An image extension left in front of
+ * the real one is never wanted - it is what broke Cloudinary links (see
+ * storage/cloudinary.ts) - so it is dropped here, on every upload, before Payload
+ * names the file.
+ */
+const LEFTOVER_EXT = /\.(?:jpe?g|png|webp|gif|avif|heic|tiff?)(?=\.[a-z0-9]+$)/i;
+export const tidyFilename = (name: string): string => {
+  let next = name;
+  for (let i = 0; i < 5 && LEFTOVER_EXT.test(next); i++) next = next.replace(LEFTOVER_EXT, '');
+  return next;
+};
+
 export const Media: CollectionConfig = {
   slug: 'media',
+  hooks: {
+    beforeOperation: [
+      ({ args, operation }) => {
+        if (operation !== 'create' && operation !== 'update') return args;
+        const file = (args.req as { file?: { name?: string } } | undefined)?.file;
+        if (file?.name) file.name = tidyFilename(file.name);
+        const data = args.data as { filename?: unknown } | undefined;
+        if (data && typeof data.filename === 'string') data.filename = tidyFilename(data.filename);
+        return args;
+      },
+    ],
+  },
   admin: {
     hidden: hideFromSalesRoles,
     group: 'Content',

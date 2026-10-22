@@ -82,6 +82,14 @@ const heroSources = imageUrl
 // The built-in artwork has its own description; a CMS photo is described by the caller,
 // never by the artwork's (that described a delivery rider over a city photograph).
 const alt = imageAlt ?? (imageUrl ? '' : heroAlt(image));
+/**
+ * If a CMS photo fails to load (a broken or deleted upload), show the built-in photo
+ * instead of the banner's near-black backdrop. Cleared after the first swap, so a
+ * missing fallback cannot loop.
+ */
+const onPhotoError = imageUrl
+  ? `this.onerror=null;this.src='/images/hero/${image}.jpg'`
+  : undefined;
 const hasHeadingSlot = Astro.slots.has('heading');
 ---
 
@@ -174,6 +182,7 @@ const hasHeadingSlot = Astro.slots.has('heading');
           <source type="image/webp" media="(min-width: 900px)" srcset={heroSources.full} />
         )}
         {heroSources.narrow && <source type="image/webp" srcset={heroSources.narrow} />}
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- onerror swaps a broken photo; it is not a user interaction */}
         <img
           src={heroSources.fallback}
           alt={alt}
@@ -181,6 +190,7 @@ const hasHeadingSlot = Astro.slots.has('heading');
           height="800"
           fetchpriority="high"
           decoding="async"
+          onerror={onPhotoError}
         />
       </picture>
       <div class="container-page hero-inner">

@@ -1239,7 +1239,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
         )}
       </header>
 
-      {/* ── Improvement calls ──
+      {/* ── Opportunity calls ──
           First on the page: warm leads with no price yet are the ones that go cold when
           nobody rings back. Its links open the board below, all dates, that filter on. */}
       <ImproveCalls
@@ -1852,8 +1852,8 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
               // review stays one card. Nothing opens: they are a colleague's leads now.
               <details className="mpm-lostby">
                 <summary>
-                  Lost includes {fmt(lostByMeTotal)} {lostByMeTotal === 1 ? 'lead' : 'leads'} you
-                  lost that {lostByMeTotal === 1 ? 'was' : 'were'} handed on
+                  Your review includes {fmt(lostByMeTotal)} {lostByMeTotal === 1 ? 'lead' : 'leads'}{' '}
+                  you lost that {lostByMeTotal === 1 ? 'was' : 'were'} handed on
                   <MIcon name="keyboard_arrow_down" size={18} />
                 </summary>
                 <ul>
@@ -1930,7 +1930,7 @@ export async function SalesDashboard(props: SalesViewProps): Promise<React.JSX.E
  * which imports the same base sheet, is untouched by anything decided here.
  */
 const EXTRA_CSS = `
-/* "Lost includes N leads you lost…" under a salesperson's review, opening to the names. */
+/* "Your review includes N leads you lost…" under a salesperson's review, opening to the names. */
 .mpm-lostby{ margin:10px 0 0; font-size:13px; color:var(--rv-ink-2, var(--mpm-ink-2)); }
 .mpm-lostby summary{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; list-style:none; }
 .mpm-lostby summary::-webkit-details-marker{ display:none; }

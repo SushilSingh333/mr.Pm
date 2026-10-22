@@ -333,7 +333,13 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   // (local design work, CI) Media falls back to local disk and the URL is relative to
   // the CMS origin — e.g. `/api/media/file/photo.png`. The Astro site is served from a
   // DIFFERENT origin, so a relative URL 404s there. Absolutise it against the CMS.
-  const cmsOrigin = (process.env.CMS_PUBLIC_URL || 'http://localhost:3000').replace(/\/+$/, '');
+  // The public site proxies /api/* to the CMS (deploy/Caddyfile), so the site's own
+  // address works when CMS_PUBLIC_URL is not set - localhost never would in production.
+  const cmsOrigin = (
+    process.env.CMS_PUBLIC_URL ||
+    process.env.PUBLIC_SITE_URL ||
+    'http://localhost:3000'
+  ).replace(/\/+$/, '');
   const absolute = (url: string): string =>
     /^https?:\/\//i.test(url) ? url : `${cmsOrigin}${url.startsWith('/') ? '' : '/'}${url}`;
   const imageFor = (

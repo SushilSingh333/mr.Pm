@@ -6,12 +6,12 @@ import { MIcon } from '../icons/MIcon.js';
 import { REVIEW_BUCKETS } from './lead-status.js';
 
 /**
- * The reminder that keeps coming back while improvement calls are waiting.
+ * The reminder that keeps coming back while opportunities are waiting for a call.
  *
  * Mounted app-wide (ReminderProvider, an admin provider) for handlers and salespeople, so
  * it is on every admin page, not only the dashboard. Not in the sidebar: a closed sidebar
  * is moved off screen, and a fixed-position snackbar inside it went with it. A few seconds after the admin opens, and then every half hour, it
- * asks the API how many "Needs improvement" leads this person can see; while there are
+ * asks the API how many "Opportunity" leads this person can see; while there are
  * any, a snackbar says so, with one press to the list. If they turned on desktop alerts
  * (ReminderSwitch, on the dashboard card) and are in another tab, the browser shows a
  * notification instead, so the reminder reaches them while they are on WhatsApp Web.
@@ -23,7 +23,7 @@ import { REVIEW_BUCKETS } from './lead-status.js';
  * their own leads and a handler's is the team's - the same rule as the dashboard card.
  */
 
-/** The review's "Needs improvement" stages - the same list the dashboard card counts. */
+/** The review's "Opportunity" stages - the same list the dashboard card counts. */
 const STAGES = REVIEW_BUCKETS.find((b) => b.key === 'improve')?.statuses ?? [];
 const EVERY_MS = 30 * 60 * 1000;
 const FIRST_MS = 8 * 1000;
@@ -79,7 +79,7 @@ export function ImproveReminder(): React.JSX.Element | null {
     write(NEXT_KEY, String(Date.now() + EVERY_MS));
     const n = await waiting();
     if (!n) return;
-    const text = `${n} ${n === 1 ? 'lead needs' : 'leads need'} an improvement call`;
+    const text = `${n} ${n === 1 ? 'opportunity needs' : 'opportunities need'} a call`;
     if (
       document.hidden &&
       read(DESKTOP_KEY) === '1' &&
@@ -87,7 +87,7 @@ export function ImproveReminder(): React.JSX.Element | null {
       Notification.permission === 'granted'
     ) {
       const note = new Notification('MrMoverPacker: call them back', {
-        body: `${text}. Warm, but no price yet.`,
+        body: `${text}. Still winnable - call them back.`,
         tag: 'mpm-improve',
       });
       note.onclick = () => {
@@ -126,9 +126,9 @@ export function ImproveReminder(): React.JSX.Element | null {
       <MIcon name="campaign" size={22} className="mpm-remind__ico" />
       <p className="mpm-remind__text">
         <strong>
-          {count} {count === 1 ? 'lead needs' : 'leads need'} an improvement call
+          {count} {count === 1 ? 'opportunity needs' : 'opportunities need'} a call
         </strong>
-        <span>Warm, but no price yet. Call them before they go cold.</span>
+        <span>Still winnable. Call them back before they go cold.</span>
       </p>
       <div className="mpm-remind__btns">
         <a className="mpm-remind__go" href={BOARD} onClick={() => setCount(null)}>

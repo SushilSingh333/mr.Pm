@@ -5,11 +5,11 @@ import { REVIEW_BUCKETS, personCase, statusMeta } from './lead-status.js';
 import { ReminderSwitch } from './ImproveReminder.js';
 
 /**
- * "Leads that need an improvement call" - the first thing on a handler's or a
+ * "Opportunities that need a call" - the first thing on a handler's or a
  * salesperson's dashboard.
  *
- * These are the review's "Needs improvement" slice (Contacted, Follow up, Call later):
- * customers who have been spoken to and are still warm, but have not been given a price.
+ * These are the review's "Opportunity" slice (Contacted, Call later, Call not picked, Call
+ * not connected): customers still winnable - spoken to but not priced, or not reached yet.
  * They are the leads coaching can move, and the ones that quietly go cold when nobody
  * rings back, so the board leads with them.
  *
@@ -22,7 +22,7 @@ import { ReminderSwitch } from './ImproveReminder.js';
  * The reminder that repeats while these are waiting is ImproveReminder, in the sidebar.
  */
 
-/** The review's "Needs improvement" stages. */
+/** The review's "Opportunity" stages (the bucket keeps its old key, 'improve'). */
 export const IMPROVE_STAGES: string[] =
   REVIEW_BUCKETS.find((b) => b.key === 'improve')?.statuses ?? [];
 
@@ -85,15 +85,16 @@ export async function ImproveCalls({
 
   if (total === 0) {
     return (
-      <section className="mpm-imp mpm-imp--clear" aria-label="Improvement calls">
+      <section className="mpm-imp mpm-imp--clear" aria-label="Opportunity calls">
         <style>{CSS}</style>
         <span className="mpm-imp__badge" aria-hidden="true">
           <MIcon name="check" size={22} />
         </span>
         <div className="mpm-imp__body">
-          <h2 className="mpm-imp__t">No improvement calls waiting</h2>
+          <h2 className="mpm-imp__t">No opportunities waiting for a call</h2>
           <p className="mpm-imp__d">
-            Every warm lead {isHandler ? 'on the team' : 'of yours'} has a price. Nice work.
+            Nothing still winnable {isHandler ? 'on the team' : 'of yours'} is waiting for a call
+            back. Nice work.
           </p>
         </div>
       </section>
@@ -157,12 +158,12 @@ export async function ImproveCalls({
 
       <div className="mpm-imp__body">
         <h2 className="mpm-imp__t" id="mpm-imp-t">
-          <strong>{total}</strong> {total === 1 ? 'lead needs' : 'leads need'} an improvement call
+          <strong>{total}</strong> {total === 1 ? 'opportunity needs' : 'opportunities need'} a call
         </h2>
         <p className="mpm-imp__d">
-          Spoken to and still warm, but no price yet. Call {total === 1 ? 'it' : 'each one'} back
-          today and move {total === 1 ? 'it' : 'them'} to a quote, before{' '}
-          {total === 1 ? 'it goes' : 'they go'} cold.
+          Still winnable: spoken to but not priced, or not reached yet. Call{' '}
+          {total === 1 ? 'it' : 'each one'} back today and move {total === 1 ? 'it' : 'them'} to a
+          quote, before {total === 1 ? 'it goes' : 'they go'} cold.
         </p>
 
         {(urgent || oldest) && (

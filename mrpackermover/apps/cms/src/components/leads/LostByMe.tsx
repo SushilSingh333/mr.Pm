@@ -9,7 +9,7 @@ import type { LostRow } from '../../lib/lost-by.js';
  * "Leads you lost", above a salesperson's Leads list.
  *
  * A lead they lost and that was handed to a colleague is not theirs any more, so it
- * leaves their list - but it is still their loss, and it still counts as Lost in their
+ * leaves their list - but it is still their loss, and it still counts in their
  * review. Without this they would see the number and not the leads behind it.
  *
  * Read-only and deliberately thin (see lib/lost-by.ts): the customer's name, the stage
@@ -53,7 +53,7 @@ export function LostByMe(): React.JSX.Element | null {
         <MIcon name="history" size={18} />
         <span className="mpm-lost__t">Leads you lost</span>
         <span className="mpm-lost__n">{rows.length}</span>
-        <span className="mpm-lost__hint">handed on · still counted as Lost for you</span>
+        <span className="mpm-lost__hint">handed on · still counted in your review</span>
         <MIcon name="keyboard_arrow_down" size={20} className="mpm-lost__chev" />
       </summary>
       <ul className="mpm-lost__list">

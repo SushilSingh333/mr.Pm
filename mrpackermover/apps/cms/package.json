@@ -29,6 +29,7 @@
     "set-team": "tsx src/scripts/set-team.ts",
     "backfill-service-scope": "tsx src/scripts/backfill-service-scope.ts",
     "backfill-second-chances": "tsx src/scripts/backfill-second-chances.ts",
+    "fix-cloudinary-ids": "tsx src/scripts/fix-cloudinary-ids.ts",
     "rebrand": "tsx src/scripts/rebrand.ts",
     "optimize-media": "tsx src/scripts/optimize-media.ts",
     "seed": "tsx src/seed.ts",

@@ -80,7 +80,20 @@ const media = (
   cloudinaryPublicId?: string | null;
 }[];
 
-const broken: { id: string | number; filename: string; from: string; to: string }[] = [];
+/**
+ * The rule is "its link does not load", not "its id has a dot". A dotted id can still
+ * answer 200 - e.g. ".../sector-18.jpg" resolves to a separate ".../sector-18" asset
+ * that a re-upload created - and renaming a link that works only risks breaking it.
+ * So each candidate's CURRENT link is loaded first, and only failing ones are repaired.
+ */
+type Candidate = {
+  id: string | number;
+  filename: string;
+  from: string;
+  to: string;
+  status: number;
+};
+const candidates: Candidate[] = [];
 for (const m of media) {
   const fromUrl = m.url?.includes('/upload/') ? m.url.split('/upload/')[1] : undefined;
   const from = m.cloudinaryPublicId || fromUrl;
@@ -89,22 +102,28 @@ for (const m of media) {
   const dir = slash >= 0 ? from.slice(0, slash + 1) : '';
   const last = from.slice(slash + 1);
   if (!last.includes('.')) continue;
-  broken.push({
+  candidates.push({
     id: m.id,
     filename: m.filename ?? '',
     from,
     to: dir + last.replace(/\./g, '-'),
+    status: await loads(urlFor(from)),
   });
 }
+const working = candidates.filter((c) => c.status === 200);
+const broken = candidates.filter((c) => c.status !== 200);
 
 payload.logger.info(
-  `Media checked: ${media.length}. With a dot in the Cloudinary id (broken links): ${broken.length}.`,
+  `Media checked: ${media.length}. Dotted Cloudinary ids: ${candidates.length} - ` +
+    `${broken.length} broken (will repair), ${working.length} already loading (left alone).`,
 );
 for (const b of broken) {
-  const status = await loads(urlFor(b.from));
   payload.logger.info(
-    `  #${b.id} ${b.filename}: ${b.from} -> ${b.to}  (current link answers ${status || 'no reply'})`,
+    `  REPAIR #${b.id} ${b.filename}: ${b.from} -> ${b.to}  (current link answers ${b.status || 'no reply'})`,
   );
+}
+for (const w of working) {
+  payload.logger.info(`  SKIP   #${w.id} ${w.filename}: ${w.from}  (current link answers 200)`);
 }
 
 if (!APPLY) {

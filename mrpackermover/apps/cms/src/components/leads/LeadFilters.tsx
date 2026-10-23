@@ -523,7 +523,25 @@ function DateDropdown({
 }
 
 export function LeadFilters(): React.JSX.Element | null {
-  const { query, handleWhereChange } = useListQuery();
+  const { query, handleWhereChange, handleSortChange } = useListQuery();
+  /**
+   * A column sort the person chose (by clicking a heading) - Payload keeps it for them
+   * across visits, which is how a list came to be "Sorted by Assigned To" for days with
+   * nobody aware of it. Shown as a chip with a way back to newest first.
+   */
+  const sort = typeof query?.sort === 'string' ? query.sort : '';
+  const sortField = sort.replace(/^-/, '');
+  const sortedAway = Boolean(sort) && sort !== '-createdAt';
+  const SORT_LABELS: Record<string, string> = {
+    name: 'Name',
+    dueAt: 'Due At',
+    phone: 'Phone',
+    service: 'Service',
+    status: 'Status',
+    assignedTo: 'Assigned To',
+    createdAt: 'Created At',
+    updatedAt: 'Last changed',
+  };
   const { user } = useAuth();
   const [team, setTeam] = useState<Person[]>([]);
   /**
@@ -664,6 +682,22 @@ export function LeadFilters(): React.JSX.Element | null {
           </svg>
           Calendar view
         </Link>
+      )}
+
+      {sortedAway && (
+        <span className="mpm-lf__summary mpm-lf__sorted">
+          <span className="mpm-lf__count">
+            Sorted by {SORT_LABELS[sortField] ?? sortField}
+            {sortField === 'createdAt' ? ' (oldest first)' : ''}
+          </span>
+          <button
+            type="button"
+            className="mpm-lf__clear"
+            onClick={() => void handleSortChange?.('-createdAt')}
+          >
+            Newest first
+          </button>
+        </span>
       )}
 
       {total > 0 && (

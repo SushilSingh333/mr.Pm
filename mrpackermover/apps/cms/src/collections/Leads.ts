@@ -122,6 +122,8 @@ function onlyDatedStages(where: unknown): boolean {
  */
 export const Leads: CollectionConfig = {
   slug: 'leads',
+  // Newest first, as the list's description says - the same order as the dashboard board.
+  defaultSort: '-createdAt',
   admin: {
     useAsTitle: 'name',
     group: 'Inbox',

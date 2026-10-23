@@ -81,8 +81,13 @@ export async function SidebarNav(props: ServerProps): Promise<React.JSX.Element>
    * text, not a link, on every Leads list - and Schedule IS the Leads list, filtered to
    * Scheduled - so from Schedule, "Leads" could not be clicked and the Scheduled filter
    * stayed on. This link always goes to the list with no filter at all.
+   *
+   * And newest first, always. Payload remembers a column sort per person, so one click
+   * on "Assigned To" left that person's list ordered by owner from then on - today's
+   * leads buried mid-list while the dashboard showed them on top. Opening Leads from
+   * here resets that; a sort chosen on the list still applies until they leave it.
    */
-  const leadsHref = '/admin/collections/leads';
+  const leadsHref = '/admin/collections/leads?sort=-createdAt';
   /**
    * Every booked move, which is exactly what the button opens.
    *

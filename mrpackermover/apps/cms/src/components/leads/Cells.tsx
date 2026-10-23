@@ -193,10 +193,11 @@ export function AgeCell({
   const fresh = rowData?.revivedAt && !routes(user) ? rowData.revivedAt : null;
   const at = fresh ?? (typeof cellData === 'string' ? cellData : '');
   if (!at) return null;
-  const text = age(at);
+  // The date and time it came in ("19 Oct, 12:32 pm"); how long ago is a hover away.
+  const text = arrivedText(at);
   if (!text) return null;
   return (
-    <span className="mpm-age" title={exactTime(at)} suppressHydrationWarning>
+    <span className="mpm-age" title={`${age(at)} - ${exactTime(at)}`} suppressHydrationWarning>
       {text}
     </span>
   );
@@ -221,6 +222,26 @@ export function AgeCell({
  * Only rewritten when it is ALREADY all caps, so a name somebody typed properly is left
  * exactly as they typed it and "McKenzie" is never re-cased.
  */
+/**
+ * When a lead came in, as a person reads it: "Today, 5:08 pm", "Yesterday, 11:40 am",
+ * "23 Oct, 9:15 am" (with the year once it is not this year). The Created At column.
+ */
+function arrivedText(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const time = d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  if (d.getTime() >= startOfToday) return `Today, ${time}`;
+  if (d.getTime() >= startOfToday - 86400000) return `Yesterday, ${time}`;
+  const date = d.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    ...(d.getFullYear() === now.getFullYear() ? {} : { year: 'numeric' }),
+  });
+  return `${date}, ${time}`;
+}
+
 export function NameCell({
   cellData,
   rowData,

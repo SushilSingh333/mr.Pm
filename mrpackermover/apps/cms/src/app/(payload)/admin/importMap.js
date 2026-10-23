@@ -28,6 +28,7 @@ import { ReviewRowLabel as ReviewRowLabel_c640d79e0c641f2270701020d73be7c2 } fro
 import { CreateProposal as CreateProposal_4b3e26dd13427489eed77a57bc2956d1 } from '../../../components/leads/CreateProposal'
 import { NameCell as NameCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
 import { PhoneCell as PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
+import { CallRecording as CallRecording_2ba4ea3693708741a86103d7a46f9818 } from '../../../components/leads/CallRecording'
 import { PhoneField as PhoneField_d45560ec092cb2c7a304c318d0d1bdc1 } from '../../../components/leads/PhoneActions'
 import { SamePhone as SamePhone_ea35465dfd3da1e9fd96298650ba759a } from '../../../components/leads/SamePhone'
 import { ServiceCell as ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80 } from '../../../components/leads/Cells'
@@ -97,6 +98,7 @@ export const importMap = {
   "/components/leads/CreateProposal#CreateProposal": CreateProposal_4b3e26dd13427489eed77a57bc2956d1,
   "/components/leads/Cells#NameCell": NameCell_f3ff0d3eb06f60f8f116db056ab62b80,
   "/components/leads/PhoneActions#PhoneCell": PhoneCell_d45560ec092cb2c7a304c318d0d1bdc1,
+  "/components/leads/CallRecording#CallRecording": CallRecording_2ba4ea3693708741a86103d7a46f9818,
   "/components/leads/PhoneActions#PhoneField": PhoneField_d45560ec092cb2c7a304c318d0d1bdc1,
   "/components/leads/SamePhone#SamePhone": SamePhone_ea35465dfd3da1e9fd96298650ba759a,
   "/components/leads/Cells#ServiceCell": ServiceCell_f3ff0d3eb06f60f8f116db056ab62b80,

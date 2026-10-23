@@ -1365,6 +1365,7 @@ export interface Lead {
   id: number;
   name: string;
   phone: string;
+  callRecording?: string | null;
   /**
    * Given on the form when the customer chose to.
    */
@@ -2535,6 +2536,7 @@ export interface JobApplicationsSelect<T extends boolean = true> {
 export interface LeadsSelect<T extends boolean = true> {
   name?: T;
   phone?: T;
+  callRecording?: T;
   email?: T;
   service?: T;
   moveSize?: T;

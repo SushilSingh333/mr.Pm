@@ -565,9 +565,31 @@ a.card:hover,.card--has-link:hover,.card:hover{
 .list-header__after-header-content,.collection-list__sub-header{ margin-top:6px; }
 
 /* The list table itself: a card, not a bare grid on the page. */
+/* overflow-x:auto, NOT overflow:hidden. This rule outranks the plain .table one below,
+   and with "hidden" here the scroll it sets up never happened: once the columns no
+   longer fitted (the side menu open, say), the last column - Created At on Leads - was
+   cut off with no way to reach it. */
 .collection-list .table{
   background:var(--mpm-paper); border:1px solid var(--mpm-line);
-  border-radius:var(--style-radius-l); overflow:hidden;
+  border-radius:var(--style-radius-l); overflow-x:auto; overflow-y:hidden;
+}
+/* Leads on a desktop: columns sized to what they hold. Payload gives every cell a 150px
+   minimum, which for eight columns is wider than the space beside the open side menu,
+   and much of it was empty (Due At is blank on most rows). Phones use the card layout
+   below, which sets its own. */
+@media (min-width:1025px){
+  .collection-list--leads .table th,
+  .collection-list--leads .table td{ min-width:0; }
+  /* 12px sides, not 16: with eight columns those 64px are what lets Created At fit beside
+     the open side menu. */
+  .collection-list.collection-list--leads .table th,
+  .collection-list.collection-list--leads .table td{ padding-left:12px; padding-right:12px; }
+  .collection-list--leads .table .cell-name{ min-width:150px; }
+  .collection-list--leads .table .cell-dueAt{ min-width:100px; }
+  .collection-list--leads .table .cell-service{ min-width:110px; }
+  .collection-list--leads .table .cell-status{ min-width:110px; }
+  .collection-list--leads .table .cell-assignedTo{ min-width:110px; }
+  .collection-list--leads .table .cell-createdAt{ min-width:120px; white-space:nowrap; }
 }
 .collection-list .table td,.collection-list .table th{ padding:12px 16px; }
 .collection-list .table tbody tr{ border-top:1px solid var(--mpm-line); }

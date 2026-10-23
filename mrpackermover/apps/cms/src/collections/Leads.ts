@@ -47,6 +47,40 @@ const FULL_HISTORY = 'leadFullHistory';
 const routingStaff: FieldAccess = ({ req }) => isRole(req, 'admin', 'handler');
 
 /**
+ * A call-recording link in what a phone system posted, e.g. CallerDesk's
+ * "CallRecordingUrl". Keys are matched loosely (case and separators ignored) and one
+ * level of nesting is searched, the same tolerance the webhook applies to every field.
+ * Only an http(s) address is returned - it ends up in an <audio> and a link.
+ */
+const RECORDING_KEYS = new Set([
+  'callrecordingurl',
+  'recordingurl',
+  'callrecording',
+  'recording',
+  'recordingfile',
+  'recordinglink',
+  'callrecordinglink',
+  'audiourl',
+]);
+function recordingFrom(raw: unknown): string | null {
+  const visit = (obj: unknown, depth: number): string | null => {
+    if (!obj || typeof obj !== 'object' || depth > 2) return null;
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      const key = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (RECORDING_KEYS.has(key) && typeof v === 'string' && /^https?:\/\/\S+$/i.test(v.trim())) {
+        return v.trim();
+      }
+    }
+    for (const v of Object.values(obj as Record<string, unknown>)) {
+      const found = visit(v, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  };
+  return visit(raw, 0);
+}
+
+/**
  * Whether a where clause only lets dated stages through - see the `beforeOperation` hook.
  *
  * Only the AND side of the tree narrows a result, so only it is walked: a status
@@ -668,6 +702,30 @@ export const Leads: CollectionConfig = {
           },
         },
       ],
+    },
+    {
+      /**
+       * The call recording an IVR (e.g. CallerDesk) sent with the lead -
+       * "CallRecordingUrl" and its usual spellings - shown as a player on the lead.
+       *
+       * Virtual: nothing is stored, it is read out of `rawPayload` as the lead is read,
+       * so leads that arrived before this existed show their recording too, and no
+       * migration is needed. It must stay ABOVE `rawPayload` in this list: that field is
+       * admin-only and is removed for anyone else when the read reaches it, and the
+       * salesperson working an IVR lead is exactly who needs to hear the call.
+       */
+      name: 'callRecording',
+      label: 'Call recording',
+      type: 'text',
+      virtual: true,
+      admin: {
+        readOnly: true,
+        condition: (data) => Boolean(data?.callRecording),
+        components: { Field: '/components/leads/CallRecording#CallRecording' },
+      },
+      hooks: {
+        afterRead: [({ data, siblingData }) => recordingFrom((data ?? siblingData)?.rawPayload)],
+      },
     },
     {
       // Sits directly under the phone number, where the call actually gets made.

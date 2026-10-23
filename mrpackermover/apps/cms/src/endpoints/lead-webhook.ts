@@ -134,6 +134,53 @@ async function readBody(req: PayloadRequest): Promise<Record<string, unknown>> {
   return data as Record<string, unknown>;
 }
 
+/**
+ * The person who took the call, for a lead from a phone system.
+ *
+ * An IVR (CallerDesk, say) names the agent it rang - `receiver_name: "Akib"`,
+ * `agent_email` - and a phone call already has an owner: whoever picked up, or was rung.
+ * The lead goes straight to them instead of the round robin.
+ *
+ * Matched against salespeople and handlers, most certain first: the email, then the
+ * full name, then the first name ("Akib" -> "Akib Javed") - but a first name only when
+ * exactly one person has it. A name that matches nobody, or two people, is never guessed:
+ * the lead falls back to the round robin and says why in its history.
+ *
+ * Returns null when the payload names no receiver at all (any non-phone lead).
+ */
+type Receiver = { id: string | number; name: string } | { unmatched: string };
+async function receiverOf(
+  req: PayloadRequest,
+  flat: Record<string, unknown>,
+): Promise<Receiver | null> {
+  const name = pick(flat, ['receiver_name', 'agent_name', 'answered_by', 'receiver']);
+  const email = pick(flat, ['agent_email', 'receiver_email']).toLowerCase();
+  if (!name && !email) return null;
+  const clean = (v: unknown): string =>
+    typeof v === 'string' ? v.trim().toLowerCase().replace(/\s+/g, ' ') : '';
+  const staff = (
+    await req.payload.find({
+      collection: 'users',
+      where: { role: { in: ['sales', 'handler'] } } as never,
+      depth: 0,
+      limit: 500,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+  ).docs as { id: string | number; name?: string; email?: string }[];
+  const one = (list: typeof staff): Receiver | null =>
+    list.length === 1 ? { id: list[0]!.id, name: list[0]!.name || list[0]!.email || '' } : null;
+  const wanted = clean(name);
+  return (
+    (email ? one(staff.filter((u) => clean(u.email) === email)) : null) ??
+    (wanted ? one(staff.filter((u) => clean(u.name) === wanted)) : null) ??
+    (wanted
+      ? one(staff.filter((u) => clean(u.name).split(' ')[0] === wanted.split(' ')[0]))
+      : null) ?? { unmatched: name || email }
+  );
+}
+
 export const leadWebhookEndpoint: Endpoint = {
   path: '/lead-webhook',
   method: 'post',
@@ -253,6 +300,8 @@ export const leadWebhookEndpoint: Endpoint = {
       'external_id',
       'zap_id',
       'request_id',
+      // An IVR's id for the call: a resent call report must not become a second lead.
+      'callsid',
     ]);
 
     // Ad platforms re-deliver, and Zapier retries a failed step. The same lead arriving
@@ -280,6 +329,31 @@ export const leadWebhookEndpoint: Endpoint = {
         : sourceRaw.includes('facebook') || sourceRaw.includes('instagram') || flat.leadgenid
           ? 'facebook-ad'
           : 'webhook';
+
+    const receiver = await receiverOf(req, flat);
+    const now = new Date().toISOString();
+    const owner =
+      receiver && 'id' in receiver
+        ? {
+            assignedTo: receiver.id,
+            status: 'assigned',
+            assignedAt: now,
+            assignedBy: null,
+            assignedByName: 'IVR call',
+            acknowledgedAt: null,
+          }
+        : receiver
+          ? {
+              noteLog: [
+                {
+                  kind: 'note',
+                  body: `The phone system named "${receiver.unmatched}" as the person who took this call, but no salesperson or handler matches that name - so it was assigned the usual way.`,
+                  at: now,
+                  authorName: 'IVR',
+                },
+              ],
+            }
+          : {};
 
     try {
       const lead = await req.payload.create({
@@ -317,6 +391,8 @@ export const leadWebhookEndpoint: Endpoint = {
           // from the lead itself rather than from Zapier's history.
           rawPayload: body,
           sourceIp: clientIp(req) ?? undefined,
+          // The person who took the call, when a phone system says who (receiverOf).
+          ...owner,
         } as never,
         overrideAccess: true,
         req,

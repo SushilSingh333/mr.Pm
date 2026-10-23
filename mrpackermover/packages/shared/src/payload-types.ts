@@ -1485,9 +1485,10 @@ export interface Lead {
   revivedByName?: string | null;
   revivedCount?: number | null;
   /**
-   * Which ad or form this came from, as the sender described it.
+   * Which connection, ad or form this came from - the connection name first (Settings → Integrations).
    */
   sourceDetail?: string | null;
+  webhookConnection?: string | null;
   externalId?: string | null;
   /**
    * Kept for diagnosing a mapping that has gone wrong.
@@ -2583,6 +2584,7 @@ export interface LeadsSelect<T extends boolean = true> {
   revivedByName?: T;
   revivedCount?: T;
   sourceDetail?: T;
+  webhookConnection?: T;
   externalId?: T;
   rawPayload?: T;
   sourceIp?: T;
@@ -3141,7 +3143,7 @@ export interface SeoDefault {
   createdAt?: string | null;
 }
 /**
- * Receive leads from Facebook Lead Ads, Google Ads or anywhere else, through Zapier or any tool that can send a webhook.
+ * Receive leads from Facebook Lead Ads, Google Ads or anywhere else, through Zapier or any tool that can send a webhook. Add one connection per tool.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "integrations".
@@ -3149,22 +3151,35 @@ export interface SeoDefault {
 export interface Integration {
   id: number;
   /**
-   * Turn off to stop accepting inbound leads without changing the secret. Anything sent while this is off is rejected, not queued.
+   * The master switch. Off stops every connection at once without changing any secret. Anything sent while it is off is rejected, not queued.
    */
   leadWebhookEnabled?: boolean | null;
   /**
-   * Send this as the header x-webhook-secret. Treat it like a password: anyone holding it can create leads. Clear the box and save to issue a new one, which immediately stops the old one working.
+   * One per tool or Zap - e.g. "Facebook - Delhi form", "Google Ads", "Partner site". Each gets its own secret, so you can see what each one sends and switch one off without touching the others.
    */
-  leadWebhookSecret?: string | null;
+  leadSources?:
+    | {
+        /**
+         * Shown on every lead it sends, under "Campaign / form".
+         */
+        name: string;
+        source?: ('auto' | 'facebook-ad' | 'webhook') | null;
+        enabled?: boolean | null;
+        /**
+         * Send this as the header x-webhook-secret. Treat it like a password: anyone holding it can create leads. Clear the box and save to issue a new one, which immediately stops the old one working.
+         */
+        secret?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   /**
-   * Blank means nothing has ever reached this endpoint.
-   */
-  leadWebhookLastAt?: string | null;
-  leadWebhookCount?: number | null;
-  /**
-   * Why the most recent request was turned away. Usually a wrong secret or a payload with no phone number in it.
+   * Why the most recent request was turned away. Usually a wrong secret, a connection that is switched off, or a payload with no phone number in it.
    */
   leadWebhookLastError?: string | null;
+  leadWebhookSecret?: string | null;
+  leadWebhookLastAt?: string | null;
+  leadWebhookCount?: number | null;
+  leadSourcesSeeded?: boolean | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3492,10 +3507,20 @@ export interface SeoDefaultsSelect<T extends boolean = true> {
  */
 export interface IntegrationsSelect<T extends boolean = true> {
   leadWebhookEnabled?: T;
+  leadSources?:
+    | T
+    | {
+        name?: T;
+        source?: T;
+        enabled?: T;
+        secret?: T;
+        id?: T;
+      };
+  leadWebhookLastError?: T;
   leadWebhookSecret?: T;
   leadWebhookLastAt?: T;
   leadWebhookCount?: T;
-  leadWebhookLastError?: T;
+  leadSourcesSeeded?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

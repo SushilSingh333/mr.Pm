@@ -1146,8 +1146,21 @@ export const Leads: CollectionConfig = {
       admin: {
         readOnly: true,
         condition: (data) => Boolean(data?.sourceDetail),
-        description: 'Which ad or form this came from, as the sender described it.',
+        description:
+          'Which connection, ad or form this came from - the connection name first (Settings → Integrations).',
       },
+    },
+    {
+      /**
+       * The Integrations connection this lead arrived through (the row id of
+       * `leadSources`). It is how each connection counts its own leads, instead of the
+       * webhook rewriting a counter on the settings after every lead. Written only by
+       * the webhook; never shown - the connection's NAME is in `sourceDetail`.
+       */
+      name: 'webhookConnection',
+      type: 'text',
+      index: true,
+      admin: { hidden: true, readOnly: true },
     },
     {
       /**

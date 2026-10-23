@@ -11,7 +11,8 @@ import { json, clientIp } from './_lib.js';
  * should not have to check a Facebook inbox as well as the CMS, and "which leads did we
  * get this week" should be one number.
  *
- * Guarded by a shared secret from the Integrations global rather than left open like
+ * Guarded by a secret from the Integrations global - one per connection, so each tool
+ * calling it is told apart and can be switched off alone - rather than left open like
  * /api/quote. A visitor filling in the website form has no credentials, so that endpoint
  * has to accept anonymous posts; a webhook URL has exactly one caller and would
  * otherwise be a public "create a row in the sales pipeline" button.
@@ -140,8 +141,6 @@ export const leadWebhookEndpoint: Endpoint = {
     const body = await readBody(req);
 
     const settings = await req.payload.findGlobal({ slug: 'integrations', overrideAccess: true });
-    const expected =
-      typeof settings.leadWebhookSecret === 'string' ? settings.leadWebhookSecret : '';
 
     /**
      * Record why a request was turned away, so the Integrations screen can show it.
@@ -171,16 +170,49 @@ export const leadWebhookEndpoint: Endpoint = {
     };
 
     if (settings.leadWebhookEnabled === false) {
-      return reject('The webhook is switched off in Integrations.', 403);
+      return reject('Every connection is switched off in Integrations.', 403);
     }
 
     const given =
       req.headers.get('x-webhook-secret') ??
       (typeof req.query?.secret === 'string' ? req.query.secret : '');
-    if (!secretMatches(given, expected)) {
+
+    /**
+     * Which connection is calling: the one whose secret this is. Every secret is
+     * compared (constant-time each), so the time taken says nothing about which one
+     * nearly matched. Before the settings are first saved with connections, the old
+     * single secret still answers, as "Main webhook".
+     */
+    type Connection = { id: string; name: string; enabled: boolean; source: string };
+    const rows = (settings.leadSources ?? []) as {
+      id?: string | null;
+      name?: string | null;
+      enabled?: boolean | null;
+      source?: string | null;
+      secret?: string | null;
+    }[];
+    let conn: Connection | null = null;
+    for (const r of rows) {
+      if (secretMatches(given, r.secret ?? '') && !conn) {
+        conn = {
+          id: String(r.id ?? ''),
+          name: r.name?.trim() || 'Connection',
+          enabled: r.enabled !== false,
+          source: r.source || 'auto',
+        };
+      }
+    }
+    const legacy = typeof settings.leadWebhookSecret === 'string' ? settings.leadWebhookSecret : '';
+    if (!conn && !settings.leadSourcesSeeded && secretMatches(given, legacy)) {
+      conn = { id: '', name: 'Main webhook', enabled: true, source: 'auto' };
+    }
+    if (!conn) {
       // Deliberately vague to the caller, specific in the log: a legitimate integrator
       // reads the reason on the Integrations screen, an attacker learns nothing here.
-      return reject('Rejected: the secret did not match.', 401, !given);
+      return reject('Rejected: the secret did not match any connection.', 401, !given);
+    }
+    if (!conn.enabled) {
+      return reject(`The connection "${conn.name}" is switched off in Integrations.`, 403);
     }
 
     const flat = flatten(body);
@@ -240,11 +272,14 @@ export const leadWebhookEndpoint: Endpoint = {
       }
     }
 
+    // The connection says where its leads belong; "auto" reads the payload instead.
     const sourceRaw = pick(flat, ['source', 'platform', 'channel']).toLowerCase();
     const source =
-      sourceRaw.includes('facebook') || sourceRaw.includes('instagram') || flat.leadgenid
-        ? 'facebook-ad'
-        : 'webhook';
+      conn.source === 'facebook-ad' || conn.source === 'webhook'
+        ? conn.source
+        : sourceRaw.includes('facebook') || sourceRaw.includes('instagram') || flat.leadgenid
+          ? 'facebook-ad'
+          : 'webhook';
 
     try {
       const lead = await req.payload.create({
@@ -269,12 +304,15 @@ export const leadWebhookEndpoint: Endpoint = {
           customerNote: pick(flat, ['message', 'notes', 'comments', 'remarks']) || undefined,
           sourceDetail:
             [
+              conn.name,
               pick(flat, ['campaign_name', 'campaign', 'ad_name', 'adset_name']),
               pick(flat, ['form_name', 'form']),
             ]
               .filter(Boolean)
               .join(' · ') || undefined,
           externalId: externalId || undefined,
+          // Each connection counts its own leads from this (Integrations screen).
+          webhookConnection: conn.id || undefined,
           // Kept verbatim so a mapping that silently stopped working can be diagnosed
           // from the lead itself rather than from Zapier's history.
           rawPayload: body,
@@ -284,21 +322,9 @@ export const leadWebhookEndpoint: Endpoint = {
         req,
       });
 
-      await req.payload
-        .updateGlobal({
-          slug: 'integrations',
-          data: {
-            leadWebhookLastAt: new Date().toISOString(),
-            leadWebhookCount: Number(settings.leadWebhookCount ?? 0) + 1,
-            leadWebhookLastError: null,
-          },
-          overrideAccess: true,
-          req,
-        })
-        .catch(() => {
-          /* the lead is saved; the counter is a convenience */
-        });
-
+      // No write to the settings here any more. A read-modify-write of the global on
+      // every lead could overwrite an admin editing the connections at that moment;
+      // each connection counts its leads from `webhookConnection` instead.
       return json({ ok: true, id: lead.id });
     } catch (error) {
       req.payload.logger.error({ err: error }, 'lead-webhook: create failed');

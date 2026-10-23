@@ -53,6 +53,8 @@ import { ProposalPdf as ProposalPdf_96917c16d64f6b56cae496087e6af5a4 } from '../
 import { CustomerSecurity as CustomerSecurity_a9584f912fa6956e6581d509887c8297 } from '../../../components/customers/CustomerSecurity'
 import { LeadReviewField as LeadReviewField_5024c0df2d86ed461d27416ff581a0f9 } from '../../../components/users/LeadReviewField'
 import { WebhookSetup as WebhookSetup_4589d205252be6016ff2846103214a98 } from '../../../components/settings/WebhookSetup'
+import { ConnectionInfo as ConnectionInfo_db33ff99785b2fcff484bf35056c7b4b } from '../../../components/settings/ConnectionRow'
+import { ConnectionRowLabel as ConnectionRowLabel_db33ff99785b2fcff484bf35056c7b4b } from '../../../components/settings/ConnectionRow'
 import { AccountAvatar as AccountAvatar_0d0b17769902b4ad4d21ac072cf97555 } from '../../../components/nav/AccountAvatar'
 import { BrandIcon as BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f } from '../../../components/graphics/BrandIcon'
 import { BrandLogo as BrandLogo_6e77d0f41c8c9945031c97d73e95e085 } from '../../../components/graphics/BrandLogo'
@@ -120,6 +122,8 @@ export const importMap = {
   "/components/customers/CustomerSecurity#CustomerSecurity": CustomerSecurity_a9584f912fa6956e6581d509887c8297,
   "/components/users/LeadReviewField#LeadReviewField": LeadReviewField_5024c0df2d86ed461d27416ff581a0f9,
   "/components/settings/WebhookSetup#WebhookSetup": WebhookSetup_4589d205252be6016ff2846103214a98,
+  "/components/settings/ConnectionRow#ConnectionInfo": ConnectionInfo_db33ff99785b2fcff484bf35056c7b4b,
+  "/components/settings/ConnectionRow#ConnectionRowLabel": ConnectionRowLabel_db33ff99785b2fcff484bf35056c7b4b,
   "/components/nav/AccountAvatar#AccountAvatar": AccountAvatar_0d0b17769902b4ad4d21ac072cf97555,
   "/components/graphics/BrandIcon#BrandIcon": BrandIcon_010c18ea9a6c30ecef5f4805ffc4d56f,
   "/components/graphics/BrandLogo#BrandLogo": BrandLogo_6e77d0f41c8c9945031c97d73e95e085,

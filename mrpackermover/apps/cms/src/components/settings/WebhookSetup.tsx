@@ -4,7 +4,8 @@ import { useFormFields } from '@payloadcms/ui';
 
 /**
  * `ui` field at the top of Integrations: the webhook address, a copy button, and the
- * five steps to wire Zapier up.
+ * five steps to wire Zapier up. Each connection's own secret, link and lead count are
+ * in its row (ConnectionRow.tsx).
  *
  * The address is not stored anywhere - it is this site's own origin plus a fixed path,
  * so showing it beats asking someone to assemble it from a doc and get the domain
@@ -34,7 +35,9 @@ const code: React.CSSProperties = {
 
 export function WebhookSetup(): React.JSX.Element {
   const enabled = useFormFields(([fields]) => fields?.leadWebhookEnabled?.value);
-  const secret = useFormFields(([fields]) => fields?.leadWebhookSecret?.value);
+  // An array field's form value is its row count.
+  const connections = Number(useFormFields(([fields]) => fields?.leadSources?.value) ?? 0);
+  const before = Number(useFormFields(([fields]) => fields?.leadWebhookCount?.value) ?? 0);
   const [copied, setCopied] = useState<string | null>(null);
 
   /**
@@ -53,7 +56,6 @@ export function WebhookSetup(): React.JSX.Element {
     setOrigin(window.location.origin);
   }, []);
   const url = `${origin}/api/lead-webhook`;
-  const hasSecret = typeof secret === 'string' && secret.length > 0;
 
   const copy = (label: string, text: string): void => {
     void navigator.clipboard?.writeText(text).then(
@@ -102,7 +104,7 @@ export function WebhookSetup(): React.JSX.Element {
         </li>
         <li>
           <strong>Headers</strong> (scroll down past Basic Auth) — add <code>x-webhook-secret</code>{' '}
-          with the secret below.
+          with the secret of <em>this tool&apos;s</em> connection below.
         </li>
         <li>
           <strong>Data</strong> — one row per field. Put the field name on the left and the Facebook
@@ -123,18 +125,29 @@ export function WebhookSetup(): React.JSX.Element {
         lead, so a field that did not map can be read rather than guessed at.
         <br />
         <br />
-        If you cannot add a header, append <code>?secret=…</code> to the URL instead. It works, but
-        a header is better — query strings end up in server logs.
+        If a tool cannot add a header, each connection below has a link with its secret built in. It
+        works, but a header is better — query strings end up in server logs.
       </div>
 
-      {!hasSecret && (
+      <div style={{ marginTop: '.6rem' }}>
+        <strong>One connection per tool.</strong> Every connection uses this same address; its
+        secret tells us which one is sending. Give each Zap, ad platform or partner its own, and you
+        can see what each one sends - and switch one off - without touching the others.
+      </div>
+      {connections === 0 && (
         <div style={{ marginTop: '.6rem', color: 'var(--theme-warning-500)' }}>
-          No secret yet — press Save and one will be generated.
+          No connections yet. Press Save to create the first one, or add one below.
+        </div>
+      )}
+      {before > 0 && (
+        <div style={{ marginTop: '.6rem', opacity: 0.75 }}>
+          {before.toLocaleString('en-IN')} {before === 1 ? 'lead' : 'leads'} arrived before separate
+          connections existed; they are not counted under any connection.
         </div>
       )}
       {enabled === false && (
         <div style={{ marginTop: '.6rem', color: 'var(--theme-warning-500)' }}>
-          Receiving is switched off below, so anything sent now is rejected.
+          The master switch below is off, so every connection is rejecting leads.
         </div>
       )}
       {copied && <div style={{ marginTop: '.5rem', opacity: 0.75 }}>{copied} copied</div>}

@@ -867,8 +867,11 @@ html[data-theme="dark"] .mpm-dial__btn--wa{ color:#C4EED0; background:#0F5223; }
 .mpm-owner--none{ color:var(--mpm-ember-ink); font-weight:500; }
 /* A lost lead given a second chance - admins and handlers only. */
 .mpm-owner-wrap{ display:inline-flex; flex-direction:column; align-items:flex-start; gap:4px; }
-.mpm-second{ display:inline-flex; align-items:center; gap:5px; padding:1px 8px; border-radius:8px; font-size:11px; font-weight:500; white-space:nowrap; background:color-mix(in srgb, var(--mpm-ember) 14%, transparent); color:var(--mpm-ember-ink); cursor:help; }
-.mpm-second::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--mpm-ember); }
+/* Wraps, at most ~160px wide. It was one unbreakable line, and a long one ("2nd chance ·
+   was Lost with Sachin") stretched the Assigned To column to ~300px and pushed Created
+   At out of the table. */
+.mpm-second{ display:inline-flex; align-items:flex-start; gap:5px; padding:2px 8px; border-radius:8px; font-size:11px; font-weight:500; line-height:1.35; white-space:normal; max-width:160px; background:color-mix(in srgb, var(--mpm-ember) 14%, transparent); color:var(--mpm-ember-ink); cursor:help; }
+.mpm-second::before{ content:""; flex:none; width:6px; height:6px; margin-top:4px; border-radius:50%; background:var(--mpm-ember); }
 .mpm-second.is-won{ background:color-mix(in srgb, var(--mpm-ok) 14%, transparent); color:var(--mpm-ok-ink); }
 .mpm-second.is-won::before{ background:var(--mpm-ok); }
 .mpm-age{ font-variant-numeric:tabular-nums; color:var(--mpm-ink-3); }

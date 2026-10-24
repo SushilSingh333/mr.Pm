@@ -1,0 +1,17 @@
+---
+/**
+ * The site's icons, for every page's <head>.
+ *
+ * favicon.svg alone was enough for browsers, but not for Google's search results, which
+ * showed a grey globe: Google wants a square raster icon in a multiple of 48px. So the
+ * same pin is offered as an .ico (16/32/48), a 96px PNG, the SVG for sharp screens, an
+ * iPhone home-screen icon, and a web manifest for Android. All built from favicon.svg by
+ * scripts/build-favicons.mjs - change the SVG, re-run that, and every size follows.
+ */
+---
+
+<link rel="icon" href="/favicon.ico" sizes="48x48" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />

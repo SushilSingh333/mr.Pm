@@ -43,6 +43,7 @@ const service = prefillService ?? '';
       <label class="bar-field">
         <span class="bar-label">Full Name <b>*</b></span>
         <input id={`${idPrefix}-name`} type="text" autocomplete="name" placeholder="Your name" />
+        <span class="bar-err" id={`${idPrefix}-name-err`} aria-live="polite" hidden></span>
       </label>
       <label class="bar-field">
         <span class="bar-label">Pickup Location <b>*</b></span>
@@ -53,6 +54,7 @@ const service = prefillService ?? '';
           placeholder="Sending from"
           autocomplete="off"
         />
+        <span class="bar-err" id={`${idPrefix}-pickup-err`} aria-live="polite" hidden></span>
       </label>
       <label class="bar-field">
         <span class="bar-label">Drop Location <b>*</b></span>
@@ -63,6 +65,7 @@ const service = prefillService ?? '';
           placeholder="Sending to"
           autocomplete="off"
         />
+        <span class="bar-err" id={`${idPrefix}-drop-err`} aria-live="polite" hidden></span>
       </label>
       <label class="bar-field">
         <span class="bar-label">Phone Number <b>*</b></span>
@@ -73,10 +76,12 @@ const service = prefillService ?? '';
           autocomplete="tel"
           placeholder="10-digit mobile"
         />
+        <span class="bar-err" id={`${idPrefix}-phone-err`} aria-live="polite" hidden></span>
       </label>
       <label class="bar-field">
         <span class="bar-label">Shifting Date <b>*</b></span>
         <input id={`${idPrefix}-date`} type="date" />
+        <span class="bar-err" id={`${idPrefix}-date-err`} aria-live="polite" hidden></span>
       </label>
     </div>
     <button type="button" class="btn btn-primary bar-cta" id={`${idPrefix}-go`}>
@@ -254,6 +259,62 @@ const service = prefillService ?? '';
     let lastShown: { low: number; high: number; km: number; ft: number; offer: boolean } | null =
       null;
 
+    /**
+     * Every field in the bar is required, and the price only appears once they are all
+     * filled - a price for a half-described move is a guess (the drop decides the
+     * distance, the date the season), and every price shown is meant to reach the team
+     * as a lead with a name and a number to call back. A missing field is marked where it
+     * is, with what to do, and the cursor goes to the first one.
+     */
+    /** The ten-digit core of an Indian mobile, or null - the same rule as the full form. */
+    const mobileCore = (phone: string): string | null => {
+      const d = phone.replace(/\D/g, '');
+      const core =
+        d.length === 12 && d.startsWith('91')
+          ? d.slice(2)
+          : d.length === 11 && d.startsWith('0')
+            ? d.slice(1)
+            : d;
+      return /^[6-9]\d{9}$/.test(core) ? core : null;
+    };
+    const RULES: [string, (v: string) => string | null][] = [
+      ['q-name', (v) => (v.trim().length >= 2 ? null : 'Enter your name')],
+      ['q-pickup', (v) => (v.trim() ? null : 'Enter the pickup location')],
+      ['q-drop', (v) => (v.trim() ? null : 'Enter the drop location')],
+      ['q-phone', (v) => (mobileCore(v) ? null : 'Enter a 10-digit mobile number')],
+      ['q-date', (v) => (v && v >= todayISO() ? null : 'Pick your shifting date')],
+    ];
+    const showError = (id: string, msg: string | null): void => {
+      const input = byId<HTMLInputElement>(id);
+      const err = byId(`${id}-err`);
+      input.closest('.bar-field')?.classList.toggle('is-invalid', Boolean(msg));
+      input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      err.textContent = msg ?? '';
+      err.hidden = !msg;
+    };
+    function validate(): boolean {
+      let first: HTMLInputElement | null = null;
+      for (const [id, rule] of RULES) {
+        const input = byId<HTMLInputElement>(id);
+        const msg = rule(input.value);
+        showError(id, msg);
+        if (msg && !first) first = input;
+      }
+      if (!first) return true;
+      est.hidden = true;
+      first.focus();
+      return false;
+    }
+    // A marked field clears as soon as it is put right.
+    for (const [id, rule] of RULES) {
+      const input = byId<HTMLInputElement>(id);
+      const recheck = (): void => {
+        if (input.getAttribute('aria-invalid') === 'true') showError(id, rule(input.value));
+      };
+      input.addEventListener('input', recheck);
+      input.addEventListener('change', recheck);
+    }
+
     function readInputs() {
       return {
         name: byId<HTMLInputElement>('q-name').value,
@@ -352,14 +413,7 @@ const service = prefillService ?? '';
       const phone = o.phone.trim();
       const name = o.name.trim();
       // Same ten-digit rule as the full form; see get-quote.astro for why.
-      const pDigits = phone.replace(/\D/g, '');
-      const pCore =
-        pDigits.length === 12 && pDigits.startsWith('91')
-          ? pDigits.slice(2)
-          : pDigits.length === 11 && pDigits.startsWith('0')
-            ? pDigits.slice(1)
-            : pDigits;
-      if (name.length < 2 || !/^[6-9]\d{9}$/.test(pCore) || phone === lastSentPhone) return;
+      if (name.length < 2 || !mobileCore(phone) || phone === lastSentPhone) return;
       lastSentPhone = phone;
       try {
         void fetch('/api/quote', {
@@ -390,6 +444,7 @@ const service = prefillService ?? '';
     }
 
     byId('q-go').addEventListener('click', async () => {
+      if (!validate()) return;
       const o = readInputs();
       const [km, ps, ds] = await Promise.all([
         fetchDistanceKm(),

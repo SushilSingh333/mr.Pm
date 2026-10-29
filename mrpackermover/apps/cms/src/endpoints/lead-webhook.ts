@@ -2,6 +2,7 @@ import type { Endpoint, PayloadRequest } from 'payload';
 import { addDataAndFileToRequest } from 'payload';
 import { timingSafeEqual } from 'node:crypto';
 import { json, clientIp } from './_lib.js';
+import { findOpenLead, joinRepeat } from '../lib/repeat-contact.js';
 
 /**
  * Inbound leads from anywhere that is not this website.
@@ -355,6 +356,74 @@ export const leadWebhookEndpoint: Endpoint = {
             }
           : {};
 
+    // What the customer told us, for a new lead - or to fill gaps on the lead they already have.
+    const details = {
+      email: pick(flat, ['email', 'email_address', 'emailaddress']) || undefined,
+      service:
+        pick(flat, ['service', 'service_type', 'moving_type', 'requirement']) ||
+        // Lead forms ask questions, not field names - a real Facebook form sent
+        // "what_are_you_moving?". Fall back to any key that reads like the question,
+        // rather than dropping an answer the customer took the trouble to give.
+        loose(flat, ['moving', 'shifting', 'service']) ||
+        undefined,
+      pickup: pick(flat, ['pickup', 'from', 'from_city', 'origin', 'current_city']) || undefined,
+      dropLocation:
+        pick(flat, ['drop', 'to', 'to_city', 'destination', 'shifting_to']) || undefined,
+      moveSize: pick(flat, ['size', 'move_size', 'house_size', 'bhk']) || undefined,
+      customerNote: pick(flat, ['message', 'notes', 'comments', 'remarks']) || undefined,
+    };
+
+    /**
+     * One customer, one lead (lib/repeat-contact.ts). A number that already has an open
+     * lead from the last 30 days joins it - with the IVR rule for who then owns it -
+     * instead of starting a second lead for a second salesperson to ring.
+     */
+    const existing = await findOpenLead(req, phone).catch(() => null);
+    if (existing) {
+      // The same call report sent twice is joined once.
+      const repeats = (existing.rawPayload as { _repeats?: { payload?: unknown }[] } | null)
+        ?._repeats;
+      if (
+        externalId &&
+        (repeats ?? []).some(
+          (r) =>
+            pick(flatten(r.payload ?? {}), ['callsid', 'leadgen_id', 'lead_id']) === externalId,
+        )
+      ) {
+        return json({ ok: true, duplicate: true, id: existing.id });
+      }
+      const isCall = Boolean(receiver);
+      const talk = Number(pick(flat, ['talkduration', 'talk_duration', 'billsec']) || 0);
+      const callStatus = pick(flat, ['callstatus', 'call_status']);
+      const callInfo = !isCall
+        ? null
+        : talk > 0
+          ? `answered, talked ${talk >= 60 ? `${Math.floor(talk / 60)}m ` : ''}${talk % 60}s`
+          : callStatus
+            ? callStatus.toLowerCase()
+            : 'not answered';
+      try {
+        const joined = await joinRepeat(req, existing, {
+          channel: isCall ? 'ivr' : 'webhook',
+          via: conn.name,
+          receiver: receiver && 'id' in receiver ? receiver : null,
+          receiverLabel: receiver && 'unmatched' in receiver ? receiver.unmatched : null,
+          callInfo,
+          fill: { name, ...details },
+          payload: body,
+        });
+        return json({
+          ok: true,
+          id: joined.id,
+          joined: true,
+          ...(joined.movedTo ? { movedTo: joined.movedTo } : {}),
+        });
+      } catch (error) {
+        req.payload.logger.error({ err: error }, 'lead-webhook: join failed');
+        return reject('The lead could not be saved.', 500);
+      }
+    }
+
     try {
       const lead = await req.payload.create({
         collection: 'leads',
@@ -362,20 +431,7 @@ export const leadWebhookEndpoint: Endpoint = {
           name,
           phone,
           source,
-          email: pick(flat, ['email', 'email_address', 'emailaddress']) || undefined,
-          service:
-            pick(flat, ['service', 'service_type', 'moving_type', 'requirement']) ||
-            // Lead forms ask questions, not field names - a real Facebook form sent
-            // "what_are_you_moving?". Fall back to any key that reads like the question,
-            // rather than dropping an answer the customer took the trouble to give.
-            loose(flat, ['moving', 'shifting', 'service']) ||
-            undefined,
-          pickup:
-            pick(flat, ['pickup', 'from', 'from_city', 'origin', 'current_city']) || undefined,
-          dropLocation:
-            pick(flat, ['drop', 'to', 'to_city', 'destination', 'shifting_to']) || undefined,
-          moveSize: pick(flat, ['size', 'move_size', 'house_size', 'bhk']) || undefined,
-          customerNote: pick(flat, ['message', 'notes', 'comments', 'remarks']) || undefined,
+          ...details,
           sourceDetail:
             [
               conn.name,

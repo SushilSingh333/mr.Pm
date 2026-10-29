@@ -2,6 +2,7 @@ import type { Endpoint } from 'payload';
 import { addDataAndFileToRequest } from 'payload';
 import { json, clientIp, verifyTurnstile } from './_lib.js';
 import { currentCustomer } from './account.js';
+import { findOpenLead, joinRepeat } from '../lib/repeat-contact.js';
 
 /**
  * POST /api/quote — capture a lead. Runs in the Payload/Next server on the origin
@@ -111,6 +112,58 @@ export const quoteEndpoint: Endpoint = {
     // Signed in on the website: the request belongs to their account and shows there.
     const customer = await currentCustomer(req).catch(() => null);
 
+    const details = {
+      service: body.service ?? undefined,
+      pickup: body.pickup ?? body.from ?? undefined,
+      dropLocation: body.drop ?? body.dropLocation ?? body.to ?? undefined,
+      moveDate: moveDate || undefined,
+      moveSize: body.size ?? body.moveSize ?? undefined,
+      // The form asks for these and the customer takes the trouble to fill them in;
+      // dropping them meant a coordinator had to ask all over again.
+      email: (body.email ?? '').trim() || undefined,
+      customerNote: (body.notes ?? '').trim() || undefined,
+      // What the browser showed the customer. Untrusted input, so it is bounded
+      // rather than believed: anyone can POST this endpoint directly, and a lead
+      // claiming a 1-rupee estimate would mislead the coordinator reading it.
+      // Out-of-range or non-numeric values are dropped, not clamped, because a
+      // silently corrected number is worse than no number.
+      quotedLow: money(body.quotedLow),
+      quotedHigh: money(body.quotedHigh),
+      distanceKm: whole(body.distanceKm, 1, 5000),
+      quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 200) || undefined,
+      customer: customer?.id ?? undefined,
+    };
+
+    /**
+     * One customer, one lead (lib/repeat-contact.ts): a number with an open lead from the
+     * last 30 days - an IVR call, an earlier price check - joins it rather than becoming a
+     * second lead for a second salesperson. A form never moves a lead; it fills in what
+     * was missing and tells the owner.
+     */
+    const existing = await findOpenLead(req, phone).catch(() => null);
+    if (existing) {
+      try {
+        // Never the account link: anyone can type any number into the form, and joining
+        // must not hand a stranger's account someone else's lead. What is kept of the post
+        // is the fields we read, not whatever else was sent.
+        const { customer: _account, ...fillable } = details;
+        await joinRepeat(req, existing, {
+          channel: 'form',
+          via: source === 'price-check' ? 'the price checker' : 'the quote form',
+          fill: { name: source === 'price-check' ? undefined : name, ...fillable },
+          payload: {
+            source,
+            ...fillable,
+            sourcePage: req.headers.get('referer') ?? undefined,
+          },
+        });
+      } catch (error) {
+        req.payload.logger.error({ err: error }, 'quote: join to open lead failed');
+        return json({ error: 'Could not save the request' }, 500);
+      }
+      return json({ ok: true });
+    }
+
     try {
       await req.payload.create({
         collection: 'leads',
@@ -120,25 +173,7 @@ export const quoteEndpoint: Endpoint = {
           name,
           phone,
           source,
-          service: body.service ?? undefined,
-          pickup: body.pickup ?? body.from ?? undefined,
-          dropLocation: body.drop ?? body.dropLocation ?? body.to ?? undefined,
-          moveDate: moveDate || undefined,
-          moveSize: body.size ?? body.moveSize ?? undefined,
-          // The form asks for these and the customer takes the trouble to fill them in;
-          // dropping them meant a coordinator had to ask all over again.
-          email: (body.email ?? '').trim() || undefined,
-          customerNote: (body.notes ?? '').trim() || undefined,
-          // What the browser showed the customer. Untrusted input, so it is bounded
-          // rather than believed: anyone can POST this endpoint directly, and a lead
-          // claiming a 1-rupee estimate would mislead the coordinator reading it.
-          // Out-of-range or non-numeric values are dropped, not clamped, because a
-          // silently corrected number is worse than no number.
-          quotedLow: money(body.quotedLow),
-          quotedHigh: money(body.quotedHigh),
-          distanceKm: whole(body.distanceKm, 1, 5000),
-          quoteBasis: (body.quoteBasis ?? '').toString().trim().slice(0, 200) || undefined,
-          customer: customer?.id ?? undefined,
+          ...details,
           sourceIp: ip ?? undefined,
           sourcePage: req.headers.get('referer') ?? undefined,
         } as never,

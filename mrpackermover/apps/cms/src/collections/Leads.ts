@@ -66,6 +66,7 @@ function recordingFrom(raw: unknown): string | null {
   const visit = (obj: unknown, depth: number): string | null => {
     if (!obj || typeof obj !== 'object' || depth > 2) return null;
     for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      if (k === '_repeats') continue;
       const key = k.toLowerCase().replace(/[^a-z0-9]/g, '');
       if (RECORDING_KEYS.has(key) && typeof v === 'string' && /^https?:\/\/\S+$/i.test(v.trim())) {
         return v.trim();
@@ -78,6 +79,56 @@ function recordingFrom(raw: unknown): string | null {
     return null;
   };
   return visit(raw, 0);
+}
+
+/** Who took the call, as the phone system named them. */
+const RECEIVER_KEYS = new Set(['receivername', 'agentname', 'answeredby', 'receiver', 'agent']);
+function receiverFrom(raw: unknown): string | null {
+  if (!raw || typeof raw !== 'object') return null;
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    const key = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (RECEIVER_KEYS.has(key) && typeof v === 'string' && v.trim()) return v.trim();
+  }
+  return null;
+}
+
+export interface CallRecordingItem {
+  url: string;
+  at: string | null;
+  by: string | null;
+}
+
+/**
+ * Every call recording on a lead: the call that created it, then each repeat call joined
+ * to it later (lib/repeat-contact.ts keeps those in `rawPayload._repeats`).
+ */
+function recordingsFrom(raw: unknown, createdAt: unknown): CallRecordingItem[] {
+  const out: CallRecordingItem[] = [];
+  const first = recordingFrom(raw);
+  if (first) {
+    out.push({
+      url: first,
+      at: typeof createdAt === 'string' ? createdAt : null,
+      by: receiverFrom(raw),
+    });
+  }
+  const repeats = raw && typeof raw === 'object' ? (raw as { _repeats?: unknown })._repeats : null;
+  if (Array.isArray(repeats)) {
+    for (const r of repeats as { at?: unknown; channel?: unknown; payload?: unknown }[]) {
+      // Only from the phone system / webhook (which need the connection secret): the
+      // website form is open to anyone, and must not be able to plant a "recording".
+      if (r?.channel === 'form') continue;
+      const url = recordingFrom(r?.payload);
+      if (url) {
+        out.push({
+          url,
+          at: typeof r.at === 'string' ? r.at : null,
+          by: receiverFrom(r.payload),
+        });
+      }
+    }
+  }
+  return out;
 }
 
 /**
@@ -393,7 +444,9 @@ export const Leads: CollectionConfig = {
           data.assignedByName =
             (req.user as { name?: string; email?: string } | null)?.name ??
             (req.user as { email?: string } | null)?.email ??
-            null;
+            // No signed-in person: a system hand-over names itself (e.g. "IVR call" when
+            // a repeat call moves a lead - lib/repeat-contact.ts).
+            (typeof req.context?.assignedByName === 'string' ? req.context.assignedByName : null);
           // The new owner has not seen it yet, whoever had it before.
           data.acknowledgedAt = null;
           handedOverNow = true;
@@ -707,8 +760,9 @@ export const Leads: CollectionConfig = {
     },
     {
       /**
-       * The call recording an IVR (e.g. CallerDesk) sent with the lead -
-       * "CallRecordingUrl" and its usual spellings - shown as a player on the lead.
+       * The call recordings an IVR (e.g. CallerDesk) sent with the lead -
+       * "CallRecordingUrl" and its usual spellings - shown as players on the lead: the
+       * call that created it, and every repeat call joined to it since.
        *
        * Virtual: nothing is stored, it is read out of `rawPayload` as the lead is read,
        * so leads that arrived before this existed show their recording too, and no
@@ -717,16 +771,22 @@ export const Leads: CollectionConfig = {
        * salesperson working an IVR lead is exactly who needs to hear the call.
        */
       name: 'callRecording',
-      label: 'Call recording',
-      type: 'text',
+      label: 'Call recordings',
+      type: 'json',
       virtual: true,
       admin: {
         readOnly: true,
-        condition: (data) => Boolean(data?.callRecording),
+        condition: (data) =>
+          Array.isArray(data?.callRecording) && (data.callRecording as unknown[]).length > 0,
         components: { Field: '/components/leads/CallRecording#CallRecording' },
       },
       hooks: {
-        afterRead: [({ data, siblingData }) => recordingFrom((data ?? siblingData)?.rawPayload)],
+        afterRead: [
+          ({ data, siblingData }) => {
+            const doc = data ?? siblingData;
+            return recordingsFrom(doc?.rawPayload, doc?.createdAt);
+          },
+        ],
       },
     },
     {

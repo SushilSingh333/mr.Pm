@@ -1365,7 +1365,15 @@ export interface Lead {
   id: number;
   name: string;
   phone: string;
-  callRecording?: string | null;
+  callRecording?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   /**
    * Given on the form when the customer chose to.
    */

@@ -27,14 +27,14 @@ export interface HomePromo {
   until?: string;
 }
 
-export const HOME_PROMO: HomePromo | null = {
-  name: 'festive-dussehra-diwali-moving-offer',
-  wide: [1920, 799],
-  tall: [900, 707],
-  alt: 'Dussehra and Diwali special moving offer from MrMoverPacker: 20% off on every move. Book your move before Dussehra or Diwali. Safe and secure relocation, trained professionals, quality packing, pan-India service. Limited time offer: plan early, save more.',
-  href: '/get-quote',
-  // No end date: it stays until the owner says to take it down.
-};
+/**
+ * No promo now: the festive Dussehra & Diwali banner came down on 11 Nov 2026 (the owner:
+ * "remove the banner of diwali from hero section and make design as previous"), so the home
+ * page shows its normal photo banner. The 20% price offer stays on but is no longer
+ * mentioned anywhere (components/quote/offer.ts, OFFER_SHOWN). For the next promo, run
+ * scripts/build-promo-banner.mjs and put its entry here.
+ */
+export const HOME_PROMO = null as HomePromo | null;
 
 /** The promo to show in a build made at `now`, or null once it has ended. */
 export function activeHomePromo(now: Date = new Date()): HomePromo | null {

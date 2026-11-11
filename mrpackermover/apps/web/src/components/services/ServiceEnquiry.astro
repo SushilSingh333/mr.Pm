@@ -314,7 +314,7 @@ const id = (n: string): string => `se-${n}`;
 
 <script>
   import { attachAutocomplete } from '../quote/maps';
-  import { OFFER_PCT, offerLabel } from '../quote/offer';
+  import { OFFER_PCT, OFFER_SHOWN, offerLabel } from '../quote/offer';
 
   /** Ten digits starting 6-9, after +91, 91 or a leading 0 - the rule /api/quote applies. */
   const phoneOk = (v: string): boolean => {
@@ -449,7 +449,8 @@ const id = (n: string): string => `se-${n}`;
         notes: details.join('\n') || undefined,
         // These forms show no price, so the lead says the offer was on screen: the
         // coordinator then takes it off the written quote.
-        quoteBasis: OFFER_PCT > 0 ? `Enquiry form · ${offerLabel()} offer shown` : undefined,
+        quoteBasis:
+          OFFER_PCT > 0 && OFFER_SHOWN ? `Enquiry form · ${offerLabel()} offer shown` : undefined,
       };
 
       if (btn) {

@@ -1,5 +1,5 @@
 ---
-import { OFFER_PCT, offerLabel } from './offer';
+import { OFFER_PCT, OFFER_SHOWN, offerLabel } from './offer';
 
 /**
  * "20% off on every move", on the quote forms. The price bar shows the offer on its
@@ -21,7 +21,7 @@ const text =
 ---
 
 {
-  OFFER_PCT > 0 && (
+  OFFER_PCT > 0 && OFFER_SHOWN && (
     <p class:list={['offer-note', { 'offer-note--compact': compact }]}>
       <span class="offer-pill">{offerLabel()}</span>
       <span class="offer-text">{text}</span>

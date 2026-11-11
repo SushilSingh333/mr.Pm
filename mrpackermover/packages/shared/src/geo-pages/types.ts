@@ -65,6 +65,11 @@ export interface GeoPage {
    * <Place>".
    */
   societiesHeading?: string;
+  /**
+   * One line (at most 140 characters) for this area's card on its parent area's page -
+   * a Khand's card on the Indirapuram page. Set on sub-area pages only.
+   */
+  summary?: string;
 }
 
 /** One customer review, as the customer agreed to have it shown. */

@@ -483,7 +483,7 @@ const assurances = [
           // The sales team sees what the customer was priced on, including that it was a
           // whole truck for them alone - the same promise the estimate showed them - and
           // that the offer was taken off.
-          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing · ${VEHICLE_BASIS}${r.before ? ` · ${offerLabel()} applied` : ''}`,
+          basis: `${truckFt} ft truck · ${mode} · ${input.packingGrade} packing · ${VEHICLE_BASIS}${r.applied ? ` · ${offerLabel()} applied` : ''}`,
         };
       } catch {
         return null;

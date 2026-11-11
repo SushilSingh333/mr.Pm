@@ -354,7 +354,8 @@ const service = prefillService ?? '';
         high: r.rangeHigh,
         km: Math.round(km),
         ft: o.truck,
-        offer: Boolean(r.before),
+        // Taken off, whether or not the page says so (OFFER_SHOWN): the lead records it.
+        offer: r.applied,
       };
 
       byId('q-amt').textContent = `${inr(r.rangeLow)} – ${inr(r.rangeHigh)}`;

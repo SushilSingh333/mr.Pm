@@ -14,11 +14,26 @@ import type { MoveResult } from './move-pricing';
  */
 export const OFFER_PCT = 20;
 
+/**
+ * Whether the site SAYS there is an offer (11 Nov 2026, the owner: keep the discount, but
+ * stop mentioning it). Off: every price is still OFFER_PCT lower, but there is no badge,
+ * no struck-through "was" price and no offer note on the forms - the discounted price is
+ * simply the price. The lead's "Priced on" still records the discount, so the sales team
+ * quotes the same figure the customer saw. On: the badge, the "was" price and the notes
+ * come back.
+ */
+export const OFFER_SHOWN = false;
+
 /** "20% off", for the badge and the lead's "Priced on". */
 export const offerLabel = (): string => `${OFFER_PCT}% off`;
 
 export interface OfferedResult extends MoveResult {
-  /** The prices before the offer, for the struck-through "was"; absent with no offer. */
+  /** True when the offer was taken off these prices, shown or not. */
+  applied: boolean;
+  /**
+   * The prices before the offer, for the struck-through "was". Absent with no offer, and
+   * absent while the offer is not shown (OFFER_SHOWN).
+   */
   before?: { total: number; rangeLow: number; rangeHigh: number };
 }
 
@@ -26,13 +41,16 @@ const roundHundred = (n: number): number => Math.round(n / 100) * 100;
 
 /** The engine's result with the offer taken off, rounded to the nearest ₹100. */
 export function withOffer(r: MoveResult): OfferedResult {
-  if (!(OFFER_PCT > 0 && OFFER_PCT < 100)) return r;
+  if (!(OFFER_PCT > 0 && OFFER_PCT < 100)) return { ...r, applied: false };
   const keep = 1 - OFFER_PCT / 100;
   return {
     ...r,
     total: roundHundred(r.total * keep),
     rangeLow: roundHundred(r.rangeLow * keep),
     rangeHigh: roundHundred(r.rangeHigh * keep),
-    before: { total: r.total, rangeLow: r.rangeLow, rangeHigh: r.rangeHigh },
+    applied: true,
+    ...(OFFER_SHOWN
+      ? { before: { total: r.total, rangeLow: r.rangeLow, rangeHigh: r.rangeHigh } }
+      : {}),
   };
 }

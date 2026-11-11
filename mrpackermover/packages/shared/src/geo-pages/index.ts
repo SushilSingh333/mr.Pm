@@ -53,6 +53,13 @@ import { greaterNoidaYamunaExpressway } from './localities/greater-noida--yamuna
 import { ghaziabadCrossingsRepublik } from './localities/ghaziabad--crossings-republik.js';
 import { ghaziabadGovindpuram } from './localities/ghaziabad--govindpuram.js';
 import { ghaziabadIndirapuram } from './localities/ghaziabad--indirapuram.js';
+import { ghaziabadIndirapuramAbhayKhand } from './localities/ghaziabad--indirapuram--abhay-khand.js';
+import { ghaziabadIndirapuramAhinsaKhand } from './localities/ghaziabad--indirapuram--ahinsa-khand.js';
+import { ghaziabadIndirapuramGyanKhand } from './localities/ghaziabad--indirapuram--gyan-khand.js';
+import { ghaziabadIndirapuramNitiKhand } from './localities/ghaziabad--indirapuram--niti-khand.js';
+import { ghaziabadIndirapuramNyayKhand } from './localities/ghaziabad--indirapuram--nyay-khand.js';
+import { ghaziabadIndirapuramShaktiKhand } from './localities/ghaziabad--indirapuram--shakti-khand.js';
+import { ghaziabadIndirapuramVaibhavKhand } from './localities/ghaziabad--indirapuram--vaibhav-khand.js';
 import { ghaziabadKaushambi } from './localities/ghaziabad--kaushambi.js';
 import { ghaziabadKaviNagar } from './localities/ghaziabad--kavi-nagar.js';
 import { ghaziabadMohanNagar } from './localities/ghaziabad--mohan-nagar.js';
@@ -168,6 +175,15 @@ export const LOCALITY_PAGES: Record<string, GeoPage> = {
   'ghaziabad/crossings-republik': ghaziabadCrossingsRepublik,
   'ghaziabad/govindpuram': ghaziabadGovindpuram,
   'ghaziabad/indirapuram': ghaziabadIndirapuram,
+  // The Khands of Indirapuram: sub-areas, keyed city/locality/sub-area (release.ts,
+  // SUBAREA_RELEASE_ORDER). Each page lives under Indirapuram's URL.
+  'ghaziabad/indirapuram/abhay-khand': ghaziabadIndirapuramAbhayKhand,
+  'ghaziabad/indirapuram/ahinsa-khand': ghaziabadIndirapuramAhinsaKhand,
+  'ghaziabad/indirapuram/gyan-khand': ghaziabadIndirapuramGyanKhand,
+  'ghaziabad/indirapuram/niti-khand': ghaziabadIndirapuramNitiKhand,
+  'ghaziabad/indirapuram/nyay-khand': ghaziabadIndirapuramNyayKhand,
+  'ghaziabad/indirapuram/shakti-khand': ghaziabadIndirapuramShaktiKhand,
+  'ghaziabad/indirapuram/vaibhav-khand': ghaziabadIndirapuramVaibhavKhand,
   'ghaziabad/kaushambi': ghaziabadKaushambi,
   'ghaziabad/kavi-nagar': ghaziabadKaviNagar,
   'ghaziabad/mohan-nagar': ghaziabadMohanNagar,

@@ -21,6 +21,10 @@ export const paths = {
   locality: (city: string, locality: string): string =>
     `/packers-and-movers/${clean(city)}/${clean(locality)}`,
 
+  /** A part of a locality with its own page: a Khand of Indirapuram. */
+  subArea: (city: string, locality: string, sub: string): string =>
+    `/packers-and-movers/${clean(city)}/${clean(locality)}/${clean(sub)}`,
+
   route: (origin: string, destination: string): string =>
     `/routes/${clean(origin)}-to-${clean(destination)}`,
 

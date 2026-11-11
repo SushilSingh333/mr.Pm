@@ -7,9 +7,11 @@
  *   pnpm --filter @mpm/cms release-plan -- 2026-10-14     # preview another start date
  */
 import fs from 'node:fs';
-import { LIVE_BEFORE_RELEASE, LOCALITY_PAGES, releaseBatches } from '@mpm/shared';
+import { LIVE_BEFORE_RELEASE, LOCALITY_PAGES, releaseBatches, subAreaBatches } from '@mpm/shared';
 
 const envFile = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';
+const subFromEnv = /^\s*SUBAREA_RELEASE_START\s*=\s*["']?([^"'\s#]*)/m.exec(envFile)?.[1];
+const subStart = process.env.SUBAREA_RELEASE_START ?? subFromEnv;
 const fromEnv = /^\s*LOCALITY_RELEASE_START\s*=\s*["']?([^"'\s#]*)/m.exec(envFile)?.[1];
 const start =
   process.argv.slice(2).find((a) => a !== '--') ?? process.env.LOCALITY_RELEASE_START ?? fromEnv;
@@ -44,6 +46,18 @@ console.info(`  ${LIVE_BEFORE_RELEASE.map(name).join(', ')}\n`);
 for (const b of releaseBatches(start)) {
   const status =
     start === 'all' ? 'live' : !b.at ? 'waiting' : b.at.getTime() <= now ? 'live' : 'due';
+  const when = b.at ? ist(b.at) : '-';
+  console.info(
+    `Batch ${String(b.batch).padStart(2)}  ${when.padEnd(24)} ${status.padEnd(8)} ${b.places.map(name).join(', ')}`,
+  );
+}
+
+// The second wave: the Khands of Indirapuram, on SUBAREA_RELEASE_START.
+console.info(`
+Khand pages - start date: ${subStart || '(not set: none released)'}`);
+for (const b of subAreaBatches(subStart)) {
+  const status =
+    subStart === 'all' ? 'live' : !b.at ? 'waiting' : b.at.getTime() <= now ? 'live' : 'due';
   const when = b.at ? ist(b.at) : '-';
   console.info(
     `Batch ${String(b.batch).padStart(2)}  ${when.padEnd(24)} ${status.padEnd(8)} ${b.places.map(name).join(', ')}`,

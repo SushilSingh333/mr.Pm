@@ -1,10 +1,11 @@
 ---
-import type { GeoPage } from '@mpm/shared';
+import type { GeoPage, SubAreaCard } from '@mpm/shared';
 import { SERVICE_PAGE_LABELS, plainText } from '@mpm/shared';
 import GBody from './GBody.astro';
 import GFaqBand from './GFaqBand.astro';
 import GReviewsBand from './GReviewsBand.astro';
 import GSocietiesBand from './GSocietiesBand.astro';
+import GSubAreasBand from './GSubAreasBand.astro';
 import GLinkBand from './GLinkBand.astro';
 import GCtaPanel from './GCtaPanel.astro';
 import { bandTones, tocOf, withIds } from '../../lib/page-sections.js';
@@ -36,6 +37,10 @@ interface Props {
   nearbyLinks: Link[];
   /** The city or area's name, for the reviews heading. */
   place?: string;
+  /** A sub-area's locality ("Indirapuram" on a Khand page), added to the society chips' address. */
+  parentPlace?: string;
+  /** A locality's parts with cards of their own (the Khands of Indirapuram). */
+  subAreas?: SubAreaCard[];
   /** A city × service page's "What's included / What costs extra", for its scope block. */
   inclusions?: string[];
   exclusions?: string[];
@@ -46,11 +51,19 @@ const {
   areas,
   nearbyLinks,
   place,
+  parentPlace,
+  subAreas = [],
   inclusions = [],
   exclusions = [],
 } = Astro.props;
 const reviews = page.reviews ?? [];
-const societies = page.societies ?? [];
+// With sub-area cards, a society already named on a card is not listed again: the flat
+// list keeps only the societies outside every part ("Other societies…").
+const onCards = new Set(subAreas.flatMap((a) => a.societies.map((x) => x.trim().toLowerCase())));
+const societies = (page.societies ?? []).filter((x) => !onCards.has(x.trim().toLowerCase()));
+const societiesHeading =
+  page.societiesHeading ||
+  (subAreas.length && place ? `Other societies we move in ${place}` : undefined);
 const reviewsHeading =
   page.reviewsHeading || (place ? `What customers in ${place} say` : 'What our customers say');
 
@@ -68,6 +81,7 @@ const routeChip = (route: string): string | { label: string; href: string } => {
 const tone = bandTones(sections.length);
 const showAreas = Boolean(areas && areas.links.length > 0);
 const tones = {
+  subAreas: subAreas.length > 0 ? tone() : 'white',
   societies: societies.length > 0 ? tone() : 'white',
   reviews: reviews.length > 0 ? tone() : 'white',
   faq: faqs.length > 0 ? tone() : 'white',
@@ -124,10 +138,13 @@ const labels = {
   exclusions={exclusions}
 />
 
+<GSubAreasBand place={place ?? ''} areas={subAreas} tone={tones.subAreas} />
+
 <GSocietiesBand
   place={place ?? ''}
+  city={parentPlace}
   societies={societies}
-  heading={page.societiesHeading}
+  heading={societiesHeading}
   tone={tones.societies}
 />
 

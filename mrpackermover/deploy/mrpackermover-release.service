@@ -1,5 +1,5 @@
 # systemd unit — asks the deploy listener for one rebuild. Started by
-# mrpackermover-release.timer at each locality release time (09:05 and 18:05 IST), so
+# mrpackermover-release.timer at each release time (14:05 IST for the Khands), so
 # the next batch of locality pages goes live without anyone touching the server
 # (packages/shared/src/geo-pages/release.ts). Going through the listener means it never
 # overlaps a rebuild that a CMS publish started.
@@ -8,7 +8,7 @@
 # request it runs `pnpm release-status` (apps/cms/src/scripts/release-status.ts), and once
 # no batch is due AND the live sitemap has every area page, it disables the timer. Until
 # then every run asks for a rebuild, so a failed build after the last batch is retried at
-# the next 09:05/18:05 rather than leaving that batch unpublished.
+# the next day's 14:05 rather than leaving that batch unpublished.
 #
 # Install:  sudo bash deploy/install-units.sh   (rewrites the paths below to this clone)
 #           sudo systemctl daemon-reload && sudo systemctl enable --now mrpackermover-release.timer

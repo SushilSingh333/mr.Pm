@@ -55,7 +55,9 @@ export const Locations: CollectionConfig = {
             const parent = await req.payload
               .findByID({ collection: 'locations', id: parentId, depth: 0 })
               .catch(() => null);
-            if (parent?.type === 'city') data.type = 'locality';
+            // A part of a locality (a Khand of Indirapuram) is a locality too: its parent
+            // being a locality is what makes it a sub-area (lib/manifest.ts).
+            if (parent?.type === 'city' || parent?.type === 'locality') data.type = 'locality';
             else if (parent?.type === 'state') data.type = 'city';
           }
         }

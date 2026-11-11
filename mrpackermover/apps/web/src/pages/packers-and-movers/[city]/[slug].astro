@@ -1,9 +1,7 @@
 ---
-import type { CityServiceData, GeoPage, LocalityData } from '@mpm/shared';
+import type { CityServiceData, GeoPage } from '@mpm/shared';
 import {
   CITY_SERVICE_PAGES,
-  LOCALITY_PAGES,
-  fallbackGeoPage,
   geoPageWithCount,
   plainText,
   serviceCopy,
@@ -20,6 +18,8 @@ import RelatedLinks from '../../../components/sections/RelatedLinks.astro';
 import Faq from '../../../components/sections/Faq.astro';
 import GeoPageBody from '../../../components/g/GeoPageBody.astro';
 import GPage from '../../../components/g/GPage.astro';
+import AreaView from '../../../components/g/AreaView.astro';
+import { areaPage } from '../../../lib/area-page.js';
 import { withPlaceLinks } from '../../../lib/place-links.js';
 import { SITE_ORIGIN } from '../../../lib/site.js';
 import { cardPhoto } from '../../../lib/card-photo.js';
@@ -29,10 +29,15 @@ import { cardPhoto } from '../../../lib/card-photo.js';
  * manifest rows, so the route table is finite; the template branches on pageType.
  *
  * A locality page is built like its city page: the same photo banner and price bar,
- * then the locality's brief on the tinted canvas of cards (GeoPageBody).
+ * then the locality's brief on the tinted canvas of cards (AreaView, lib/area-page.ts).
+ * A sub-area (a Khand of Indirapuram) is a locality row one level deeper, built by
+ * [slug]/[sub].astro, so only two-part slugs are built here.
  */
 export function getStaticPaths() {
-  return [...rowsOfType('city-service'), ...rowsOfType('locality')].map((row) => {
+  return [
+    ...rowsOfType('city-service'),
+    ...rowsOfType('locality').filter((r) => r.slug.split('/').length === 2),
+  ].map((row) => {
     const [city, slug] = row.slug.split('/');
     return { params: { city, slug }, props: { row } };
   });
@@ -41,9 +46,9 @@ export function getStaticPaths() {
 const { row } = Astro.props;
 const isService = row.pageType === 'city-service';
 const cs = isService ? dataOf<CityServiceData>(row) : null;
-const loc = !isService ? dataOf<LocalityData>(row) : null;
+const area = !isService ? areaPage(row) : null;
 
-const cityName = cs?.cityName ?? loc?.cityName ?? '';
+const cityName = cs?.cityName ?? area?.loc.cityName ?? '';
 // Same banner choice as the city page - see the note there.
 const heroImage = 'home';
 
@@ -62,42 +67,6 @@ const enquiry =
         note: svcBrief.quoteNote,
       }
     : undefined;
-
-// ── Locality ───────────────────────────────────────────────────────────────
-const page: GeoPage | null = loc
-  ? (loc.page ??
-    geoPageWithCount(
-      LOCALITY_PAGES[row.slug] ??
-        fallbackGeoPage({
-          place: loc.localityName,
-          city: loc.cityName,
-          notes: loc.editorial,
-          faqs: loc.faqs,
-        }),
-      rowsOfType('city-hub').length,
-    ))
-  : null;
-const serviceLinks = row.relatedLinks
-  .filter((l) => l.group === 'services')
-  .map((l) => {
-    const slug = l.path.split('/').pop() ?? '';
-    const name = serviceCopy(slug)?.name;
-    return {
-      href: l.path,
-      label: name ?? l.anchor,
-      sub: name ? `in ${cityName}` : undefined,
-      image: cardPhoto(slug) ?? undefined,
-    };
-  });
-// The whole city first, then the sibling areas with pages of their own.
-const nearbyLinks = loc
-  ? [
-      { href: loc.cityPath, label: loc.cityName, sub: 'The whole city' },
-      ...row.relatedLinks
-        .filter((l) => l.group === 'siblings')
-        .map((l) => ({ href: l.path, label: l.anchor.replace(/^Movers in /, '') })),
-    ]
-  : [];
 
 // ── City × service ─────────────────────────────────────────────────────────
 // The page written for this service in this city, when there is one: it renders like the
@@ -155,19 +124,7 @@ const extraJsonLd = isService
       }),
       jsonld.faqPage(csFaqs),
     ]
-  : [
-      jsonld.service({
-        siteOrigin: SITE_ORIGIN,
-        name: `Packers and movers in ${loc!.localityName}, ${cityName}`,
-        serviceType: 'Packers and movers',
-        description: plainText(page!.subhead),
-        areaServed: `${loc!.localityName}, ${cityName}`,
-        offer: loc!.priceFrom ? { priceFrom: loc!.priceFrom } : undefined,
-      }),
-      jsonld.faqPage(
-        page!.faqs.map((f) => ({ question: f.question, answer: plainText(f.answer) })),
-      ),
-    ];
+  : area!.jsonLd;
 ---
 
 <BaseLayout row={row} extraJsonLd={extraJsonLd}>
@@ -253,32 +210,7 @@ const extraJsonLd = isService
         )}
       </>
     ) : (
-      <>
-        <GeoHero
-          align="split"
-          crumbs={[
-            { href: '/', label: 'Home' },
-            { href: loc!.cityPath, label: cityName },
-            { label: loc!.localityName },
-          ]}
-          h1={page!.h1}
-          intro={plainText(page!.subhead)}
-          image={heroImage}
-          imageUrl={loc!.heroImage?.url}
-          imageAlt={loc!.heroImage ? (loc!.heroImage.alt ?? `A view of ${cityName}`) : undefined}
-          prefillCity={cityName}
-          bands={loc!.rateBands ?? []}
-        />
-
-        <GPage>
-          <GeoPageBody
-            page={withPlaceLinks(page!, citySlug, row.path)}
-            place={loc!.localityName}
-            serviceLinks={serviceLinks}
-            nearbyLinks={nearbyLinks}
-          />
-        </GPage>
-      </>
+      <AreaView area={area!} path={row.path} />
     )
   }
 </BaseLayout>

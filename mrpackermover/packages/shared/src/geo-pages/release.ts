@@ -148,14 +148,19 @@ function startOf(start: string | undefined): Date | null {
   return new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
 }
 
-/** The batches, each with its go-live time worked out from the start date. */
-export function releaseBatches(start: string | undefined): ReleaseBatch[] {
+/** `order` cut into batches, each with its go-live time worked out from the start date. */
+function batchesOf(
+  order: readonly string[],
+  start: string | undefined,
+  size: number = RELEASE_BATCH_SIZE,
+  times: readonly (readonly [number, number])[] = RELEASE_TIMES_IST,
+): ReleaseBatch[] {
   const day0 = startOf(start);
-  const perDay = RELEASE_TIMES_IST.length;
+  const perDay = times.length;
   const batches: ReleaseBatch[] = [];
-  for (let i = 0; i < RELEASE_ORDER.length; i += RELEASE_BATCH_SIZE) {
-    const b = i / RELEASE_BATCH_SIZE;
-    const [h, min] = RELEASE_TIMES_IST[b % perDay]!;
+  for (let i = 0; i < order.length; i += size) {
+    const b = i / size;
+    const [h, min] = times[b % perDay]!;
     const at = day0
       ? new Date(
           day0.getTime() +
@@ -164,10 +169,52 @@ export function releaseBatches(start: string | undefined): ReleaseBatch[] {
             ((h - 5) * 60 + (min - 30)) * 60_000,
         )
       : null;
-    batches.push({ batch: b + 1, at, places: RELEASE_ORDER.slice(i, i + RELEASE_BATCH_SIZE) });
+    batches.push({ batch: b + 1, at, places: order.slice(i, i + size) });
   }
   return batches;
 }
+
+/** The batches, each with its go-live time worked out from the start date. */
+export function releaseBatches(start: string | undefined): ReleaseBatch[] {
+  return batchesOf(RELEASE_ORDER, start);
+}
+
+/**
+ * The second wave: sub-areas, pages for the parts of a locality that people search by
+ * name - the Khands of Indirapuram (7 Nov 2026, the owner). Each lives under its locality
+ * (/packers-and-movers/ghaziabad/indirapuram/vaibhav-khand) and is keyed the same way.
+ *
+ * One page a day at 14:00 IST (11 Nov 2026, the owner: "publish 1 page daily at 2pm"),
+ * on a clock of its own: `SUBAREA_RELEASE_START` (a `YYYY-MM-DD` in the CMS `.env`). The localities' clock started
+ * weeks earlier, so adding these to RELEASE_ORDER would have released them all at once.
+ * Not set ⇒ none of them is released; `all` ⇒ all at once (local testing).
+ *
+ * Release order: the Khands people search most first.
+ */
+export const SUBAREA_RELEASE_ORDER: readonly string[] = [
+  'ghaziabad/indirapuram/vaibhav-khand',
+  'ghaziabad/indirapuram/ahinsa-khand',
+  'ghaziabad/indirapuram/gyan-khand',
+  'ghaziabad/indirapuram/shakti-khand',
+  'ghaziabad/indirapuram/niti-khand',
+  'ghaziabad/indirapuram/abhay-khand',
+  'ghaziabad/indirapuram/nyay-khand',
+];
+
+/** The env variable that starts the sub-area clock. */
+export const SUBAREA_RELEASE_ENV = 'SUBAREA_RELEASE_START';
+
+/** Sub-areas go live one at a time, once a day, at 14:00 IST. */
+export const SUBAREA_BATCH_SIZE = 1;
+export const SUBAREA_RELEASE_TIMES_IST: readonly (readonly [number, number])[] = [[14, 0]];
+
+/** The sub-area batches, each with its go-live time worked out from its start date. */
+export function subAreaBatches(start: string | undefined): ReleaseBatch[] {
+  return batchesOf(SUBAREA_RELEASE_ORDER, start, SUBAREA_BATCH_SIZE, SUBAREA_RELEASE_TIMES_IST);
+}
+
+/** A key with three parts (city/locality/sub-area) is a sub-area. */
+export const isSubAreaKey = (key: string): boolean => key.split('/').length === 3;
 
 /**
  * When a locality went (or goes) live in the release, for the sitemap's `lastmod`: the
@@ -176,6 +223,22 @@ export function releaseBatches(start: string | undefined): ReleaseBatch[] {
  */
 export function localityReleaseTime(key: string, start: string | undefined): Date | null {
   return releaseBatches(start).find((b) => b.places.includes(key))?.at ?? null;
+}
+
+/** As localityReleaseTime, for a sub-area: `start` is SUBAREA_RELEASE_START. */
+export function subAreaReleaseTime(key: string, start: string | undefined): Date | null {
+  return subAreaBatches(start).find((b) => b.places.includes(key))?.at ?? null;
+}
+
+/** As isLocalityReleased, for a sub-area: `start` is SUBAREA_RELEASE_START. */
+export function isSubAreaReleased(
+  key: string,
+  start: string | undefined,
+  now: Date = new Date(),
+): boolean {
+  if ((start ?? '').trim() === 'all') return SUBAREA_RELEASE_ORDER.includes(key);
+  const batch = subAreaBatches(start).find((b) => b.places.includes(key));
+  return Boolean(batch?.at && batch.at.getTime() <= now.getTime());
 }
 
 /**

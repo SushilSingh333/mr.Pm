@@ -1,0 +1,277 @@
+---
+import type { SubAreaCard } from '@mpm/shared';
+
+/**
+ * The parts of a locality as a band of cards - the Khands of Indirapuram. Each card names
+ * the part, says in one line what a move there involves, lists a few of its societies, and
+ * links to the part's own page once that page is live (pages go live in batches,
+ * geo-pages/release.ts). Until then the card offers the quote form with the place filled
+ * in instead, so every card does something. Every name is in the HTML (crawlable).
+ */
+interface Props {
+  /** The locality, e.g. "Indirapuram". */
+  place: string;
+  areas: SubAreaCard[];
+  tone?: 'white' | 'tint';
+}
+const { place, areas, tone = 'white' } = Astro.props;
+/** Societies named on a card before "+N more". */
+const SHOWN = 4;
+const khands = areas.length > 0 && areas.every((a) => /\bKhand$/i.test(a.name));
+const heading = khands ? `The Khands of ${place}` : `Parts of ${place} we cover`;
+const quoteHref = (name: string): string =>
+  `/get-quote?${new URLSearchParams({ from: `${name}, ${place}` }).toString()}`;
+---
+
+{
+  areas.length > 0 && (
+    <section class:list={['gsa', { 'gsa--tint': tone === 'tint' }]} aria-labelledby="subareas">
+      <h2 class="gsa-h2" id="subareas">
+        {heading}
+      </h2>
+      <p class="gsa-intro">
+        {khands
+          ? `${place} is laid out in Khands, and each has its own societies, gates and truck spots. Pick yours to see what a move there involves.`
+          : `Pick your part of ${place} to see what a move there involves.`}
+      </p>
+      <ul class="gsa-grid">
+        {areas.map((a) => {
+          const more = a.societies.length - SHOWN;
+          return (
+            <li>
+              <article class="gsa-card">
+                <div class="gsa-top">
+                  <span class="gsa-icon" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M12 21s-6.5-5.6-6.5-11A6.5 6.5 0 0 1 18.5 10c0 5.4-6.5 11-6.5 11Z" />
+                      <circle cx="12" cy="10" r="2.4" />
+                    </svg>
+                  </span>
+                  <h3 class="gsa-name">{a.path ? <a href={a.path}>{a.name}</a> : a.name}</h3>
+                </div>
+                {a.summary && <p class="gsa-sum">{a.summary}</p>}
+                {a.societies.length > 0 && (
+                  <ul class="gsa-socs" aria-label={`Societies in ${a.name}`}>
+                    {a.societies.slice(0, SHOWN).map((s) => (
+                      <li>{s}</li>
+                    ))}
+                    {more > 0 && <li class="gsa-more">+{more} more</li>}
+                  </ul>
+                )}
+                <div class="gsa-foot">
+                  {a.path ? (
+                    <a class="gsa-go" href={a.path}>
+                      Moving in {a.name}
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="18"
+                        height="18"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <a class="gsa-go gsa-go--quote" href={quoteHref(a.name)} rel="nofollow">
+                      Get a quote from {a.name}
+                    </a>
+                  )}
+                </div>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .gsa {
+    padding: clamp(3rem, 6vw, 4.75rem) 1.25rem;
+    background: #fff;
+    text-align: center;
+  }
+  .gsa--tint {
+    background: var(--g-surface-2);
+  }
+  .gsa-h2 {
+    margin: 0 auto;
+    max-width: 36rem;
+    font-size: clamp(1.625rem, 3vw, 2.375rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--g-ink);
+    text-wrap: balance;
+  }
+  .gsa-intro {
+    max-width: 40rem;
+    margin: 0.85rem auto 0;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--g-ink-2);
+  }
+  /* A centred wrap of cards: three across, two on a tablet, one on a phone. A short last
+     row sits in the middle. */
+  .gsa-grid {
+    --per-row: 3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    max-width: calc(var(--container-page) - 2.5rem);
+    margin: 2rem auto 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+  }
+  .gsa-grid > li {
+    flex: 0 0 calc((100% - (var(--per-row) - 1) * 1rem) / var(--per-row));
+    min-width: 0;
+  }
+  @media (max-width: 1024px) {
+    .gsa-grid {
+      --per-row: 2;
+    }
+  }
+  @media (max-width: 640px) {
+    .gsa-grid {
+      --per-row: 1;
+    }
+  }
+  .gsa-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    padding: 1.25rem 1.25rem 1.1rem;
+    border: 1px solid var(--g-outline);
+    border-radius: 1.25rem;
+    background: #fff;
+    transition:
+      box-shadow 0.2s,
+      border-color 0.2s,
+      transform 0.2s;
+  }
+  .gsa-card:hover {
+    border-color: var(--color-brand-100);
+    box-shadow:
+      0 1px 3px rgb(60 64 67 / 0.12),
+      0 8px 20px rgb(60 64 67 / 0.1);
+    transform: translateY(-2px);
+  }
+  .gsa-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .gsa-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    color: var(--color-brand-600);
+  }
+  .gsa-name {
+    margin: 0;
+    font-size: 1.1875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--g-ink);
+  }
+  .gsa-name a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .gsa-name a:hover {
+    color: var(--color-brand-700);
+    text-decoration: underline;
+  }
+  .gsa-sum {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--g-ink-2);
+  }
+  .gsa-socs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .gsa-socs li {
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.5rem;
+    background: var(--g-surface-2);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--g-ink-2);
+  }
+  .gsa--tint .gsa-socs li {
+    background: var(--color-brand-50);
+  }
+  .gsa-socs .gsa-more {
+    background: none;
+    color: var(--g-ink-3);
+  }
+  .gsa-foot {
+    margin-top: auto;
+    padding-top: 0.25rem;
+  }
+  .gsa-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-brand-700);
+    text-decoration: none;
+  }
+  .gsa-go:hover {
+    text-decoration: underline;
+  }
+  .gsa-go svg {
+    transition: transform 0.15s;
+  }
+  .gsa-go:hover svg {
+    transform: translateX(2px);
+  }
+  .gsa-go--quote {
+    color: var(--g-ink-2);
+  }
+  .gsa-name a:focus-visible,
+  .gsa-go:focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gsa-card,
+    .gsa-go svg {
+      transition: none;
+    }
+    .gsa-card:hover {
+      transform: none;
+    }
+  }
+</style>

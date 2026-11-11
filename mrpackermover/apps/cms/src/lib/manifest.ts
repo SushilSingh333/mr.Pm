@@ -26,6 +26,10 @@ import {
   LOCALITY_REDIRECTS,
   isLocalityReleased,
   localityReleaseTime,
+  isSubAreaReleased,
+  subAreaReleaseTime,
+  SUBAREA_RELEASE_ORDER,
+  type SubAreaCard,
   fallbackGeoPage,
   geoPageWithCount,
   mergeGeoPage,
@@ -442,6 +446,53 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   // bulk import made the difference real: a locality can be serviceable long
   // before it has the reviews and rate card that earn it a page.
   const publishedLocalityIds = new Set<string>();
+  /**
+   * Where a locality sits. A locality under a city is an area page; a locality under another
+   * locality is a sub-area (a Khand of Indirapuram), with its city one step further up.
+   * `key` is the page's key in LOCALITY_PAGES and the release plan.
+   */
+  function placeOf(
+    loc: LocationDoc,
+  ): { city: LocationDoc; area: LocationDoc | null; key: string } | null {
+    const parent = idx.location(refId(loc.parent));
+    if (!parent) return null;
+    if (parent.type !== 'locality')
+      return { city: parent, area: null, key: `${parent.slug}/${loc.slug}` };
+    const city = idx.location(refId(parent.parent));
+    if (!city) return null;
+    return { city, area: parent, key: `${city.slug}/${parent.slug}/${loc.slug}` };
+  }
+  /**
+   * The cards for a locality's sub-areas, from their briefs (with any CMS edits on their
+   * records), in release order. A sub-area whose page is not live yet still gets its card,
+   * without a link, so the locality's page lists every Khand from the start.
+   */
+  function subAreaCards(loc: LocationDoc, city: LocationDoc, count: number): SubAreaCard[] {
+    const prefix = `${city.slug}/${loc.slug}/`;
+    const keys = [
+      ...SUBAREA_RELEASE_ORDER.filter((k) => k.startsWith(prefix) && LOCALITY_PAGES[k]),
+      ...Object.keys(LOCALITY_PAGES).filter(
+        (k) => k.startsWith(prefix) && !SUBAREA_RELEASE_ORDER.includes(k),
+      ),
+    ];
+    return keys.map((key) => {
+      const slug = key.slice(prefix.length);
+      const doc = localities.find((l) => refId(l.parent) === sid(loc.id) && l.slug === slug);
+      const page = geoPageWithCount(
+        mergeGeoPage(LOCALITY_PAGES[key]!, geoPageOverrides(doc?.body)),
+        count,
+      );
+      return {
+        name: page.name ?? doc?.name ?? slug,
+        path:
+          doc && publishedLocalityIds.has(sid(doc.id))
+            ? paths.subArea(city.slug, loc.slug, slug)
+            : null,
+        summary: plainText(page.summary ?? page.subhead),
+        societies: page.societies ?? [],
+      };
+    });
+  }
   // New locality briefs go live in batches (geo-pages/release.ts), timed from
   // LOCALITY_RELEASE_START; the release timer rebuilds the site at each batch time.
   const releaseStart = process.env.LOCALITY_RELEASE_START;
@@ -451,22 +502,38 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
   // city hub changed then too (a new area card). Both win over an older CMS date.
   const localityReleasedAt = new Map<string, string>();
   const cityLatestRelease = new Map<string, string>();
-  for (const loc of localities) {
-    const parent = idx.location(refId(loc.parent));
-    if (!parent || !publishedCityIds.has(sid(parent.id))) continue;
+  // Sub-areas (the Khands of Indirapuram) are released on a clock of their own; a locality
+  // gains a card link when one goes live, so its lastmod moves too.
+  const subAreaStart = process.env.SUBAREA_RELEASE_START;
+  const areaLatestRelease = new Map<string, string>();
+  const later = (map: Map<string, string>, id: string, at: string): void => {
+    const prev = map.get(id);
+    if (!prev || at > prev) map.set(id, at);
+  };
+  // Localities first, then their sub-areas: a sub-area publishes only under a live locality.
+  const ordered = [...localities].sort(
+    (a, b) => Number(Boolean(placeOf(a)?.area)) - Number(Boolean(placeOf(b)?.area)),
+  );
+  for (const loc of ordered) {
+    const place = placeOf(loc);
+    if (!place || !publishedCityIds.has(sid(place.city.id))) continue;
+    if (place.area && !publishedLocalityIds.has(sid(place.area.id))) continue;
     // The same place as another page (Noida Extension is Greater Noida West): no page of
     // its own and no links to it; the web server sends its old URL on.
-    if (LOCALITY_REDIRECTS[`${parent.slug}/${loc.slug}`]) continue;
+    if (LOCALITY_REDIRECTS[place.key]) continue;
     const lid = sid(loc.id);
-    const brief = LOCALITY_PAGES[`${parent.slug}/${loc.slug}`];
-    if (brief && !isLocalityReleased(`${parent.slug}/${loc.slug}`, releaseStart, releaseNow)) {
+    const brief = LOCALITY_PAGES[place.key];
+    const released = place.area
+      ? isSubAreaReleased(place.key, subAreaStart, releaseNow)
+      : isLocalityReleased(place.key, releaseStart, releaseNow);
+    if (brief && !released) {
       heldBack += 1;
       continue;
     }
     const words = brief ? wordsOf(brief) : countWords(loc.editorialNote);
     const candidate: GateCandidate = {
       pageType: 'locality',
-      hasRateCard: idx.hasCityRateCard(sid(parent.id)),
+      hasRateCard: idx.hasCityRateCard(sid(place.city.id)),
       jobCount12m: idx.statsFor(lid).jobs12m,
       reviewsCount: idx.reviewsFor(lid).length,
       baseDistanceMeters: 0,
@@ -475,19 +542,19 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       hasLocationPhotos: false,
       namedLocalFacts: words >= 40 ? 2 : 0,
       hasNamedCoordinator: true,
-      rateBandCount: idx.cityRateBands(sid(parent.id)).length,
+      rateBandCount: idx.cityRateBands(sid(place.city.id)).length,
     };
     if (!evaluateCandidate(candidate).passed) continue;
     publishedLocalityIds.add(lid);
-    const releasedAt = brief
-      ? localityReleaseTime(`${parent.slug}/${loc.slug}`, releaseStart)
-      : null;
+    const releasedAt = !brief
+      ? null
+      : place.area
+        ? subAreaReleaseTime(place.key, subAreaStart)
+        : localityReleaseTime(place.key, releaseStart);
     if (releasedAt) {
       localityReleasedAt.set(lid, releasedAt.toISOString());
-      const pid = sid(parent.id);
-      const prev = cityLatestRelease.get(pid);
-      if (!prev || releasedAt.toISOString() > prev)
-        cityLatestRelease.set(pid, releasedAt.toISOString());
+      if (place.area) later(areaLatestRelease, sid(place.area.id), releasedAt.toISOString());
+      else later(cityLatestRelease, sid(place.city.id), releasedAt.toISOString());
     }
   }
   console.info(
@@ -675,15 +742,17 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
 
   // ── Localities ─────────────────────────────────────────────────────────────
   for (const loc of localities) {
-    const parent = idx.location(refId(loc.parent));
-    if (!parent) continue;
+    const place = placeOf(loc);
+    if (!place) continue;
+    // `parent` is the city. A sub-area (a Khand) also has `area`, the locality it is in.
+    const { city: parent, area } = place;
     // Don't publish a locality whose city hub didn't clear the gate — it would
     // orphan the locality (its breadcrumb/back-link points at a missing city hub).
     if (!publishedCityIds.has(sid(parent.id))) continue;
     const lid = sid(loc.id);
     if (!publishedLocalityIds.has(lid)) continue; // gate evaluated in the pre-pass
 
-    const brief = LOCALITY_PAGES[`${parent.slug}/${loc.slug}`];
+    const brief = LOCALITY_PAGES[place.key];
     const page = geoPageWithCount(
       mergeGeoPage(
         brief ??
@@ -697,15 +766,36 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
       ),
       liveCityCount,
     );
+    // A locality with sub-areas (Indirapuram) shows a card for each, linked once live.
+    const subAreas = area ? [] : subAreaCards(loc, parent, liveCityCount);
+    // A sub-area's siblings are the other live sub-areas of its locality; a locality's are
+    // the other live areas of its city.
+    const siblings = area
+      ? localities
+          .filter(
+            (l) =>
+              refId(l.parent) === sid(area.id) &&
+              sid(l.id) !== lid &&
+              publishedLocalityIds.has(sid(l.id)),
+          )
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map<ManifestLink>((l) => ({
+            path: paths.subArea(parent.slug, area.slug, l.slug),
+            anchor: `Movers in ${l.name}`,
+            group: 'siblings',
+          }))
+      : siblingLocalityLinks(localities, loc, parent, publishedLocalityIds);
     // The parent city's services: a locality has no service pages of its own.
     const parentServices = cityPlan.find((p) => p.cid === sid(parent.id))?.services ?? [];
 
     rows.push(
       makeRow(
         'locality',
-        paths.locality(parent.slug, loc.slug),
-        `${parent.slug}/${loc.slug}`,
-        laterOf(loc.updatedAt, localityReleasedAt.get(lid)),
+        area
+          ? paths.subArea(parent.slug, area.slug, loc.slug)
+          : paths.locality(parent.slug, loc.slug),
+        place.key,
+        laterOf(laterOf(loc.updatedAt, localityReleasedAt.get(lid)), areaLatestRelease.get(lid)),
         siteOrigin,
         {
           ...resolveSeo({
@@ -720,9 +810,18 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           breadcrumbs: [
             { path: '/', anchor: 'Home' },
             { path: paths.cityHub(parent.slug), anchor: parent.name },
+            ...(area ? [{ path: paths.locality(parent.slug, area.slug), anchor: area.name }] : []),
           ],
           relatedLinks: [
-            ...siblingLocalityLinks(localities, loc, parent, publishedLocalityIds),
+            ...siblings,
+            // The live sub-areas, so each has a link in from its locality's page.
+            ...subAreas
+              .filter((c) => c.path)
+              .map<ManifestLink>((c) => ({
+                path: c.path!,
+                anchor: `Movers in ${c.name}`,
+                group: 'subareas',
+              })),
             ...parentServices.map<ManifestLink>((s) => ({
               path: paths.cityService(parent.slug, s.slug),
               anchor: `${s.name} in ${parent.name}`,
@@ -733,12 +832,19 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
             localityName: loc.name,
             cityName: parent.name,
             cityPath: paths.cityHub(parent.slug),
+            ...(area
+              ? { parentName: area.name, parentPath: paths.locality(parent.slug, area.slug) }
+              : {}),
+            ...(subAreas.length ? { subAreas } : {}),
             ...geoPageData(page),
             rateBands: idx.cityRateBands(sid(parent.id)),
             priceFrom: idx.priceFrom(idx.cityRateBands(sid(parent.id))),
-            // The locality's own photo when the editor uploaded one, else the city's.
-            // Resolved here so the template needs no fallback logic of its own.
-            heroImage: imageFor(loc.heroImage) ?? imageFor(parent.heroImage),
+            // The locality's own photo when the editor uploaded one, else its locality's
+            // (for a Khand), else the city's. Resolved here so the template needs none.
+            heroImage:
+              imageFor(loc.heroImage) ??
+              (area ? imageFor(area.heroImage) : undefined) ??
+              imageFor(parent.heroImage),
           },
         },
       ),

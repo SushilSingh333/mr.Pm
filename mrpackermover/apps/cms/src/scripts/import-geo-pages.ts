@@ -92,16 +92,25 @@ type Doc = {
 };
 const docs = found.docs as Doc[];
 const slugById = new Map(docs.map((d) => [String(d.id), d.slug ?? '']));
+const docById = new Map(docs.map((d) => [String(d.id), d]));
 const parentId = (d: Doc): string | null =>
   d.parent == null ? null : String(typeof d.parent === 'object' ? d.parent.id : d.parent);
+/**
+ * A place's key in the briefs: "city" for a city, "city/area" for an area, and
+ * "city/area/sub-area" for a part of an area (a Khand of Indirapuram).
+ */
+const keyOf = (d: Doc): string => {
+  if (d.type === 'city') return d.slug ?? '';
+  const parent = docById.get(parentId(d) ?? '');
+  if (parent?.type === 'locality')
+    return `${slugById.get(parentId(parent) ?? '') ?? ''}/${parent.slug}/${d.slug}`;
+  return `${slugById.get(parentId(d) ?? '') ?? ''}/${d.slug}`;
+};
 
 let changed = 0;
 const matched = new Set<string>();
 for (const doc of docs) {
-  const key =
-    doc.type === 'city'
-      ? (doc.slug ?? '')
-      : `${slugById.get(parentId(doc) ?? '') ?? ''}/${doc.slug}`;
+  const key = keyOf(doc);
   const brief = doc.type === 'city' ? CITY_PAGES[key] : LOCALITY_PAGES[key];
   if (!brief) continue;
   matched.add(`${doc.type}:${key}`);
@@ -138,22 +147,36 @@ for (const doc of docs) {
 const cityIdBySlug = new Map(
   docs.filter((d) => d.type === 'city').map((d) => [d.slug ?? '', d.id] as const),
 );
+const createdIds = new Map<string, string | number>();
 let created = 0;
-for (const [key, brief] of Object.entries(LOCALITY_PAGES)) {
-  if (matched.has(`locality:${key}`)) continue;
-  const [citySlug = '', slug = ''] = key.split('/');
+// Areas before their sub-areas (a Khand is created under its area, which must exist first).
+const missing = Object.entries(LOCALITY_PAGES)
+  .filter(([key]) => !matched.has(`locality:${key}`))
+  .sort(([a], [b]) => a.split('/').length - b.split('/').length);
+for (const [key, brief] of missing) {
+  const parts = key.split('/');
+  const [citySlug = ''] = parts;
+  const slug = parts[parts.length - 1] ?? '';
   const cityId = cityIdBySlug.get(citySlug);
-  if (!brief.name || cityId == null) {
+  // A sub-area's parent is its area ("ghaziabad/indirapuram"), found or just created.
+  let parent: string | number | undefined = cityId;
+  if (parts.length === 3) {
+    const areaKey = parts.slice(0, 2).join('/');
+    parent =
+      docs.find((d) => d.type === 'locality' && keyOf(d) === areaKey)?.id ??
+      createdIds.get(areaKey);
+  }
+  if (!brief.name || parent == null) {
     console.warn(
       `no locality record for brief "${key}"` +
-        (brief.name ? ` (no city "${citySlug}")` : ' (the brief has no name)'),
+        (brief.name ? ` (no parent for it)` : ' (the brief has no name)'),
     );
     continue;
   }
   created += 1;
   console.info(`locality + ${key}: create "${brief.name}"`);
   if (dryRun) continue;
-  await payload.create({
+  const doc = await payload.create({
     collection: 'locations',
     overrideAccess: true,
     draft: false,
@@ -161,12 +184,13 @@ for (const [key, brief] of Object.entries(LOCALITY_PAGES)) {
       name: brief.name,
       slug,
       type: 'locality',
-      parent: cityId,
+      parent,
       isServiceable: true,
       _status: 'published',
       body: fromBrief(brief),
     } as never,
   });
+  createdIds.set(key, doc.id);
 }
 // City × service pages: one "City service pages" record each, filled the same way (blanks
 // only, or everything with --force). Societies belong to area pages, so they are left out.

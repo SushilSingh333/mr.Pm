@@ -108,6 +108,25 @@ export interface LocalityData {
    * Resolved in the CMS manifest builder so templates need no fallback logic.
    */
   heroImage?: HeroImage;
+  /**
+   * A sub-area (a Khand of Indirapuram): the locality it belongs to, for its breadcrumb and
+   * its "all of Indirapuram" link. Absent on an ordinary locality.
+   */
+  parentName?: string;
+  parentPath?: string;
+  /**
+   * A locality with sub-areas (Indirapuram): one card per sub-area, in release order. `path`
+   * is null until that sub-area's page is live; the card then shows without a link.
+   */
+  subAreas?: SubAreaCard[];
+}
+
+/** One sub-area's card on its locality's page. */
+export interface SubAreaCard {
+  name: string;
+  path: string | null;
+  summary: string;
+  societies: string[];
 }
 
 export interface RouteData {

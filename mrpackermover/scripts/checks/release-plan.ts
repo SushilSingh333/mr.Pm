@@ -4,6 +4,8 @@ import {
   LOCALITY_REDIRECTS,
   RELEASE_BATCH_SIZE,
   RELEASE_ORDER,
+  SUBAREA_BATCH_SIZE,
+  SUBAREA_RELEASE_ORDER,
 } from '@mpm/shared';
 import { fail, type CheckResult } from './load.js';
 
@@ -14,7 +16,8 @@ import { fail, type CheckResult } from './load.js';
  */
 export function checkReleasePlan(): CheckResult {
   const messages: string[] = [];
-  const planned = [...LIVE_BEFORE_RELEASE, ...RELEASE_ORDER];
+  // Sub-areas (the Khands) are a second wave with a clock of their own.
+  const planned = [...LIVE_BEFORE_RELEASE, ...RELEASE_ORDER, ...SUBAREA_RELEASE_ORDER];
   const seen = new Set<string>();
   for (const key of planned) {
     if (seen.has(key)) messages.push(`"${key}" is in the release plan twice.`);
@@ -29,7 +32,7 @@ export function checkReleasePlan(): CheckResult {
   const result = fail('release-plan', messages);
   if (result.ok)
     result.messages.push(
-      `(${LIVE_BEFORE_RELEASE.length} live, ${RELEASE_ORDER.length} in ${Math.ceil(RELEASE_ORDER.length / RELEASE_BATCH_SIZE)} batches)`,
+      `(${LIVE_BEFORE_RELEASE.length} live, ${RELEASE_ORDER.length} in ${Math.ceil(RELEASE_ORDER.length / RELEASE_BATCH_SIZE)} batches, ${SUBAREA_RELEASE_ORDER.length} sub-areas in ${Math.ceil(SUBAREA_RELEASE_ORDER.length / SUBAREA_BATCH_SIZE)})`,
     );
   return result;
 }

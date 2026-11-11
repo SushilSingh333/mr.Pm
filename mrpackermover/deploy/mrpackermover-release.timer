@@ -1,5 +1,7 @@
-# systemd timer — rebuilds the site just after each locality release time, 09:00 and
-# 18:00 IST (packages/shared/src/geo-pages/release.ts), so each batch goes live on time.
+# systemd timer — rebuilds the site just after each release time in
+# packages/shared/src/geo-pages/release.ts, so each page goes live on time. The locality
+# batches (09:00 and 18:00 IST) are all out; the Indirapuram Khands now go live one a day at
+# 14:00 IST (11 Nov 2026), so it runs at 14:05. Keep these times in step with release.ts.
 # The droplet runs on UTC; the times below carry their own time zone.
 #
 # Install:  sudo bash deploy/install-units.sh
@@ -9,11 +11,10 @@
 # To stop it early by hand:  sudo systemctl disable --now mrpackermover-release.timer
 
 [Unit]
-Description=MrMoverPacker locality release times (09:05 and 18:05 IST)
+Description=MrMoverPacker area page release time (14:05 IST)
 
 [Timer]
-OnCalendar=*-*-* 09:05:00 Asia/Kolkata
-OnCalendar=*-*-* 18:05:00 Asia/Kolkata
+OnCalendar=*-*-* 14:05:00 Asia/Kolkata
 # A run missed while the droplet was down happens at boot instead.
 Persistent=true
 

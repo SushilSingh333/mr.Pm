@@ -1,0 +1,45 @@
+---
+import { plainText } from '@mpm/shared';
+import GeoHero from '../sections/GeoHero.astro';
+import GeoPageBody from './GeoPageBody.astro';
+import GPage from './GPage.astro';
+import { withPlaceLinks } from '../../lib/place-links.js';
+import type { AreaPage } from '../../lib/area-page.js';
+
+/**
+ * The body of an area page, locality or sub-area (lib/area-page.ts): the photo banner and
+ * price bar, then the brief on the canvas of cards. The route wraps it in BaseLayout.
+ */
+interface Props {
+  area: AreaPage;
+  /** The page's own path, so it never links to itself. */
+  path: string;
+}
+const { area, path } = Astro.props;
+const { loc, page } = area;
+// Same banner choice as the city page.
+const heroImage = 'home';
+---
+
+<GeoHero
+  align="split"
+  crumbs={area.crumbs}
+  h1={page.h1}
+  intro={plainText(page.subhead)}
+  image={heroImage}
+  imageUrl={loc.heroImage?.url}
+  imageAlt={loc.heroImage ? (loc.heroImage.alt ?? `A view of ${loc.cityName}`) : undefined}
+  prefillCity={loc.cityName}
+  bands={loc.rateBands ?? []}
+/>
+
+<GPage>
+  <GeoPageBody
+    page={withPlaceLinks(page, area.citySlug, path)}
+    place={loc.localityName}
+    parentPlace={loc.parentName}
+    serviceLinks={area.serviceLinks}
+    nearbyLinks={area.nearbyLinks}
+    subAreas={area.subAreas}
+  />
+</GPage>

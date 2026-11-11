@@ -1,0 +1,27 @@
+---
+import { rowsOfType } from '../../../../data/manifest.js';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import AreaView from '../../../../components/g/AreaView.astro';
+import { areaPage } from '../../../../lib/area-page.js';
+
+/**
+ * A sub-area: a part of a locality with a page of its own, such as a Khand of Indirapuram
+ * (/packers-and-movers/ghaziabad/indirapuram/vaibhav-khand). Its manifest row is a
+ * `locality` row with a three-part slug; it is built exactly like a locality page.
+ */
+export function getStaticPaths() {
+  return rowsOfType('locality')
+    .filter((r) => r.slug.split('/').length === 3)
+    .map((row) => {
+      const [city, slug, sub] = row.slug.split('/');
+      return { params: { city, slug, sub }, props: { row } };
+    });
+}
+
+const { row } = Astro.props;
+const area = areaPage(row);
+---
+
+<BaseLayout row={row} extraJsonLd={area.jsonLd}>
+  <AreaView area={area} path={row.path} />
+</BaseLayout>

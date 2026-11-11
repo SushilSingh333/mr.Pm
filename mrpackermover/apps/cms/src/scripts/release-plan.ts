@@ -10,9 +10,12 @@ import fs from 'node:fs';
 import { LIVE_BEFORE_RELEASE, LOCALITY_PAGES, releaseBatches, subAreaBatches } from '@mpm/shared';
 
 const envFile = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';
-const subFromEnv = /^\s*SUBAREA_RELEASE_START\s*=\s*["']?([^"'\s#]*)/m.exec(envFile)?.[1];
+// The LAST assignment wins, as for deploy.sh, which sources the file in the shell.
+const lastInEnv = (name: string): string | undefined =>
+  [...envFile.matchAll(new RegExp(`^\\s*${name}\\s*=\\s*["']?([^"'\\s#]*)`, 'gm'))].at(-1)?.[1];
+const subFromEnv = lastInEnv('SUBAREA_RELEASE_START');
 const subStart = process.env.SUBAREA_RELEASE_START ?? subFromEnv;
-const fromEnv = /^\s*LOCALITY_RELEASE_START\s*=\s*["']?([^"'\s#]*)/m.exec(envFile)?.[1];
+const fromEnv = lastInEnv('LOCALITY_RELEASE_START');
 const start =
   process.argv.slice(2).find((a) => a !== '--') ?? process.env.LOCALITY_RELEASE_START ?? fromEnv;
 

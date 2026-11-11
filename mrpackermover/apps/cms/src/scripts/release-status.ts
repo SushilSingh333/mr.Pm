@@ -28,8 +28,11 @@ import {
 } from '@mpm/shared';
 
 const envFile = fs.existsSync('.env') ? fs.readFileSync('.env', 'utf8') : '';
+// The LAST assignment wins, as it does for deploy.sh, which sources this file in the shell:
+// a date written twice must mean the same thing to the site build and to this check.
 const envValue = (name: string): string | undefined =>
-  process.env[name] ?? new RegExp(`^\\s*${name}\\s*=\\s*["']?([^"'\\s#]*)`, 'm').exec(envFile)?.[1];
+  process.env[name] ??
+  [...envFile.matchAll(new RegExp(`^\\s*${name}\\s*=\\s*["']?([^"'\\s#]*)`, 'gm'))].at(-1)?.[1];
 const start = envValue('LOCALITY_RELEASE_START');
 // The second wave (the Khands, geo-pages/release.ts). Unset: not scheduled, so not waited for.
 const subStart = envValue('SUBAREA_RELEASE_START');

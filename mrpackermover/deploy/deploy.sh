@@ -24,6 +24,12 @@ if [ -f apps/cms/.env ]; then
 	set +a
 fi
 
+# Production, always - also when this is run by hand. build-manifest starts Payload, and
+# outside production Payload syncs the table layout to the code by itself (payload.config
+# `push`), which must never happen against the live database. (The deploy service sets
+# this too.) Nothing here installs packages, so dev dependencies are not affected.
+export NODE_ENV=production
+
 echo "→ Building the manifest from the CMS (publish gate)…"
 pnpm build-manifest
 

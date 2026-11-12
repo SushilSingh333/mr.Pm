@@ -199,6 +199,25 @@ export const SUBAREA_RELEASE_ORDER: readonly string[] = [
   'ghaziabad/indirapuram/niti-khand',
   'ghaziabad/indirapuram/abhay-khand',
   'ghaziabad/indirapuram/nyay-khand',
+  // Then the sectors of Vaishali (11 Nov 2026, the owner). Slugs carry "vaishali-": a bare
+  // "sector-3" is already another city's area, and place slugs are unique site-wide.
+  'ghaziabad/vaishali/vaishali-sector-4',
+  'ghaziabad/vaishali/vaishali-sector-3',
+  'ghaziabad/vaishali/vaishali-sector-1',
+  'ghaziabad/vaishali/vaishali-sector-5',
+  'ghaziabad/vaishali/vaishali-sector-2',
+  'ghaziabad/vaishali/vaishali-sector-6',
+  // Then the sectors of Vasundhara (11 Nov 2026, the owner): the ten with enough real
+  // societies and landmarks for a page; sub-sectors (2A-2C, 4A/4C, 14A/14C, 16A/16B) are
+  // folded into their sector. 1, 7-9, 11-13 and 15-19 are too thin for a page of their own
+  // (15 had three societies a source could place there, 16 and 18 one or two).
+  'ghaziabad/vasundhara/vasundhara-sector-6',
+  'ghaziabad/vasundhara/vasundhara-sector-4',
+  'ghaziabad/vasundhara/vasundhara-sector-2',
+  'ghaziabad/vasundhara/vasundhara-sector-5',
+  'ghaziabad/vasundhara/vasundhara-sector-14',
+  'ghaziabad/vasundhara/vasundhara-sector-10',
+  'ghaziabad/vasundhara/vasundhara-sector-3',
 ];
 
 /** The env variable that starts the sub-area clock. */

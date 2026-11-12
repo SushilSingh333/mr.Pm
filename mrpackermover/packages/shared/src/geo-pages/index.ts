@@ -73,7 +73,20 @@ import { ghaziabadShalimarGarden } from './localities/ghaziabad--shalimar-garden
 import { ghaziabadShastriNagar } from './localities/ghaziabad--shastri-nagar-ghaziabad.js';
 import { ghaziabadSiddharthVihar } from './localities/ghaziabad--siddharth-vihar.js';
 import { ghaziabadVaishali } from './localities/ghaziabad--vaishali.js';
+import { ghaziabadVaishaliSector1 } from './localities/ghaziabad--vaishali--sector-1.js';
+import { ghaziabadVaishaliSector2 } from './localities/ghaziabad--vaishali--sector-2.js';
+import { ghaziabadVaishaliSector3 } from './localities/ghaziabad--vaishali--sector-3.js';
+import { ghaziabadVaishaliSector4 } from './localities/ghaziabad--vaishali--sector-4.js';
+import { ghaziabadVaishaliSector5 } from './localities/ghaziabad--vaishali--sector-5.js';
+import { ghaziabadVaishaliSector6 } from './localities/ghaziabad--vaishali--sector-6.js';
 import { ghaziabadVasundhara } from './localities/ghaziabad--vasundhara.js';
+import { ghaziabadVasundharaSector2 } from './localities/ghaziabad--vasundhara--sector-2.js';
+import { ghaziabadVasundharaSector3 } from './localities/ghaziabad--vasundhara--sector-3.js';
+import { ghaziabadVasundharaSector4 } from './localities/ghaziabad--vasundhara--sector-4.js';
+import { ghaziabadVasundharaSector5 } from './localities/ghaziabad--vasundhara--sector-5.js';
+import { ghaziabadVasundharaSector6 } from './localities/ghaziabad--vasundhara--sector-6.js';
+import { ghaziabadVasundharaSector10 } from './localities/ghaziabad--vasundhara--sector-10.js';
+import { ghaziabadVasundharaSector14 } from './localities/ghaziabad--vasundhara--sector-14.js';
 import { ghaziabadVijayNagar } from './localities/ghaziabad--vijay-nagar.js';
 import { gurgaonCyberCity } from './localities/gurgaon--cyber-city.js';
 import { gurgaonDlfPhase1 } from './localities/gurgaon--dlf-phase-1.js';
@@ -197,7 +210,23 @@ export const LOCALITY_PAGES: Record<string, GeoPage> = {
   'ghaziabad/shastri-nagar-ghaziabad': ghaziabadShastriNagar,
   'ghaziabad/siddharth-vihar': ghaziabadSiddharthVihar,
   'ghaziabad/vaishali': ghaziabadVaishali,
+  // The sectors of Vaishali: sub-areas like the Khands. Their slugs carry "vaishali-"
+  // because a bare "sector-3" is already another city's area (slugs are site-wide).
+  'ghaziabad/vaishali/vaishali-sector-1': ghaziabadVaishaliSector1,
+  'ghaziabad/vaishali/vaishali-sector-2': ghaziabadVaishaliSector2,
+  'ghaziabad/vaishali/vaishali-sector-3': ghaziabadVaishaliSector3,
+  'ghaziabad/vaishali/vaishali-sector-4': ghaziabadVaishaliSector4,
+  'ghaziabad/vaishali/vaishali-sector-5': ghaziabadVaishaliSector5,
+  'ghaziabad/vaishali/vaishali-sector-6': ghaziabadVaishaliSector6,
   'ghaziabad/vasundhara': ghaziabadVasundhara,
+  // The sectors of Vasundhara with enough real societies for a page (release.ts).
+  'ghaziabad/vasundhara/vasundhara-sector-2': ghaziabadVasundharaSector2,
+  'ghaziabad/vasundhara/vasundhara-sector-3': ghaziabadVasundharaSector3,
+  'ghaziabad/vasundhara/vasundhara-sector-4': ghaziabadVasundharaSector4,
+  'ghaziabad/vasundhara/vasundhara-sector-5': ghaziabadVasundharaSector5,
+  'ghaziabad/vasundhara/vasundhara-sector-6': ghaziabadVasundharaSector6,
+  'ghaziabad/vasundhara/vasundhara-sector-10': ghaziabadVasundharaSector10,
+  'ghaziabad/vasundhara/vasundhara-sector-14': ghaziabadVasundharaSector14,
   'ghaziabad/vijay-nagar': ghaziabadVijayNagar,
   'gurgaon/cyber-city': gurgaonCyberCity,
   'gurgaon/dlf-phase-1': gurgaonDlfPhase1,

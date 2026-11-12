@@ -582,6 +582,29 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
         anchor: l.name,
         group: 'localities',
       }));
+    /**
+     * The city's live sub-areas (the Khands of Indirapuram, the sectors of Vaishali…). Each
+     * is linked from its locality's cards, and also from the city's area list and, a few at a
+     * time, from the city's service pages: one link from its own locality is not enough for a
+     * page to be found (the inbound-links gate wants three), and the first sub-area to go
+     * live has no live siblings to link it. Only live pages appear, so the release stays one
+     * at a time.
+     */
+    const subAreaLinks = localities
+      .filter((l) => publishedLocalityIds.has(sid(l.id)))
+      .map((l) => ({ l, place: placeOf(l) }))
+      .filter((x) => x.place?.area && sid(x.place.city.id) === cid)
+      .sort((a, b) => a.l.name.localeCompare(b.l.name))
+      .map<ManifestLink>(({ l, place }) => ({
+        path: paths.subArea(city.slug, place!.area!.slug, l.slug),
+        anchor: `${l.name}, ${place!.area!.name}`,
+        group: 'localities',
+      }));
+    /** Up to three sub-areas for the n-th service page, rotating so each gets its turn. */
+    const subAreasFor = (n: number): ManifestLink[] =>
+      subAreaLinks.length <= 3
+        ? subAreaLinks
+        : Array.from({ length: 3 }, (_, k) => subAreaLinks[(n * 3 + k) % subAreaLinks.length]!);
 
     const serviceLinks = servicesForCity.map<ManifestLink>((s) => ({
       path: paths.cityService(city.slug, s.slug),
@@ -629,14 +652,24 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
           }),
           h1: page.h1,
           breadcrumbs: [{ path: '/', anchor: 'Home' }],
-          relatedLinks: [...serviceLinks, ...localityLinks, ...nearbyCityLinks].slice(0, 60),
+          relatedLinks: [
+            ...serviceLinks,
+            ...localityLinks,
+            ...subAreaLinks,
+            ...nearbyCityLinks,
+          ].slice(0, 80),
           data: {
             cityName: city.name,
             // Uploaded hero/thumbnail (Cloudinary). Absent ⇒ the template uses the
             // static /images/hero/cities/<slug>.jpg fallback.
             heroImage: imageFor(city.heroImage),
             // Sub-locations we serve, each linking to that locality's own page.
-            areas: localityLinks.map((l) => ({ path: l.path, name: l.anchor })),
+            // …then the parts of an area that have pages of their own ("Vaibhav Khand,
+            // Indirapuram"), after the areas themselves.
+            areas: [...localityLinks, ...subAreaLinks].map((l) => ({
+              path: l.path,
+              name: l.anchor,
+            })),
             ...geoPageData(page),
             rateBands: idx.cityRateBands(cid),
             priceFrom: idx.priceFrom(idx.cityRateBands(cid)),
@@ -721,6 +754,7 @@ export async function buildManifest(payload: Payload, siteOrigin: string): Promi
                 cityServicePaths,
               ),
               ...localityLinks.slice(0, 6),
+              ...subAreasFor(servicesForCity.indexOf(service)),
             ],
             data: {
               cityName: city.name,

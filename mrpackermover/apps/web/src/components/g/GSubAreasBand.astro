@@ -18,7 +18,12 @@ const { place, areas, tone = 'white' } = Astro.props;
 /** Societies named on a card before "+N more". */
 const SHOWN = 4;
 const khands = areas.length > 0 && areas.every((a) => /\bKhand$/i.test(a.name));
-const heading = khands ? `The Khands of ${place}` : `Parts of ${place} we cover`;
+const sectors = areas.length > 0 && areas.every((a) => /\bSector \d+$/i.test(a.name));
+const heading = khands
+  ? `The Khands of ${place}`
+  : sectors
+    ? `The sectors of ${place}`
+    : `Parts of ${place} we cover`;
 const quoteHref = (name: string): string =>
   `/get-quote?${new URLSearchParams({ from: `${name}, ${place}` }).toString()}`;
 ---
@@ -30,8 +35,8 @@ const quoteHref = (name: string): string =>
         {heading}
       </h2>
       <p class="gsa-intro">
-        {khands
-          ? `${place} is laid out in Khands, and each has its own societies, gates and truck spots. Pick yours to see what a move there involves.`
+        {khands || sectors
+          ? `${place} is laid out in ${khands ? 'Khands' : 'sectors'}, and each has its own societies, gates and truck spots. Pick yours to see what a move there involves.`
           : `Pick your part of ${place} to see what a move there involves.`}
       </p>
       <ul class="gsa-grid">

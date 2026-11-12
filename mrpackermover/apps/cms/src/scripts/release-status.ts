@@ -34,7 +34,7 @@ const envValue = (name: string): string | undefined =>
   process.env[name] ??
   [...envFile.matchAll(new RegExp(`^\\s*${name}\\s*=\\s*["']?([^"'\\s#]*)`, 'gm'))].at(-1)?.[1];
 const start = envValue('LOCALITY_RELEASE_START');
-// The second wave (the Khands, geo-pages/release.ts). Unset: not scheduled, so not waited for.
+// The second wave (the Khands and sectors, geo-pages/release.ts).
 const subStart = envValue('SUBAREA_RELEASE_START');
 const subScheduled = Boolean(subStart && (subStart === 'all' || subAreaBatches(subStart)[0]?.at));
 const deployPath = process.env.DEPLOY_PATH || '/var/www/mrpackermover';
@@ -49,6 +49,17 @@ const ist = (d: Date): string =>
     hour: '2-digit',
     minute: '2-digit',
   });
+
+// Pages are queued for the second wave but it has no start date: the release is NOT
+// finished, it has not begun. Exit 0 here would switch the timer off for good (12 Nov 2026:
+// the timer ran once before the date was set, stopped itself, and the first Khand never went
+// live), so leave the timer alone instead.
+if (SUBAREA_RELEASE_ORDER.length > 0 && !subScheduled) {
+  console.info(
+    `${SUBAREA_RELEASE_ORDER.length} sub-area pages are queued but SUBAREA_RELEASE_START is not set: leaving the timer alone.`,
+  );
+  process.exit(2);
+}
 
 if (!start || (start !== 'all' && !releaseBatches(start)[0]?.at)) {
   console.info('No release schedule (LOCALITY_RELEASE_START is not set): leaving the timer alone.');
